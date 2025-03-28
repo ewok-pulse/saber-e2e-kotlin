@@ -35,8 +35,7 @@ import org.jetbrains.kotlin.fir.session.registerJavaComponents
 import org.jetbrains.kotlin.fir.session.registerModuleData
 import org.jetbrains.kotlin.fir.symbols.FirLazyDeclarationResolver
 import org.jetbrains.kotlin.platform.TargetPlatform
-import org.jetbrains.kotlin.platform.has
-import org.jetbrains.kotlin.platform.jvm.JvmPlatform
+import org.jetbrains.kotlin.platform.isCommon
 import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.resolve.jvm.modules.JavaModuleResolver
 import java.util.concurrent.ConcurrentHashMap
@@ -120,7 +119,7 @@ class LLFirBuiltinsSessionFactory(private val project: Project) {
                 )
 
                 add(FirExtensionSyntheticFunctionInterfaceProvider(session, moduleData, kotlinScopeProvider))
-                if (platform.has<JvmPlatform>()) {
+                if (platform.isCommon() || platform.isJvm()) {
                     add(FirCloneableSymbolProvider(session, moduleData, kotlinScopeProvider))
                 }
             }

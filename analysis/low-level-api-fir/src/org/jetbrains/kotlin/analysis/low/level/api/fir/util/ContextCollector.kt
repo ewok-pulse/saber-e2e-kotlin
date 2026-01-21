@@ -165,7 +165,7 @@ object ContextCollector {
             ?.takeIf { LLPartialBodyElementMapper.isPartiallyAnalyzable(it, declaration) }
             ?: return false
 
-        /** [LLFirResolveSession.getOrBuildFirFor] will run partial body analysis if applicable. */
+        /** [LLResolutionFacade.getOrBuildFirFor] will run partial body analysis if applicable. */
         return resolutionFacade.getOrBuildFirFor(resolvedElement) != null
     }
 
@@ -181,13 +181,8 @@ object ContextCollector {
         return null
     }
 
-    private fun isValidTarget(declaration: KtDeclaration): Boolean {
-        if (declaration.isAutonomousElement) {
-            return true
-        }
-
-        return false
-    }
+    private fun isValidTarget(declaration: KtDeclaration): Boolean =
+        declaration.isAutonomousElement
 
     /**
      * Processes the [FirFile], collecting contexts for elements matching the [filter].
@@ -769,7 +764,7 @@ private class ContextCollectorVisitor(
     /**
      * Same as [processClassHeader], but for anonymous objects.
      *
-     * N.B. Anonymous classes cannot have its own explicit type parameters, so we do not process them.
+     * N.B. Anonymous classes cannot have their own explicit type parameters, so we do not process them.
      */
     private fun Processor.processAnonymousObjectHeader(anonymousObject: FirAnonymousObject) {
         processList(anonymousObject.superTypeRefs)
@@ -925,9 +920,9 @@ private class ContextCollectorVisitor(
     /**
      * Executes [f] wrapped with [BodyResolveContext.forPropertyInitializer] if the [property] is not local.
      * Note that [BodyResolveContext.forPropertyInitializer] performs the tower data cleanup in the [BodyResolveContext], unless
-     * the [skipCleanup] is set to `true`.
+     * the `skipCleanup` is set to `true`.
      *
-     * Otherwise, just calls [f] with no the cleanup.
+     * Otherwise, just calls [f] with no cleanup.
      *
      * We need to disable the context cleanup for local properties
      * to preserve the implicit receivers introduced by the [addReceiversFromExtensions].

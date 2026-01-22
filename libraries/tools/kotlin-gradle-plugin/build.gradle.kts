@@ -12,6 +12,7 @@ plugins {
     id("asm-deprecating-transformer")
     id("project-tests-convention")
     `java-test-fixtures`
+    jacoco
 }
 
 repositories {
@@ -751,4 +752,16 @@ kotlin {
     target.compilations.getByName("common").configurations.pluginConfiguration.dependencies.add(
         dependencies.create("org.jetbrains.kotlin:kotlin-serialization-compiler-plugin-embeddable:${libs.versions.kotlin.`for`.gradle.plugins.compilation.get()}")
     )
+}
+
+val testCoverageEnabled = project.providers.gradleProperty("kgp.jacoco.enabled").orNull?.toBoolean() ?: false
+
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+}
+
+tasks.withType<Test>().configureEach {
+    extensions.configure<JacocoTaskExtension> {
+        isEnabled = testCoverageEnabled
+    }
 }

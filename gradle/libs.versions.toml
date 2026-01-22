@@ -76,6 +76,7 @@ antlr = "4.13.2"
 org-tukaani-xz = "1.10"
 slf4j = "2.0.17"
 maven-xml-impl = "4.0.0-beta-5"
+jacoco = "0.8.14"
 
 [libraries]
 kotlin-compiler-arguments-release = { module = "org.jetbrains.kotlin:kotlin-compiler-arguments-description", version.ref = "kotlin-release" }
@@ -186,6 +187,9 @@ org-tukaani-xz = { module = "org.tukaani:xz", version.ref = "org-tukaani-xz"}
 
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 maven-xml-impl = { module = "org.apache.maven:maven-xml-impl", version.ref = "maven-xml-impl" }
+
+jacoco-agent = { module = "org.jacoco:org.jacoco.agent", version.ref = "jacoco" }
+jacoco-cli = { module = "org.jacoco:org.jacoco.cli", version.ref = "jacoco" }
 
 [plugins]
 gradle-node = { id = "com.github.node-gradle.node", version.ref = "gradle-node-plugin" }

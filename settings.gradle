@@ -335,6 +335,7 @@ include ":kotlin-script-runtime",
         ":kotlin-gradle-plugin-tcs-android",
         ":kotlin-gradle-plugin-test-utils-embeddable",
         ":kotlin-gradle-plugin-integration-tests",
+        ":kotlin-gradle-plugin-test-coverage",
         ":kotlin-gradle-plugins-bom",
         ":kotlin-privacy-manifests-plugin",
         ":compiler:build-tools:kotlin-build-statistics",
@@ -951,6 +952,7 @@ project(":gradle:kotlin-gradle-ecosystem-plugin").projectDir = "$rootDir/librari
 project(':kotlin-gradle-plugin-tcs-android').projectDir = "$rootDir/libraries/tools/kotlin-gradle-plugin-tcs-android" as File
 project(':kotlin-gradle-plugin-test-utils-embeddable').projectDir = "$rootDir/libraries/tools/kotlin-gradle-plugin-test-utils-embeddable" as File
 project(':kotlin-gradle-plugin-integration-tests').projectDir = "$rootDir/libraries/tools/kotlin-gradle-plugin-integration-tests" as File
+project(':kotlin-gradle-plugin-test-coverage').projectDir = "$rootDir/libraries/tools/kotlin-gradle-plugin-test-coverage" as File
 project(':kotlin-gradle-plugins-bom').projectDir = "$rootDir/libraries/tools/kotlin-gradle-plugins-bom" as File
 project(':kotlin-privacy-manifests-plugin').projectDir = "$rootDir/libraries/tools/kotlin-privacy-manifests-plugin" as File
 project(':gradle:android-test-fixes').projectDir = "$rootDir/libraries/tools/gradle/android-test-fixes" as File

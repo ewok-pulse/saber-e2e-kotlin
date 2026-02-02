@@ -23,6 +23,7 @@ import androidx.compose.compiler.plugins.kotlin.FeatureFlags
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.common.lower.VariableRemapper
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.Modality
@@ -38,6 +39,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.util.*
@@ -643,11 +645,70 @@ class ComposerParamTransformer(
             }
         }
 
+    private fun IrSimpleFunction.copyFunShape(): IrSimpleFunction {
+        return context.irFactory.createSimpleFunction(
+            startOffset = startOffset,
+            endOffset = endOffset,
+            origin = origin,
+            name = name,
+            visibility = visibility,
+            isInline = isInline,
+            isExpect = isExpect,
+            returnType = returnType,
+            modality = modality,
+            symbol = IrSimpleFunctionSymbolImpl(),
+            isTailrec = isTailrec,
+            isSuspend = isSuspend,
+            isOperator = isOperator,
+            isInfix = isInfix,
+            isExternal = isExternal,
+            containerSource = containerSource,
+            isFakeOverride = isFakeOverride,
+        ).patchDeclarationParents(parent).also { fn ->
+            fn.copyAnnotationsFrom(this)
+            fn.copyParametersFrom(this)
+            fn.copyAttributes(this)
+        }
+    }
+
+    fun IrFunction.moveBodyPreserveAttributeOwnerId(target: IrFunction, arguments: Map<IrValueParameter, IrValueDeclaration>): IrBody? {
+        val source = this
+        val targetSymbol = target.symbol
+        return body?.transform(object : VariableRemapper(arguments) {
+            override fun visitGetValue(expression: IrGetValue): IrExpression {
+                return super.visitGetValue(expression).also { newGetValue ->
+                    if (newGetValue != expression) newGetValue.attributeOwnerId = expression
+                }
+            }
+
+            override fun visitReturn(expression: IrReturn): IrExpression = super.visitReturn(
+                if (expression.returnTargetSymbol == source.symbol)
+                    IrReturnImpl(expression.startOffset, expression.endOffset, expression.type, targetSymbol, expression.value)
+                else
+                    expression
+            )
+
+            override fun visitBlock(expression: IrBlock): IrExpression {
+                // Might be an inline lambda argument; if the function has already been moved out, visit it explicitly.
+                if (expression.origin == IrStatementOrigin.LAMBDA || expression.origin == IrStatementOrigin.ANONYMOUS_FUNCTION)
+                    if (expression.statements.lastOrNull() is IrFunctionReference && expression.statements.none { it is IrFunction })
+                        (expression.statements.last() as IrFunctionReference).symbol.owner.transformChildrenVoid()
+                return super.visitBlock(expression)
+            }
+
+            override fun visitDeclaration(declaration: IrDeclarationBase): IrStatement {
+                if (declaration.parent == source)
+                    declaration.parent = target
+                return super.visitDeclaration(declaration)
+            }
+        }, null)
+    }
+
     private fun IrSimpleFunction.copyWithComposerParam(): IrSimpleFunction {
         assert(parameters.lastOrNull()?.name != ComposeNames.ComposerParameter) {
             "Attempted to add composer param to $this, but it has already been added."
         }
-        return deepCopyWithSymbolsAndMetadata(parent).also { fn ->
+        return copyFunShape().also { fn ->
             val oldFn = this
 
             // NOTE: it's important to add these here before we recurse into the body in
@@ -738,6 +799,15 @@ class ComposerParamTransformer(
                     )
                 }
             }
+
+            val parameterMap = this.parameters.zip(fn.parameters.take(this.parameters.size)).toMap()
+            fn.body = this.moveBodyPreserveAttributeOwnerId(fn, parameterMap).also { body ->
+                val typeParamsMap = this.typeParameters.zip(fn.typeParameters).toMap()
+                if (typeParamsMap.isNotEmpty()) {
+                    body?.remapTypes(IrTypeParameterRemapper(typeParamsMap))
+                }
+            }
+            this.body = null
 
             val stubs = fn.makeStubsForDefaultValueClassIfNeeded()
 

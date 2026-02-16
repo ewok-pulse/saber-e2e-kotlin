@@ -110,10 +110,7 @@ internal class KaBaseResolutionScope(
         if (!ktFile.isDangling) {
             return false
         }
-
-        // We need this check for non-physical dangling files: The dangling file's content scope currently doesn't contain light virtual
-        // files. As the scope check currently wouldn't accept them, we cannot rely on it alone.
-        val module = KaModuleProvider.getModule(useSiteModule.project, ktFile, useSiteModule)
+        val module = ktFile.contextModule ?: KaModuleProvider.getModule(useSiteModule.project, ktFile, useSiteModule)
         return module.isAccessibleFromUseSiteModule()
     }
 

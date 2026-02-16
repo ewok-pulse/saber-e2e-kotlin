@@ -20,6 +20,7 @@ abstract class AbstractContainingModuleByFileTest : AbstractAnalysisApiBasedTest
 
             val providerModule = KotlinProjectStructureProvider.getModule(mainFile.project, mainFile, useSiteModule = null)
             assert(module == providerModule)
+            assert(module == mainModule.ktModule)
 
             val actualString = buildString {
                 append("File: ").appendLine(mainFile.name)

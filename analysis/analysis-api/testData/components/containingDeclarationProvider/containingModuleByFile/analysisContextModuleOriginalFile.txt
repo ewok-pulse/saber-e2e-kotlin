@@ -1,2 +1,0 @@
-File: main.kt
-Module: Sources of dependent (KaSourceModuleImpl)

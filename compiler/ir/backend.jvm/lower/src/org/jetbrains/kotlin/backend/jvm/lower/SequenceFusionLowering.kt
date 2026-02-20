@@ -14,8 +14,6 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.irInt
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationParent
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrVariable
@@ -23,7 +21,6 @@ import org.jetbrains.kotlin.ir.expressions.IrBlock
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
-import org.jetbrains.kotlin.ir.types.classifierOrFail
 import org.jetbrains.kotlin.ir.util.isSubtypeOfClass
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.ir.expressions.IrRichFunctionReference
@@ -32,14 +29,11 @@ import org.jetbrains.kotlin.ir.expressions.IrWhileLoop
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationBase
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueDeclaration
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.ir.irAttribute
 import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
-import org.jetbrains.kotlin.name.Name
 
 /**
  * transformation:
@@ -54,6 +48,7 @@ import org.jetbrains.kotlin.name.Name
  * for (x in seq) println(f1(x))
  * ```
  */
+
 class SequenceFusionLowering(val context: JvmBackendContext) : FileLoweringPass {
     override fun lower(irFile: IrFile) {
         val transformer = SequenceFusionTransformer(context)
@@ -61,180 +56,76 @@ class SequenceFusionLowering(val context: JvmBackendContext) : FileLoweringPass 
     }
 }
 
-data class MapFunctionType(val argumentType: IrType, val returnType: IrType)
+// onNext for a given sequence expression stores a composition of functions applied to the base sequence via `map`;
+// it will be used similarly to `f1` given in the example above
+private class SequenceData(
+    val onNext: (IrExpression) -> IrExpression = { it },
+) {
+    fun lift(builder: IrBuilderWithScope, function: IrRichFunctionReference): SequenceData {
+        val newOnNext = combineFunctions(
+            this.onNext
+        ) { argument ->
+            builder.callRichFunctionReference(function, argument)
+        }
+        val newSequenceData = SequenceData(
+            newOnNext,
+        )
+        return newSequenceData
+    }
+}
+
+private fun IrBuilderWithScope.callRichFunctionReference(ref: IrRichFunctionReference, arg: IrExpression): IrExpression {
+    val freshRef = ref.deepCopyWithSymbols()
+    val parent = scope.scopeOwnerSymbol.owner as IrDeclarationParent
+    freshRef.patchDeclarationParents(parent)
+    return irCall(freshRef.overriddenFunctionSymbol).apply {
+        dispatchReceiver = freshRef
+        arguments[1] = arg
+    }
+}
+
+private fun combineFunctions(
+    accumulator: (IrExpression) -> IrExpression,
+    newFunction: (IrExpression) -> IrExpression
+): (IrExpression) -> IrExpression = { x -> newFunction(accumulator(x)) }
+
+// this is stored for expressions, intended to be passed either to value declarations or to for loops iterated over the expression result
+private var IrExpression.sequenceDataOfExpression: SequenceData? by irAttribute(true)
+
+// this is stored to be one of the future sources of sequence data of expressions
+private var IrValueDeclaration.sequenceDataOfVariable: SequenceData? by irAttribute(true)
+// In general, sequence data is gathered from `sequenceOf` or existing sequence variables, modified `by` map calls,
+// and consumed by for loops and variable declarations
 
 private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElementTransformerVoidWithContext() {
-    private var sequenceVariableData: MutableMap<IrSymbol, SequenceData> = mutableMapOf()
-
-    private inner class SequenceData(
-        val hasNext: (IrExpression) -> IrExpression, // takes in the induction variable and returns whether the sequence has more elements (unused for now)
-        val onNextType: MapFunctionType,
-        val onNext: (IrExpression) -> IrExpression = { it }, // takes in a sequence element and returns its transformation
-    ) {
-        fun lift(builder: IrBuilderWithScope, function: IrRichFunctionReference): SequenceData {
-            val newOnNext = combineFunctions(
-                this.onNext
-            ) { argument ->
-                builder.callRichFunctionReference(function, argument)
-            }
-            val newSequenceData =
-                SequenceData(
-                    this.hasNext,
-                    MapFunctionType(this.onNextType.argumentType, function.type),
-                    newOnNext
-                )
-            return newSequenceData
+    private fun isExpressionSequence(element: IrElement): Boolean {
+        val sequenceSymbol = context.symbols.sequence ?: return false
+        val type = when (element) {
+            is IrExpression -> element.type
+            is IrVariable -> element.type
+            else -> return false
         }
-
-        fun lift(builder: IrBuilderWithScope, function: IrBlock): SequenceData {
-            val newOnNext = combineFunctions(
-                this.onNext
-            ) { argument ->
-                builder.callLoweredFunctionReference(function, argument)
-            }
-            val newSequenceData =
-                SequenceData(
-                    this.hasNext,
-                    MapFunctionType(this.onNextType.argumentType, function.type),
-                    newOnNext
-                )
-            return newSequenceData
-        }
-    }
-
-    private fun combineFunctions(
-        accumulator: (IrExpression) -> IrExpression,
-        newFunction: (IrExpression) -> IrExpression
-    ): (IrExpression) -> IrExpression = { x -> newFunction(accumulator(x)) }
-
-    private fun IrBuilderWithScope.callRichFunctionReference(ref: IrRichFunctionReference, arg: IrExpression): IrExpression {
-        val freshRef = ref.deepCopyWithSymbols()
-        val parent = scope.scopeOwnerSymbol.owner as IrDeclarationParent
-        freshRef.patchDeclarationParents(parent)
-        return irCall(freshRef.overriddenFunctionSymbol).apply {
-            dispatchReceiver = freshRef
-            arguments[1] = arg
-        }
-    }
-
-    private fun IrBuilderWithScope.callLoweredFunctionReference(
-        functionRefExpr: IrExpression,
-        arg: IrExpression
-    ): IrExpression {
-        val parent = scope.scopeOwnerSymbol.owner as IrDeclarationParent
-        val freshRef = functionRefExpr.deepCopyWithSymbols().apply { patchDeclarationParents(parent) }
-        val functionClassSymbol = context.irBuiltIns.functionN(1).symbol
-        val invokeFun = functionClassSymbol.owner.functions.single { it.name == Name.identifier("invoke") }
-        return irCall(invokeFun.symbol).apply {
-            dispatchReceiver = freshRef
-            arguments[1] = arg
-        }
-    }
-
-    private fun createHasNext(size: Int): ((IrExpression) -> IrExpression) = { iv ->
-        val lessThanSymbol = context.irBuiltIns.lessFunByOperandType[context.irBuiltIns.intType.classifierOrFail]!!
-        val builder = context.createIrBuilder(currentScope!!.scope.scopeOwnerSymbol, iv.startOffset, iv.endOffset)
-        builder.irCall(lessThanSymbol).apply {
-            arguments[0] = iv
-            arguments[1] = builder.irInt(size)
-        }
-    }
-
-    private fun gatherSequenceDataFromExpression(expression: IrExpression): SequenceData? {
-        val sequenceSymbol = context.symbols.sequence ?: return null
-        if (!expression.type.isSubtypeOfClass(sequenceSymbol)) return null
-        return when (expression) {
-            is IrCall -> {
-                val functionName = expression.symbol.owner.name.asString()
-                when (functionName) {
-                    "sequenceOf" -> {
-                        val block = expression.arguments.getOrNull(0) as? IrBlock ?: return null
-                        val blockSize = block.statements.size
-                        if (blockSize < 2) return null // can this even happen?
-                        val numberOfArguments = blockSize - 2
-                        SequenceData(
-                            createHasNext(numberOfArguments),
-                            MapFunctionType(expression.type, expression.type)
-                        )
-                    }
-                    "map" -> {
-                        val mapReceiver = expression.arguments.getOrNull(0) ?: return null
-                        val childData = gatherSequenceDataFromExpression(mapReceiver)
-                        val builder =
-                            context.createIrBuilder(currentScope!!.scope.scopeOwnerSymbol, expression.startOffset, expression.endOffset)
-                        when (val mappedFunction = expression.arguments.getOrNull(1)) {
-                            is IrRichFunctionReference -> {
-                                val sequenceData = childData?.lift(builder, mappedFunction)
-                                sequenceData
-                            }
-                            // it is a lowered function reference
-                            is IrBlock -> {
-                                val sequenceData = childData?.lift(builder, mappedFunction)
-                                sequenceData
-                            }
-                            else -> null
-                        }
-                    }
-                    // TODO: other functions than sequenceOf and map not yet supported
-                    else -> null
-                }
-            }
-            is IrGetValue -> {
-                sequenceVariableData[expression.symbol] ?: error("Variable ${expression.symbol} was not stored in sequenceVariableData")
-            }
-            else -> null
-        }
+        return type.isSubtypeOfClass(sequenceSymbol)
     }
 
     override fun visitVariable(declaration: IrVariable): IrStatement {
-        val sequenceSymbol = context.symbols.sequence ?: return super.visitVariable(declaration)
-        if (!declaration.type.isSubtypeOfClass(sequenceSymbol)) return super.visitVariable(declaration)
-        val sequenceData = gatherSequenceDataFromExpression(declaration.initializer!!) ?: return super.visitVariable(declaration)
-        sequenceVariableData[declaration.symbol] = sequenceData
-        return super.visitVariable(declaration)
-    }
-
-    override fun visitBlock(expression: IrBlock): IrExpression {
-        if (expression.origin != IrStatementOrigin.FOR_LOOP) return super.visitBlock(expression)
-        val iteratorVariable = expression.statements.firstOrNull() as? IrVariable ?: return super.visitBlock(expression)
-        val loop = expression.statements.getOrNull(1) as? IrWhileLoop ?: return super.visitBlock(expression)
-        if (iteratorVariable.origin != IrDeclarationOrigin.FOR_LOOP_ITERATOR
-            || loop.origin != IrStatementOrigin.FOR_LOOP_INNER_WHILE
-        ) return super.visitBlock(expression)
-        val initializer = iteratorVariable.initializer as? IrCall ?: return super.visitBlock(expression)
-        val iterable = initializer.arguments.firstOrNull() ?: return super.visitBlock(expression)
-        val sequenceClass = context.symbols.sequence ?: return super.visitBlock(expression)
-        if (!iterable.type.isSubtypeOfClass(sequenceClass)) return super.visitBlock(expression)
-        // TODO: finding all occurrences of the iterator in loop and replacing it by onNext(iv) with while(hasNext(iv)) condition
-        // with sequenceOf the argument is just an array, so it should be simple
-        // also replace the iterator variable with a simple inductionVariable
-
-        val sequenceData = gatherSequenceDataFromExpression(iterable) ?: return super.visitBlock(expression)
-        val transformer = SequenceForLoopBodyTransformer(sequenceData.onNext)
-        loop.transformChildrenVoid(transformer)
-        return super.visitBlock(expression)
+        val result = super.visitVariable(declaration)
+        if (!isExpressionSequence(declaration)) return result
+        declaration.symbol.owner.sequenceDataOfVariable =
+            declaration.initializer?.sequenceDataOfExpression ?: return result
+        return result
     }
 
     private fun hasLambdaCapturedVariables(lambda: IrSimpleFunction): Boolean {
         val localsAndParameters = HashSet<IrValueSymbol>()
-
         for (parameter in lambda.parameters) {
             (parameter as? IrValueDeclaration)?.symbol?.let(localsAndParameters::add)
         }
 
-        lambda.body?.acceptChildrenVoid(object : IrVisitorVoid() {
-            override fun visitElement(element: IrElement) {
-                element.acceptChildrenVoid(this)
-            }
-
-            override fun visitDeclaration(declaration: IrDeclarationBase) {
-                (declaration as? IrValueDeclaration)?.symbol?.let(localsAndParameters::add)
-                super.visitDeclaration(declaration)
-            }
-        })
         var anyCaptured = false
         lambda.body?.acceptChildrenVoid(object : IrVisitorVoid() {
             override fun visitElement(element: IrElement) {
+                if (anyCaptured) return
                 element.acceptChildrenVoid(this)
             }
 
@@ -243,43 +134,79 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
                     anyCaptured = true
                 }
             }
-        })
 
+            override fun visitDeclaration(declaration: IrDeclarationBase) {
+                (declaration as? IrValueDeclaration)?.symbol?.let(localsAndParameters::add)
+                super.visitDeclaration(declaration)
+            }
+        })
         return anyCaptured
     }
 
+    // removes map calls from the IR tree while storing a composed function resulting from composing the removed mapped functions
     override fun visitCall(expression: IrCall): IrExpression {
-        val sequenceClass = context.symbols.sequence ?: return super.visitCall(expression)
-        if (!expression.type.isSubtypeOfClass(sequenceClass)) return super.visitCall(expression)
-        val functionName = expression.symbol.owner.name.asString()
+        // the invariant is that `super.visitCall(expression)` returns an expression which does not contain any map calls except on the outermost layer
+        val expressionNoDeepMaps = super.visitCall(expression) as IrCall
+        if (!isExpressionSequence(expressionNoDeepMaps)) return expressionNoDeepMaps
+        val functionName = expressionNoDeepMaps.symbol.owner.name.asString()
+        val builder = context.createIrBuilder(currentScope!!.scope.scopeOwnerSymbol, expression.startOffset, expression.endOffset)
         when (functionName) {
             "map" -> {
-                // remove calls of 'map'
-                // TODO: find out when not to remove them
-                val receiver = expression.arguments.getOrNull(0) ?: return super.visitCall(expression)
-                val mappedFunction = expression.arguments.getOrNull(1) ?: return super.visitCall(expression)
-                when (mappedFunction) {
-                    is IrRichFunctionReference -> {
-                        val hasLambdaCapturedVariables = hasLambdaCapturedVariables(mappedFunction.invokeFunction)
-                        if (hasLambdaCapturedVariables) return super.visitCall(expression)
-                    }
-                }
-                return when (receiver) {
-                    is IrCall -> visitCall(receiver)
-                    else -> receiver
-                }
+                // remove calls of `map` and compose the mapped function with `onNext`
+                val mapReceiver = expressionNoDeepMaps.arguments.getOrNull(0) ?: return expressionNoDeepMaps
+                val mappedFunction = expressionNoDeepMaps.arguments.getOrNull(1) ?: return expressionNoDeepMaps
+                if (mappedFunction !is IrRichFunctionReference
+                    || hasLambdaCapturedVariables(mappedFunction.invokeFunction)
+                ) return expressionNoDeepMaps
+                val expressionNoMaps = expressionNoDeepMaps.arguments.getOrNull(0) ?: expressionNoDeepMaps
+                expressionNoMaps.sequenceDataOfExpression = mapReceiver.sequenceDataOfExpression?.lift(builder, mappedFunction)
+                return expressionNoMaps
+            }
+            "sequenceOf" -> {
+                expressionNoDeepMaps.sequenceDataOfExpression = SequenceData()
             }
         }
-        return super.visitCall(expression)
+        return expressionNoDeepMaps
     }
 
+    override fun visitGetValue(expression: IrGetValue): IrExpression {
+        val result = super.visitGetValue(expression) as IrGetValue
+        result.sequenceDataOfExpression = result.symbol.owner.sequenceDataOfVariable
+        return result
+    }
+
+    private fun matchWithSequenceIteration(block: IrBlock): Pair<IrWhileLoop, SequenceData>? {
+        if (block.origin != IrStatementOrigin.FOR_LOOP) return null
+
+        // extract loop iterator variable and loop body from IrBlock
+        if (block.statements.size != 2) return null
+        val iteratorDeclaration = block.statements[0] as IrVariable
+        val loop = block.statements[1] as IrWhileLoop
+
+        val possiblySequenceInitializer = iteratorDeclaration.initializer as? IrCall ?: return null
+        val iterable = possiblySequenceInitializer.arguments.firstOrNull() as? IrGetValue ?: return null
+        if (!isExpressionSequence(iterable)) return null
+        val sequenceData = iterable.sequenceDataOfExpression ?: return null
+        return Pair(loop, sequenceData)
+    }
+
+    override fun visitBlock(expression: IrBlock): IrExpression {
+        val result = super.visitBlock(expression) as IrBlock
+        val (loop, sequenceData) = matchWithSequenceIteration(result) ?: return result
+        val transformer = SequenceForLoopBodyTransformer(sequenceData.onNext)
+        loop.transformChildrenVoid(transformer)
+        return result
+    }
+
+    // replaces `it.next()` with `onNext(it.next())`, where `onNext` is a composition of all mapped functions in the iterated expression
     private inner class SequenceForLoopBodyTransformer(
         val onNext: (IrExpression) -> IrExpression,
     ) : IrElementTransformerVoidWithContext() {
         override fun visitCall(expression: IrCall): IrExpression {
+            val result = super.visitCall(expression) as IrCall
             if (expression.origin != IrStatementOrigin.FOR_LOOP_NEXT)
-                return super.visitCall(expression)
-            return onNext(expression)
+                return result
+            return onNext(result)
         }
     }
 }

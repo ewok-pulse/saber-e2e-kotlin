@@ -180,8 +180,8 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
 
         // extract loop iterator variable and loop body from IrBlock
         if (block.statements.size != 2) return null
-        val iteratorDeclaration = block.statements[0] as IrVariable
-        val loop = block.statements[1] as IrWhileLoop
+        val iteratorDeclaration = block.statements[0] as? IrVariable ?: return null
+        val loop = block.statements[1] as? IrWhileLoop ?: return null
 
         val possiblySequenceInitializer = iteratorDeclaration.initializer as? IrCall ?: return null
         val iterable = possiblySequenceInitializer.arguments.firstOrNull() as? IrGetValue ?: return null

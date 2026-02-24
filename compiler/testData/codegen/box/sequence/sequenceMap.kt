@@ -3,7 +3,7 @@ fun box(): String {
     val list = listOf(6, 12, 18)
     var index = 0
     for (item in seq) {
-        if (list[index++] != item) return "FAIL"
+        if (list[index++] != item) return "failed: sequence yielded: $item, while the expected was: ${list[index - 1]} at index: $index"
     }
     return "OK"
 }

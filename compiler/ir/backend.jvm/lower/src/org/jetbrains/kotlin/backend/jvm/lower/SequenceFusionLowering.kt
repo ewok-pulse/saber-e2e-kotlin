@@ -51,6 +51,7 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 
 class SequenceFusionLowering(val context: JvmBackendContext) : FileLoweringPass {
     override fun lower(irFile: IrFile) {
+        if (context.config.enableDebugMode) return
         val transformer = SequenceFusionTransformer(context)
         irFile.transformChildrenVoid(transformer)
     }
@@ -159,7 +160,8 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
                     || hasLambdaCapturedVariables(mappedFunction.invokeFunction)
                 ) return expressionNoDeepMaps
                 val expressionNoMaps = expressionNoDeepMaps.arguments.getOrNull(0) ?: expressionNoDeepMaps
-                expressionNoMaps.sequenceDataOfExpression = mapReceiver.sequenceDataOfExpression?.lift(builder, mappedFunction)
+                expressionNoMaps.sequenceDataOfExpression =
+                    mapReceiver.sequenceDataOfExpression?.lift(builder, mappedFunction) ?: return expressionNoDeepMaps
                 return expressionNoMaps
             }
             "sequenceOf" -> {
@@ -210,3 +212,4 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         }
     }
 }
+

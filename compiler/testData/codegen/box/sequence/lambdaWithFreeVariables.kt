@@ -1,3 +1,5 @@
+// WITH_STDLIB
+
 fun box(): String {
     var seq = sequenceOf(1, 2, 3)
     run {
@@ -7,7 +9,7 @@ fun box(): String {
     val list = listOf(7, 14, 21)
     var index = 0
     for (item in seq) {
-        if (list[index++] != item) return "failed: sequence yielded: $item, while the expected was: ${list[index - 1]} at index: $index"
+        if (list[index++] != item) return "failed: sequence yielded: $item, while the expected was: ${list[index - 1]} at index: ${index - 1}"
     }
     return "OK"
 }

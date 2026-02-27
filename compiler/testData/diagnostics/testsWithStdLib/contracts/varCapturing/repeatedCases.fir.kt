@@ -14,7 +14,7 @@ private fun testRepeated() {
         barRegular { index ->
             try {
                 println(attempts)
-                <!CV_DIAGNOSTIC!>repeat<!> = false
+                repeat = false
             } catch (e: Throwable) {
                 println(e)
             }

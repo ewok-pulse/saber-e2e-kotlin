@@ -147,16 +147,16 @@ fun foo() {
 
     var root : RootObject? = RootObject()
     barRegular {
-        baz(<!CV_DIAGNOSTIC!>root<!>?.next!!.next!!.theProblematicVar)
-        <!CV_DIAGNOSTIC!>root<!> = null
+        baz(root?.next!!.next!!.theProblematicVar)
+        root = null
     }
 
 
     var root2 = RootObject()
     val root3 = RootObject()
     barRegular {
-        baz(<!CV_DIAGNOSTIC!>root2<!>.next!!.next!!.theProblematicVar)
-        <!CV_DIAGNOSTIC!>root2<!> = root3
+        baz(root2.next!!.next!!.theProblematicVar)
+        root2 = root3
     }
 
     var count = false
@@ -192,10 +192,12 @@ fun foo() {
     }
 
     barRegular {
-        <!CV_DIAGNOSTIC!>flag<!> = true
-        <!CV_DIAGNOSTIC!>name<!> += "a"
-        <!CV_DIAGNOSTIC!>obj<!> = "text"
-        <!CV_DIAGNOSTIC!>nullableStr<!> = null
+        flag = true
+        name += "a"
+        obj = "text"
+        nullableStr = null
+        println(name)
+        baz(flag.toString())
     }
 }
 

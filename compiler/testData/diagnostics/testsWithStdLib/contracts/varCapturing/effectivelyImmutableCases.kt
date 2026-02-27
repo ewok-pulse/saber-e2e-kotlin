@@ -105,6 +105,16 @@ fun testMutableObject(): Unit {
     barRegular {
         println(x)
     }
+
+    var <!ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE!>r<!> = "bla"
+
+    barRegular {
+        r = "3"
+    }
+
+    barRegular {
+        r = "4"
+    }
 }
 
 /* GENERATED_FIR_TAGS: assignment, functionDeclaration, functionalType, lambdaLiteral, localProperty,

@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactory1
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.FirElement
+import org.jetbrains.kotlin.fir.analysis.cfa.nearestNonInPlaceGraph
 import org.jetbrains.kotlin.fir.analysis.cfa.util.*
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirFunctionChecker
@@ -19,7 +20,9 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.references.toResolvedVariableSymbol
+import org.jetbrains.kotlin.fir.render
 import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CFGNode
+import org.jetbrains.kotlin.fir.resolve.dfa.cfg.VariableAssignmentNode
 import org.jetbrains.kotlin.fir.resolve.dfa.controlFlowGraph
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
@@ -63,7 +66,6 @@ data class CapturedVariableCheckerData(
     val reporter: DiagnosticReporter,
     val propertiesStack: MutableList<Set<FirPropertySymbol>> = mutableListOf(),
     val visibleWrites: Map<CFGNode<*>, PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>>,
-    var currentWrite: FirQualifiedAccessExpression? = null
 )
 
 private class FirFunctionDeepVisitorWithData2 : FirDefaultVisitor<Unit, CapturedVariableCheckerData>() {
@@ -95,16 +97,10 @@ private class FirFunctionDeepVisitorWithData2 : FirDefaultVisitor<Unit, Captured
         qualifiedAccessExpression.checkExpressionCapturedVariable(data)
     }
 
-    override fun visitVariableAssignment(
-        variableAssignment: FirVariableAssignment,
-        data: CapturedVariableCheckerData
-    ) {
-        val lValue = variableAssignment.lValue
-        if (lValue is FirQualifiedAccessExpression) {
-            data.currentWrite = lValue
-        }
+    override fun visitVariableAssignment(variableAssignment: FirVariableAssignment, data: CapturedVariableCheckerData) {
+        // println("Visiting variable assignment: ${variableAssignment.render()}")
+        variableAssignment.checkAssignmentCapturedVariable(data)
         super.visitVariableAssignment(variableAssignment, data)
-        data.currentWrite = null
     }
 
     private fun isHasWrites(
@@ -112,6 +108,7 @@ private class FirFunctionDeepVisitorWithData2 : FirDefaultVisitor<Unit, Captured
         data: CapturedVariableCheckerData,
         propertySymbol: FirPropertySymbol
     ): Boolean {
+        // print("For node in isHasWrites ${qualifiedAccessExpression.render()}")
         for ((node, _) in data.visibleWrites) {
             if (node.fir == qualifiedAccessExpression) {
                 val accessNode = data.visibleWrites.keys.find { node ->
@@ -119,22 +116,70 @@ private class FirFunctionDeepVisitorWithData2 : FirDefaultVisitor<Unit, Captured
                 }
 
                 val pathInfo = accessNode?.let { data.visibleWrites[it] }
+                val currentGraph = accessNode?.owner?.nearestNonInPlaceGraph()
 
-                val hasCapturedWrite = pathInfo?.values?.any { controlFlowInfo ->
-                    controlFlowInfo[PropertyAccessType.Captured]?.get(propertySymbol)?.isNotEmpty() == true
+                // println(" was found ${pathInfo} \n")
+
+                val hasWriteFromDifferentNode = pathInfo?.values?.any { controlFlowInfo ->
+                    // Check all write types (Captured and InPlace)
+                    controlFlowInfo.values.any { variableWriteData ->
+                        variableWriteData[propertySymbol]?.any { writeNode ->
+                            if (writeNode !is VariableAssignmentNode) return@any false
+
+                            // Only warn if the write is from a different (outer) graph
+                            val writeGraph = writeNode.owner.nearestNonInPlaceGraph()
+                            writeGraph != currentGraph
+                        } == true
+                    }
                 } == true
 
-                return hasCapturedWrite
+                return hasWriteFromDifferentNode
             }
         }
+        // println(" was not found \n")
         return false
+    }
+    private fun FirVariableAssignment.checkAssignmentCapturedVariable(data: CapturedVariableCheckerData) {
+        val lValue = this.lValue
+        if (lValue !is FirQualifiedAccessExpression) return
+
+        val symbol = lValue.calleeReference.toResolvedVariableSymbol() as? FirPropertySymbol ?: return
+
+        val assignmentNode = data.visibleWrites.keys.find { node ->
+            node.fir == this
+        }
+
+        if (assignmentNode == null) {
+            // println("For node in checkAssignmentCapturedVariable ${lValue.render()} was not found ")
+            return
+        }
+
+        // println("For node ${lValue.render()} was found ${data.visibleWrites[assignmentNode]} ")
+
+        val pathInfo = data.visibleWrites[assignmentNode]
+        val currentGraph = assignmentNode.owner.nearestNonInPlaceGraph()
+
+        val hasWriteFromDifferentNode = pathInfo?.values?.any { controlFlowInfo ->
+            controlFlowInfo.values.any { variableWriteData ->
+                variableWriteData[symbol]?.any { writeNode ->
+                    if (writeNode !is VariableAssignmentNode) return@any false
+
+                    val writeGraph = writeNode.owner.nearestNonInPlaceGraph()
+                    writeGraph != currentGraph
+                } == true
+            }
+        } == true
+
+        if (hasWriteFromDifferentNode) {
+            checkCapturedVariable(symbol, data, lValue.source)
+        }
     }
 
     private fun FirExpression.checkExpressionCapturedVariable(data: CapturedVariableCheckerData) {
         if (this is FirQualifiedAccessExpression) {
             val symbol = this.calleeReference.toResolvedVariableSymbol() ?: return
             val hasWrites = isHasWrites(this, data, symbol as? FirPropertySymbol ?: return)
-            if (hasWrites || (data.currentWrite != null && data.currentWrite == this)) {
+            if (hasWrites) {
                 checkCapturedVariable(symbol, data, this.source)
             }
             val receiver = this.explicitReceiver?.unwrapErrorExpression()?.unwrapArgument()

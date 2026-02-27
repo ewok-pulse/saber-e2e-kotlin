@@ -196,6 +196,8 @@ fun foo() {
         name += "a"
         obj = "text"
         nullableStr = null
+        println(name)
+        baz(flag.toString())
     }
 }
 

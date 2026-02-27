@@ -38,7 +38,7 @@ private fun testUnstableNotCaptured() {
     barRegular {
         var isEmpty = true
         barRegular {
-            <!CV_DIAGNOSTIC!>isEmpty<!> = false
+            isEmpty = false
         }
         if (isEmpty) {
             println("Empty")
@@ -50,8 +50,8 @@ private fun testSimpleCapturedCase(){
     var first = true
     barRegular {
         barRegular {
-            if (<!CV_DIAGNOSTIC!>first<!>) {
-                <!CV_DIAGNOSTIC!>first<!> = false
+            if (first) {
+                first = false
             }
         }
     }
@@ -88,8 +88,8 @@ fun testMutableObject(): Unit {
     var mutObj = MutableObject()
 
     barRegular {
-        <!CV_DIAGNOSTIC!>mutObj<!> = MutableObject("process")
-        println(<!CV_DIAGNOSTIC!>mutObj<!>.mutableField)
+        mutObj = MutableObject("process")
+        println(mutObj.mutableField)
     }
 
     barRegular {
@@ -99,11 +99,21 @@ fun testMutableObject(): Unit {
     var x = "bla"
 
     barRegular {
-        <!CV_DIAGNOSTIC!>x<!> = "3"
+        x = "3"
     }
 
     barRegular {
         println(<!CV_DIAGNOSTIC!>x<!>)
+    }
+
+    var r = "bla"
+
+    barRegular {
+        <!CV_DIAGNOSTIC!>r<!> = "3"
+    }
+
+    barRegular {
+        <!CV_DIAGNOSTIC!>r<!> = "4"
     }
 }
 

@@ -1,0 +1,3 @@
+Subclass: A
+Supertype: B<List<*>>
+Substitutor: <map substitutor: {T = kotlin/collections/List<*>}>

@@ -199,7 +199,8 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
     }
 
     override fun visitCall(expression: IrCall): IrExpression {
-        val newExpression = super.visitCall(expression) as IrCall
+        val newExpression = super.visitCall(expression)
+        if (newExpression !is IrCall) return newExpression
         val functionName = newExpression.symbol.owner.name.asString()
         if (!isElementSequence(newExpression)) return newExpression
         when (functionName) {
@@ -217,8 +218,10 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
             "sequenceOf" -> {
                 // store the sequence of arguments inside the sequence source
                 val vararg = newExpression.arguments.getOrNull(0) as? IrVararg ?: return newExpression
+                if (vararg.elements.any { it !is IrExpression }) return newExpression // do not store data of spread arguments
+                val sequenceOfArguments = vararg.elements.map { it as IrExpression }
                 newExpression.sequenceDataOfExpression = SequenceData(
-                    sequenceSource = SequenceSource.SequenceOf(vararg.elements.map { it as IrExpression })
+                    sequenceSource = SequenceSource.SequenceOf(sequenceOfArguments)
                 )
             }
         }
@@ -226,8 +229,9 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
     }
 
     override fun visitGetValue(expression: IrGetValue): IrExpression {
-        val result = super.visitGetValue(expression) as IrGetValue
+        val result = super.visitGetValue(expression)
         if (!isElementSequence(expression)) return result
+        if (result !is IrGetValue) return result
         val oldSequenceData = result.symbol.owner.sequenceDataOfVariable
         val newSequenceData = SequenceData(
             onNext = oldSequenceData?.onNext ?: { _, argument -> argument },
@@ -355,7 +359,8 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         // replaces `it.next()` with `onNext(it.next())`, where `onNext` is a composition of all mapped functions in the iterated expression
         val loopTransformer = object : IrElementTransformerVoidWithContext() {
             override fun visitCall(expression: IrCall): IrExpression {
-                val result = super.visitCall(expression) as IrCall
+                val result = super.visitCall(expression)
+                if (result !is IrCall) return result
                 if (expression.origin != IrStatementOrigin.FOR_LOOP_NEXT)
                     return result
                 return innerMostExpressionData.onNext(builder, result)
@@ -367,7 +372,8 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
     }
 
     override fun visitBlock(expression: IrBlock): IrExpression {
-        val result = super.visitBlock(expression) as IrBlock
+        val result = super.visitBlock(expression)
+        if (result !is IrBlock) return result
 
         val (iteratorDeclaration, iterable, loop) = matchWithSequenceIteration(result) ?: return result
         val innerMostExpressionData = getInnerMostReceiverSequenceData(iterable) ?: return result

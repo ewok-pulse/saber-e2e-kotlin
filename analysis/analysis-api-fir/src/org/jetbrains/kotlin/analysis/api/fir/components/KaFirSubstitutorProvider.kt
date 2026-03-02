@@ -17,7 +17,10 @@ import org.jetbrains.kotlin.analysis.api.lifetime.withValidityAssertion
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaTypeParameterSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.typeParameters
-import org.jetbrains.kotlin.analysis.api.types.*
+import org.jetbrains.kotlin.analysis.api.types.KaClassType
+import org.jetbrains.kotlin.analysis.api.types.KaSubstitutor
+import org.jetbrains.kotlin.analysis.api.types.KaType
+import org.jetbrains.kotlin.analysis.api.types.KaTypeArgumentWithVariance
 import org.jetbrains.kotlin.fir.resolve.calls.overloads.ConeSimpleConstraintSystemImpl
 import org.jetbrains.kotlin.fir.resolve.inference.inferenceComponents
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutorByMap
@@ -29,9 +32,8 @@ import org.jetbrains.kotlin.fir.symbols.ConeTypeParameterLookupTag
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
-import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.ConeTypeParameterType
-import org.jetbrains.kotlin.fir.types.contains
+import org.jetbrains.kotlin.fir.types.asCone
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.model.safeSubstitute
 
@@ -127,10 +129,7 @@ internal class KaFirSubstitutorProvider(
             }
 
             // Create constraint system and register type variables for subclass type parameters
-            val constraintSystem = ConeSimpleConstraintSystemImpl(
-                firSession.inferenceComponents.createConstraintSystem(),
-                firSession
-            )
+            val constraintSystem = ConeSimpleConstraintSystemImpl(firSession.inferenceComponents.createConstraintSystem(), firSession)
             val typeSubstitutor = constraintSystem.registerTypeVariables(subClassTypeParameters)
 
             // Build mappings while adding constraints to validate consistency
@@ -138,117 +137,81 @@ internal class KaFirSubstitutorProvider(
 
             // For each type parameter in the superclass, add constraints based on variance
             for ((typeParameter, typeArgument) in superClassTypeParameters.zip(typeArguments)) {
-                val concreteType = typeArgument.type ?: return null
-                val concreteConetype = (concreteType as? KaFirType)?.coneType ?: return null
+                // TODO support star projections?
+                if (typeArgument !is KaTypeArgumentWithVariance) return null
+
+                val concreteType = typeArgument.type
+                val concreteConeType = (concreteType as? KaFirType)?.coneType ?: return null
 
                 // Get the variance from the type argument projection
-                val argumentVariance = (typeArgument as? KaTypeArgumentWithVariance)?.variance ?: Variance.INVARIANT
+                val argumentVariance = typeArgument.variance
 
                 // Get the substituted type: what does this superclass type parameter map to in the subclass?
                 val kaSubstitutedType = inheritanceSubstitutor.substitute(buildTypeParameterType(typeParameter))
                 val substitutedConeType = (kaSubstitutedType as? KaFirType)?.coneType ?: return null
 
                 // Substitute with type variables for the constraint system
-                val substitutedWithVariables =
-                    typeSubstitutor.safeSubstitute(constraintSystem.context, substitutedConeType) as ConeKotlinType
+                val substitutedWithVariables = typeSubstitutor.safeSubstitute(constraintSystem.context, substitutedConeType).asCone()
 
                 // Add constraints based on variance:
-                // - INVARIANT: equality (subtype in both directions)
                 // - OUT_VARIANCE (out): substituted <: concrete (covariant)
                 // - IN_VARIANCE (in): concrete <: substituted (contravariant)
+                // - INVARIANT: equality (subtype in both directions)
+                // TODO how does this work with a chain of multiple types
                 when (argumentVariance) {
+                    Variance.OUT_VARIANCE -> constraintSystem.addSubtypeConstraint(substitutedWithVariables, concreteConeType)
+                    Variance.IN_VARIANCE -> constraintSystem.addSubtypeConstraint(concreteConeType, substitutedWithVariables)
                     Variance.INVARIANT -> {
-                        constraintSystem.addSubtypeConstraint(substitutedWithVariables, concreteConetype)
-                        constraintSystem.addSubtypeConstraint(concreteConetype, substitutedWithVariables)
-                    }
-                    Variance.OUT_VARIANCE -> {
-                        constraintSystem.addSubtypeConstraint(substitutedWithVariables, concreteConetype)
-                    }
-                    Variance.IN_VARIANCE -> {
-                        constraintSystem.addSubtypeConstraint(concreteConetype, substitutedWithVariables)
+                        constraintSystem.addSubtypeConstraint(substitutedWithVariables, concreteConeType)
+                        constraintSystem.addSubtypeConstraint(concreteConeType, substitutedWithVariables)
                     }
                 }
+
+                if (substitutedConeType !is ConeTypeParameterType) continue
+                // TODO simplify
+                val typeParameterSymbol = subClass.typeParameters.find { tp ->
+                    (tp as? KaFirTypeParameterSymbol)?.firSymbol?.toLookupTag() == substitutedConeType.lookupTag
+                } ?: continue
 
                 // If the substituted type is a type parameter from subclass, record the mapping
-                if (substitutedConeType is ConeTypeParameterType) {
-                    val typeParameterSymbol = subClass.typeParameters.find { tp ->
-                        (tp as? KaFirTypeParameterSymbol)?.firSymbol?.toLookupTag() == substitutedConeType.lookupTag
-                    }
-                    if (typeParameterSymbol != null) {
-                        // For OUT projections, choose the more specific type between:
-                        // - the type parameter's upper bound
-                        // - the concrete type from the projection
-                        // For example: `out Animal` with `T : Dog` -> T = Dog (bound is more specific)
-                        //              `out Dog` with `T : Animal` -> T = Dog (concrete is more specific)
-                        val mappingType = when (argumentVariance) {
-                            Variance.OUT_VARIANCE -> {
-                                // For `out ConcreteType` with `T : Bound`, T must satisfy both constraints:
-                                // T <: Bound (from the type parameter declaration)
-                                // T <: ConcreteType (from the out projection)
-                                // So T must be a subtype of BOTH Bound and ConcreteType.
-                                // This is only possible if one is a subtype of the other.
-                                val upperBound = typeParameterSymbol.upperBounds.singleOrNull()
-                                if (upperBound != null && upperBound.isSubtypeOf(concreteType)) {
-                                    // Bound is more specific (e.g., Dog <: Animal), use the bound
-                                    upperBound
-                                } else if (upperBound == null || concreteType.isSubtypeOf(upperBound)) {
-                                    // Concrete type is more specific or no bound, use concrete type
-                                    concreteType
-                                } else {
-                                    // Neither is a subtype of the other (e.g., CharSequence and Number)
-                                    // No valid T exists that satisfies both constraints
-                                    return null
-                                }
-                            }
-                            Variance.IN_VARIANCE -> {
-                                // For `in Animal`, use the concrete type as the mapping
-                                concreteType
-                            }
-                            Variance.INVARIANT -> concreteType
-                        }
 
-                        val existingMapping = mappings[typeParameterSymbol]
-                        if (existingMapping != null && !existingMapping.semanticallyEquals(mappingType)) {
-                            // Conflict detected - the constraint system should also catch this
-                            return null
-                        }
-                        mappings[typeParameterSymbol] = mappingType
-                    }
-                } else {
-                    // Check if the substituted type contains any type parameters from subclass
-                    val containsSubclassTypeParameters = substitutedConeType.contains { nestedType ->
-                        nestedType is ConeTypeParameterType && subClassTypeParameters.any { lookupTag ->
-                            lookupTag == nestedType.lookupTag
-                        }
-                    }
-
-                    if (!containsSubclassTypeParameters) {
-                        // The substituted type is a fully concrete type (not involving any type parameters
-                        // from subclass). Validate based on variance.
-                        val isValid = when (argumentVariance) {
-                            Variance.INVARIANT -> kaSubstitutedType.semanticallyEquals(concreteType)
-                            Variance.OUT_VARIANCE -> kaSubstitutedType.isSubtypeOf(concreteType)
-                            Variance.IN_VARIANCE -> concreteType.isSubtypeOf(kaSubstitutedType)
-                        }
-                        if (!isValid) {
+                // For OUT projections, choose the more specific type between:
+                // - the type parameter's upper bound
+                // - the concrete type from the projection
+                // For example: `out Animal` with `T : Dog` -> T = Dog (bound is more specific)
+                //              `out Dog` with `T : Animal` -> T = Dog (concrete is more specific)
+                val mappingType = when (argumentVariance) {
+                    Variance.OUT_VARIANCE -> {
+                        // For `out ConcreteType` with `T : Bound`, T must satisfy both constraints:
+                        // T <: Bound (from the type parameter declaration)
+                        // T <: ConcreteType (from the out projection)
+                        // So T must be a subtype of BOTH Bound and ConcreteType.
+                        // This is only possible if one is a subtype of the other.
+                        val upperBound = typeParameterSymbol.upperBounds.singleOrNull() // TODO multiple bounds?
+                        if (upperBound != null && upperBound.isSubtypeOf(concreteType)) {
+                            // Bound is more specific (e.g., Dog <: Animal), use the bound
+                            upperBound
+                        } else if (upperBound == null || concreteType.isSubtypeOf(upperBound)) {
+                            // Concrete type is more specific or no bound, use concrete type
+                            concreteType
+                        } else {
+                            // Neither is a subtype of the other (e.g., CharSequence and Number)
+                            // No valid T exists that satisfies both constraints
                             return null
                         }
                     }
-                    // Otherwise, the substituted type contains type parameters from subclass that will
-                    // be replaced with type variables. The constraint system will validate these.
+
+                    Variance.IN_VARIANCE, Variance.INVARIANT -> concreteType
                 }
+
+                mappings[typeParameterSymbol] = mappingType
             }
 
-            // Use the constraint system to validate all constraints are consistent
-            if (constraintSystem.hasContradiction()) {
-                return null
+            return if (constraintSystem.hasContradiction()) {
+                null
+            } else {
+                createSubstitutor(mappings)
             }
-
-            if (mappings.isEmpty()) {
-                return KaSubstitutor.Empty(token)
-            }
-
-            return createSubstitutor(mappings)
         }
     }
 

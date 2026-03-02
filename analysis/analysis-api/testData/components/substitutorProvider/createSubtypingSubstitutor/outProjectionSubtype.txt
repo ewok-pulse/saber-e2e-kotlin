@@ -1,0 +1,3 @@
+Subclass: A
+Supertype: B<out Animal>
+Substitutor: <map substitutor: {T = Dog}>

@@ -12,6 +12,10 @@ import org.jetbrains.kotlin.konan.test.klib.AbstractCustomNativeCompilerFirstSta
 import org.jetbrains.kotlin.konan.test.klib.AbstractCustomNativeCompilerSecondStageTest
 import org.jetbrains.kotlin.test.HeavyTest
 import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
+import org.junit.jupiter.api.parallel.ResourceLock
+import org.junit.jupiter.api.parallel.Resources
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
@@ -62,6 +66,19 @@ fun main(args: Array<String>) {
                 )
             ) {
                 model("boxInline")
+            }
+        }
+
+        // Native-specific codegen/box tests based on Compiler Core testinfra
+        testGroup(testsRoot, "native/native.tests/testData/codegen") {
+            testClass<AbstractCustomNativeCompilerSecondStageTest>(
+                suiteTestClassName = "CustomNativeSpecificSecondStageTestGenerated",
+                annotations = listOf(
+                    annotation(HeavyTest::class.java),
+                    provider<UseDummyTestCaseGroupProvider>(),
+                )
+            ) {
+                model()
             }
         }
     }

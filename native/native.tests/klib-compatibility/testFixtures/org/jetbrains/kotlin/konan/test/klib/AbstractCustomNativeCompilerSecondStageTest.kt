@@ -11,13 +11,21 @@ import org.jetbrains.kotlin.konan.test.blackbox.AbstractNativeCoreTest
 import org.jetbrains.kotlin.konan.test.blackbox.support.TestDirectives
 import org.jetbrains.kotlin.konan.test.configuration.commonConfigurationForNativeFirstStageUpToSerialization
 import org.jetbrains.kotlin.konan.test.handlers.NativeBoxRunner
+import org.jetbrains.kotlin.konan.test.services.CInteropTestSkipper
+import org.jetbrains.kotlin.konan.test.services.DisabledNativeTestSkipper
+import org.jetbrains.kotlin.konan.test.services.FileCheckTestTotalSkipper
 import org.jetbrains.kotlin.konan.test.services.sourceProviders.NativeLauncherAdditionalSourceProvider
 import org.jetbrains.kotlin.test.backend.handlers.KlibAbiDumpHandler
 import org.jetbrains.kotlin.test.builders.TestConfigurationBuilder
+import org.jetbrains.kotlin.test.builders.configureFirHandlersStep
 import org.jetbrains.kotlin.test.builders.klibArtifactsHandlersStep
 import org.jetbrains.kotlin.test.builders.nativeArtifactsHandlersStep
+import org.jetbrains.kotlin.test.configuration.commonFirHandlersForCodegenTest
 import org.jetbrains.kotlin.test.directives.FirDiagnosticsDirectives.DISABLE_FIR_DUMP_HANDLER
 import org.jetbrains.kotlin.test.directives.LanguageSettingsDirectives.LANGUAGE
+import org.jetbrains.kotlin.test.directives.LanguageSettingsDirectives.OPT_IN
+import org.jetbrains.kotlin.test.directives.NativeEnvironmentConfigurationDirectives
+import org.jetbrains.kotlin.test.frontend.objcinterop.ObjCInteropFacade
 import org.jetbrains.kotlin.test.klib.CustomKlibCompilerSecondStageTestSuppressor
 import org.jetbrains.kotlin.test.klib.CustomKlibCompilerTestSuppressor
 import org.jetbrains.kotlin.test.klib.setupCustomLanguageVersionForKlibCompatibilityTest
@@ -36,6 +44,9 @@ open class AbstractCustomNativeCompilerSecondStageTest : AbstractNativeCoreTest(
         useMetaTestConfigurators(
             ::UnsupportedFeaturesTestConfigurator,
             ::TargetBackendTestSkipper,
+            ::DisabledNativeTestSkipper,
+            ::CInteropTestSkipper,
+            ::FileCheckTestTotalSkipper,
         )
         defaultDirectives {
             +DISABLE_FIR_DUMP_HANDLER
@@ -46,6 +57,11 @@ open class AbstractCustomNativeCompilerSecondStageTest : AbstractNativeCoreTest(
 
                 LANGUAGE with "+ExportKlibToOlderAbiVersion"
             }
+            OPT_IN with listOf(
+                "kotlin.native.internal.InternalForKotlinNative",
+                "kotlin.native.internal.InternalForKotlinNativeTests",
+                "kotlin.experimental.ExperimentalNativeApi"
+            )
         }
 
         val nativeHomeForFirstStage = if (customNativeCompilerSettings.defaultLanguageVersion < LanguageVersion.LATEST_STABLE)
@@ -60,12 +76,23 @@ open class AbstractCustomNativeCompilerSecondStageTest : AbstractNativeCoreTest(
         useAdditionalSourceProviders(
             ::NativeLauncherAdditionalSourceProvider,
         )
+
+        // Modules containing .def files are compiled with ObjCInteropFacade to klib using the current CInterop tool with arguments targeting old ABI.
+        // The rest of the 1st stage pipeline will be skipped naturally, since other 1st stage facades don't accept klibs as input artifact.
+        // The pipeline for the 2nd stage will be skipped, since cinterop klibs do not represent a main module in tests
+        // The current version of "cinterop" tool is used for ObjCInteropFacade, which targets old ABI.
+        facadeStep(::ObjCInteropFacade.bind(/*isForwardTest*/true))
+
         commonConfigurationForNativeFirstStageUpToSerialization()
         facadeStep(::KlibSerializerNativeCliFacade)
         klibArtifactsHandlersStep {
             useHandlers(::KlibAbiDumpHandler)
         }
-        useDirectives(TestDirectives)
+        configureFirHandlersStep {
+            commonFirHandlersForCodegenTest()
+        }
+
+        useDirectives(NativeEnvironmentConfigurationDirectives, TestDirectives)
         facadeStep(NativeCompilerSecondStageFacade::NonGrouping.bind(customNativeCompilerSettings))
 
         nativeArtifactsHandlersStep {

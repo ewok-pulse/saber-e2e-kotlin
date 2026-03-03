@@ -206,6 +206,12 @@ public class FirIdeNormalAnalysisSourceModuleCreateSubtypingSubstitutorTestGener
   }
 
   @Test
+  @TestMetadata("simpleChainUpperBoundMismatch.kt")
+  public void testSimpleChainUpperBoundMismatch() {
+    run("simpleChainUpperBoundMismatch.kt");
+  }
+
+  @Test
   @TestMetadata("starProjection.kt")
   public void testStarProjection() {
     run("starProjection.kt");

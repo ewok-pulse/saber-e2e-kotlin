@@ -87,5 +87,15 @@ fun testNestedConstructorWithAnonymous() {
     Local(10)
 }
 
+fun testNestedInPlaceLambdaInsideEscaping() {
+    var l = 2
+    barRegular {
+        l.let {
+            println(l)
+        }
+    }
+    l = 4
+}
+
 /* GENERATED_FIR_TAGS: assignment, functionDeclaration, functionalType, integerLiteral, lambdaLiteral, localProperty,
 propertyDeclaration, tryExpression, whileLoop */

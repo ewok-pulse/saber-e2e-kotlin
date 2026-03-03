@@ -1,0 +1,83 @@
+// RUN_PIPELINE_TILL: BACKEND
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
+fun barRegular(f: () -> Unit) {}
+
+private fun testStable() = barRegular {
+    var another = "hello"
+
+    barRegular {
+        println(another)
+    }
+
+    var <!ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE!>r<!> = "bla"
+
+    barRegular {
+        r = "3"
+    }
+
+    barRegular {
+        r = "4"
+    }
+}
+
+fun easyTest(ind : Int) {
+    var b = 2
+    if (ind < 2) {
+        b = 4
+    }
+    barRegular{
+        println(b)
+    }
+}
+
+private fun assertFormat(raw: String, vararg args: Any) {
+    var e: Exception? = null
+    val actual = try {
+    } catch (ex: Exception) {
+        e = ex
+        ex.message
+    }
+
+    barRegular{
+        if (e != null) throw <!DEBUG_INFO_SMARTCAST!>e<!> // bug
+    }
+}
+
+fun consume(startIndex : Int) {
+    var digitsInRow = 0
+    while (startIndex < 10) {
+        ++digitsInRow
+    }
+    if (digitsInRow < 0)
+        barRegular {
+            "Only found $digitsInRow digits in a row"
+        }
+    for (i in 0..10) {
+        val length = digitsInRow
+    }
+}
+
+fun testDirectReassignment() {
+    var unstable = ""
+    barRegular {
+        println(unstable)
+    }
+    unstable = "hello"
+}
+
+fun testReassignmentInCurrentLambda() {
+    var stable = ""
+    barRegular {
+        stable = "hello"
+        println(stable)
+        stable = "2"
+    }
+    println(stable)
+}
+
+
+/* GENERATED_FIR_TAGS: assignment, functionDeclaration, functionalType, lambdaLiteral, localProperty,
+propertyDeclaration, stringLiteral */

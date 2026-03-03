@@ -66,8 +66,11 @@ public interface KaSubstitutorProvider : KaSessionComponent {
      * - There are error types in the inheritance path
      * - The type argument mapping is ambiguous (e.g., the same type parameter maps to different types)
      *
-     * **Note:** If [subClass] has type parameters that do not appear in the inheritance path to [superType], those type parameters
+     * If [subClass] has type parameters that do not appear in the inheritance path to [superType], those type parameters
      * will not be included in the resulting substitutor (they remain unsubstituted).
+     *
+     * The resulting substitutor doesn't take into account any errors in the type parameter bounds of the inheritance chain
+     * (i.e., applying the substitutor will not make a chain valid if it was originally invalid).
      *
      * #### Example
      *
@@ -88,6 +91,16 @@ public interface KaSubstitutorProvider : KaSessionComponent {
      * ```
      *
      * - `createSubtypingSubstitutor(A, B<Int>)` returns `KaSubstitutor { T -> Int }` (U remains unsubstituted)
+     *
+     * #### Invalid inheritance chain
+     *
+     * ```
+     * interface A<T> : B<T> // Type argument is not within its bounds: must be subtype of 'Int'
+     * interface B<T : Int> : C<Int, T>
+     * interface C<X, Y>
+     * ```
+     *
+     * - `createSubtypingSubstitutor(A, C<Int, String>)` returns `KaSubstitutor { T -> String }`, but the original code is still invalid
      *
      * @param subClass The subclass whose type parameters should be substituted.
      * @param superType The target supertype that the substituted subclass type should match.

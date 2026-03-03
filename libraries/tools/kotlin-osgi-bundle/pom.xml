@@ -82,6 +82,8 @@
                             <instructions>
                                 <Import-Package>!kotlin.*,*</Import-Package>
 				                <Export-Package>*.internal,*</Export-Package>
+                                <_jpms>true</_jpms>
+                                <Multi-Release>true</Multi-Release>
                             </instructions>
                         </configuration>
                     </execution>

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.analysis.api.fir.components
 
 import org.jetbrains.kotlin.analysis.api.components.KaSubstitutorProvider
+import org.jetbrains.kotlin.analysis.api.components.isSubtypeOf
 import org.jetbrains.kotlin.analysis.api.fir.KaFirSession
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirTypeParameterSymbol
 import org.jetbrains.kotlin.analysis.api.fir.types.KaFirGenericSubstitutor
@@ -144,6 +145,7 @@ internal class KaFirSubstitutorProvider(
                 val concreteConeType = (concreteType as? KaFirType)?.coneType ?: return null
 
                 // Get the variance from the type argument projection
+                // TODO consider declaration-site variance as well
                 val argumentVariance = typeArgument.variance
 
                 // Get the substituted type: what does this superclass type parameter map to in the subclass?
@@ -173,44 +175,55 @@ internal class KaFirSubstitutorProvider(
                     (tp as? KaFirTypeParameterSymbol)?.firSymbol?.toLookupTag() == substitutedConeType.lookupTag
                 } ?: continue
 
-                // If the substituted type is a type parameter from subclass, record the mapping
-
-                // For OUT projections, choose the more specific type between:
-                // - the type parameter's upper bound
-                // - the concrete type from the projection
-                // For example: `out Animal` with `T : Dog` -> T = Dog (bound is more specific)
-                //              `out Dog` with `T : Animal` -> T = Dog (concrete is more specific)
-                val mappingType = when (argumentVariance) {
-                    Variance.OUT_VARIANCE -> {
-                        // For `out ConcreteType` with `T : Bound`, T must satisfy both constraints:
-                        // T <: Bound (from the type parameter declaration)
-                        // T <: ConcreteType (from the out projection)
-                        // So T must be a subtype of BOTH Bound and ConcreteType.
-                        // This is only possible if one is a subtype of the other.
-                        val upperBound = typeParameterSymbol.upperBounds.singleOrNull() // TODO multiple bounds?
-                        if (upperBound != null && upperBound.isSubtypeOf(concreteType)) {
-                            // Bound is more specific (e.g., Dog <: Animal), use the bound
-                            upperBound
-                        } else if (upperBound == null || concreteType.isSubtypeOf(upperBound)) {
-                            // Concrete type is more specific or no bound, use concrete type
-                            concreteType
-                        } else {
-                            // Neither is a subtype of the other (e.g., CharSequence and Number)
-                            // No valid T exists that satisfies both constraints
-                            return null
-                        }
-                    }
-
-                    Variance.IN_VARIANCE, Variance.INVARIANT -> concreteType
-                }
-
-                mappings[typeParameterSymbol] = mappingType
+                val mappedType = computeMappedType(typeParameterSymbol, concreteType, argumentVariance) ?: return null
+                mappings[typeParameterSymbol] = mappedType
             }
 
             return if (constraintSystem.hasContradiction()) {
                 null
             } else {
                 createSubstitutor(mappings)
+            }
+        }
+    }
+
+    /**
+     * Computes the mapping type for a type parameter based on variance.
+     *
+     * For OUT projections, choose the more specific type between:
+     * - the type parameter's upper bound
+     * - the concrete type from the projection
+     *
+     * For example: `out Animal` with `T : Dog` -> T = Dog (bound is more specific)
+     *              `out Dog` with `T : Animal` -> T = Dog (concrete is more specific)
+     *
+     * @return the computed mapping type, or `null` if no valid mapping exists
+     */
+    context(_: KaFirSession)
+    private fun computeMappedType(typeParameter: KaTypeParameterSymbol, concreteType: KaType, variance: Variance): KaType? {
+        if (variance != Variance.OUT_VARIANCE) {
+            return concreteType
+        }
+
+        // For `out ConcreteType` with `T : Bound`, T must satisfy both constraints:
+        // T <: Bound (from the type parameter declaration)
+        // T <: ConcreteType (from the out projection)
+        // So T must be a subtype of BOTH Bound and ConcreteType.
+        // This is only possible if one is a subtype of the other.
+        val upperBound = typeParameter.upperBounds.singleOrNull() // TODO multiple bounds?
+        return when {
+            upperBound != null && upperBound.isSubtypeOf(concreteType) -> {
+                // Bound is more specific (e.g., Dog <: Animal), use the bound
+                upperBound
+            }
+            upperBound == null || concreteType.isSubtypeOf(upperBound) -> {
+                // Concrete type is more specific or no bound, use concrete type
+                concreteType
+            }
+            else -> {
+                // Neither is a subtype of the other (e.g., CharSequence and Number)
+                // No valid T exists that satisfies both constraints
+                null
             }
         }
     }

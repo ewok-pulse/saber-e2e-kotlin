@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactory1
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.FirElement
+import org.jetbrains.kotlin.fir.analysis.cfa.evaluatedInPlace
 import org.jetbrains.kotlin.fir.analysis.cfa.util.*
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirFunctionChecker
@@ -60,6 +61,13 @@ object FirCapturedVariableStabilityFunctionChecker : FirFunctionChecker(MppCheck
     }
 }
 
+fun ControlFlowGraph.effectiveOwner(): ControlFlowGraph {
+    return if (declaration?.evaluatedInPlace == true)
+        enterNode.previousNodes.firstOrNull()?.owner?.effectiveOwner() ?: this
+    else
+        this
+}
+
 data class CapturedVariableCheckerData(
     val context: CheckerContext,
     val reporter: DiagnosticReporter,
@@ -106,14 +114,14 @@ private class FirFunctionDeepVisitorWithData2 : FirDefaultVisitor<Unit, Captured
     private fun isHasWriteFromNestedNode(
         pathInfo: PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>?,
         propertySymbol: FirPropertySymbol,
-        currentGraphOwner: ControlFlowGraph?
+        currentGraphOwner: ControlFlowGraph
     ): Boolean {
         // Check if there are Captured writes from different lambda contexts
         // We want to warn only if writes are in nested lambdas, not if they're in parent scope before the current lambda
         return pathInfo?.values?.any { controlFlowInfo ->
             controlFlowInfo[PropertyAccessType.Captured]?.get(propertySymbol)?.any { writeNode ->
                 if (writeNode !is VariableAssignmentNode) return@any false
-                writeNode.owner != currentGraphOwner
+                writeNode.owner.effectiveOwner() != currentGraphOwner.effectiveOwner()
             } == true
         } == true
 

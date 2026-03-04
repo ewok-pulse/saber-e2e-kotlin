@@ -233,7 +233,7 @@ object ReflectTypeSystemContext : TypeSystemContext {
     }
 
     override fun TypeConstructorMarker.getTypeParameterClassifier(): TypeParameterMarker? {
-        shouldNotBeCalled()
+        return this as? KTypeParameterImpl
     }
 
     override fun TypeConstructorMarker.isTypeParameterTypeConstructor(): Boolean {
@@ -256,7 +256,7 @@ object ReflectTypeSystemContext : TypeSystemContext {
     }
 
     override fun TypeParameterMarker.getUpperBounds(): List<KotlinTypeMarker> {
-        shouldNotBeCalled()
+        return (this as KTypeParameter).upperBounds.map { it as KotlinTypeMarker }
     }
 
     override fun TypeParameterMarker.getTypeConstructor(): TypeConstructorMarker {

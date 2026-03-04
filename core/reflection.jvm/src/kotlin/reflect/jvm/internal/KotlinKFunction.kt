@@ -53,14 +53,6 @@ internal abstract class KotlinKFunction(
 
     override val arity: Int get() = caller.arity
 
-    override val overridden: Collection<ReflectKFunction>
-        get() {
-            require(container is KPackageImpl) {
-                "Only top-level functions are supported for now: $container/$name $signature"
-            }
-            return emptyList()
-        }
-
     override val caller: Caller<*> by lazy(PUBLICATION) {
         require(isConstructor || container is KPackageImpl) {
             "Only constructors and top-level functions are supported for now: $container/$name $signature"

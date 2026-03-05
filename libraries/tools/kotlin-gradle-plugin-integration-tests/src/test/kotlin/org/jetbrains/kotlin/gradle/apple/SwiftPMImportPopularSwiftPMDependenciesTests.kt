@@ -17,10 +17,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftimport.SwiftImportExten
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.testing.prettyPrinted
 import org.jetbrains.kotlin.gradle.uklibs.applyMultiplatform
-import org.jetbrains.kotlin.gradle.uklibs.dumpKlibMetadataSignatures
 import org.jetbrains.kotlin.gradle.uklibs.include
-import kotlin.io.path.isDirectory
-import kotlin.io.path.listDirectoryEntries
 import kotlin.test.assertEquals
 import org.jetbrains.kotlin.gradle.util.isTeamCityRun
 import org.junit.jupiter.api.Assumptions
@@ -1240,19 +1237,7 @@ private fun TestProject.testVisibleSignatures(
     commonizerBasePath: Path = projectPath,
     commonizeTask: String = "commonizeCInterop",
 ) {
-    build(commonizeTask)
-
-    val commonizerResult = commonizerBasePath.resolve("build/classes/kotlin/commonizer/swiftPMImport")
-        .listDirectoryEntries()
-        .single { it.isDirectory() }
-        .listDirectoryEntries()
-        .single { it.isDirectory() }
-        .listDirectoryEntries()
-        .single { it.isDirectory() }
-
-    val metadataDump = dumpKlibMetadataSignatures(
-        commonizerResult.toFile()
-    )
+    val metadataDump = commonizeAndDumpCinteropSignatures(commonizerBasePath, commonizeTask)
 
     val actualSignatures = mutableMapOf<String, MutableList<String>>()
     metadataDump.lines().forEach { line ->

@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.gradle.uklibs.PublisherConfiguration
 import org.jetbrains.kotlin.gradle.uklibs.addPublishedProjectToRepositories
 import org.jetbrains.kotlin.gradle.uklibs.applyMultiplatform
 import org.jetbrains.kotlin.gradle.uklibs.include
+import org.jetbrains.kotlin.gradle.uklibs.includeBuild
 import org.jetbrains.kotlin.gradle.uklibs.publish
 import org.jetbrains.kotlin.gradle.util.isTeamCityRun
 import org.jetbrains.kotlin.gradle.util.replaceText
@@ -173,6 +174,8 @@ class SwiftPMImportXcodeIntegrationIT : KGPBaseTest() {
                             products = listOf("LocalSwiftPackage"),
                         )
                     }
+
+
                 }
             }
 
@@ -993,6 +996,78 @@ class SwiftPMImportXcodeIntegrationIT : KGPBaseTest() {
     }
 
     @GradleTest
+    @Ignore("KT-84736 SPM import: the package name for the included build is just an underscore")
+    fun `integrateLinkagePackage with spm dependency in composite build`(version: GradleVersion) {
+        project("emptyxcode", version) {
+            val includedGroup = "test"
+            val includedName = "included"
+            val includedVersion = "42"
+            initDefaultKmpWithLocalSPM {
+                sourceSets.commonMain.dependencies {
+                    api("test:included:42")
+                }
+            }
+
+            val included = project("empty", version) {
+                plugins {
+                    kotlin("multiplatform")
+                }
+                settingsBuildScriptInjection {
+                    settings.rootProject.name = includedName
+                }
+
+                buildScriptInjection {
+                    project.group = includedGroup
+                    project.version = includedVersion
+
+                    project.applyMultiplatform {
+                        iosArm64()
+                        iosSimulatorArm64()
+
+                        swiftPMDependencies {
+                            swiftPackage(
+                                url = url("https://github.com/apple/swift-protobuf.git"),
+                                version = exact("1.32.0"),
+                                products = listOf(),
+                            )
+                        }
+                    }
+                }
+            }
+
+            includeBuild(included)
+            val includedCoordinates = "${includedGroup}_${includedName}_${includedVersion}"
+
+            build(
+                "integrateLinkagePackage",
+                environmentVariables = EnvironmentalVariables(
+                    "XCODEPROJ_PATH" to "iosApp/iosApp.xcodeproj",
+                )
+            ) {
+                val rootManifest = projectPath.resolve("iosApp/$SYNTHETIC_IMPORT_TARGET_MAGIC_NAME/Package.swift")
+                assertTrue(rootManifest.exists(), "synthetic project should be created")
+
+                val rootManifestDependencies = describeSwiftPackage(rootManifest.parent).dependencies
+                assertEquals(
+                    listOf("localswiftpackage", includedCoordinates),
+                    rootManifestDependencies.map { it.identity },
+                    "published dependency should be added to the manifest"
+                )
+
+                val subpackageManifest =
+                    projectPath.resolve("iosApp/$SYNTHETIC_IMPORT_TARGET_MAGIC_NAME/subpackages/${includedCoordinates}/Package.swift")
+                val subpackageManifestDependencies = describeSwiftPackage(subpackageManifest.parent).dependencies
+
+                assertEquals(
+                    listOf("https://github.com/apple/swift-protobuf.git"),
+                    subpackageManifestDependencies.map { it.url },
+                    "published dependency should be added to the manifest"
+                )
+            }
+        }
+    }
+
+    @GradleTest
     fun `integrateLinkagePackage accepts absolute XCODEPROJ_PATH`(version: GradleVersion) {
         project("emptyxcode", version) {
             initDefaultKmpWithLocalSPM()
@@ -1009,6 +1084,136 @@ class SwiftPMImportXcodeIntegrationIT : KGPBaseTest() {
                 assertTrue(projectPath.resolve("iosApp/$SYNTHETIC_IMPORT_TARGET_MAGIC_NAME").exists())
                 assertContains(pbxFileContent, "relativePath = $SYNTHETIC_IMPORT_TARGET_MAGIC_NAME;")
                 assertContains(pbxFileContent, "productName = $SYNTHETIC_IMPORT_TARGET_MAGIC_NAME;")
+            }
+        }
+    }
+
+    @GradleTest
+    fun `integrateLinkagePackage with XCODEPROJ_PATH outside of the project with relative path`(version: GradleVersion) {
+        project("emptyxcode", version) {
+            initDefaultKmpWithLocalSPM()
+
+            val siblingIosApp = projectPath.parent.resolve("iosApp")
+
+            val iosAppXcodeProj = projectPath.resolve("iosApp").moveTo(siblingIosApp).resolve("iosApp.xcodeproj")
+            val relativePath = iosAppXcodeProj.relativeTo(projectPath)
+            build(
+                "integrateLinkagePackage",
+                environmentVariables = EnvironmentalVariables(
+                    "XCODEPROJ_PATH" to relativePath.toString(),
+                )
+            ) {
+                assertTrue(
+                    iosAppXcodeProj.parent.resolve(SYNTHETIC_IMPORT_TARGET_MAGIC_NAME).exists(),
+                    "Synthetic project is expected in iosApp dir"
+                )
+            }
+        }
+    }
+
+    @GradleTest
+    @Ignore("KT-84671 SPM Import: integrateLinkagePackage always creates synthetic project in the project dir for relative xcodeproj_path")
+    fun `integrateLinkagePackage for subproject with XCODEPROJ_PATH outside of the project with relative path`(version: GradleVersion) {
+        project("emptyxcode", version) {
+            plugins {
+                kotlin("multiplatform").apply(false)
+            }
+            val subproject = project("empty", version) {
+                buildScriptInjection {
+                    project.applyMultiplatform {
+                        iosArm64()
+                        iosSimulatorArm64()
+
+                        swiftPMDependencies {
+                            swiftPackage(
+                                url = url("https://github.com/apple/swift-protobuf.git"),
+                                version = exact("1.32.0"),
+                                products = listOf(),
+                            )
+                        }
+                    }
+                }
+            }
+
+            include(subproject, "subproject")
+
+            val siblingIosAppPath = projectPath.parent.resolve("iosApp")
+            val iosAppXcodeProj = projectPath.resolve("iosApp").moveTo(siblingIosAppPath).resolve("iosApp.xcodeproj")
+            val relativePath = iosAppXcodeProj.relativeTo(projectPath)
+            build(
+                ":subproject:integrateLinkagePackage",
+                environmentVariables = EnvironmentalVariables(
+                    "XCODEPROJ_PATH" to relativePath.toString(),
+                )
+            ) {
+                assertTrue(
+                    iosAppXcodeProj.parent.resolve(SYNTHETIC_IMPORT_TARGET_MAGIC_NAME).exists(),
+                    "Synthetic project is expected in iosApp dir"
+                )
+            }
+        }
+    }
+
+    @GradleTest
+    fun `integrateLinkagePackage with XCODEPROJ_PATH outside of the project with absolute path`(version: GradleVersion) {
+        project("emptyxcode", version) {
+            initDefaultKmpWithLocalSPM()
+
+            val siblingIosApp = projectPath.parent.resolve("iosApp")
+
+            val iosAppXcodeProj = projectPath.resolve("iosApp").moveTo(siblingIosApp).resolve("iosApp.xcodeproj")
+            build(
+                "integrateLinkagePackage",
+                environmentVariables = EnvironmentalVariables(
+                    "XCODEPROJ_PATH" to iosAppXcodeProj.absolutePathString(),
+                )
+            ) {
+
+                assertTrue(
+                    iosAppXcodeProj.parent.resolve(SYNTHETIC_IMPORT_TARGET_MAGIC_NAME).exists(),
+                    "Synthetic project is expected in iosApp dir"
+                )
+            }
+        }
+    }
+
+    @GradleTest
+    fun `integrateLinkagePackage for subproject with XCODEPROJ_PATH outside of the project with absolute path`(version: GradleVersion) {
+        project("emptyxcode", version) {
+            plugins {
+                kotlin("multiplatform").apply(false)
+            }
+            val subproject = project("empty", version) {
+                buildScriptInjection {
+                    project.applyMultiplatform {
+                        iosArm64()
+                        iosSimulatorArm64()
+
+                        swiftPMDependencies {
+                            swiftPackage(
+                                url = url("https://github.com/apple/swift-protobuf.git"),
+                                version = exact("1.32.0"),
+                                products = listOf(),
+                            )
+                        }
+                    }
+                }
+            }
+
+            include(subproject, "subproject")
+
+            val siblingIosAppPath = projectPath.parent.resolve("iosApp")
+            val iosAppXcodeProj = projectPath.resolve("iosApp").moveTo(siblingIosAppPath).resolve("iosApp.xcodeproj")
+            build(
+                ":subproject:integrateLinkagePackage",
+                environmentVariables = EnvironmentalVariables(
+                    "XCODEPROJ_PATH" to iosAppXcodeProj.absolutePathString(),
+                )
+            ) {
+                assertTrue(
+                    iosAppXcodeProj.parent.resolve(SYNTHETIC_IMPORT_TARGET_MAGIC_NAME).exists(),
+                    "Synthetic project is expected in iosApp dir"
+                )
             }
         }
     }

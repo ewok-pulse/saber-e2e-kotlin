@@ -7,8 +7,6 @@ package org.jetbrains.kotlin.analysis.stubs
 
 import org.jetbrains.kotlin.analysis.test.framework.base.AbstractAnalysisApiBasedTest
 import org.jetbrains.kotlin.analysis.test.framework.projectStructure.KtTestModule
-import org.jetbrains.kotlin.analysis.utils.printer.PrettyPrinter
-import org.jetbrains.kotlin.analysis.utils.printer.prettyPrint
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtImplementationDetail
 import org.jetbrains.kotlin.psi.stubs.KotlinStubElement
@@ -17,6 +15,8 @@ import org.jetbrains.kotlin.psi.stubs.impl.deepCopy
 import org.jetbrains.kotlin.test.directives.model.DirectivesContainer
 import org.jetbrains.kotlin.test.services.TestServices
 import org.jetbrains.kotlin.test.services.assertions
+import org.jetbrains.kotlin.utils.PrettyPrinter
+import org.jetbrains.kotlin.utils.prettyPrint
 
 abstract class AbstractStubsTest : AbstractAnalysisApiBasedTest() {
     abstract val outputFileExtension: String
@@ -29,7 +29,7 @@ abstract class AbstractStubsTest : AbstractAnalysisApiBasedTest() {
         val files = mainModule.ktFiles
         val filesAndStubs = files.sortedBy(KtFile::getName).map { it to stubsTestEngine.compute(it) }
 
-        val actual = prettyPrint {
+        val actual = prettyPrint(indentation = PrettyPrinter.TWO_SPACES) {
             if (filesAndStubs.isEmpty()) {
                 appendLine("NO FILES")
                 return@prettyPrint
@@ -39,7 +39,7 @@ abstract class AbstractStubsTest : AbstractAnalysisApiBasedTest() {
             if (singleElement != null) {
                 printStub(singleElement.second)
             } else {
-                printCollection(filesAndStubs, separator = "\n\n") { element ->
+                appendCollection(filesAndStubs, separator = "\n\n") { element ->
                     appendLine("${element.first.name}:")
                     withIndent {
                         printStub(element.second)

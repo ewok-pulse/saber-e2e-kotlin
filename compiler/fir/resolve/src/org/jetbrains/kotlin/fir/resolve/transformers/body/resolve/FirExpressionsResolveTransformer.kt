@@ -246,7 +246,7 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
         runContextSensitiveResolutionIfNeeded(resolvedPropertyAccess, mode)?.let { return it }
 
         when {
-            AnalysisFlags.ideMode.isSet() && expressionBeforeResolution is FirPropertyAccessExpression ->
+            expressionBeforeResolution is FirPropertyAccessExpression ->
                 @OptIn(FirIdeOnly::class)
                 resolvedPropertyAccess.prepareContextSensitiveAlternativeIfNeeded(original = expressionBeforeResolution, mode)
         }

@@ -187,7 +187,7 @@ class FirCallResolver(
      * }
      */
     private fun processContextSensitiveResolutionAlternatives(result: ResolutionResult) {
-        if (!AnalysisFlags.ideMode.isSet() || !result.metInapplicableCandidate) return
+        if (!result.metInapplicableCandidate) return
         val callee = result.info.callSite as? FirExpression ?: return
 
         for (candidate in result.candidates) {

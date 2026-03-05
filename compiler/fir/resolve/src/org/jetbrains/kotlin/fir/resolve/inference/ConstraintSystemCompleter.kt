@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.fir.resolve.inference
 
-import org.jetbrains.kotlin.config.AnalysisFlags
 import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.diagnostics.ConeCannotInferTypeParameterType
 import org.jetbrains.kotlin.fir.diagnostics.ConeCannotInferValueParameterType
@@ -319,7 +318,7 @@ class ConstraintSystemCompleter(components: BodyResolveComponents) {
         postponedArguments: List<ConePostponedResolvedAtom>,
         analyzer: PostponedAtomAnalyzer,
     ): Boolean {
-        if (!languageVersionSettings.getFlag(AnalysisFlags.ideMode)) return false
+        //if (!languageVersionSettings.getFlag(AnalysisFlags.ideMode)) return false
         var wasAny = false
 
         for (atom in postponedArguments) {

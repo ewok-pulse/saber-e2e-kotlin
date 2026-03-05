@@ -367,7 +367,7 @@ internal object ArgumentCheckingProcessor {
         atom: ConeResolutionAtomWithPostponedChild,
         expression: FirQualifierWithContextSensitiveAlternative,
     ) {
-        if (!AnalysisFlags.ideMode.isSet()) return
+        //if (!AnalysisFlags.ideMode.isSet()) return
 
         @OptIn(FirIdeOnly::class)
         val alternative = expression.contextSensitiveAlternative

@@ -80,16 +80,14 @@ internal class KaSymbolTestSymbolTargetResolver(private val session: KaSession) 
         listOf(samConstructor)
     }
 
-    override fun resolveTypeParameterTarget(target: TypeParameterTarget, owner: KaSymbol): KaSymbol? = with(session) {
+    override fun resolveTypeParameterTarget(target: TypeParameterTarget, owner: KaSymbol): KaSymbol? {
         requireSpecificOwner<KaTypeParameterOwnerSymbol>(target, owner)
-
-        owner.typeParameters.find { it.name == target.name }
+        return owner.typeParameters.find { it.name == target.name }
     }
 
-    override fun resolveValueParameterTarget(target: ValueParameterTarget, owner: KaSymbol): KaSymbol? = with(session) {
+    override fun resolveValueParameterTarget(target: ValueParameterTarget, owner: KaSymbol): KaSymbol? {
         requireSpecificOwner<KaFunctionSymbol>(target, owner)
-
-        owner.valueParameters.find { it.name == target.name }
+        return owner.valueParameters.find { it.name == target.name }
     }
 
     override fun resolveGetterTarget(target: GetterTarget, owner: KaSymbol): KaSymbol? {

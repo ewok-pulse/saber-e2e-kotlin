@@ -5,8 +5,8 @@
 
 package org.jetbrains.kotlin.analysis.api.fir.components
 
-import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirBasePropertyAccessorSymbol
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirAnonymousObjectSymbol
+import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirBasePropertyAccessorSymbol
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirNamedClassSymbol
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirSymbol
 import org.jetbrains.kotlin.analysis.api.fir.utils.isSubclassOf
@@ -79,11 +79,15 @@ internal fun getIntersectionOverriddenAccessorSymbols(accessorSymbol: KaProperty
         with(analysisSession) { propertySymbol.intersectionOverriddenSymbols.asSequence() }
     }.toList()
 
+context(relationProvider: KaFirSymbolRelationProvider)
 private inline fun getOverriddenAccessorSymbols(
     accessorSymbol: KaPropertyAccessorSymbol,
     overriddenProperties: (KaPropertySymbol) -> Sequence<KaCallableSymbol>,
 ): Sequence<KaCallableSymbol> {
-    val propertySymbol = (accessorSymbol as? KaFirBasePropertyAccessorSymbol)?.owningKaProperty ?: return emptySequence()
+    val propertySymbol = (accessorSymbol as? KaFirBasePropertyAccessorSymbol)?.owningKaProperty
+        ?: with(analysisSession) { accessorSymbol.containingDeclaration } as? KaPropertySymbol
+        ?: return emptySequence()
+
     return overriddenProperties(propertySymbol).mapNotNull { overriddenSymbol ->
         (overriddenSymbol as? KaPropertySymbol)?.matchingAccessor(accessorSymbol)
     }

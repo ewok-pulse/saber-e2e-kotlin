@@ -47,6 +47,7 @@ import org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.signatu
 import org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.substitutorProvider.AbstractCreateInheritanceTypeSubstitutorTest
 import org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.substututorFactory.AbstractSubstitutorBuilderTest
 import org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.symbolDeclarationOverridesProvider.AbstractIsSubclassOfTest
+import org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.symbolDeclarationOverridesProvider.AbstractOverriddenDeclarationProviderByJavaPsiTest
 import org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.symbolDeclarationOverridesProvider.AbstractOverriddenDeclarationProviderTest
 import org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.symbolDeclarationRenderer.AbstractRendererTest
 import org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.symbolDeclarationRenderer.AbstractSymbolRenderingByReferenceTest
@@ -504,6 +505,10 @@ private fun AnalysisApiTestGroup.generateAnalysisApiComponentsTests() {
     component("symbolDeclarationOverridesProvider") {
         test<AbstractOverriddenDeclarationProviderTest> {
             model(it, "overriddenSymbols")
+        }
+
+        test<AbstractOverriddenDeclarationProviderByJavaPsiTest>(filter = frontendIs(FrontendKind.Fir)) {
+            model(it, "overriddenSymbolsByJavaPsi")
         }
 
         test<AbstractIsSubclassOfTest> {

@@ -60,7 +60,7 @@ abstract class AbstractOverriddenDeclarationProviderTest : AbstractAnalysisApiBa
     }
 
     context(_: KaSession)
-    private fun getCallableSymbol(mainFile: KtFile, mainModule: KtTestModule, testServices: TestServices): KaCallableSymbol {
+    protected open fun getCallableSymbol(mainFile: KtFile, mainModule: KtTestModule, testServices: TestServices): KaCallableSymbol {
         val declaration = testServices.expressionMarkerProvider.getBottommostElementOfTypeAtCaretOrNull<KtDeclaration>(mainFile)
         if (declaration != null) {
             return declaration.symbol as KaCallableSymbol

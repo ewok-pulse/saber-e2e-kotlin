@@ -86,6 +86,18 @@ public class FirIdeDependentAnalysisSourceModuleOverriddenDeclarationProviderTes
   }
 
   @Test
+  @TestMetadata("getterDiamondOverride.kt")
+  public void testGetterDiamondOverride() {
+    run("getterDiamondOverride.kt");
+  }
+
+  @Test
+  @TestMetadata("getterIntersectionOverride.kt")
+  public void testGetterIntersectionOverride() {
+    run("getterIntersectionOverride.kt");
+  }
+
+  @Test
   @TestMetadata("getterWithMissedOverride.kt")
   public void testGetterWithMissedOverride() {
     run("getterWithMissedOverride.kt");
@@ -185,6 +197,30 @@ public class FirIdeDependentAnalysisSourceModuleOverriddenDeclarationProviderTes
   @TestMetadata("sequenceOfOverrides.kt")
   public void testSequenceOfOverrides() {
     run("sequenceOfOverrides.kt");
+  }
+
+  @Test
+  @TestMetadata("setter.kt")
+  public void testSetter() {
+    run("setter.kt");
+  }
+
+  @Test
+  @TestMetadata("setterDiamondOverride.kt")
+  public void testSetterDiamondOverride() {
+    run("setterDiamondOverride.kt");
+  }
+
+  @Test
+  @TestMetadata("setterIntersectionOverride.kt")
+  public void testSetterIntersectionOverride() {
+    run("setterIntersectionOverride.kt");
+  }
+
+  @Test
+  @TestMetadata("setterWithMissedOverride.kt")
+  public void testSetterWithMissedOverride() {
+    run("setterWithMissedOverride.kt");
   }
 
   @Test

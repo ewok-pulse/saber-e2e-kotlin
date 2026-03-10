@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.analysis.api.fir.components
 
+import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirBasePropertyAccessorSymbol
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirAnonymousObjectSymbol
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirNamedClassSymbol
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirSymbol
@@ -58,6 +59,39 @@ internal fun <T : KaCallableSymbol> getDirectlyOverriddenSymbols(callableSymbol:
     return overriddenElement
         .map { analysisSession.firSymbolBuilder.callableBuilder.buildCallableSymbol(it) }
         .asSequence()
+}
+
+context(relationProvider: KaFirSymbolRelationProvider)
+internal fun getAllOverriddenAccessorSymbols(accessorSymbol: KaPropertyAccessorSymbol): Sequence<KaCallableSymbol> =
+    getOverriddenAccessorSymbols(accessorSymbol) { propertySymbol ->
+        with(analysisSession) { propertySymbol.allOverriddenSymbols }
+    }
+
+context(relationProvider: KaFirSymbolRelationProvider)
+internal fun getDirectlyOverriddenAccessorSymbols(accessorSymbol: KaPropertyAccessorSymbol): Sequence<KaCallableSymbol> =
+    getOverriddenAccessorSymbols(accessorSymbol) { propertySymbol ->
+        with(analysisSession) { propertySymbol.directlyOverriddenSymbols }
+    }
+
+context(relationProvider: KaFirSymbolRelationProvider)
+internal fun getIntersectionOverriddenAccessorSymbols(accessorSymbol: KaPropertyAccessorSymbol): List<KaCallableSymbol> =
+    getOverriddenAccessorSymbols(accessorSymbol) { propertySymbol ->
+        with(analysisSession) { propertySymbol.intersectionOverriddenSymbols.asSequence() }
+    }.toList()
+
+private inline fun getOverriddenAccessorSymbols(
+    accessorSymbol: KaPropertyAccessorSymbol,
+    overriddenProperties: (KaPropertySymbol) -> Sequence<KaCallableSymbol>,
+): Sequence<KaCallableSymbol> {
+    val propertySymbol = (accessorSymbol as? KaFirBasePropertyAccessorSymbol)?.owningKaProperty ?: return emptySequence()
+    return overriddenProperties(propertySymbol).mapNotNull { overriddenSymbol ->
+        (overriddenSymbol as? KaPropertySymbol)?.matchingAccessor(accessorSymbol)
+    }
+}
+
+private fun KaPropertySymbol.matchingAccessor(accessorSymbol: KaPropertyAccessorSymbol): KaPropertyAccessorSymbol? = when (accessorSymbol) {
+    is KaPropertyGetterSymbol -> getter
+    is KaPropertySetterSymbol -> setter
 }
 
 private fun FirTypeScope.processCallableByName(declaration: FirDeclaration) = when (declaration) {

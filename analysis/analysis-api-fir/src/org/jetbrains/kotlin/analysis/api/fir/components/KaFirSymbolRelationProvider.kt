@@ -406,20 +406,20 @@ internal class KaFirSymbolRelationProvider(
 
     override val KaCallableSymbol.allOverriddenSymbols: Sequence<KaCallableSymbol>
         get() = withValidityAssertion {
-            if (this is KaValueParameterSymbol) {
-                return getAllOverriddenSymbolsForParameter(this)
+            return when (this) {
+                is KaValueParameterSymbol -> getAllOverriddenSymbolsForParameter(this)
+                is KaPropertyAccessorSymbol -> getAllOverriddenAccessorSymbols(this)
+                else -> getAllOverriddenSymbols(this)
             }
-
-            getAllOverriddenSymbols(this)
         }
 
     override val KaCallableSymbol.directlyOverriddenSymbols: Sequence<KaCallableSymbol>
         get() = withValidityAssertion {
-            if (this is KaValueParameterSymbol) {
-                return getDirectlyOverriddenSymbolsForParameter(this)
+            return when (this) {
+                is KaValueParameterSymbol -> getDirectlyOverriddenSymbolsForParameter(this)
+                is KaPropertyAccessorSymbol -> getDirectlyOverriddenAccessorSymbols(this)
+                else -> getDirectlyOverriddenSymbols(this)
             }
-
-            getDirectlyOverriddenSymbols(this)
         }
 
     override fun KaClassSymbol.isSubClassOf(superClass: KaClassSymbol): Boolean = withValidityAssertion {
@@ -432,7 +432,10 @@ internal class KaFirSymbolRelationProvider(
 
     override val KaCallableSymbol.intersectionOverriddenSymbols: List<KaCallableSymbol>
         get() = withValidityAssertion {
-            getIntersectionOverriddenSymbols(this)
+            return when (this) {
+                is KaPropertyAccessorSymbol -> getIntersectionOverriddenAccessorSymbols(this)
+                else -> getIntersectionOverriddenSymbols(this)
+            }
         }
 
     override fun KaCallableSymbol.getImplementationStatus(parentClassSymbol: KaClassSymbol): ImplementationStatus? {

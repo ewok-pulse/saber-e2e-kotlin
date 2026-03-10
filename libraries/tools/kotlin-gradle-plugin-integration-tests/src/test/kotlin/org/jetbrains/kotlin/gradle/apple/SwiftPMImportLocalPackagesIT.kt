@@ -140,6 +140,204 @@ class SwiftPMImportLocalPackagesIT : KGPBaseTest() {
     }
 
     @GradleTest
+    fun `local package with objc sources`(version: GradleVersion) {
+        project("emptyxcode", version) {
+            val localPackageRelativePath = "../localObjcPackage"
+            val localPackageDir = projectPath.resolve(localPackageRelativePath)
+            val targetName = "LocalObjcPackage"
+
+            createLocalSwiftPackage(localPackageDir, packageName = targetName, sourceLanguage = SwiftPackageSourceLanguage.OBJC)
+
+            plugins {
+                kotlin("multiplatform")
+            }
+            buildScriptInjection {
+                project.applyMultiplatform {
+                    listOf(
+                        iosArm64(),
+                        iosSimulatorArm64()
+                    ).forEach {
+                        it.binaries.framework {
+                            baseName = "Shared"
+                            isStatic = true
+                        }
+                    }
+
+                    swiftPMDependencies {
+                        localSwiftPackage(
+                            directory = project.layout.projectDirectory.dir(localPackageRelativePath),
+                            products = listOf(targetName),
+                        )
+                    }
+                }
+            }
+
+            assertEquals(
+                """
+                    swiftPMImport.emptyxcode/LocalHelper.<init>|objc:init#Constructor[1]
+                    swiftPMImport.emptyxcode/LocalHelper.Companion|null[1]
+                    swiftPMImport.emptyxcode/LocalHelper.init|objc:init[1]
+                    swiftPMImport.emptyxcode/LocalHelperMeta.<init>|<init>(){}[1]
+                    swiftPMImport.emptyxcode/LocalHelperMeta.allocWithZone|objc:allocWithZone:[1]
+                    swiftPMImport.emptyxcode/LocalHelperMeta.alloc|objc:alloc[1]
+                    swiftPMImport.emptyxcode/LocalHelperMeta.greeting|objc:greeting[1]
+                    swiftPMImport.emptyxcode/LocalHelperMeta.new|objc:new[1]
+                    swiftPMImport.emptyxcode/LocalHelperMeta|null[1]
+                    swiftPMImport.emptyxcode/LocalHelper|null[1]
+                """.trimIndent(),
+                commonizeAndDumpCinteropSignatures().trim(),
+                message = "Cinterop signatures should match expected output for local package with ObjC sources"
+            )
+        }
+    }
+
+    @GradleTest
+    fun `check that cpp packages not visible in kotlin, but passed to xcodebuild`(version: GradleVersion) {
+        project("emptyxcode", version) {
+            val localPackageRelativePath = "../localCxxPackage"
+            val localPackageDir = projectPath.resolve(localPackageRelativePath)
+            val targetName = "LocalCxxPackage"
+
+            createLocalSwiftPackage(localPackageDir, packageName = targetName, sourceLanguage = SwiftPackageSourceLanguage.CXX)
+
+            plugins {
+                kotlin("multiplatform")
+            }
+            buildScriptInjection {
+                project.applyMultiplatform {
+                    listOf(
+                        iosArm64(),
+                        iosSimulatorArm64()
+                    ).forEach {
+                        it.binaries.framework {
+                            baseName = "Shared"
+                            isStatic = true
+                        }
+                    }
+
+                    swiftPMDependencies {
+                        localSwiftPackage(
+                            directory = project.layout.projectDirectory.dir(localPackageRelativePath),
+                            products = listOf(targetName),
+                        )
+                    }
+                }
+            }
+
+            kotlinSourcesDir("iosMain")
+                .createDirectories().resolve("temp.kt")
+                .createFile()
+                .writeText("class IosMain")
+
+            assertEquals(
+                "",
+                commonizeAndDumpCinteropSignatures().trim(),
+                message = "Cinterop signatures should be empty for local package with C++ sources"
+            )
+
+            projectPath.resolve("iosApp/iosApp/iOSApp.swift").writeText(
+                """
+                    import SwiftUI
+                    import LocalCxxPackage
+
+                    @main
+                    struct iOSApp: App {
+                        var body: some Scene {
+                            WindowGroup {
+                                let _ = String(cString: cxx_greeting())
+                            }
+                        }
+                    }
+                """.trimIndent()
+            )
+
+            build(
+                "integrateLinkagePackage",
+                environmentVariables = EnvironmentalVariables(
+                    "XCODEPROJ_PATH" to "iosApp/iosApp.xcodeproj"
+                )
+            )
+
+            buildXcodeProject(
+                xcodeproj = projectPath.resolve("iosApp/iosApp.xcodeproj"),
+            )
+        }
+    }
+
+    @GradleTest
+    fun `check that pure swift packages not visible in kotlin, but passed to xcodebuild`(version: GradleVersion) {
+        project("emptyxcode", version) {
+            val localPackageRelativePath = "../localPureSwiftPackage"
+            val localPackageDir = projectPath.resolve(localPackageRelativePath)
+            val targetName = "LocalPureSwiftPackage"
+
+            createLocalSwiftPackage(localPackageDir, packageName = targetName, sourceLanguage = SwiftPackageSourceLanguage.SWIFT)
+
+            plugins {
+                kotlin("multiplatform")
+            }
+            buildScriptInjection {
+                project.applyMultiplatform {
+                    listOf(
+                        iosArm64(),
+                        iosSimulatorArm64()
+                    ).forEach {
+                        it.binaries.framework {
+                            baseName = "Shared"
+                            isStatic = true
+                        }
+                    }
+
+                    swiftPMDependencies {
+                        localSwiftPackage(
+                            directory = project.layout.projectDirectory.dir(localPackageRelativePath),
+                            products = listOf(targetName),
+                        )
+                    }
+                }
+            }
+
+            kotlinSourcesDir("iosMain")
+                .createDirectories().resolve("temp.kt")
+                .createFile()
+                .writeText("class IosMain")
+
+            assertEquals(
+                "",
+                commonizeAndDumpCinteropSignatures().trim(),
+                message = "Cinterop signatures should be empty for local package with pure Swift sources"
+            )
+
+            projectPath.resolve("iosApp/iosApp/iOSApp.swift").writeText(
+                """
+                    import SwiftUI
+                    import LocalPureSwiftPackage
+
+                    @main
+                    struct iOSApp: App {
+                        var body: some Scene {
+                            WindowGroup {
+                                let _ = PureSwiftHelper.greeting()
+                            }
+                        }
+                    }
+                """.trimIndent()
+            )
+
+            build(
+                "integrateLinkagePackage",
+                environmentVariables = EnvironmentalVariables(
+                    "XCODEPROJ_PATH" to "iosApp/iosApp.xcodeproj"
+                )
+            )
+
+            buildXcodeProject(
+                xcodeproj = projectPath.resolve("iosApp/iosApp.xcodeproj"),
+            )
+        }
+    }
+
+    @GradleTest
     fun `local package with binaryTarget static framework xcframework`(version: GradleVersion) {
         testLocalPackageWithBinaryTargetXcframework(
             version,

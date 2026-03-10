@@ -25,16 +25,23 @@ const val SYNTHETIC_IMPORT_TARGET_MAGIC_NAME = GenerateSyntheticLinkageImportPro
 
 // region Local Swift Package Creation Utilities
 
+enum class SwiftPackageSourceLanguage {
+    SWIFT_WITH_OBJC,
+    OBJC,
+    CXX,
+    SWIFT,
+}
+
 fun createLocalSwiftPackage(
     localPackageDir: Path,
     packageName: String = "LocalSwiftPackage",
-    useObjcSources: Boolean = false,
+    sourceLanguage: SwiftPackageSourceLanguage = SwiftPackageSourceLanguage.SWIFT_WITH_OBJC,
 ) {
     localPackageDir.createDirectories()
     val sourcesDir = localPackageDir.resolve("Sources/$packageName")
     sourcesDir.createDirectories()
     writePackageManifest(localPackageDir, packageName, ".target(name: \"$packageName\"),")
-    writeLocalPackageSources(sourcesDir, packageName, useObjcSources)
+    writeLocalPackageSources(sourcesDir, packageName, sourceLanguage)
 }
 
 internal fun writePackageManifest(
@@ -64,32 +71,81 @@ internal fun writePackageManifest(
 private fun writeLocalPackageSources(
     sourcesDir: Path,
     packageName: String,
-    useObjcSources: Boolean,
+    sourceLanguage: SwiftPackageSourceLanguage,
 ) {
-    if (useObjcSources) {
-        sourcesDir.resolve("$packageName.h").writeText(
-            """
-                #import <Foundation/Foundation.h>
-            
-                @interface LocalHelper : NSObject
-                + (NSString *)greeting;
-                @end
-            """.trimIndent()
-        )
-        sourcesDir.resolve("$packageName.m").writeText(
-            """
-                #import "$packageName.h"
-            
-                @implementation LocalHelper
-                + (NSString *)greeting {
-                    return @"Hello from LocalHelper";
-                }
-                @end
-            """.trimIndent()
-        )
-        sourcesDir.resolve("module.modulemap").writeText(moduleMapContent(packageName, "$packageName.h"))
-    } else {
-        sourcesDir.resolve("$packageName.swift").writeText(swiftSourceContent())
+    when (sourceLanguage) {
+        SwiftPackageSourceLanguage.CXX -> {
+            val includeDir = sourcesDir.resolve("include")
+            includeDir.createDirectories()
+            includeDir.resolve("$packageName.h").writeText(
+                """
+                    #ifndef ${packageName}_h
+                    #define ${packageName}_h
+
+                    #ifdef __cplusplus
+                    extern "C" {
+                    #endif
+
+                    const char* cxx_greeting(void);
+
+                    #ifdef __cplusplus
+                    }
+                    #endif
+
+                    #endif /* ${packageName}_h */
+                """.trimIndent()
+            )
+            sourcesDir.resolve("$packageName.cpp").writeText(
+                """
+                    #include "include/$packageName.h"
+                    #include <string>
+
+                    const char* cxx_greeting(void) {
+                        std::string msg = "Hello from C++";
+                        return msg.c_str();
+                    }
+                """.trimIndent()
+            )
+        }
+        SwiftPackageSourceLanguage.OBJC -> {
+            sourcesDir.resolve("$packageName.h").writeText(
+                """
+                    #import <Foundation/Foundation.h>
+                
+                    @interface LocalHelper : NSObject
+                    + (NSString *)greeting;
+                    @end
+                """.trimIndent()
+            )
+            sourcesDir.resolve("$packageName.m").writeText(
+                """
+                    #import "$packageName.h"
+                
+                    @implementation LocalHelper
+                    + (NSString *)greeting {
+                        return @"Hello from LocalHelper";
+                    }
+                    @end
+                """.trimIndent()
+            )
+            sourcesDir.resolve("module.modulemap").writeText(moduleMapContent(packageName, "$packageName.h"))
+        }
+        SwiftPackageSourceLanguage.SWIFT_WITH_OBJC -> {
+            sourcesDir.resolve("$packageName.swift").writeText(swiftSourceContent())
+        }
+        SwiftPackageSourceLanguage.SWIFT -> {
+            sourcesDir.resolve("$packageName.swift").writeText(
+                """
+                    import Foundation
+                
+                    public class PureSwiftHelper {
+                        public static func greeting() -> String {
+                            return "Hello from PureSwiftHelper"
+                        }
+                    }
+                """.trimIndent()
+            )
+        }
     }
 }
 

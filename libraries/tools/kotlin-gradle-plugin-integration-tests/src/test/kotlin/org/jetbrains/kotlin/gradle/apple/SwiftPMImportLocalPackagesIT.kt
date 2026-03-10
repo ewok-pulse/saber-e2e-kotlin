@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.OS
 import kotlin.io.path.*
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OsCondition(
     supportedOn = [OS.MAC],
@@ -362,6 +363,102 @@ class SwiftPMImportLocalPackagesIT : KGPBaseTest() {
             buildType = XcframeworkBuildType.LIBRARY,
             linkage = XcframeworkLinkage.STATIC
         )
+    }
+
+    @GradleTest
+    fun `local package with resources - packaging and runtime lookup in iosApp`(version: GradleVersion) {
+        project("emptyxcode", version) {
+            val localPackageRelativePath = "../localResourcePackage"
+            val localPackageDir = projectPath.resolve(localPackageRelativePath)
+            val targetName = "LocalResourcePackage"
+            val resourceFileName = "greeting.txt"
+            val resourceContent = "Hello from SPM resource"
+
+            createLocalSwiftPackageWithResources(
+                localPackageDir = localPackageDir,
+                packageName = targetName,
+                resourceFileName = resourceFileName,
+                resourceContent = resourceContent,
+            )
+
+            plugins {
+                kotlin("multiplatform")
+            }
+            buildScriptInjection {
+                project.applyMultiplatform {
+                    listOf(
+                        iosArm64(),
+                        iosSimulatorArm64()
+                    ).forEach {
+                        it.binaries.framework {
+                            baseName = "Shared"
+                            isStatic = true
+                        }
+                    }
+
+                    swiftPMDependencies {
+                        localSwiftPackage(
+                            directory = project.layout.projectDirectory.dir(localPackageRelativePath),
+                            products = listOf(targetName),
+                        )
+                    }
+                }
+            }
+
+            kotlinSourcesDir("iosMain")
+                .createDirectories().resolve("temp.kt")
+                .createFile()
+                .writeText("class IosMain")
+
+            // Update iosApp Swift source to use the resource accessor at runtime
+            projectPath.resolve("iosApp/iosApp/iOSApp.swift").writeText(
+                """
+                    import SwiftUI
+                    import LocalResourcePackage
+
+                    @main
+                    struct iOSApp: App {
+                        var body: some Scene {
+                            WindowGroup {
+                                let _ = ResourceAccessor.resourceContent()
+                                let _ = ResourceAccessor.resourceBundle()
+                            }
+                        }
+                    }
+                """.trimIndent()
+            )
+
+            build(
+                "integrateLinkagePackage",
+                environmentVariables = EnvironmentalVariables(
+                    "XCODEPROJ_PATH" to "iosApp/iosApp.xcodeproj"
+                )
+            )
+
+            buildXcodeProject(
+                xcodeproj = projectPath.resolve("iosApp/iosApp.xcodeproj"),
+            )
+
+            val appBundle = projectPath.resolve("xcodeDerivedData/Build/Products/Debug-iphonesimulator/emptyxcode.app")
+            assertTrue(
+                appBundle.exists(),
+                "App bundle should exist at ${appBundle.absolutePathString()}, but it does not exist"
+            )
+
+            val bundledResource = appBundle.resolve("${targetName}_$targetName.bundle/$resourceFileName")
+
+            assertTrue(
+                bundledResource.exists(),
+                "Resource file '$resourceFileName' should be packaged in the app bundle, " +
+                        "but it does not exist at ${bundledResource.absolutePathString()}"
+            )
+
+            assertEquals(
+                resourceContent,
+                bundledResource.readText(),
+                "Resource file content should match the original content"
+            )
+        }
     }
 
     private fun testLocalPackageWithBinaryTargetXcframework(

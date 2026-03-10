@@ -44,6 +44,53 @@ fun createLocalSwiftPackage(
     writeLocalPackageSources(sourcesDir, packageName, sourceLanguage)
 }
 
+fun createLocalSwiftPackageWithResources(
+    localPackageDir: Path,
+    packageName: String = "LocalSwiftPackage",
+    resourceFileName: String = "greeting.txt",
+    resourceContent: String = "Hello from SPM resource",
+) {
+    localPackageDir.createDirectories()
+    val sourcesDir = localPackageDir.resolve("Sources/$packageName")
+    sourcesDir.createDirectories()
+
+    // Create the resource file
+    sourcesDir.resolve(resourceFileName).writeText(resourceContent)
+
+    // Write Package.swift with resource processing
+    writePackageManifest(
+        localPackageDir, packageName,
+        """
+            .target(
+                name: "$packageName",
+                resources: [
+                    .process("$resourceFileName"),
+                ]
+            ),
+        """.trimIndent()
+    )
+
+    // Write Swift source that exposes a resource accessor
+    sourcesDir.resolve("$packageName.swift").writeText(
+        """
+            import Foundation
+
+            @objc public class ResourceAccessor: NSObject {
+                @objc public static func resourceContent() -> String {
+                    guard let url = Bundle.module.url(forResource: "${resourceFileName.substringBeforeLast(".")}", withExtension: "${resourceFileName.substringAfterLast(".")}") else {
+                        return "RESOURCE_NOT_FOUND"
+                    }
+                    return (try? String(contentsOf: url)) ?? "RESOURCE_READ_ERROR"
+                }
+
+                @objc public static func resourceBundle() -> Bundle {
+                    return Bundle.module
+                }
+            }
+        """.trimIndent()
+    )
+}
+
 internal fun writePackageManifest(
     localPackageDir: Path,
     packageName: String,

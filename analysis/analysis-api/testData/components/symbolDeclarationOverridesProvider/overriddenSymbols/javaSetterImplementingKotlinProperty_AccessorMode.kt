@@ -1,3 +1,5 @@
+// JAVA_SYMBOL_SELECTION_MODE: SYNTHETIC_ACCESSOR
+
 // FILE: main.kt
 interface A { var foo: Int }
 

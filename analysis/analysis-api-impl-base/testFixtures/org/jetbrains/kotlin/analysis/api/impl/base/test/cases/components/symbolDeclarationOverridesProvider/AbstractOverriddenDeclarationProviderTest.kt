@@ -5,7 +5,9 @@
 
 package org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.symbolDeclarationOverridesProvider
 
+import com.intellij.psi.PsiMethod
 import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.components.callableSymbol
 import org.jetbrains.kotlin.analysis.api.components.containingDeclaration
 import org.jetbrains.kotlin.analysis.api.components.render
 import org.jetbrains.kotlin.analysis.api.components.resolveToSymbol
@@ -20,13 +22,20 @@ import org.jetbrains.kotlin.analysis.test.framework.test.configurators.FrontendK
 import org.jetbrains.kotlin.analysis.test.framework.utils.executeOnPooledThreadInReadAction
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtReferenceExpression
+import org.jetbrains.kotlin.test.directives.model.DirectivesContainer
+import org.jetbrains.kotlin.test.directives.model.SimpleDirectivesContainer
+import org.jetbrains.kotlin.test.directives.model.singleOrZeroValue
 import org.jetbrains.kotlin.test.services.TestServices
 import org.jetbrains.kotlin.test.services.assertions
+import org.jetbrains.kotlin.test.services.moduleStructure
 import org.jetbrains.kotlin.types.Variance
 
 abstract class AbstractOverriddenDeclarationProviderTest : AbstractAnalysisApiBasedTest() {
+    override val additionalDirectives: List<DirectivesContainer>
+        get() = super.additionalDirectives + Directives
+
     override fun doTestByMainFile(mainFile: KtFile, mainModule: KtTestModule, testServices: TestServices) {
         val actual = executeOnPooledThreadInReadAction {
             // Since analyzing overrides requires checking multiple declarations, we should use `PREFER_SELF` for copy-aware analysis.
@@ -35,7 +44,7 @@ abstract class AbstractOverriddenDeclarationProviderTest : AbstractAnalysisApiBa
                 mainFile,
                 danglingFileResolutionMode = KaDanglingFileResolutionMode.PREFER_SELF,
             ) { contextFile ->
-                val symbol = getCallableSymbol(contextFile, mainModule, testServices)
+                val symbol = getCallableSymbol(contextFile, testServices)
                 val allOverriddenSymbols = symbol.allOverriddenSymbols.map { renderSignature(it) }
                 val directlyOverriddenSymbols = symbol.directlyOverriddenSymbols.map { renderSignature(it) }
 
@@ -60,19 +69,34 @@ abstract class AbstractOverriddenDeclarationProviderTest : AbstractAnalysisApiBa
     }
 
     context(_: KaSession)
-    protected open fun getCallableSymbol(mainFile: KtFile, mainModule: KtTestModule, testServices: TestServices): KaCallableSymbol {
+    private fun getCallableSymbol(mainFile: KtFile, testServices: TestServices): KaCallableSymbol {
+        val referenceExpression =
+            testServices.expressionMarkerProvider.getBottommostElementOfTypeAtCaretOrNull<KtReferenceExpression>(mainFile)
+
+        if (referenceExpression != null) {
+            val symbol = referenceExpression.mainReference.resolveToSymbol() ?: error("Reference cannot be resolved")
+            require(symbol is KaCallableSymbol) { "Resolved to non-callable symbol $${symbol::class.simpleName}" }
+
+            return if (symbol is KaSyntheticJavaPropertySymbol) {
+                when (javaSymbolSelectionMode(testServices)) {
+                    JavaSymbolSelectionMode.SYNTHETIC_ACCESSOR -> {
+                        val javaPsi = (symbol.setter?.psi ?: symbol.getter.psi) as PsiMethod
+                        javaPsi.callableSymbol ?: error("Failed to find callable symbol for Java PSI")
+                    }
+                    JavaSymbolSelectionMode.METHOD -> {
+                        symbol.javaSetterSymbol ?: symbol.javaGetterSymbol
+                    }
+
+                    else -> error("Invalid symbol selection mode for Java synthetic property")
+                }
+            } else {
+                symbol
+            }
+        }
+
         val declaration = testServices.expressionMarkerProvider.getBottommostElementOfTypeAtCaretOrNull<KtDeclaration>(mainFile)
         if (declaration != null) {
             return declaration.symbol as KaCallableSymbol
-        }
-
-        val referenceExpression = testServices.expressionMarkerProvider
-            .getTopmostSelectedElementOfTypeByDirectiveOrNull(mainFile, mainModule, defaultType = KtExpression::class) as? KtExpression
-        if (referenceExpression != null) {
-            val reference = referenceExpression.mainReference ?: error("No reference at caret")
-            val symbol = reference.resolveToSymbol() ?: error("Reference cannot be resolved")
-            require(symbol is KaCallableSymbol) { "Resolved to non-callable symbol $${symbol::class.simpleName}" }
-            return symbol
         }
 
         return getSingleTestTargetSymbolOfType<KaCallableSymbol>(testDataPath, mainFile)
@@ -124,5 +148,19 @@ abstract class AbstractOverriddenDeclarationProviderTest : AbstractAnalysisApiBa
         }
 
         return chunks.joinToString(".")
+    }
+
+    private fun javaSymbolSelectionMode(testServices: TestServices): JavaSymbolSelectionMode? =
+        testServices.moduleStructure.allDirectives.singleOrZeroValue(Directives.JAVA_SYMBOL_SELECTION_MODE)
+
+    private enum class JavaSymbolSelectionMode {
+        SYNTHETIC_ACCESSOR,
+        METHOD
+    }
+
+    private object Directives : SimpleDirectivesContainer() {
+        val JAVA_SYMBOL_SELECTION_MODE by enumDirective<JavaSymbolSelectionMode>(
+            "Selects how the callable symbol under the caret is obtained for override checks.",
+        )
     }
 }

@@ -164,6 +164,30 @@ public class FirIdeDependentAnalysisSourceModuleOverriddenDeclarationProviderTes
   }
 
   @Test
+  @TestMetadata("javaGetterImplementingKotlinProperty_AccessorMode.kt")
+  public void testJavaGetterImplementingKotlinProperty_AccessorMode() {
+    run("javaGetterImplementingKotlinProperty_AccessorMode.kt");
+  }
+
+  @Test
+  @TestMetadata("javaGetterImplementingKotlinProperty_MethodMode.kt")
+  public void testJavaGetterImplementingKotlinProperty_MethodMode() {
+    run("javaGetterImplementingKotlinProperty_MethodMode.kt");
+  }
+
+  @Test
+  @TestMetadata("javaSetterImplementingKotlinProperty_AccessorMode.kt")
+  public void testJavaSetterImplementingKotlinProperty_AccessorMode() {
+    run("javaSetterImplementingKotlinProperty_AccessorMode.kt");
+  }
+
+  @Test
+  @TestMetadata("javaSetterImplementingKotlinProperty_MethodMode.kt")
+  public void testJavaSetterImplementingKotlinProperty_MethodMode() {
+    run("javaSetterImplementingKotlinProperty_MethodMode.kt");
+  }
+
+  @Test
   @TestMetadata("linkedHashSet.kt")
   public void testLinkedHashSet() {
     run("linkedHashSet.kt");

@@ -1,3 +1,5 @@
+// JAVA_SYMBOL_SELECTION_MODE: METHOD
+
 // FILE: main.kt
 interface A { val foo: Int }
 

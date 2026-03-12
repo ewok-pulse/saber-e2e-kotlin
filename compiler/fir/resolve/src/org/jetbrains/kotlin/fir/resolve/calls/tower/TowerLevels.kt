@@ -428,6 +428,10 @@ internal class ScopeBasedTowerLevel(
         callInfo: CallInfo,
         processor: TowerLevelProcessor
     ) {
+        if (!companionExtensionPolicy.accepts(candidate)) {
+            return
+        }
+
         candidate.lazyResolveToPhase(FirResolvePhase.TYPES)
         if (withHideMembersOnly && !candidate.hasAnnotationWithClassId(HidesMembers, session)) {
             return
@@ -439,10 +443,6 @@ internal class ScopeBasedTowerLevel(
 
         val dispatchReceiverValue = dispatchReceiverValue(candidate, callInfo)
         if (dispatchReceiverValue == null && shouldSkipCandidateWithInconsistentExtensionReceiver(candidate)) {
-            return
-        }
-
-        if (!companionExtensionPolicy.accepts(candidate)) {
             return
         }
 

@@ -21,9 +21,9 @@ import kotlin.concurrent.withLock
 /**
  * Speeds up finding files/classes in the classpath/Java source roots.
  *
- * The main idea of this class is for each package to store all roots which contain the package to avoid excessive file system traversal.
+ * The main idea of this class is for each package to store all roots that contain the package to avoid excessive file system traversal.
  *
- * @param shouldOnlyFindFirstClass The index will stop the search in [findClasses] once it finds one result.
+ * @param shouldOnlyFindFirstClass The index will stop the search in [findClassVirtualFiles] once it finds one result.
  */
 class JvmDependenciesIndexImpl(
     _roots: List<JavaRoot>,
@@ -62,7 +62,7 @@ class JvmDependenciesIndexImpl(
 
     // holds the request and the result last time we searched for class
     // helps improve several scenarios, LazyJavaResolverContext.findClassInJava being the most important
-    private var lastClassSearch: Pair<ClassSearchRequest, ClassSearchResult>? = null
+    private var lastClassVirtualFileSearch: Pair<ClassSearchRequest, Collection<VirtualFile>>? = null
 
     override val indexedRoots by lazy { roots.asSequence() }
 
@@ -80,55 +80,74 @@ class JvmDependenciesIndexImpl(
         }
     }
 
-    override fun <T : Any> findClasses(
-        classId: ClassId,
+    override fun traverseVirtualFilesInPackage(
+        packageFqName: FqName,
         acceptedRootTypes: Set<JavaRoot.RootType>,
-        findClassGivenDirectory: (VirtualFile, JavaRoot.RootType) -> T?,
-    ): Collection<T> {
+        continueSearch: (VirtualFile, JavaRoot.RootType) -> Boolean
+    ) {
         lock.withLock {
-            // TODO: KT-58327 probably should be changed to thread local to fix fast-path
-            // make a decision based on information saved from last class search
-            val cachedClasses = lastClassSearch?.let { (cachedRequest, cachedResult) ->
-                if (cachedRequest.classId != classId) return@let null
-
-                when (cachedResult) {
-                    is ClassSearchResult.NotFound -> {
-                        val limitedRootTypes = acceptedRootTypes - cachedRequest.acceptedRootTypes
-                        if (limitedRootTypes.isEmpty()) emptyList() else null
-                    }
-                    is ClassSearchResult.Found -> {
-                        if (cachedRequest.acceptedRootTypes == acceptedRootTypes) {
-                            listOfNotNull(findClassGivenDirectory(cachedResult.packageDirectory, cachedResult.root.type))
-                        } else null
-                    }
-                    is ClassSearchResult.FoundMultiple -> {
-                        if (cachedRequest.acceptedRootTypes == acceptedRootTypes) {
-                            cachedResult.results.mapNotNull { findClassGivenDirectory(it.packageDirectory, it.root.type) }
-                        } else null
-                    }
+            traverseIndex(packageFqName, acceptedRootTypes) { dir, root ->
+                for (child in dir.children) {
+                    val shouldContinueSearch = continueSearch(child, root.type)
+                    if (!shouldContinueSearch) return@traverseIndex false
                 }
+                true
             }
-
-            return cachedClasses ?: searchClasses(classId, acceptedRootTypes, findClassGivenDirectory)
         }
     }
 
-    private fun <T : Any> searchClasses(
+    override fun findClassVirtualFiles(
         classId: ClassId,
-        acceptedRootTypes: Set<JavaRoot.RootType>,
-        findClassGivenDirectory: (VirtualFile, JavaRoot.RootType) -> T?,
-    ): Collection<T> {
-        val results = mutableListOf<T>()
-        val classSearchResults = mutableListOf<ClassSearchResult.Found>()
+        acceptedExtensions: Collection<JavaFileExtension>,
+    ): Collection<VirtualFile> {
+        lock.withLock {
+            // TODO: KT-58327 probably should be changed to thread local to fix fast-path
+            // make a decision based on information saved from last class search
+            val cachedClasses = lastClassVirtualFileSearch?.let { (cachedRequest, cachedResult) ->
+                if (cachedRequest.classId != classId) return@let null
+
+                val isMatchingRequest = if (cachedResult.isEmpty()) {
+                    cachedRequest.acceptedExtensions.containsAll(acceptedExtensions)
+                } else {
+                    // The accepted extensions have to match exactly. Otherwise, the cache might produce files with unexpected extensions.
+                    // The order must also be the same, as it determines which files are resolved first in each root, so the result might be
+                    // different.
+                    cachedRequest.acceptedExtensions == acceptedExtensions
+                }
+
+                if (isMatchingRequest) cachedResult else null
+            }
+
+            return cachedClasses ?: searchClasses(classId, acceptedExtensions)
+        }
+    }
+
+    private fun searchClasses(
+        classId: ClassId,
+        acceptedExtensions: Collection<JavaFileExtension>,
+    ): Collection<VirtualFile> {
+        val acceptedRootTypes = acceptedExtensions.mapTo(EnumSet.noneOf(JavaRoot.RootType::class.java)) { it.rootType }
+        val fileNameWithoutExtension = classId.relativeClassName.asString().replace('.', '$')
+        val results = mutableListOf<VirtualFile>()
 
         traverseIndex(classId.packageFqName, acceptedRootTypes) { directoryInRoot, root ->
-            val result = findClassGivenDirectory(directoryInRoot, root.type)
-            if (result != null) {
-                results.add(result)
-                classSearchResults.add(ClassSearchResult.Found(directoryInRoot, root))
+            for (ext in acceptedExtensions) {
+                if (ext.rootType != root.type) continue
 
-                if (shouldOnlyFindFirstClass) {
-                    return@traverseIndex false
+                val file = directoryInRoot
+                    .findChild("$fileNameWithoutExtension.${ext.extension}")
+                    ?.takeIf { it.isValid }
+
+                if (file != null) {
+                    results.add(file)
+
+                    if (shouldOnlyFindFirstClass) {
+                        return@traverseIndex false
+                    }
+
+                    // We found a result for this directory. We should move to the next root, as the same class in the same root won't be
+                    // represented by multiple file types.
+                    break
                 }
             }
 
@@ -136,19 +155,15 @@ class JvmDependenciesIndexImpl(
             true
         }
 
-        val classSearchResult = when (classSearchResults.size) {
-            0 -> ClassSearchResult.NotFound
-            1 -> classSearchResults.single()
-            else -> ClassSearchResult.FoundMultiple(classSearchResults)
-        }
-        lastClassSearch = ClassSearchRequest(classId, acceptedRootTypes) to classSearchResult
+        val resultsOrEmpty = results.ifEmpty { emptyList() }
+        lastClassVirtualFileSearch = ClassSearchRequest(classId, acceptedExtensions) to resultsOrEmpty
 
-        return results.ifEmpty { emptyList() }
+        return resultsOrEmpty
     }
 
     /**
-     * @param handleEntry A function which is given an index entry made up of the directory in the root ([VirtualFile]) and the [JavaRoot].
-     *  It should handle this entry, and return whether the traversal should be continued.
+     * @param handleEntry A function that is given an index entry made up of the directory in the root ([VirtualFile]) and the [JavaRoot].
+     *  It should handle this entry and return whether the traversal should be continued.
      */
     private inline fun traverseIndex(
         packageFqName: FqName,
@@ -264,13 +279,8 @@ class JvmDependenciesIndexImpl(
         return caches
     }
 
-    private data class ClassSearchRequest(val classId: ClassId, val acceptedRootTypes: Set<JavaRoot.RootType>)
-
-    private sealed class ClassSearchResult {
-        class Found(val packageDirectory: VirtualFile, val root: JavaRoot) : ClassSearchResult()
-
-        class FoundMultiple(val results: List<Found>) : ClassSearchResult()
-
-        data object NotFound : ClassSearchResult()
-    }
+    private data class ClassSearchRequest(
+        val classId: ClassId,
+        val acceptedExtensions: Collection<JavaFileExtension>,
+    )
 }

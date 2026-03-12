@@ -24,7 +24,7 @@ import kotlin.concurrent.read
 import kotlin.concurrent.write
 
 /**
- * @param shouldOnlyFindFirstClass The index will stop the search in [findClasses] once it finds one result.
+ * @param shouldOnlyFindFirstClass The index will stop the search in [findClassVirtualFiles] once it finds one result.
  */
 class JvmDependenciesDynamicCompoundIndex(private val shouldOnlyFindFirstClass: Boolean) : JvmDependenciesIndex {
     private val indices = arrayListOf<JvmDependenciesIndex>()
@@ -46,19 +46,16 @@ class JvmDependenciesDynamicCompoundIndex(private val shouldOnlyFindFirstClass: 
 
     override val indexedRoots: Sequence<JavaRoot> get() = indices.asSequence().flatMap { it.indexedRoots }
 
-    override fun <T : Any> findClasses(
+    override fun findClassVirtualFiles(
         classId: ClassId,
-        acceptedRootTypes: Set<JavaRoot.RootType>,
-        findClassGivenDirectory: (VirtualFile, JavaRoot.RootType) -> T?,
-    ): Collection<T> = lock.read {
+        acceptedExtensions: Collection<JavaFileExtension>,
+    ): Collection<VirtualFile> = lock.read {
         if (shouldOnlyFindFirstClass) {
             listOfNotNull(
-                indices.asSequence()
-                    .mapNotNull { it.findClasses(classId, acceptedRootTypes, findClassGivenDirectory).firstOrNull() }
-                    .firstOrNull()
+                indices.firstNotNullOfOrNull { it.findClassVirtualFiles(classId, acceptedExtensions).firstOrNull() }
             )
         } else {
-            indices.flatMap { it.findClasses(classId, acceptedRootTypes, findClassGivenDirectory) }
+            indices.flatMap { it.findClassVirtualFiles(classId, acceptedExtensions) }
         }
     }
 
@@ -68,5 +65,13 @@ class JvmDependenciesDynamicCompoundIndex(private val shouldOnlyFindFirstClass: 
         continueSearch: (VirtualFile, JavaRoot.RootType) -> Boolean
     ) = lock.read {
         indices.forEach { it.traverseDirectoriesInPackage(packageFqName, acceptedRootTypes, continueSearch) }
+    }
+
+    override fun traverseVirtualFilesInPackage(
+        packageFqName: FqName,
+        acceptedRootTypes: Set<JavaRoot.RootType>,
+        continueSearch: (VirtualFile, JavaRoot.RootType) -> Boolean
+    ) = lock.read {
+        indices.forEach { it.traverseVirtualFilesInPackage(packageFqName, acceptedRootTypes, continueSearch) }
     }
 }

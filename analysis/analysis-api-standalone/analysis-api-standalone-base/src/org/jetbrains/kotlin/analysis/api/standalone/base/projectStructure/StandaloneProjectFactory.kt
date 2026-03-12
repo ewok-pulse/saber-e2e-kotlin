@@ -57,7 +57,7 @@ import org.jetbrains.kotlin.cli.create
 import org.jetbrains.kotlin.cli.jvm.compiler.*
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
 import org.jetbrains.kotlin.cli.jvm.index.JvmDependenciesDynamicCompoundIndex
-import org.jetbrains.kotlin.cli.jvm.index.JvmDependenciesIndexImpl
+import org.jetbrains.kotlin.analysis.api.standalone.base.declarations.KotlinStandaloneJvmDependenciesIndex
 import org.jetbrains.kotlin.cli.jvm.index.SingleJavaFileRootsIndex
 import org.jetbrains.kotlin.cli.jvm.modules.CliJavaModuleFinder
 import org.jetbrains.kotlin.cli.jvm.modules.CliJavaModuleResolver
@@ -255,7 +255,7 @@ object StandaloneProjectFactory {
          * with a scope. See [org.jetbrains.kotlin.cli.jvm.index.JvmDependenciesIndex.findClassVirtualFiles] for a more detailed explanation.
          */
         val rootsIndex = JvmDependenciesDynamicCompoundIndex(shouldOnlyFindFirstClass = false).apply {
-            addIndex(JvmDependenciesIndexImpl(roots, shouldOnlyFindFirstClass = false))
+            addIndex(KotlinStandaloneJvmDependenciesIndex(roots))
             indexedRoots.forEach { javaRoot ->
                 if (javaRoot.file.isDirectory) {
                     if (javaRoot.type == JavaRoot.RootType.SOURCE) {

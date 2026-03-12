@@ -70,7 +70,6 @@ class WasmPreSerializationLoweringFacade(
                     diagnosticReporter,
                     configuration.languageVersionSettings
                 )
-                runKlibCheckers(irDiagnosticReporter, configuration, inputArtifact.irModuleFragment)
                 val phaseConfig = createJsTestPhaseConfig(testServices, module)
                 if (diagnosticReporter.hasErrors) {
                     // Should errors be found by checkers, there's a chance that some lowering will throw an exception on unparseable code.
@@ -99,18 +98,5 @@ class WasmPreSerializationLoweringFacade(
                 throw IllegalArgumentException("Unexpected inputArtifact type: ${inputArtifact.javaClass.simpleName}")
             }
         }
-    }
-
-    private fun runKlibCheckers(
-        irDiagnosticReporter: IrDiagnosticReporter,
-        configuration: CompilerConfiguration,
-        irModuleFragment: IrModuleFragment,
-    ) {
-        irModuleFragment.acceptVoid(
-            WasmKlibCheckers.makeChecker(
-                irDiagnosticReporter,
-                configuration,
-            )
-        )
     }
 }

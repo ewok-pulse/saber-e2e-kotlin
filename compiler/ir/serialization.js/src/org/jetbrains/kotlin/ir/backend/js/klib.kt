@@ -509,12 +509,9 @@ fun serializeModuleIntoKlib(
                             && !configuration.useFir // In K2, these checkers are being run within WebFir2IrPipelinePhase
                 },
                 { irDiagnosticReporter: IrDiagnosticReporter ->
-                    val cleanFilesIrData = cleanFiles.map { it.irData ?: error("Metadata-only KLIBs are not supported in Kotlin/Wasm") }
                     WasmKlibCheckers.makeChecker(
                         irDiagnosticReporter,
-                        configuration,
-                        cleanFilesIrData,
-                        moduleFragment.collectAllExportNames(),
+                        configuration
                     )
                 }.takeIf { builtInsPlatform == BuiltInsPlatform.WASM }
             ),

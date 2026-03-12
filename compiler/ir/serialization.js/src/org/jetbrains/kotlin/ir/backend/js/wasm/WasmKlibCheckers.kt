@@ -20,16 +20,12 @@ object WasmKlibCheckers {
     fun makeChecker(
         diagnosticReporter: IrDiagnosticReporter,
         configuration: CompilerConfiguration,
-        cleanFiles: List<SerializedIrFile> = listOf(),
-        exportedNames: ExportNamesMap = mapOf()
     ): IrVisitorVoid {
         return object : IrVisitorVoid() {
             private val diagnosticContext = JsKlibDiagnosticContext(configuration)
 
             override fun visitModuleFragment(declaration: IrModuleFragment) {
-                val exportedDeclarations =
-                    WasmKlibExportingDeclaration.collectDeclarations(cleanFiles, declaration.files, exportedNames)
-                WasmKlibExportsChecker.check(exportedDeclarations, this.diagnosticContext, diagnosticReporter)
+                WasmKlibExportsChecker.check(declaration.collectAllExportNames(), this.diagnosticContext, diagnosticReporter)
             }
         }
     }

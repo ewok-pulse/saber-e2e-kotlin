@@ -1,5 +1,5 @@
 ALL:
-  /Base.foo.<no name>: Int
+  /Base.foo: Int
 DIRECT:
-  /Base.foo.<no name>: Int
+  /Base.foo: Int
 INTERSECTION:

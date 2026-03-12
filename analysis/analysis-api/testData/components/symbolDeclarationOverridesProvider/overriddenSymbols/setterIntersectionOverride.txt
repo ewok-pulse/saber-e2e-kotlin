@@ -1,10 +1,10 @@
 ALL:
-  /B.foo.<no name>: Unit
-  /C.foo.<no name>: Unit
-  /D.foo.<no name>: Unit
+  /B.foo: Int
+  /C.foo: Int
+  /D.foo: Int
 DIRECT:
-  /B.foo.<no name>: Unit
-  /C.foo.<no name>: Unit
+  /B.foo: Int
+  /C.foo: Int
 INTERSECTION:
-  /B.foo.<no name>: Unit
-  /C.foo.<no name>: Unit
+  /B.foo: Int
+  /C.foo: Int

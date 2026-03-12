@@ -447,6 +447,7 @@ object FirErrors : KtDiagnosticsContainer() {
     // Value classes
     val VALUE_CLASS_NOT_TOP_LEVEL: KtDiagnosticFactory0 = KtDiagnosticFactory0("VALUE_CLASS_NOT_TOP_LEVEL", ERROR, SourceElementPositioningStrategies.INLINE_OR_VALUE_MODIFIER, KtDeclaration::class, getRendererFactory())
     val VALUE_CLASS_NOT_FINAL: KtDiagnosticFactory0 = KtDiagnosticFactory0("VALUE_CLASS_NOT_FINAL", ERROR, SourceElementPositioningStrategies.MODALITY_MODIFIER, KtDeclaration::class, getRendererFactory())
+    val VALUE_CLASS_OPEN: KtDiagnosticFactory0 = KtDiagnosticFactory0("VALUE_CLASS_OPEN", ERROR, SourceElementPositioningStrategies.MODALITY_MODIFIER, KtDeclaration::class, getRendererFactory())
     val ABSENCE_OF_PRIMARY_CONSTRUCTOR_FOR_VALUE_CLASS: KtDiagnosticFactory0 = KtDiagnosticFactory0("ABSENCE_OF_PRIMARY_CONSTRUCTOR_FOR_VALUE_CLASS", ERROR, SourceElementPositioningStrategies.INLINE_OR_VALUE_MODIFIER, KtDeclaration::class, getRendererFactory())
     val INLINE_CLASS_CONSTRUCTOR_WRONG_PARAMETERS_SIZE: KtDiagnosticFactory0 = KtDiagnosticFactory0("INLINE_CLASS_CONSTRUCTOR_WRONG_PARAMETERS_SIZE", ERROR, SourceElementPositioningStrategies.DEFAULT, KtElement::class, getRendererFactory())
     val VALUE_CLASS_EMPTY_CONSTRUCTOR: KtDiagnosticFactory0 = KtDiagnosticFactory0("VALUE_CLASS_EMPTY_CONSTRUCTOR", ERROR, SourceElementPositioningStrategies.DEFAULT, KtElement::class, getRendererFactory())
@@ -456,6 +457,7 @@ object FirErrors : KtDiagnosticsContainer() {
     val VALUE_CLASS_HAS_INAPPLICABLE_PARAMETER_TYPE: KtDiagnosticFactory1<ConeKotlinType> = KtDiagnosticFactory1("VALUE_CLASS_HAS_INAPPLICABLE_PARAMETER_TYPE", ERROR, SourceElementPositioningStrategies.DEFAULT, KtElement::class, getRendererFactory())
     val VALUE_CLASS_CANNOT_IMPLEMENT_INTERFACE_BY_DELEGATION: KtDiagnosticFactory0 = KtDiagnosticFactory0("VALUE_CLASS_CANNOT_IMPLEMENT_INTERFACE_BY_DELEGATION", ERROR, SourceElementPositioningStrategies.DEFAULT, PsiElement::class, getRendererFactory())
     val VALUE_CLASS_CANNOT_EXTEND_CLASSES: KtDiagnosticFactory0 = KtDiagnosticFactory0("VALUE_CLASS_CANNOT_EXTEND_CLASSES", ERROR, SourceElementPositioningStrategies.DEFAULT, KtElement::class, getRendererFactory())
+    val VALUE_CLASS_CANNOT_EXTEND_IDENTITY_CLASSES: KtDiagnosticFactory0 = KtDiagnosticFactory0("VALUE_CLASS_CANNOT_EXTEND_IDENTITY_CLASSES", ERROR, SourceElementPositioningStrategies.DEFAULT, KtElement::class, getRendererFactory())
     val VALUE_CLASS_CANNOT_BE_RECURSIVE: KtDiagnosticFactory0 = KtDiagnosticFactory0("VALUE_CLASS_CANNOT_BE_RECURSIVE", ERROR, SourceElementPositioningStrategies.DEFAULT, KtElement::class, getRendererFactory())
     val MULTI_FIELD_VALUE_CLASS_PRIMARY_CONSTRUCTOR_DEFAULT_PARAMETER: KtDiagnosticFactory0 = KtDiagnosticFactory0("MULTI_FIELD_VALUE_CLASS_PRIMARY_CONSTRUCTOR_DEFAULT_PARAMETER", ERROR, SourceElementPositioningStrategies.DEFAULT, KtExpression::class, getRendererFactory())
     val SECONDARY_CONSTRUCTOR_WITH_BODY_INSIDE_VALUE_CLASS: KtDiagnosticFactory0 = KtDiagnosticFactory0("SECONDARY_CONSTRUCTOR_WITH_BODY_INSIDE_VALUE_CLASS", ERROR, SourceElementPositioningStrategies.DEFAULT, PsiElement::class, getRendererFactory())

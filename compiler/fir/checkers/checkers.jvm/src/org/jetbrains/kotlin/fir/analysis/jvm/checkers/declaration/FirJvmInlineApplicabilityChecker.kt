@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.fir.analysis.jvm.checkers.declaration
 
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
@@ -17,6 +18,7 @@ import org.jetbrains.kotlin.fir.declarations.getAnnotationByClassId
 import org.jetbrains.kotlin.fir.declarations.utils.SuspiciousValueClassCheck
 import org.jetbrains.kotlin.fir.declarations.utils.isExpect
 import org.jetbrains.kotlin.fir.declarations.utils.isValue
+import org.jetbrains.kotlin.fir.isEnabled
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.resolve.JVM_INLINE_ANNOTATION_CLASS_ID
 
@@ -27,6 +29,7 @@ object FirJvmInlineApplicabilityChecker : FirRegularClassChecker(MppCheckerKind.
     @OptIn(SuspiciousValueClassCheck::class)
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirRegularClass) {
+        val isExtendedValueClassSupportEnabled = LanguageFeature.ValueClasses.isEnabled()
         val annotation = declaration.getAnnotationByClassId(JVM_INLINE_ANNOTATION_CLASS_ID, context.session)
         if (annotation != null && !declaration.isValue) {
             // only report if value keyword does not exist, this includes the deprecated inline class syntax
@@ -34,7 +37,9 @@ object FirJvmInlineApplicabilityChecker : FirRegularClassChecker(MppCheckerKind.
         } else if (annotation == null && declaration.isValue && !declaration.isExpect) {
             // only report if value keyword exists, this ignores the deprecated inline class syntax
             val keyword = declaration.getModifier(KtTokens.VALUE_KEYWORD)!!.source
-            reporter.reportOn(keyword, FirJvmErrors.VALUE_CLASS_WITHOUT_JVM_INLINE_ANNOTATION)
+            if (!isExtendedValueClassSupportEnabled) {
+                reporter.reportOn(keyword, FirJvmErrors.VALUE_CLASS_WITHOUT_JVM_INLINE_ANNOTATION)
+            }
         }
     }
 }

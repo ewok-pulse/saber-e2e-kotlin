@@ -201,7 +201,12 @@ internal open class FirTowerResolveTask(
         processQualifierScopes(info, qualifierReceiver)
         processClassifierScope(info, qualifierReceiver)
 
-        enumerateTowerLevelsForCompanionExtensions(info, resolvedQualifier, TowerGroup.QualifierOrClassifier)
+        enumerateTowerLevelsForCompanionExtensions(
+            info,
+            resolvedQualifier,
+            TowerGroup.QualifierOrClassifier,
+            explicitReceiverKind = ExplicitReceiverKind.EXTENSION_RECEIVER
+        )
 
         if (resolvedQualifier.symbol != null) {
             if (info is CallableReferenceInfo && info.lhs is DoubleColonLHS.Type) {
@@ -227,6 +232,7 @@ internal open class FirTowerResolveTask(
         info: CallInfo,
         resolvedQualifier: FirResolvedQualifier,
         parentGroup: TowerGroup,
+        explicitReceiverKind: ExplicitReceiverKind,
         emptyScopes: MutableSet<FirScope>? = null,
     ) {
         if (resolvedQualifier.symbol?.fullyExpandedClass(components.session)?.classKind.let { it == null || it == ClassKind.OBJECT }) {
@@ -243,7 +249,7 @@ internal open class FirTowerResolveTask(
                     info,
                     parentGroup.NonLocal(depth),
                     companionExtensionPolicy = CompanionExtensionPolicy.OnlyCompanionExtensions,
-                    explicitReceiverKind = ExplicitReceiverKind.EXTENSION_RECEIVER,
+                    explicitReceiverKind = explicitReceiverKind,
                     onEmptyLevel = { emptyScopes?.add(scope) }
                 )
             }
@@ -350,7 +356,13 @@ internal open class FirTowerResolveTask(
                         info.callSite.source?.fakeElement(KtFakeSourceElementKind.ImplicitReceiver)
                     )
 
-                    enumerateTowerLevelsForCompanionExtensions(info, receiver, group, emptyScopes)
+                    enumerateTowerLevelsForCompanionExtensions(
+                        info,
+                        receiver,
+                        group,
+                        ExplicitReceiverKind.NO_EXPLICIT_RECEIVER,
+                        emptyScopes
+                    )
                 }
             },
             onImplicitReceiver = { receiver, group ->

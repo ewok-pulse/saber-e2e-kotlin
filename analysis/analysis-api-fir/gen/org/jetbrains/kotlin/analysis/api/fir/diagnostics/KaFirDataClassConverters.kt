@@ -795,6 +795,12 @@ private fun KaDiagnosticConverterBuilder.addConversions12() {
             token,
         )
     }
+    add(FirErrors.VALUE_CLASS_CANNOT_EXTEND_IDENTITY_CLASSES) { firDiagnostic ->
+        ValueClassCannotExtendIdentityClassesImpl(
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
     add(FirErrors.ILLEGAL_PROJECTION_USAGE) { firDiagnostic ->
         IllegalProjectionUsageImpl(
             firDiagnostic as KtPsiDiagnostic,
@@ -2278,6 +2284,12 @@ private fun KaDiagnosticConverterBuilder.addConversions49() {
     }
     add(FirErrors.FINAL_SUPERTYPE) { firDiagnostic ->
         FinalSupertypeImpl(
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
+    add(FirErrors.VALUE_CLASS_OPEN) { firDiagnostic ->
+        ValueClassOpenImpl(
             firDiagnostic as KtPsiDiagnostic,
             token,
         )

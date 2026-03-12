@@ -26,14 +26,13 @@ fun test() {
     TA2.correct2()
     TA2.correct2()
 
-    // Incorrect type arguments should be forbidden by KT-84185
-    C<String>.correct1()
-    C<String>.correct2()
-    C<String>.correct2()
+    C<!TYPE_ARGUMENTS_NOT_ALLOWED!><String><!>.correct1()
+    C<!TYPE_ARGUMENTS_NOT_ALLOWED!><String><!>.correct2()
+    C<!TYPE_ARGUMENTS_NOT_ALLOWED!><String><!>.correct2()
 
-    TA2<String>.correct1()
-    TA2<String>.correct2()
-    TA2<String>.correct2()
+    TA2<!TYPE_ARGUMENTS_NOT_ALLOWED!><String><!>.correct1()
+    TA2<!TYPE_ARGUMENTS_NOT_ALLOWED!><String><!>.correct2()
+    TA2<!TYPE_ARGUMENTS_NOT_ALLOWED!><String><!>.correct2()
 }
 /* GENERATED_FIR_TAGS: classDeclaration, funWithExtensionReceiver, functionDeclaration, nullableType,
 typeAliasDeclaration, typeParameter */

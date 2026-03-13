@@ -269,9 +269,6 @@ constructor(
     @get:Internal
     val apiFiles: ConfigurableFileCollection = objectFactory.fileCollection()
 
-    @get:Internal
-    internal val externalDependenciesBuildCompilerArgs: ListProperty<String> = objectFactory.listProperty<String>().empty()
-
     private val gradleUserHomeDir = project.gradle.gradleUserHomeDir
 
     private class CacheSettings(
@@ -509,7 +506,6 @@ constructor(
             output.parentFile.mkdirs()
 
             val additionalOptions = mutableListOf<String>().apply {
-                addAll(externalDependenciesBuildCompilerArgs.get())
                 if (konanCacheKind.get() != NativeCacheKind.NONE
                     && !optimized
                     && konanPropertiesService.get().cacheWorksFor(konanTarget)

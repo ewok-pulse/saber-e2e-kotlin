@@ -297,7 +297,7 @@ class FirTowerDataElement(
     ): List<FirScope> = when {
         scope != null -> listOf(scope)
         implicitReceiver != null -> listOf(implicitReceiver.getImplicitScope(processTypeScope))
-        contextParameterGroup != null -> emptyList()
+        contextParameterGroup != null || staticScopeOwnerSymbol != null -> emptyList()
         else -> error("Tower data element is expected to have either scope or implicit receivers.")
     }
 

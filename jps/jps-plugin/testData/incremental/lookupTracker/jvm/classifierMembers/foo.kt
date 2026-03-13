@@ -64,8 +64,8 @@ import bar.*
     val a = 1
     fun foo() {
         /*p:foo.E*/a
-        /*p:bar p:foo p:foo(E) p:foo.E p:foo.E(a) p:kotlin.Enum p:kotlin.Enum.Companion*/Y.a
+        /*p:bar p:foo p:foo(E) p:foo.E p:foo.E(a) p:kotlin(Enum) p:kotlin.Enum p:kotlin.Enum(Companion) p:kotlin.Enum.Companion*/Y.a
         /*p:foo.E*/foo()
-        /*p:bar p:foo p:foo(E) p:foo.E p:foo.E(foo) p:kotlin.Enum p:kotlin.Enum.Companion*/X.foo()
+        /*p:bar p:foo p:foo(E) p:foo.E p:foo.E(foo) p:kotlin(Enum) p:kotlin.Enum p:kotlin.Enum(Companion) p:kotlin.Enum.Companion*/X.foo()
     }
 }

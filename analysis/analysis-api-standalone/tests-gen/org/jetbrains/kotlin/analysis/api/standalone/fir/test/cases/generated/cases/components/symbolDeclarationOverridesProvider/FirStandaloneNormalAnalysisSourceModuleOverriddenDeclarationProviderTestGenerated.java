@@ -242,6 +242,12 @@ public class FirStandaloneNormalAnalysisSourceModuleOverriddenDeclarationProvide
   }
 
   @Test
+  @TestMetadata("setterOverridesValProperty.kt")
+  public void testSetterOverridesValProperty() {
+    run("setterOverridesValProperty.kt");
+  }
+
+  @Test
   @TestMetadata("setterWithMissedOverride.kt")
   public void testSetterWithMissedOverride() {
     run("setterWithMissedOverride.kt");

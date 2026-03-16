@@ -23,8 +23,6 @@ import org.jetbrains.kotlin.analysis.api.fir.utils.firSymbol
 import org.jetbrains.kotlin.analysis.api.fir.utils.getContainingKtModule
 import org.jetbrains.kotlin.analysis.api.fir.utils.withSymbolAttachment
 import org.jetbrains.kotlin.analysis.api.impl.base.components.KaBaseSessionComponent
-import org.jetbrains.kotlin.analysis.api.impl.base.components.getAllOverriddenSymbolsForParameter
-import org.jetbrains.kotlin.analysis.api.impl.base.components.getDirectlyOverriddenSymbolsForParameter
 import org.jetbrains.kotlin.analysis.api.lifetime.withValidityAssertion
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileResolutionMode
@@ -408,32 +406,18 @@ internal class KaFirSymbolRelationProvider(
 
     override val KaCallableSymbol.allOverriddenSymbols: Sequence<KaCallableSymbol>
         get() = withValidityAssertion {
-            return when (this) {
-                is KaValueParameterSymbol -> getAllOverriddenSymbolsForParameter(this)
-                is KaPropertyAccessorSymbol -> getAllOverriddenAccessorSymbols(this)
-                is KaNamedFunctionSymbol -> {
-                    getSyntheticJavaPropertyAccessor(this)?.let { accessor ->
-                        getAllOverriddenAccessorSymbols(accessor)
-                    } ?: getAllOverriddenSymbols(this)
-                }
-
-                else -> getAllOverriddenSymbols(this)
-            }
+            handleOverriddenSymbols(
+                forAccessorSymbol = { getAllOverriddenAccessorSymbols(it) },
+                fallback = { getAllOverriddenSymbols(it) },
+            )
         }
 
     override val KaCallableSymbol.directlyOverriddenSymbols: Sequence<KaCallableSymbol>
         get() = withValidityAssertion {
-            return when (this) {
-                is KaValueParameterSymbol -> getDirectlyOverriddenSymbolsForParameter(this)
-                is KaPropertyAccessorSymbol -> getDirectlyOverriddenAccessorSymbols(this)
-                is KaNamedFunctionSymbol -> {
-                    getSyntheticJavaPropertyAccessor(this)?.let { accessor ->
-                        getDirectlyOverriddenAccessorSymbols(accessor)
-                    } ?: getDirectlyOverriddenSymbols(this)
-                }
-
-                else -> getDirectlyOverriddenSymbols(this)
-            }
+            handleOverriddenSymbols(
+                forAccessorSymbol = { getDirectlyOverriddenAccessorSymbols(it) },
+                fallback = { getDirectlyOverriddenSymbols(it) },
+            )
         }
 
     override fun KaClassSymbol.isSubClassOf(superClass: KaClassSymbol): Boolean = withValidityAssertion {
@@ -444,18 +428,22 @@ internal class KaFirSymbolRelationProvider(
         return isDirectSubClassOf(this, superClass)
     }
 
+    private inline fun KaCallableSymbol.handleOverriddenSymbols(
+        forAccessorSymbol: (KaPropertyAccessorSymbol) -> Sequence<KaCallableSymbol>,
+        fallback: (KaCallableSymbol) -> Sequence<KaCallableSymbol>,
+    ): Sequence<KaCallableSymbol> = when (this) {
+        is KaValueParameterSymbol -> this.generatedPrimaryConstructorProperty?.let(fallback).orEmpty()
+        is KaPropertyAccessorSymbol -> forAccessorSymbol(this)
+        is KaNamedFunctionSymbol -> getSyntheticJavaPropertyAccessor(this)?.let(forAccessorSymbol) ?: fallback(this)
+        else -> fallback(this)
+    }
+
     override val KaCallableSymbol.intersectionOverriddenSymbols: List<KaCallableSymbol>
         get() = withValidityAssertion {
-            return when (this) {
-                is KaPropertyAccessorSymbol -> getIntersectionOverriddenAccessorSymbols(this)
-                is KaNamedFunctionSymbol -> {
-                    getSyntheticJavaPropertyAccessor(this)?.let { accessor ->
-                        getIntersectionOverriddenAccessorSymbols(accessor)
-                    } ?: getIntersectionOverriddenSymbols(this)
-                }
-
-                else -> getIntersectionOverriddenSymbols(this)
-            }
+            handleOverriddenSymbols(
+                forAccessorSymbol = { getIntersectionOverriddenAccessorSymbols(it).asSequence() },
+                fallback = { getIntersectionOverriddenSymbols(it).asSequence() },
+            ).toList()
         }
 
     /**

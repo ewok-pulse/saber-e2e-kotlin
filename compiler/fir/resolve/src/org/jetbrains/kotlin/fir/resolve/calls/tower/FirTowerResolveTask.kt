@@ -18,12 +18,10 @@ import org.jetbrains.kotlin.fir.expressions.builder.buildExpressionStub
 import org.jetbrains.kotlin.fir.resolve.BodyResolveComponents
 import org.jetbrains.kotlin.fir.resolve.DoubleColonLHS
 import org.jetbrains.kotlin.fir.resolve.calls.*
-import org.jetbrains.kotlin.fir.resolve.calls.ExpressionReceiverValue
 import org.jetbrains.kotlin.fir.resolve.calls.candidate.*
 import org.jetbrains.kotlin.fir.resolve.toImplicitResolvedQualifierReceiver
 import org.jetbrains.kotlin.fir.scopes.FirScope
-import org.jetbrains.kotlin.fir.scopes.impl.FirExplicitSimpleImportingScope
-import org.jetbrains.kotlin.fir.scopes.impl.FirExplicitStarImportingScope
+import org.jetbrains.kotlin.fir.scopes.impl.FirAbstractImportingScope
 import org.jetbrains.kotlin.fir.scopes.impl.FirPackageMemberScope
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.name.Name
@@ -277,8 +275,7 @@ internal open class FirTowerResolveTask(
         contract { returns(true) implies (this@canContainCompanionExtensions != null) }
         return when (this) {
             is FirPackageMemberScope,
-            is FirExplicitSimpleImportingScope,
-            is FirExplicitStarImportingScope,
+            is FirAbstractImportingScope,
                 -> true
             else -> false
         }

@@ -84,7 +84,12 @@ private inline fun getOverriddenAccessorSymbols(
     overriddenProperties: (KaPropertySymbol) -> Sequence<KaCallableSymbol>,
 ): Sequence<KaCallableSymbol> {
     val propertySymbol = with(analysisSession) { accessorSymbol.containingDeclaration } as? KaPropertySymbol ?: return emptySequence()
-    return overriddenProperties(propertySymbol)
+    val overriddenProperties = overriddenProperties(propertySymbol)
+    return if (accessorSymbol is KaPropertyGetterSymbol) {
+        overriddenProperties
+    } else {
+        overriddenProperties.filter { (it as? KaPropertySymbol)?.setter != null }
+    }
 }
 
 private fun FirTypeScope.processCallableByName(declaration: FirDeclaration) = when (declaration) {

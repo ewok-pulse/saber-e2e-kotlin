@@ -17,7 +17,6 @@ import org.jetbrains.kotlin.config.phaser.AnyNamedPhase
 private val jvmModulePhases1 = createModulePhases(
     ::ExternalPackageParentPatcherLowering,
     ::FragmentSharedVariablesLowering,
-    ::JvmK1IrValidationBeforeLoweringPhase,
     ::ProcessOptionalAnnotations,
     ::JvmExpectDeclarationRemover,
     ::ConstEvaluationLowering,

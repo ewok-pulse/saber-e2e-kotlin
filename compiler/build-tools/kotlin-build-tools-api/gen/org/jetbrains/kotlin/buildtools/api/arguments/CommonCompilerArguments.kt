@@ -12,6 +12,7 @@ import kotlin.collections.List
 import kotlin.jvm.JvmField
 import org.jetbrains.kotlin.buildtools.api.DeprecatedCompilerArgument
 import org.jetbrains.kotlin.buildtools.api.KotlinReleaseVersion
+import org.jetbrains.kotlin.buildtools.api.RemovedCompilerArgument
 import org.jetbrains.kotlin.buildtools.api.arguments.enums.AnnotationDefaultTargetMode
 import org.jetbrains.kotlin.buildtools.api.arguments.enums.ExplicitApiMode
 import org.jetbrains.kotlin.buildtools.api.arguments.enums.HeaderMode
@@ -88,6 +89,17 @@ public interface CommonCompilerArguments : CommonToolArguments {
   }
 
   public companion object {
+    /**
+     * A list of IR checkers to enable, specified by a simple name of the checker class.
+     * It may only be used with specific checkers that are not enabled by default, and which are prepared to be enabled this way.Only has effect if '-Xverify-ir' is not 'none'.
+     *
+     * WARNING: this option is EXPERIMENTAL and it may be changed in the future without notice or may be removed entirely.
+     */
+    @JvmField
+    @ExperimentalCompilerArgument
+    public val X_ADDITIONAL_IR_CHECKERS: CommonCompilerArgument<Array<String>?> =
+        CommonCompilerArgument("X_ADDITIONAL_IR_CHECKERS", KotlinReleaseVersion(2, 4, 0))
+
     /**
      * Allow compiling scripts along with regular Kotlin sources.
      *
@@ -253,6 +265,17 @@ public interface CommonCompilerArguments : CommonToolArguments {
     @ExperimentalCompilerArgument
     public val X_DISABLE_DEFAULT_SCRIPTING_PLUGIN: CommonCompilerArgument<Boolean> =
         CommonCompilerArgument("X_DISABLE_DEFAULT_SCRIPTING_PLUGIN", KotlinReleaseVersion(1, 3, 70))
+
+    /**
+     * A list of IR checkers to disable, specified by a simple name of the checker class. A name of an annotation can also be used to match all tagged checkers.
+     * Only has effect if '-Xverify-ir' is not 'none'.
+     *
+     * WARNING: this option is EXPERIMENTAL and it may be changed in the future without notice or may be removed entirely.
+     */
+    @JvmField
+    @ExperimentalCompilerArgument
+    public val X_DISABLE_IR_CHECKERS: CommonCompilerArgument<Array<String>?> =
+        CommonCompilerArgument("X_DISABLE_IR_CHECKERS", KotlinReleaseVersion(2, 4, 0))
 
     /**
      * Disable backend phases.
@@ -758,9 +781,12 @@ public interface CommonCompilerArguments : CommonToolArguments {
      * Check that offsets of nested IR elements conform to offsets of their containers. Only has effect if '-Xverify-ir' is not 'none'.
      *
      * WARNING: this option is EXPERIMENTAL and it may be changed in the future without notice or may be removed entirely.
+     *
+     * Removed in Kotlin version 2.4.0.
      */
     @JvmField
     @ExperimentalCompilerArgument
+    @RemovedCompilerArgument
     public val X_VERIFY_IR_NESTED_OFFSETS: CommonCompilerArgument<Boolean> =
         CommonCompilerArgument("X_VERIFY_IR_NESTED_OFFSETS", KotlinReleaseVersion(2, 3, 20))
 
@@ -768,9 +794,12 @@ public interface CommonCompilerArguments : CommonToolArguments {
      * Check for visibility violations in IR when validating it before running any lowerings. Only has effect if '-Xverify-ir' is not 'none'.
      *
      * WARNING: this option is EXPERIMENTAL and it may be changed in the future without notice or may be removed entirely.
+     *
+     * Removed in Kotlin version 2.4.0.
      */
     @JvmField
     @ExperimentalCompilerArgument
+    @RemovedCompilerArgument
     public val X_VERIFY_IR_VISIBILITY: CommonCompilerArgument<Boolean> =
         CommonCompilerArgument("X_VERIFY_IR_VISIBILITY", KotlinReleaseVersion(2, 0, 20))
 

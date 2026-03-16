@@ -96,6 +96,18 @@ This flag partially enables functionality of `-Xexplicit-api` flag, so please do
         }
 
     @Argument(
+        value = "-Xadditional-ir-checkers",
+        valueDescription = "<checker1>,<checker2>",
+        description = """A list of IR checkers to enable, specified by a simple name of the checker class.
+It may only be used with specific checkers that are not enabled by default, and which are prepared to be enabled this way.Only has effect if '-Xverify-ir' is not 'none'.""",
+    )
+    var additionalIrCheckers: Array<String> = emptyArray()
+        set(value) {
+            checkFrozen()
+            field = value
+        }
+
+    @Argument(
         value = "-Xallow-any-scripts-in-source-roots",
         description = "Allow compiling scripts along with regular Kotlin sources.",
     )
@@ -336,6 +348,18 @@ For WASM and JS, the performance report includes execution time and lines per se
         description = "Don't enable the scripting plugin by default.",
     )
     var disableDefaultScriptingPlugin: Boolean = false
+        set(value) {
+            checkFrozen()
+            field = value
+        }
+
+    @Argument(
+        value = "-Xdisable-ir-checkers",
+        valueDescription = "<checker1>,<checker2>",
+        description = """A list of IR checkers to disable, specified by a simple name of the checker class. A name of an annotation can also be used to match all tagged checkers.
+Only has effect if '-Xverify-ir' is not 'none'.""",
+    )
+    var disableIrCheckers: Array<String> = emptyArray()
         set(value) {
             checkFrozen()
             field = value
@@ -1019,26 +1043,6 @@ Warning: This feature is not yet production-ready.""",
         set(value) {
             checkFrozen()
             field = if (value.isNullOrEmpty()) null else value
-        }
-
-    @Argument(
-        value = "-Xverify-ir-nested-offsets",
-        description = "Check that offsets of nested IR elements conform to offsets of their containers. Only has effect if '-Xverify-ir' is not 'none'.",
-    )
-    var verifyIrNestedOffsets: Boolean = false
-        set(value) {
-            checkFrozen()
-            field = value
-        }
-
-    @Argument(
-        value = "-Xverify-ir-visibility",
-        description = "Check for visibility violations in IR when validating it before running any lowerings. Only has effect if '-Xverify-ir' is not 'none'.",
-    )
-    var verifyIrVisibility: Boolean = false
-        set(value) {
-            checkFrozen()
-            field = value
         }
 
     @Argument(

@@ -45,9 +45,8 @@ class Fir2IrConfiguration private constructor(
     class IrVerificationSettings(
         val mode: IrVerificationMode,
         val validateForKlibSerialization: Boolean,
-        val enableIrVisibilityChecks: Boolean,
-        val enableIrVarargTypesChecks: Boolean,
-        val enableIrNestedOffsetsChecks: Boolean,
+        val disableIrCheckers: List<String>,
+        val additionalIrCheckers: List<String>,
     )
 
     companion object {
@@ -69,9 +68,8 @@ class Fir2IrConfiguration private constructor(
                 skipBodies = compilerConfiguration.getBoolean(JVMConfigurationKeys.SKIP_BODIES),
                 irVerificationSettings = IrVerificationSettings(
                     mode = compilerConfiguration.get(CommonConfigurationKeys.VERIFY_IR, IrVerificationMode.NONE),
-                    enableIrVisibilityChecks = compilerConfiguration.enableIrVisibilityChecks,
-                    enableIrVarargTypesChecks = compilerConfiguration.enableIrVarargTypesChecks,
-                    enableIrNestedOffsetsChecks = compilerConfiguration.enableIrNestedOffsetsChecks,
+                    disableIrCheckers = compilerConfiguration.disableIrCheckers,
+                    additionalIrCheckers = compilerConfiguration.additionalIrCheckers,
                     validateForKlibSerialization = false,
                 ),
                 carefulApproximationOfContravariantProjectionForSam = compilerConfiguration.get(JVMConfigurationKeys.SAM_CONVERSIONS) != JvmClosureGenerationScheme.CLASS
@@ -95,9 +93,8 @@ class Fir2IrConfiguration private constructor(
                 skipBodies = false,
                 irVerificationSettings = IrVerificationSettings(
                     mode = compilerConfiguration.get(CommonConfigurationKeys.VERIFY_IR, IrVerificationMode.NONE),
-                    enableIrVisibilityChecks = compilerConfiguration.enableIrVisibilityChecks,
-                    enableIrVarargTypesChecks = compilerConfiguration.enableIrVarargTypesChecks,
-                    enableIrNestedOffsetsChecks = compilerConfiguration.enableIrNestedOffsetsChecks,
+                    disableIrCheckers = compilerConfiguration.disableIrCheckers,
+                    additionalIrCheckers = compilerConfiguration.additionalIrCheckers,
                     validateForKlibSerialization = true,
                 ),
                 carefulApproximationOfContravariantProjectionForSam = false,
@@ -122,9 +119,8 @@ class Fir2IrConfiguration private constructor(
                 skipBodies = false,
                 irVerificationSettings = IrVerificationSettings(
                     mode = compilerConfiguration.get(CommonConfigurationKeys.VERIFY_IR, IrVerificationMode.NONE),
-                    enableIrVisibilityChecks = compilerConfiguration.enableIrVisibilityChecks,
-                    enableIrVarargTypesChecks = compilerConfiguration.enableIrVarargTypesChecks,
-                    enableIrNestedOffsetsChecks = compilerConfiguration.enableIrNestedOffsetsChecks,
+                    disableIrCheckers = compilerConfiguration.disableIrCheckers,
+                    additionalIrCheckers = compilerConfiguration.additionalIrCheckers,
                     validateForKlibSerialization = false,
                 ),
                 carefulApproximationOfContravariantProjectionForSam = compilerConfiguration.get(JVMConfigurationKeys.SAM_CONVERSIONS) != JvmClosureGenerationScheme.CLASS,

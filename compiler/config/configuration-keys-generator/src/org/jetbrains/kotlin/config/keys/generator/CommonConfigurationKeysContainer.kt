@@ -51,9 +51,8 @@ object CommonConfigurationKeysContainer : KeysContainer("org.jetbrains.kotlin.co
     val MESSAGE_COLLECTOR_KEY by key<MessageCollector>(defaultValue = "MessageCollector.NONE", accessorName = "messageCollector")
 
     val VERIFY_IR by key<IrVerificationMode>()
-    val ENABLE_IR_VISIBILITY_CHECKS by key<Boolean>("Checks pre-lowering IR for visibility violations.")
-    val ENABLE_IR_VARARG_TYPES_CHECKS by key<Boolean>("Checks IR for vararg types mismatches.")
-    val ENABLE_IR_NESTED_OFFSETS_CHECKS by key<Boolean>("Checks that offsets of nested IR elements conform to offsets of their containers.")
+    val DISABLE_IR_CHECKERS by key<List<String>>("Disable specific IR checkers by simple class name or group tag")
+    val ADDITIONAL_IR_CHECKERS by key<List<String>>("Enable optional IR checkers by simple class name or group tag")
 
     val PHASE_CONFIG by key<PhaseConfig>()
 

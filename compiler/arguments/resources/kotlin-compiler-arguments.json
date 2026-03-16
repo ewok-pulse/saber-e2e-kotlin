@@ -3230,6 +3230,49 @@
                         }
                     },
                     {
+                        "name": "Xdisable-ir-checkers",
+                        "shortName": null,
+                        "deprecatedName": null,
+                        "description": {
+                            "current": "A list of IR checkers to disable, specified by a simple name of the checker class. A name of an annotation can also be used to match all tagged checkers.\nOnly has effect if '-Xverify-ir' is not 'none'.",
+                            "valueInVersions": []
+                        },
+                        "delimiter": null,
+                        "affectsCompilationOutcome": true,
+                        "valueType": {
+                            "type": "org.jetbrains.kotlin.arguments.dsl.types.StringArrayType",
+                            "defaultValue": {
+                                "current": null,
+                                "valueInVersions": []
+                            },
+                            "isNullable": {
+                                "current": true,
+                                "valueInVersions": []
+                            }
+                        },
+                        "valueDescription": {
+                            "current": "<checker1>,<checker2>",
+                            "valueInVersions": []
+                        },
+                        "releaseVersionsMetadata": {
+                            "introducedVersion": "2.4.20",
+                            "stabilizedVersion": null,
+                            "deprecatedVersion": null,
+                            "removedVersion": null
+                        },
+                        "argumentType": {
+                            "type": "org.jetbrains.kotlin.arguments.dsl.types.StringArrayType",
+                            "defaultValue": {
+                                "current": null,
+                                "valueInVersions": []
+                            },
+                            "isNullable": {
+                                "current": true,
+                                "valueInVersions": []
+                            }
+                        }
+                    },
+                    {
                         "name": "Xdisable-phases",
                         "shortName": null,
                         "deprecatedName": null,
@@ -3483,6 +3526,49 @@
                             },
                             "defaultValue": {
                                 "current": null,
+                                "valueInVersions": []
+                            }
+                        }
+                    },
+                    {
+                        "name": "Xenable-additional-ir-checkers",
+                        "shortName": null,
+                        "deprecatedName": null,
+                        "description": {
+                            "current": "A list of IR checkers to enable, specified by a simple name of the checker class.\nIt may only be used with specific checkers that are not enabled by default, and which are prepared to be enabled this way. Only has effect if '-Xverify-ir' is not 'none'.",
+                            "valueInVersions": []
+                        },
+                        "delimiter": null,
+                        "affectsCompilationOutcome": true,
+                        "valueType": {
+                            "type": "org.jetbrains.kotlin.arguments.dsl.types.StringArrayType",
+                            "defaultValue": {
+                                "current": null,
+                                "valueInVersions": []
+                            },
+                            "isNullable": {
+                                "current": true,
+                                "valueInVersions": []
+                            }
+                        },
+                        "valueDescription": {
+                            "current": "<checker1>,<checker2>",
+                            "valueInVersions": []
+                        },
+                        "releaseVersionsMetadata": {
+                            "introducedVersion": "2.4.20",
+                            "stabilizedVersion": null,
+                            "deprecatedVersion": null,
+                            "removedVersion": null
+                        },
+                        "argumentType": {
+                            "type": "org.jetbrains.kotlin.arguments.dsl.types.StringArrayType",
+                            "defaultValue": {
+                                "current": null,
+                                "valueInVersions": []
+                            },
+                            "isNullable": {
+                                "current": true,
                                 "valueInVersions": []
                             }
                         }
@@ -5924,7 +6010,7 @@
                             "introducedVersion": "2.3.20",
                             "stabilizedVersion": null,
                             "deprecatedVersion": null,
-                            "removedVersion": null
+                            "removedVersion": "2.4.20"
                         },
                         "argumentType": {
                             "type": "org.jetbrains.kotlin.arguments.dsl.types.BooleanType",
@@ -5967,7 +6053,7 @@
                             "introducedVersion": "2.0.20",
                             "stabilizedVersion": null,
                             "deprecatedVersion": null,
-                            "removedVersion": null
+                            "removedVersion": "2.4.20"
                         },
                         "argumentType": {
                             "type": "org.jetbrains.kotlin.arguments.dsl.types.BooleanType",

@@ -19,7 +19,9 @@ private val temporaryExceptions = setOf(
     "Xjavac-arguments",
     "Xserialize-ir",
     "Xwasm-preserve-ic-order",
-    "Xwasm-ic-cache-readonly"
+    "Xwasm-ic-cache-readonly",
+    "Xverify-ir-visibility",
+    "Xverify-ir-nested-offsets",
 )
 
 internal fun Set<StableKotlinCompilerArgument>.filterNonDeprecated() = filter {

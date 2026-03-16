@@ -1,11 +1,7 @@
-// JAVA_SYMBOL_SELECTION_MODE: SYNTHETIC_ACCESSOR
+// getter: callable: /B.foo
 
 // FILE: main.kt
 interface A { val foo: Int }
-
-fun test(b: B) {
-    b.fo<caret>o
-}
 
 // FILE: B.java
 public class B implements A {

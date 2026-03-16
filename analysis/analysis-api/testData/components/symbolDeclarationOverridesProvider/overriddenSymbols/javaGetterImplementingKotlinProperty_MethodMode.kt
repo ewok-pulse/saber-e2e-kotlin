@@ -1,11 +1,7 @@
-// JAVA_SYMBOL_SELECTION_MODE: METHOD
+// callable: /B.getFoo
 
 // FILE: main.kt
 interface A { val foo: Int }
-
-fun test(b: B) {
-    b.fo<caret>o
-}
 
 // FILE: B.java
 public class B implements A {

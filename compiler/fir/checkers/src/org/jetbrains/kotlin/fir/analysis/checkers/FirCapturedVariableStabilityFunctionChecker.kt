@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactory1
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.FirElement
-import org.jetbrains.kotlin.fir.analysis.cfa.evaluatedInPlace
+import org.jetbrains.kotlin.fir.analysis.cfa.nearestNonInPlaceGraph
 import org.jetbrains.kotlin.fir.analysis.cfa.util.*
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirFunctionChecker
@@ -59,13 +59,6 @@ object FirCapturedVariableStabilityFunctionChecker : FirFunctionChecker(MppCheck
             )
         )
     }
-}
-
-fun ControlFlowGraph.effectiveOwner(): ControlFlowGraph {
-    return if (declaration?.evaluatedInPlace == true)
-        enterNode.previousNodes.firstOrNull()?.owner?.effectiveOwner() ?: this
-    else
-        this
 }
 
 data class CapturedVariableCheckerData(
@@ -121,7 +114,7 @@ private class FirFunctionDeepVisitorWithData2 : FirDefaultVisitor<Unit, Captured
         return pathInfo?.values?.any { controlFlowInfo ->
             controlFlowInfo[PropertyAccessType.Captured]?.get(propertySymbol)?.any { writeNode ->
                 if (writeNode !is VariableAssignmentNode) return@any false
-                writeNode.owner.effectiveOwner() != currentGraphOwner.effectiveOwner()
+                writeNode.owner.nearestNonInPlaceGraph() != currentGraphOwner.nearestNonInPlaceGraph()
             } == true
         } == true
 

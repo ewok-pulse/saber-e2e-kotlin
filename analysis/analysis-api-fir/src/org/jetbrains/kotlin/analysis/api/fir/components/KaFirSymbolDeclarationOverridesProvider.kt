@@ -88,7 +88,7 @@ private inline fun getOverriddenAccessorSymbols(
     return if (accessorSymbol is KaPropertyGetterSymbol) {
         overriddenProperties
     } else {
-        overriddenProperties.filter { (it as? KaPropertySymbol)?.setter != null }
+        overriddenProperties.takeWhile { it is KaPropertySymbol && it.setter != null }
     }
 }
 

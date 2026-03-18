@@ -1083,3 +1083,20 @@ fun FirExpression.isDispatchReceiver(): Boolean {
     val parentElement = context.containingElements.elementAtOrNull(context.containingElements.size - 2)
     return parentElement is FirQualifiedAccessExpression && parentElement.dispatchReceiver == this
 }
+
+/**
+ * Determines if there is a potential ambiguity in interpreting the given expression as an integer literal or an integer literal operator call
+ * based on the provided target type's class identifier.
+ *
+ * The problem is the integer literal (or operator call) is a union type [Long], [Int], [Short], [Byte]
+ * and only resolution narrows it down to a particular type. The disambiguation depends on the context.
+ * The `as` and `toInt` expressions *always* narrow down the integer literal type and in some contexts it could affect resolution.
+ * Since checkers don't have full-fledged info about the resolution, the redundancy diagnostics on integer literals should be completely dropped.
+ *
+ * @param this the left-hand side expression to be checked (`lhs.toInt()` or `lhs as Int`)
+ * @param targetTypeClassId the class identifier of the target type to compare against.
+ * @return `true` if it could cause ambiguity and neither [FirErrors.USELESS_CAST] nor [FirErrors.REDUNDANT_CALL_OF_CONVERSION_METHOD] should be reported.
+ */
+fun FirExpression.hasIntegerLiteralAmbiguity(targetTypeClassId: ClassId?): Boolean {
+    return targetTypeClassId == StandardClassIds.Int && (this is FirLiteralExpression || this is FirIntegerLiteralOperatorCall)
+}

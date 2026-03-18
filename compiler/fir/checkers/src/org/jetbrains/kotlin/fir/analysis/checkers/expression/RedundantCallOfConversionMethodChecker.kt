@@ -11,11 +11,11 @@ import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.fullyExpandedClassId
+import org.jetbrains.kotlin.fir.analysis.checkers.hasIntegerLiteralAmbiguity
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.expressions.FirFunctionCall
-import org.jetbrains.kotlin.fir.expressions.FirIntegerLiteralOperatorCall
 import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 import org.jetbrains.kotlin.fir.resolve.toClassLikeSymbol
 import org.jetbrains.kotlin.fir.types.ConeFlexibleType
@@ -44,14 +44,7 @@ object RedundantCallOfConversionMethodChecker : FirFunctionCallChecker(MppChecke
 
     context(context: CheckerContext)
     private fun FirExpression.isRedundant(qualifiedClassId: ClassId, session: FirSession): Boolean {
-        if (qualifiedClassId == StandardClassIds.Int && (this is FirLiteralExpression || this is FirIntegerLiteralOperatorCall)) {
-            /**
-             * The [Int.toInt] here works as a disambiguator for integer literals and integer literal operator calls.
-             * I.e., it removes ambiguity by narrowing the union type [Long], [Int], [Short], [Byte] down to unambiguous [Int]
-             * So, the [FirErrors.REDUNDANT_CALL_OF_CONVERSION_METHOD] shouldn't be reported in this case.
-             */
-            return false
-        }
+        if (this.hasIntegerLiteralAmbiguity(qualifiedClassId)) return false
 
         val thisTypeId = if (this is FirLiteralExpression) {
             resolvedType.classId

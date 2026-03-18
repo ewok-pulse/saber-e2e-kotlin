@@ -188,6 +188,24 @@ public class FirIdeNormalAnalysisSourceModuleOverriddenDeclarationProviderTestGe
   }
 
   @Test
+  @TestMetadata("kotlinJavaKotlinHierarchyGetter.kt")
+  public void testKotlinJavaKotlinHierarchyGetter() {
+    run("kotlinJavaKotlinHierarchyGetter.kt");
+  }
+
+  @Test
+  @TestMetadata("kotlinJavaKotlinHierarchySetter.kt")
+  public void testKotlinJavaKotlinHierarchySetter() {
+    run("kotlinJavaKotlinHierarchySetter.kt");
+  }
+
+  @Test
+  @TestMetadata("kotlinJavaKotlinHierarchyVarOverridesVal.kt")
+  public void testKotlinJavaKotlinHierarchyVarOverridesVal() {
+    run("kotlinJavaKotlinHierarchyVarOverridesVal.kt");
+  }
+
+  @Test
   @TestMetadata("linkedHashSet.kt")
   public void testLinkedHashSet() {
     run("linkedHashSet.kt");

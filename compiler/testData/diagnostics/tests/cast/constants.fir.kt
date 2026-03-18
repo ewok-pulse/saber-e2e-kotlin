@@ -1,6 +1,6 @@
 // RUN_PIPELINE_TILL: BACKEND
 fun asCall() {
-    1 <!USELESS_CAST!>as Int<!>
+    1 as Int
     1 <!CAST_NEVER_SUCCEEDS!>as<!> Byte
     1 <!CAST_NEVER_SUCCEEDS!>as<!> Short
     1 <!CAST_NEVER_SUCCEEDS!>as<!> Long
@@ -26,7 +26,7 @@ fun asCall() {
 }
 
 fun asSafe() {
-    1 <!USELESS_CAST!>as? Int<!>
+    1 as? Int
     1 <!CAST_NEVER_SUCCEEDS!>as?<!> Byte
     1 <!CAST_NEVER_SUCCEEDS!>as?<!> Short
     1 <!CAST_NEVER_SUCCEEDS!>as?<!> Long

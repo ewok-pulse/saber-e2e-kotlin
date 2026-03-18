@@ -12,8 +12,8 @@ fun C.test(x: Int): String  {
 }
 
 fun main() {
-    C().test(1 <!USELESS_CAST!>as Int<!>) // The `as Int` forces resolving to the extension, the USELESS_CAST shouldn't be reported here
-    C().test((2 + 3) <!USELESS_CAST!>as Int<!>) // Resolving to the extension, no USELESS_CAST here
+    C().test(1 as Int) // The `as Int` forces resolving to the extension, the USELESS_CAST shouldn't be reported here
+    C().test((2 + 3) as Int) // Resolving to the extension, no USELESS_CAST here
     C().test(4) // `4` is treated as `Long`, resolving to the member
 }
 

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.fir.analysis.checkers
 
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
+import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.utils.isLocal
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.resolve.defaultType
@@ -17,6 +18,7 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirTypeParameterSymbol
 import org.jetbrains.kotlin.fir.types.*
+import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.types.AbstractTypeChecker
 import org.jetbrains.kotlin.types.AbstractTypeChecker.findCorrespondingSupertypes
 import org.jetbrains.kotlin.types.model.typeConstructor
@@ -211,6 +213,16 @@ internal fun isRefinementUseless(
                 } else {
                     targetType
                 }
+
+            if (refinedTargetType.classId == StandardClassIds.Int && (arg is FirLiteralExpression || arg is FirIntegerLiteralOperatorCall)) {
+                /**
+                 * The `as Int` cast here works as a disambiguator for integer literals and integer literal operator calls.
+                 * I.e., it removes ambiguity by narrowing the union type [Long], [Int], [Short], [Byte] down to unambiguous [Int]
+                 * So, the [FirErrors.USELESS_CAST] shouldn't be reported in this case.
+                 */
+                return false
+            }
+
             isExactTypeCast(lhsType, refinedTargetType)
         }
         FirOperation.IS, FirOperation.NOT_IS -> {

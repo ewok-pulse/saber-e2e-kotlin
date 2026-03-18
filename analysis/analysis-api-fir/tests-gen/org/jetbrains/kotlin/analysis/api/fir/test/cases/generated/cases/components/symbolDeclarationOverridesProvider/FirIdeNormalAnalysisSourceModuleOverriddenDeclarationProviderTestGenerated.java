@@ -290,6 +290,24 @@ public class FirIdeNormalAnalysisSourceModuleOverriddenDeclarationProviderTestGe
   }
 
   @Test
+  @TestMetadata("substitutionOverrideGetter.kt")
+  public void testSubstitutionOverrideGetter() {
+    run("substitutionOverrideGetter.kt");
+  }
+
+  @Test
+  @TestMetadata("substitutionOverrideGetterDelegate.kt")
+  public void testSubstitutionOverrideGetterDelegate() {
+    run("substitutionOverrideGetterDelegate.kt");
+  }
+
+  @Test
+  @TestMetadata("substitutionOverrideGetterTransitive.kt")
+  public void testSubstitutionOverrideGetterTransitive() {
+    run("substitutionOverrideGetterTransitive.kt");
+  }
+
+  @Test
   @TestMetadata("substitutionOverrideProperty.kt")
   public void testSubstitutionOverrideProperty() {
     run("substitutionOverrideProperty.kt");
@@ -311,6 +329,24 @@ public class FirIdeNormalAnalysisSourceModuleOverriddenDeclarationProviderTestGe
   @TestMetadata("substitutionOverridePropertyTransitiveSameType.kt")
   public void testSubstitutionOverridePropertyTransitiveSameType() {
     run("substitutionOverridePropertyTransitiveSameType.kt");
+  }
+
+  @Test
+  @TestMetadata("substitutionOverrideSetter.kt")
+  public void testSubstitutionOverrideSetter() {
+    run("substitutionOverrideSetter.kt");
+  }
+
+  @Test
+  @TestMetadata("substitutionOverrideSetterDelegate.kt")
+  public void testSubstitutionOverrideSetterDelegate() {
+    run("substitutionOverrideSetterDelegate.kt");
+  }
+
+  @Test
+  @TestMetadata("substitutionOverrideSetterTransitive.kt")
+  public void testSubstitutionOverrideSetterTransitive() {
+    run("substitutionOverrideSetterTransitive.kt");
   }
 
   @Test

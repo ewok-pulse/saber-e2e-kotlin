@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.expressions.FirFunctionCall
+import org.jetbrains.kotlin.fir.expressions.FirIntegerLiteralOperatorCall
 import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 import org.jetbrains.kotlin.fir.resolve.toClassLikeSymbol
 import org.jetbrains.kotlin.fir.types.ConeFlexibleType
@@ -25,6 +26,7 @@ import org.jetbrains.kotlin.fir.types.resolvedType
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.StandardClassIds
+import org.jetbrains.kotlin.types.ConstantValueKind
 import org.jetbrains.kotlin.util.OperatorNameConventions
 
 object RedundantCallOfConversionMethodChecker : FirFunctionCallChecker(MppCheckerKind.Common) {
@@ -36,13 +38,31 @@ object RedundantCallOfConversionMethodChecker : FirFunctionCallChecker(MppChecke
         val functionName = expression.calleeReference.name
         val qualifiedTypeId = targetClassMap[functionName] ?: return
 
-        if (expression.explicitReceiver?.isRedundant(qualifiedTypeId, context.session) == true) {
+        if (expression.dispatchReceiver?.isRedundant(qualifiedTypeId, context.session) == true) {
             reporter.reportOn(expression.source, FirErrors.REDUNDANT_CALL_OF_CONVERSION_METHOD)
         }
     }
 
     context(context: CheckerContext)
     private fun FirExpression.isRedundant(qualifiedClassId: ClassId, session: FirSession): Boolean {
+        val potentialIntegerLiteralExpression = when (this) {
+            is FirLiteralExpression -> this
+            // The first argument defines the type of the entire integer op
+            is FirIntegerLiteralOperatorCall -> this.dispatchReceiver as? FirLiteralExpression
+            else -> null
+        }
+
+        if (potentialIntegerLiteralExpression?.kind?.let { it == ConstantValueKind.Int || it == ConstantValueKind.UnsignedInt } == true) {
+            /**
+             * The [Int.toInt] here work as a disambiguator for integer literals and integer literal operator calls.
+             * I.e., it removes the literal ambiguity by narrowing the union type [Long], [Int], [Short], [Byte] down to unambiguous [Int]
+             * If drop the conversion, resolver can widen the [Int] to [Long] that can affect resolution behavior.
+             * The same is also relevant for [UInt.toUInt] and not for other types
+             * because other types are not expressible via literals, unlike the [Int] and [UInt].
+             */
+            return false
+        }
+
         val thisTypeId = if (this is FirLiteralExpression) {
             resolvedType.classId
         } else {

@@ -37,6 +37,10 @@ value class VariableWriteData(val value: PersistentMap<FirPropertySymbol, Persis
         return VariableWriteData(value.merge(other.value, PersistentSet<CFGNode<*>>::addAll))
     }
 
+    operator fun minus(other: VariableWriteData): VariableWriteData {
+        return VariableWriteData(value.merge(other.value, PersistentSet<CFGNode<*>>::removeAll))
+    }
+
     fun add(symbol: FirPropertySymbol, node: CFGNode<*>): VariableWriteData {
         val nodes = value[symbol] ?: persistentSetOf()
         return VariableWriteData(value.put(symbol, nodes.add(node)))
@@ -149,6 +153,7 @@ internal fun PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>.ove
 internal class FindVisibleWrites(
     private val futureWrites: Map<CFGNode<*>, PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>>,
     private val properties: Set<FirPropertySymbol>,
+    private val excludeLocalWrites: Boolean = false,
 ) : PathAwareControlFlowGraphVisitor<PropertyAccessType, VariableWriteData>() {
 
     override fun mergeInfo(
@@ -177,6 +182,13 @@ internal class FindVisibleWrites(
                 if (capturedWrites != null) {
                     val parentInfo = super.visitEdge(from, to, metadata, capturedWrites)
                     result = result.merge(parentInfo) { a, b -> mergeInfo(a, b, to) }
+                }
+                if (excludeLocalWrites) {
+                    val localWrites = futureWrites[to]
+                    if (localWrites != null) {
+                        val localInfo = super.visitEdge(from, to, metadata, localWrites)
+                        result = result.merge(localInfo) { a, b -> a.merge(b, VariableWriteData::minus) }
+                    }
                 }
             }
 

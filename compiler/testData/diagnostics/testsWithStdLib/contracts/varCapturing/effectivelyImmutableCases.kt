@@ -106,11 +106,13 @@ fun testMutableObject(): Unit {
         println(x)
     }
 
-    var <!ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE!>r<!> = "bla"
+    var r = "bla"
 
     barRegular {
         r = "3"
     }
+
+    println(r)
 
     barRegular {
         r = "4"

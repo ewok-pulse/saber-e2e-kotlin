@@ -40,7 +40,7 @@ private fun testUnstableNotCaptured() {
         barRegular {
             isEmpty = false
         }
-        if (isEmpty) {
+        if (<!CV_DIAGNOSTIC!>isEmpty<!>) {
             println("Empty")
         }
     }
@@ -111,6 +111,8 @@ fun testMutableObject(): Unit {
     barRegular {
         <!CV_DIAGNOSTIC!>r<!> = "3"
     }
+
+    println(r)
 
     barRegular {
         <!CV_DIAGNOSTIC!>r<!> = "4"

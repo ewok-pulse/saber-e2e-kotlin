@@ -6,182 +6,102 @@
 package org.jetbrains.kotlin.fir.analysis.checkers
 
 import org.jetbrains.kotlin.KtSourceElement
-import org.jetbrains.kotlin.contracts.description.isInPlace
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactory1
 import org.jetbrains.kotlin.diagnostics.reportOn
-import org.jetbrains.kotlin.fir.FirElement
+import org.jetbrains.kotlin.fir.analysis.cfa.AbstractFirPropertyInitializationChecker
 import org.jetbrains.kotlin.fir.analysis.cfa.nearestNonInPlaceGraph
 import org.jetbrains.kotlin.fir.analysis.cfa.util.*
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
-import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirFunctionChecker
-import org.jetbrains.kotlin.fir.analysis.collectors.components.ControlFlowAnalysisDiagnosticComponent
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
-import org.jetbrains.kotlin.fir.declarations.*
+import org.jetbrains.kotlin.fir.declarations.FirAnonymousFunction
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.references.toResolvedVariableSymbol
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CFGNode
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.ControlFlowGraph
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.VariableAssignmentNode
-import org.jetbrains.kotlin.fir.resolve.dfa.controlFlowGraph
-import org.jetbrains.kotlin.fir.symbols.SymbolInternals
+import org.jetbrains.kotlin.fir.resolve.dfa.cfg.*
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirVariableSymbol
 import org.jetbrains.kotlin.fir.types.ConeDynamicType
-import org.jetbrains.kotlin.fir.visitors.FirDefaultVisitor
 import kotlin.reflect.full.memberProperties
 
 /**
  * Checks captured variables inside non-in-place lambdas and determines their stability
  * using [FindCapturedWrites, FindVisibleWrites].
  */
-object FirCapturedVariableStabilityFunctionChecker : FirFunctionChecker(MppCheckerKind.Common) {
-    @OptIn(SymbolInternals::class)
-    context(context: CheckerContext, reporter: DiagnosticReporter)
-    override fun check(declaration: FirFunction) {
-        if (context.containingElements.any { it is FirFunction && it != declaration }) return
+object FirCapturedVariableStabilityFunctionChecker : AbstractFirPropertyInitializationChecker(MppCheckerKind.Common) {
+    context(reporter: DiagnosticReporter, context: CheckerContext)
+    override fun analyze(data: VariableInitializationInfoData) {
+        val trackedProperties = data.properties.map { it as FirPropertySymbol }
+            .filterTo(linkedSetOf())
+            { symbol ->
+                symbol.isLocal &&
+                        !symbol.isVal &&
+                        symbol.resolvedReturnType !is ConeDynamicType
+            }
+        if (trackedProperties.isEmpty()) return
 
-        val graph = (declaration as? FirControlFlowGraphOwner)?.controlFlowGraphReference?.controlFlowGraph ?: return
-        val collector = ControlFlowAnalysisDiagnosticComponent.LocalPropertyCollector().apply {
-            declaration.acceptChildren(this, graph.subGraphs.toSet())
-        }
+        val capturedWrites = data.graph.traverseToFixedPoint(FindCapturedWrites(trackedProperties))
+        val visibleWrites = data.graph.traverseToFixedPoint(FindVisibleWrites(capturedWrites, trackedProperties, true))
 
-        val capturedWrites = graph.traverseToFixedPoint(FindCapturedWrites(collector.properties))
-        val visibleWrites = graph.traverseToFixedPoint(FindVisibleWrites(capturedWrites, collector.properties))
-
-        val visitor = FirFunctionDeepVisitorWithData2()
-        visitor.visitFunction(
-            declaration,
-            CapturedVariableCheckerData(
+        data.graph.traverse(
+            CapturedVariableReporter(
                 context,
                 reporter,
-                visibleWrites = visibleWrites,
+                trackedProperties,
+                visibleWrites,
             )
         )
     }
 }
 
-data class CapturedVariableCheckerData(
+private class CapturedVariableReporter(
     val context: CheckerContext,
     val reporter: DiagnosticReporter,
-    val propertiesStack: MutableList<Set<FirPropertySymbol>> = mutableListOf(),
-    val visibleWrites: Map<CFGNode<*>, PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>>,
-)
+    private val trackedProperties: Set<FirPropertySymbol>,
+    private val visibleWrites: Map<CFGNode<*>, PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>>,
+) : ControlFlowGraphVisitorVoid() {
+    override fun visitNode(node: CFGNode<*>) {}
 
-private class FirFunctionDeepVisitorWithData2 : FirDefaultVisitor<Unit, CapturedVariableCheckerData>() {
-    override fun visitElement(element: FirElement, data: CapturedVariableCheckerData) {
-        element.acceptChildren(this, data)
+    override fun visitQualifiedAccessNode(node: QualifiedAccessNode) {
+        reportIfNeeded(node, node.fir)
     }
 
-    override fun visitAnonymousFunction(anonymousFunction: FirAnonymousFunction, data: CapturedVariableCheckerData) {
-        val lambdaSymbol = anonymousFunction.symbol
-        val isLocal = (lambdaSymbol.inlineStatus == InlineStatus.Inline) || anonymousFunction.invocationKind.isInPlace
+    override fun visitFunctionCallEnterNode(node: FunctionCallEnterNode) {
+        val call = node.fir as? FirImplicitInvokeCall ?: return
+        val receiver = (call.dispatchReceiver ?: call.explicitReceiver) as? FirQualifiedAccessExpression ?: return
+        val receiverExitNode =
+            (node.firstPreviousNode as? FunctionCallArgumentsExitNode)?.explicitReceiverExitNode ?: return
 
-        if (!isLocal) {
-            val graph = (anonymousFunction as? FirControlFlowGraphOwner)?.controlFlowGraphReference?.controlFlowGraph ?: return
-
-            val collector = ControlFlowAnalysisDiagnosticComponent.LocalPropertyCollector().apply {
-                anonymousFunction.acceptChildren(this, graph.subGraphs.toSet())
-            }
-
-            data.propertiesStack.add(collector.properties)
-        }
-        super.visitAnonymousFunction(anonymousFunction, data)
-        if (!isLocal) {
-            data.propertiesStack.removeLast()
-        }
+        reportIfNeeded(receiverExitNode, receiver)
     }
 
-    override fun visitQualifiedAccessExpression(
-        qualifiedAccessExpression: FirQualifiedAccessExpression,
-        data: CapturedVariableCheckerData,
+    override fun visitVariableAssignmentNode(node: VariableAssignmentNode) {
+        reportIfNeeded(node, node.fir.lValue as? FirQualifiedAccessExpression ?: return)
+    }
+
+    private fun reportIfNeeded(
+        accessNode: CFGNode<*>,
+        expression: FirQualifiedAccessExpression,
     ) {
-        qualifiedAccessExpression.checkExpressionCapturedVariable(data)
-    }
+        val currentGraph = accessNode.owner.nearestNonInPlaceGraph()
 
-    override fun visitVariableAssignment(variableAssignment: FirVariableAssignment, data: CapturedVariableCheckerData) {
-        variableAssignment.checkAssignmentCapturedVariable(data)
-        super.visitVariableAssignment(variableAssignment, data)
-    }
-
-    private fun isHasWriteFromNestedNode(
-        pathInfo: PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>?,
-        propertySymbol: FirPropertySymbol,
-        currentGraphOwner: ControlFlowGraph
-    ): Boolean {
-        // Check if there are Captured writes from different lambda contexts
-        // We want to warn only if writes are in nested lambdas, not if they're in parent scope before the current lambda
-        return pathInfo?.values?.any { controlFlowInfo ->
-            controlFlowInfo[PropertyAccessType.Captured]?.get(propertySymbol)?.any { writeNode ->
-                if (writeNode !is VariableAssignmentNode) return@any false
-                writeNode.owner.nearestNonInPlaceGraph() != currentGraphOwner.nearestNonInPlaceGraph()
+        if (currentGraph.declaration !is FirAnonymousFunction) return
+        val symbol = expression.calleeReference.toResolvedVariableSymbol() as? FirPropertySymbol ?: return
+        if (symbol !in trackedProperties) return
+        val hasCapturedWrites = visibleWrites[accessNode]
+            ?.values
+            ?.any { controlFlowInfo ->
+                controlFlowInfo[PropertyAccessType.Captured]?.get(symbol)?.isNotEmpty() == true
             } == true
-        } == true
 
-    }
-
-    private fun isHasWrites(
-        statement: FirStatement,
-        data: CapturedVariableCheckerData,
-        propertySymbol: FirPropertySymbol
-    ): Boolean {
-        val accessNode = data.visibleWrites.keys.find { node ->
-            node.fir == statement
-        }
-        if (accessNode == null) return false
-
-        val pathInfo = accessNode.let { data.visibleWrites[it] }
-        val currentGraphOwner = accessNode.owner
-        val hasCapturedWritesFromDifferentLambda = isHasWriteFromNestedNode(pathInfo, propertySymbol, currentGraphOwner)
-        return hasCapturedWritesFromDifferentLambda
-    }
-
-    private fun FirVariableAssignment.checkAssignmentCapturedVariable(data: CapturedVariableCheckerData) {
-        val lValue = this.lValue
-        if (lValue !is FirQualifiedAccessExpression) return
-
-        val symbol = lValue.calleeReference.toResolvedVariableSymbol() as? FirPropertySymbol ?: return
-        val hasWrites = isHasWrites(this, data, symbol)
-        if (hasWrites) {
-            checkCapturedVariable(symbol, data, lValue.source)
-        }
-    }
-
-    private fun FirExpression.checkExpressionCapturedVariable(data: CapturedVariableCheckerData) {
-        if (this is FirQualifiedAccessExpression) {
-            val symbol = this.calleeReference.toResolvedVariableSymbol() ?: return
-            val hasWrites = isHasWrites(this, data, symbol as? FirPropertySymbol ?: return)
-            if (hasWrites) {
-                checkCapturedVariable(symbol, data, this.source)
-            }
-            val receiver = this.explicitReceiver?.unwrapErrorExpression()?.unwrapArgument()
-            receiver?.checkExpressionCapturedVariable(data)
-        }
-        if (this is FirCheckNotNullCall) {
-            this.argument.checkExpressionCapturedVariable(data)
-        }
-        if (this is FirSafeCallExpression) {
-            this.receiver.checkExpressionCapturedVariable(data)
-        }
-    }
-
-    @OptIn(SymbolInternals::class)
-    private fun checkCapturedVariable(variableSymbol: FirVariableSymbol<*>, data: CapturedVariableCheckerData, source: KtSourceElement?) {
-        if (data.propertiesStack.isEmpty()) return
-        if (variableSymbol in data.propertiesStack.last()) return
-        if (variableSymbol.isVal) return
-        if (variableSymbol.resolvedReturnType is ConeDynamicType) return
-        if (!variableSymbol.isLocal) return
-        val report = IEReporter(source, data.context, data.reporter, FirErrors.CV_DIAGNOSTIC)
+        if (!hasCapturedWrites) return
+        val report = IEReporter(expression.source, context, reporter, FirErrors.CV_DIAGNOSTIC)
         report(
             IEData(
                 info = "Variable is captured from outer scope and is unstable in current scope",
-                variableName = variableSymbol.name.toString(),
+                variableName = symbol.name.toString(),
             )
         )
     }
 }
-
 class IEReporter(
     private val source: KtSourceElement?,
     private val context: CheckerContext,

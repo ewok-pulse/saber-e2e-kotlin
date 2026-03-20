@@ -640,6 +640,59 @@ class ComposerParamTransformer(
             }
         }
 
+    private fun IrSimpleFunction.fixDefaultParamGet() {
+        /**
+         * Checks whether this type equals [other], treating type parameters of [source]
+         * as equivalent to the corresponding (by index) type parameters of [target]
+         */
+        fun IrType.equalsWithTypeParamMapping(
+            other: IrType,
+            source: IrTypeParametersContainer,
+            target: IrTypeParametersContainer,
+        ): Boolean {
+            return this == other || remapTypeParameters(source, target) == other
+        }
+
+        if (isDefaultParamStub) {
+            return
+        }
+        val assignableParams = this.parameters.filter { it.isAssignable }.toSet()
+        val defaultArgs = assignableParams // only default args and composer are marked as `isAssignable`
+
+        if (assignableParams.isNotEmpty()) {
+            this.transform(
+                object : IrElementTransformerVoid() {
+                    override fun visitGetValue(expression: IrGetValue): IrExpression {
+                        val param = expression.symbol.owner
+                        if (param !in defaultArgs) {
+                            return super.visitGetValue(expression)
+                        }
+                        val oldParam = param.attributeOwnerId as IrValueParameter
+                        val oldFunction = oldParam.parent as IrTypeParametersContainer
+                        if (!oldParam.type.equalsWithTypeParamMapping(expression.type, oldFunction, this@fixDefaultParamGet)) {
+                            val remappedType = oldParam.type.remapTypeParameters(oldFunction, this@fixDefaultParamGet)
+                            return IrTypeOperatorCallImpl(
+                                expression.startOffset,
+                                expression.endOffset,
+                                remappedType,
+                                IrTypeOperator.IMPLICIT_CAST,
+                                remappedType,
+                                IrGetValueImpl(
+                                    expression.startOffset,
+                                    expression.endOffset,
+                                    expression.type,
+                                    expression.symbol,
+                                    expression.origin
+                                )
+                            )
+                        }
+                        return super.visitGetValue(expression)
+                    }
+                }, null
+            )
+        }
+    }
+
     private fun IrSimpleFunction.copyWithComposerParam(): IrSimpleFunction {
         assert(parameters.lastOrNull()?.name != ComposeNames.ComposerParameter) {
             "Attempted to add composer param to $this, but it has already been added."
@@ -767,6 +820,7 @@ class ComposerParamTransformer(
                 }
             }
             this.body = null
+            fn.fixDefaultParamGet()
 
             inlineLambdaInfo.scan(fn)
         }

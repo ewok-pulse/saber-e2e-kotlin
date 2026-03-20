@@ -12,6 +12,7 @@ fun test(seq: Sequence<Int>): String? {
     }
     return null
 }
+
 fun box(): String {
     val seq = sequenceOf(5, 6, 7)
     if (test(seq) != null) return test(seq)!!

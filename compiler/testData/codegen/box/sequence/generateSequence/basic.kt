@@ -14,9 +14,11 @@ fun box(): String {
     }
     var k = 1
     val seq3 = generateSequence { if (k > 9) null else k++ }
+    val seq4 = seq3.map { it * 2 }
+    val list2 = list.map { it * 2 }
     index = 0
-    for (item in seq3) {
-        if (list[index++] != item) return "failed: expected ${list[index - 1]}, but got $item"
+    for (item in seq4) {
+        if (list2[index++] != item) return "failed: expected ${list2[index - 1]}, but got $item"
     }
     return "OK"
 }

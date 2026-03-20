@@ -474,9 +474,8 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         }
     }
 
-    private fun lookupForLoopVariable(loopBody: IrBlock): IrVariable = loopBody.statements.filterIsInstance<IrVariable>()
+    private fun lookupForLoopVariable(loopBody: IrBlock): IrVariable? = loopBody.statements.filterIsInstance<IrVariable>()
         .singleOrNull { v -> v.origin == IrDeclarationOrigin.FOR_LOOP_VARIABLE }
-        ?: error("No FOR_LOOP_VARIABLE found in a FOR_LOOP block")
 
     private fun IrBuilderWithScope.rebuildCallWithDifferentReceiver(
         receiver: IrExpression,
@@ -565,13 +564,13 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         sequenceData: SequenceData,
         loopBody: IrBlock,
         sequenceSource: SequenceSource.SequenceOf,
-    ): IrExpression {
+    ): IrExpression? {
         return builder.irBlock {
             sequenceSource.elements.forEach { sequenceOfValue ->
                 val sequenceOfValueCopy = deepCopyAndPatch(sequenceOfValue, builder)
                 val newBody = deepCopyAndPatch(loopBody, builder)
                 newBody.origin = null // we remove the LOOP_INNER_WHILE origin, as the result is not a while loop anymore
-                val loopVariable = lookupForLoopVariable(newBody)
+                val loopVariable = lookupForLoopVariable(newBody) ?: return null
                 newBody.statements.remove(loopVariable)
                 val bodyRewriter = createBodyExpectingNewLoopVariable(builder, loopVariable, newBody)
                 +transformLoopBody(
@@ -588,9 +587,9 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         builder: IrBuilderWithScope,
         sequenceData: SequenceData,
         loopData: LoopData,
-    ): IrBlock {
+    ): IrBlock? {
         val copiedLoopData = loopData.deepCopy(builder)
-        val loopVariable = lookupForLoopVariable(copiedLoopData.loopBody)
+        val loopVariable = lookupForLoopVariable(copiedLoopData.loopBody) ?: return null
         val bodyRewriter = createBodyExpectingNewLoopVariable(builder, loopVariable, copiedLoopData.loopBody)
         copiedLoopData.loopBody.statements.remove(loopVariable)
         copiedLoopData.loop.body = builder.irBlock {
@@ -673,7 +672,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         inductionVariable: IrVariable,
         newCondition: IrExpression,
         iteratorNextReplacement: IrExpression,
-    ): IrExpression = builder.irBlock {
+    ): IrExpression? = builder.irBlock {
         +inductionVariable
         +irWhile().apply {
             condition = newCondition
@@ -681,7 +680,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
                 val currentSequenceElement = irTemporary(irNotNull(irGet(inductionVariable)))
                 +irSet(inductionVariable, iteratorNextReplacement)
                 val newBody = deepCopyAndPatch(loopBody, this)
-                val loopVariable = lookupForLoopVariable(newBody)
+                val loopVariable = lookupForLoopVariable(newBody) ?: return null
                 newBody.statements.remove(loopVariable)
                 val bodyRewriter = createBodyExpectingNewLoopVariable(this, loopVariable, newBody)
 
@@ -773,7 +772,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
 
         return when (sequenceSource) {
             is SequenceSource.SequenceOf -> {
-                lowerFromSequenceOf(builder, sequenceData, loopData.loopBody, sequenceSource)
+                lowerFromSequenceOf(builder, sequenceData, loopData.loopBody, sequenceSource) ?: result
             }
             is SequenceSource.Variable -> {
                 // if iterable is not IrGetValue, we do not lower, we cannot substitute sequenceSource for sequence.map(...) or sequence.filter(...)

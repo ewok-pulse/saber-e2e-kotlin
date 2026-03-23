@@ -100,6 +100,9 @@ where advanced options include:
                              Define the compile-time log level for partial linkage.
   -Xskip-library-special-compatibility-checks
                              Skip library compatibility checks for stdlib and kotlin.test library.
+  -Xadditional-ir-checkers=<checker1>,<checker2>
+                             A list of IR checkers to enable, specified by a simple name of the checker class.
+                             It may only be used with specific checkers that are not enabled by default, and which are prepared to be enabled this way.Only has effect if '-Xverify-ir' is not 'none'.
   -Xallow-any-scripts-in-source-roots
                              Allow compiling scripts along with regular Kotlin sources.
   -Xallow-condition-implies-returns-contracts
@@ -140,6 +143,9 @@ where advanced options include:
   -Xdirect-java-actualization Enable experimental direct Java actualization support.
   -Xdisable-default-scripting-plugin
                              Don't enable the scripting plugin by default.
+  -Xdisable-ir-checkers=<checker1>,<checker2>
+                             A list of IR checkers to disable, specified by a simple name of the checker class. A name of an annotation can also be used to match all tagged checkers.
+                             Only has effect if '-Xverify-ir' is not 'none'.
   -Xdisable-phases           Disable backend phases.
   -Xdont-sort-source-files   Disable automatic sorting of source files.
   -Xdont-warn-on-error-suppression
@@ -240,8 +246,6 @@ where advanced options include:
   -Xverbose-phases           Be verbose while performing the given backend phases.
   -Xverify-ir={none|warning|error}
                              IR verification mode (no verification by default).
-  -Xverify-ir-nested-offsets Check that offsets of nested IR elements conform to offsets of their containers. Only has effect if '-Xverify-ir' is not 'none'.
-  -Xverify-ir-visibility     Check for visibility violations in IR when validating it before running any lowerings. Only has effect if '-Xverify-ir' is not 'none'.
   -Xwarning-level=<WARNING_NAME>:(error|warning|disabled)
                              Set the severity of the given warning.
                              - `error` level raises the severity of a warning to error level (similar to -Werror but more granular)

@@ -38,6 +38,8 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationBase
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueDeclaration
+import org.jetbrains.kotlin.ir.expressions.IrBreak
+import org.jetbrains.kotlin.ir.expressions.IrContinue
 import org.jetbrains.kotlin.ir.expressions.IrSpreadElement
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrVararg
@@ -243,6 +245,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         }
         return type.isSubtypeOfClass(sequenceSymbol)
     }
+
 
     override fun visitVariable(declaration: IrVariable): IrStatement {
         val visitResult = super.visitVariable(declaration)
@@ -562,13 +565,33 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
     private fun lowerFromSequenceOf(
         builder: IrBuilderWithScope,
         sequenceData: SequenceData,
-        loopBody: IrBlock,
+        loopData: LoopData,
         sequenceSource: SequenceSource.SequenceOf,
     ): IrExpression? {
+        var wasBreak = false
+        val breakContinueFinder = object : IrVisitorVoid() {
+            override fun visitElement(element: IrElement) {
+                if (!wasBreak) element.acceptChildrenVoid(this)
+            }
+
+            override fun visitBreak(jump: IrBreak) {
+                if (jump.loop == loopData.loop) {
+                    wasBreak = true
+                }
+            }
+
+            override fun visitContinue(jump: IrContinue) {
+                if (jump.loop == loopData.loop) {
+                    wasBreak = true
+                }
+            }
+        }
+        loopData.loopBody.acceptVoid(breakContinueFinder)
+        if (wasBreak) return null
         return builder.irBlock {
             sequenceSource.elements.forEach { sequenceOfValue ->
                 val sequenceOfValueCopy = deepCopyAndPatch(sequenceOfValue, builder)
-                val newBody = deepCopyAndPatch(loopBody, builder)
+                val newBody = deepCopyAndPatch(loopData.loopBody, builder)
                 newBody.origin = null // we remove the LOOP_INNER_WHILE origin, as the result is not a while loop anymore
                 val loopVariable = lookupForLoopVariable(newBody) ?: return null
                 newBody.statements.remove(loopVariable)
@@ -772,7 +795,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
 
         return when (sequenceSource) {
             is SequenceSource.SequenceOf -> {
-                lowerFromSequenceOf(builder, sequenceData, loopData.loopBody, sequenceSource) ?: result
+                lowerFromSequenceOf(builder, sequenceData, loopData, sequenceSource) ?: result
             }
             is SequenceSource.Variable -> {
                 // if iterable is not IrGetValue, we do not lower, we cannot substitute sequenceSource for sequence.map(...) or sequence.filter(...)

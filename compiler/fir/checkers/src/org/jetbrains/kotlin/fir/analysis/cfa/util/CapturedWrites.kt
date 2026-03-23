@@ -5,20 +5,11 @@
 
 package org.jetbrains.kotlin.fir.analysis.cfa.util
 
-import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.PersistentSet
-import kotlinx.collections.immutable.mutate
-import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.*
 import org.jetbrains.kotlin.fir.analysis.cfa.nearestNonInPlaceGraph
 import org.jetbrains.kotlin.fir.expressions.calleeReference
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CFGNode
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CFGNodeWithSubgraphs
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CapturedByValue
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.Edge
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.VariableAssignmentNode
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.VariableDeclarationExitNode
 import org.jetbrains.kotlin.fir.references.toResolvedPropertySymbol
+import org.jetbrains.kotlin.fir.resolve.dfa.cfg.*
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 
 enum class PropertyAccessType {
@@ -153,7 +144,7 @@ internal fun PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>.ove
 internal class FindVisibleWrites(
     private val futureWrites: Map<CFGNode<*>, PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>>,
     private val properties: Set<FirPropertySymbol>,
-    private val excludeLocalWrites: Boolean = false,
+    private val excludeLocalInPlaceWrites: Boolean = false,
 ) : PathAwareControlFlowGraphVisitor<PropertyAccessType, VariableWriteData>() {
 
     override fun mergeInfo(
@@ -183,7 +174,7 @@ internal class FindVisibleWrites(
                     val parentInfo = super.visitEdge(from, to, metadata, capturedWrites)
                     result = result.merge(parentInfo) { a, b -> mergeInfo(a, b, to) }
                 }
-                if (excludeLocalWrites) {
+                if (excludeLocalInPlaceWrites) {
                     val localWrites = futureWrites[to]
                     if (localWrites != null) {
                         val localInfo = super.visitEdge(from, to, metadata, localWrites)
@@ -210,16 +201,19 @@ internal class FindVisibleWrites(
     override fun visitVariableDeclarationExitNode(
         node: VariableDeclarationExitNode,
         data: PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>,
-    ): PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData> =
-        if (node.fir.name.isSpecial) data
+    ): PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData> {
+        if (excludeLocalInPlaceWrites) return data
+        return if (node.fir.name.isSpecial) data
         else data
             .remove(node.fir.symbol) // Remove all captured writes of property as well.
             .overwrite(node.fir.symbol, if (node.fir.initializer != null) persistentSetOf(node) else persistentSetOf())
+    }
 
     override fun visitVariableAssignmentNode(
         node: VariableAssignmentNode,
         data: PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>,
     ): PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData> {
+        if (excludeLocalInPlaceWrites) return data
         val symbol = node.fir.calleeReference?.toResolvedPropertySymbol()?.takeIf { it in properties } ?: return data
         if (symbol.name.isSpecial) return data
         return data.overwrite(symbol, persistentSetOf(node))

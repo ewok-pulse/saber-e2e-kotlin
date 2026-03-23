@@ -15,7 +15,8 @@ import org.jetbrains.kotlin.fir.analysis.cfa.util.*
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousFunction
-import org.jetbrains.kotlin.fir.expressions.*
+import org.jetbrains.kotlin.fir.expressions.FirImplicitInvokeCall
+import org.jetbrains.kotlin.fir.expressions.FirQualifiedAccessExpression
 import org.jetbrains.kotlin.fir.references.toResolvedVariableSymbol
 import org.jetbrains.kotlin.fir.resolve.dfa.cfg.*
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
@@ -89,7 +90,9 @@ private class CapturedVariableReporter(
         val hasCapturedWrites = visibleWrites[accessNode]
             ?.values
             ?.any { controlFlowInfo ->
-                controlFlowInfo[PropertyAccessType.Captured]?.get(symbol)?.isNotEmpty() == true
+                controlFlowInfo.values.any { writeData ->
+                    writeData[symbol]?.isNotEmpty() == true
+                }
             } == true
 
         if (!hasCapturedWrites) return

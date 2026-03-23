@@ -1,4 +1,5 @@
 // RUN_PIPELINE_TILL: BACKEND
+// WITH_STDLIB
 // DIAGNOSTICS: -ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -27,7 +28,7 @@ fun testNestedFunction() {
 
     fun localHelper() {
         barRegularEmpty {
-            println(r)
+            println(<!CV_DIAGNOSTIC!>r<!>)
         }
     }
 
@@ -41,8 +42,8 @@ fun testNestedAnonymousFunction() {
     fun localHelper() {
         var l = 3
         barRegularEmpty {
-            println(l)
-            println(outer)
+            println(<!CV_DIAGNOSTIC!>l<!>)
+            println(<!CV_DIAGNOSTIC!>outer<!>)
         }
         l = 2
     }
@@ -71,9 +72,9 @@ fun testNestedConstructorWithAnonymous() {
         constructor(i: Int) {
             var result = i + l
             barRegularEmpty {
-                println(l)
-                println(result)
-                println(r)
+                println(<!CV_DIAGNOSTIC!>l<!>)
+                println(<!CV_DIAGNOSTIC!>result<!>)
+                println(<!CV_DIAGNOSTIC!>r<!>)
             }
             result = 3
             l = 3
@@ -90,8 +91,8 @@ fun testNestedConstructorWithAnonymous() {
 fun testNestedInPlaceLambdaInsideEscaping() {
     var l = 2
     barRegular {
-        l.let {
-            println(l)
+        <!CV_DIAGNOSTIC!>l<!>.let {
+            println(<!CV_DIAGNOSTIC!>l<!>)
         }
     }
     l = 4

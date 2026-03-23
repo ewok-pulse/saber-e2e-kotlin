@@ -1,7 +1,5 @@
 // RUN_PIPELINE_TILL: BACKEND
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+// WITH_STDLIB
 
 fun barRegular(f: () -> Unit) {}
 
@@ -12,14 +10,14 @@ private fun testStable() = barRegular {
         println(another)
     }
 
-    var <!ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE!>r<!> = "bla"
+    var r = "bla"
 
     barRegular {
-        r = "3"
+        <!CV_DIAGNOSTIC!>r<!> = "3"
     }
 
     barRegular {
-        r = "4"
+        <!CV_DIAGNOSTIC!>r<!> = "4"
     }
 }
 
@@ -42,7 +40,7 @@ private fun assertFormat(raw: String, vararg args: Any) {
     }
 
     barRegular{
-        if (e != null) throw <!DEBUG_INFO_SMARTCAST!>e<!> // bug
+        if (e != null) throw e
     }
 }
 
@@ -63,7 +61,7 @@ fun consume(startIndex : Int) {
 fun testDirectReassignment() {
     var unstable = ""
     barRegular {
-        println(unstable)
+        println(<!CV_DIAGNOSTIC!>unstable<!>)
     }
     unstable = "hello"
 }
@@ -78,20 +76,15 @@ fun testReassignmentInCurrentLambda() {
     println(stable)
 }
 
-fun barRegularString(f: () -> String) : String {
-    return f()
-}
-
 private fun testReassignmentInLocalLamda(a: Int, v: Any) = run {
     var oldVersionedValue: String? = null
     var added : Boolean
-    val aevtPrime = barRegularString {
+    val aevtPrime = barRegular {
         when {
             oldVersionedValue == null -> run { added = true }
             oldVersionedValue == "hi" -> run { added = false }
             else -> run { added = true }
         }
-        "hi $added"
     }
 }
 

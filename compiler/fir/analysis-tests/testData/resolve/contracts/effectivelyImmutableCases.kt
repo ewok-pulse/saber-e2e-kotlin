@@ -1,4 +1,5 @@
 // RUN_PIPELINE_TILL: BACKEND
+// WITH_STDLIB
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -21,7 +22,7 @@ private fun testUnstable() = barRegular {
     var another = "hello"
 
     barRegular {
-        println(another)
+        println(<!CV_DIAGNOSTIC!>another<!>)
     }
 
     another = "hi"
@@ -40,7 +41,7 @@ private fun testUnstableNotCaptured() {
         barRegular {
             isEmpty = false
         }
-        if (isEmpty) {
+        if (<!CV_DIAGNOSTIC!>isEmpty<!>) {
             println("Empty")
         }
     }
@@ -60,11 +61,11 @@ private fun testSimpleCapturedCase(){
 fun testReturnAnonymousFunction(): (String) -> Unit {
     var isScheduled = false
     return { t ->
-        if (!isScheduled) {
-            isScheduled = true
+        if (!<!CV_DIAGNOSTIC!>isScheduled<!>) {
+            <!CV_DIAGNOSTIC!>isScheduled<!> = true
             barRegular {
                 baz(t)
-                isScheduled = false
+                <!CV_DIAGNOSTIC!>isScheduled<!> = false
             }
         }
     }
@@ -93,7 +94,7 @@ fun testMutableObject(): Unit {
     }
 
     barRegular {
-        println(mutObj.toString())
+        println(<!CV_DIAGNOSTIC!>mutObj<!>.toString())
     }
 
     var x = "bla"
@@ -103,19 +104,19 @@ fun testMutableObject(): Unit {
     }
 
     barRegular {
-        println(x)
+        println(<!CV_DIAGNOSTIC!>x<!>)
     }
 
     var r = "bla"
 
     barRegular {
-        r = "3"
+        <!CV_DIAGNOSTIC!>r<!> = "3"
     }
 
     println(r)
 
     barRegular {
-        r = "4"
+        <!CV_DIAGNOSTIC!>r<!> = "4"
     }
 }
 

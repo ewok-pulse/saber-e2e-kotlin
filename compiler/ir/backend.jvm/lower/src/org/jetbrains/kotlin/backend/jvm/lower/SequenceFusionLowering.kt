@@ -38,8 +38,8 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationBase
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueDeclaration
-import org.jetbrains.kotlin.ir.expressions.IrBreak
-import org.jetbrains.kotlin.ir.expressions.IrContinue
+import org.jetbrains.kotlin.ir.expressions.IrBreakContinue
+import org.jetbrains.kotlin.ir.expressions.IrLoop
 import org.jetbrains.kotlin.ir.expressions.IrSpreadElement
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrVararg
@@ -493,14 +493,24 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         }
     }
 
-    private class VariableReplacer(val builder: IrBuilderWithScope, val oldVariable: IrVariable, val newVariable: IrVariable) :
-        IrElementTransformerVoidWithContext() {
+    private class LoopBodyTransformer(
+        val builder: IrBuilderWithScope,
+        val oldVariable: IrVariable,
+        val newVariable: IrVariable,
+        val newLoop: IrLoop?
+    ) : IrElementTransformerVoidWithContext() {
         override fun visitGetValue(expression: IrGetValue): IrExpression {
             if (expression.symbol == oldVariable.symbol) {
                 check(expression.type == newVariable.type)
                 return builder.irGet(newVariable)
             }
             return super.visitGetValue(expression)
+        }
+
+        override fun visitBreakContinue(jump: IrBreakContinue): IrExpression {
+            if (newLoop != null)
+                jump.loop = newLoop
+            return super.visitBreakContinue(jump)
         }
     }
 
@@ -542,8 +552,9 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         builder: IrBuilderWithScope,
         oldLoopVariable: IrVariable,
         body: IrBlock,
+        newLoop: IrLoop?,
     ): (IrVariable) -> IrBlock = { newLoopVariable ->
-        body.transformChildrenVoid(VariableReplacer(builder, oldLoopVariable, newLoopVariable))
+        body.transformChildrenVoid(LoopBodyTransformer(builder, oldLoopVariable, newLoopVariable, newLoop))
         body
     }
 
@@ -574,13 +585,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
                 if (!wasBreak) element.acceptChildrenVoid(this)
             }
 
-            override fun visitBreak(jump: IrBreak) {
-                if (jump.loop == loopData.loop) {
-                    wasBreak = true
-                }
-            }
-
-            override fun visitContinue(jump: IrContinue) {
+            override fun visitBreakContinue(jump: IrBreakContinue) {
                 if (jump.loop == loopData.loop) {
                     wasBreak = true
                 }
@@ -595,7 +600,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
                 newBody.origin = null // we remove the LOOP_INNER_WHILE origin, as the result is not a while loop anymore
                 val loopVariable = lookupForLoopVariable(newBody) ?: return null
                 newBody.statements.remove(loopVariable)
-                val bodyRewriter = createBodyExpectingNewLoopVariable(builder, loopVariable, newBody)
+                val bodyRewriter = createBodyExpectingNewLoopVariable(builder, loopVariable, newBody, null)
                 +transformLoopBody(
                     builder,
                     bodyRewriter,
@@ -613,7 +618,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
     ): IrBlock? {
         val copiedLoopData = loopData.deepCopy(builder)
         val loopVariable = lookupForLoopVariable(copiedLoopData.loopBody) ?: return null
-        val bodyRewriter = createBodyExpectingNewLoopVariable(builder, loopVariable, copiedLoopData.loopBody)
+        val bodyRewriter = createBodyExpectingNewLoopVariable(builder, loopVariable, copiedLoopData.loopBody, copiedLoopData.loop)
         copiedLoopData.loopBody.statements.remove(loopVariable)
         copiedLoopData.loop.body = builder.irBlock {
             +loopVariable
@@ -705,7 +710,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
                 val newBody = deepCopyAndPatch(loopBody, this)
                 val loopVariable = lookupForLoopVariable(newBody) ?: return null
                 newBody.statements.remove(loopVariable)
-                val bodyRewriter = createBodyExpectingNewLoopVariable(this, loopVariable, newBody)
+                val bodyRewriter = createBodyExpectingNewLoopVariable(this, loopVariable, newBody, this@apply)
 
                 +transformLoopBody(this, bodyRewriter, sequenceData, irGet(currentSequenceElement))
             }
@@ -716,7 +721,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         sequenceSource: SequenceSource.GenerateSequence,
         builder: IrBuilderWithScope,
         sequenceData: SequenceData,
-        loopBody: IrBlock,
+        loopData: LoopData,
         generatingFunction: IrRichFunctionReference,
     ): IrExpression? {
         val nextFromCurrent: (IrVariable) -> IrExpression = { variable ->
@@ -736,7 +741,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         }
         val (inductionVariable, newCondition, iteratorNextReplacement) =
             createIteratorReplacement(initialExpression, nextEvaluator, builder)
-        return buildGenerateSequenceBody(builder, sequenceData, loopBody, inductionVariable, newCondition, iteratorNextReplacement)
+        return buildGenerateSequenceBody(builder, sequenceData, loopData.loopBody, inductionVariable, newCondition, iteratorNextReplacement)
     }
 
     // updates .iterator() .hasNext() and .next() calls to be called on newIteratorTarget
@@ -805,7 +810,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
                 lowerFromUnknownVariable(builder, innerMostReceiverSequenceData, loopData, sequenceSource) ?: result
             }
             is SequenceSource.GenerateSequence -> {
-                lowerFromGenerateSequence(sequenceSource, builder, sequenceData, loopData.loopBody, sequenceSource.generatingFunction)
+                lowerFromGenerateSequence(sequenceSource, builder, sequenceData, loopData, sequenceSource.generatingFunction)
                     ?: result
             }
             is SequenceSource.AsSequence -> {

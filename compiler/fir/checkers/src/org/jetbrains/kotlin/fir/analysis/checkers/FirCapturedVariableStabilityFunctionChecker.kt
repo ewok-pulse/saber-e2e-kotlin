@@ -5,9 +5,7 @@
 
 package org.jetbrains.kotlin.fir.analysis.checkers
 
-import org.jetbrains.kotlin.KtSourceElement
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
-import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactory1
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.cfa.AbstractFirPropertyInitializationChecker
 import org.jetbrains.kotlin.fir.analysis.cfa.nearestNonInPlaceGraph
@@ -21,7 +19,6 @@ import org.jetbrains.kotlin.fir.references.toResolvedVariableSymbol
 import org.jetbrains.kotlin.fir.resolve.dfa.cfg.*
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.types.ConeDynamicType
-import kotlin.reflect.full.memberProperties
 
 /**
  * Checks captured variables inside non-in-place lambdas and determines their stability
@@ -42,22 +39,30 @@ object FirCapturedVariableStabilityFunctionChecker : AbstractFirPropertyInitiali
         val capturedWrites = data.graph.traverseToFixedPoint(FindCapturedWrites(trackedProperties))
         val visibleWrites = data.graph.traverseToFixedPoint(FindVisibleWrites(capturedWrites, trackedProperties, true))
 
+        val escapingProperties = mutableSetOf<Pair<FirPropertySymbol, FirQualifiedAccessExpression>>()
         data.graph.traverse(
-            CapturedVariableReporter(
-                context,
-                reporter,
+            CapturedVariableVisitor(
                 trackedProperties,
                 visibleWrites,
+                escapingProperties,
             )
         )
+
+        for ((symbol, expression) in escapingProperties) {
+            reporter.reportOn(
+                expression.source,
+                FirErrors.CV_DIAGNOSTIC,
+                symbol.name.toString(),
+                context
+            )
+        }
     }
 }
 
-private class CapturedVariableReporter(
-    val context: CheckerContext,
-    val reporter: DiagnosticReporter,
+private class CapturedVariableVisitor(
     private val trackedProperties: Set<FirPropertySymbol>,
     private val visibleWrites: Map<CFGNode<*>, PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>>,
+    private val escapingProperties: MutableSet<Pair<FirPropertySymbol, FirQualifiedAccessExpression>>,
 ) : ControlFlowGraphVisitorVoid() {
     override fun visitNode(node: CFGNode<*>) {}
 
@@ -95,41 +100,8 @@ private class CapturedVariableReporter(
                 }
             } == true
 
-        if (!hasCapturedWrites) return
-        val report = IEReporter(expression.source, context, reporter, FirErrors.CV_DIAGNOSTIC)
-        report(
-            IEData(
-                info = "Variable is captured from outer scope and is unstable in current scope",
-                variableName = symbol.name.toString(),
-            )
-        )
-    }
-}
-class IEReporter(
-    private val source: KtSourceElement?,
-    private val context: CheckerContext,
-    private val reporter: DiagnosticReporter,
-    private val error: KtDiagnosticFactory1<String>,
-) {
-    operator fun invoke(v: IEData) {
-        val dataStr = buildList {
-            addAll(serializeData(v))
-        }.joinToString("; ")
-        val str = "$borderTag $dataStr $borderTag"
-        reporter.reportOn(source, error, str, context)
-    }
-
-    private val borderTag: String = "KLEKLE"
-
-    private fun serializeData(v: IEData): List<String> = buildList {
-        v::class.memberProperties.forEach { property ->
-            add("${property.name}: ${property.getter.call(v)}")
+        if (hasCapturedWrites) {
+            escapingProperties.add(symbol to expression)
         }
     }
 }
-
-data class IEData(
-    val info: String? = null,
-    val variableName: String? = null,
-    val leftmostReceiverName: String? = null,
-)

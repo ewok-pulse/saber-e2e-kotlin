@@ -125,7 +125,7 @@ internal class NewInferenceErrorImpl(
 ) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.NewInferenceError
 
 internal class CvDiagnosticImpl(
-    override val info: String,
+    override val variableName: String,
     firDiagnostic: KtPsiDiagnostic,
     token: KaLifetimeToken,
 ) : KaAbstractFirDiagnostic<KtElement>(firDiagnostic, token), KaFirDiagnostic.CvDiagnostic

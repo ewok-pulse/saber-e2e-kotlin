@@ -62,7 +62,7 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
             parameter<String>("error")
         }
         val CV_DIAGNOSTIC by warning<KtElement> {
-            parameter<String>("info")
+            parameter<String>("variableName")
         }
     }
 

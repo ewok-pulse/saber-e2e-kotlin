@@ -495,7 +495,8 @@ class FrameworkTest : AbstractNativeSimpleTest() {
         val library = compileToLibrary(
             testSuiteDir.resolve("objcexport/library"),
             buildDir,
-            TestCompilerArgs("-Xshort-module-name=MyLibrary", "-module-name", "org.jetbrains.kotlin.native.test-library"),
+            TestCompilerArgs("-Xshort-module-name=MyLibrary", "-module-name", "org.jetbrains.kotlin.native.test-library",
+                             "-Xdisable-ir-checkers=IrVisibilityChecker"),
             emptyList(),
         )
 
@@ -516,6 +517,7 @@ class FrameworkTest : AbstractNativeSimpleTest() {
                     "-Xexport-kdoc",
                     "-Xbinary=bundleId=foo.bar",
                     "-module-name", frameworkName,
+                    "-Xdisable-ir-checkers=IrVisibilityChecker",
                 )
             ),
             givenDependencies = setOf(TestModule.Given(library.klibFile)),

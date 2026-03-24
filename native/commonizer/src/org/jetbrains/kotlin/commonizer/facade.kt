@@ -9,6 +9,7 @@ import kotlinx.metadata.klib.ChunkedKlibModuleFragmentWriteStrategy
 import org.jetbrains.kotlin.commonizer.ResultsConsumer.Status
 import org.jetbrains.kotlin.commonizer.cir.CirEntityId
 import org.jetbrains.kotlin.commonizer.core.CommonizationVisitor
+import org.jetbrains.kotlin.commonizer.core.IntegerStatisticsVisitor
 import org.jetbrains.kotlin.commonizer.mergedtree.CirClassifierIndex
 import org.jetbrains.kotlin.commonizer.mergedtree.CirCommonizedClassifierNodes
 import org.jetbrains.kotlin.commonizer.mergedtree.CirKnownClassifiers
@@ -23,7 +24,6 @@ import org.jetbrains.kotlin.commonizer.tree.defaultCirTreeRootDeserializer
 import org.jetbrains.kotlin.commonizer.tree.mergeCirTree
 import org.jetbrains.kotlin.commonizer.utils.progress
 import org.jetbrains.kotlin.library.SerializedMetadata
-import org.jetbrains.kotlin.metadata.deserialization.MetadataVersion
 
 fun runCommonization(parameters: CommonizerParameters) {
     if (!parameters.containsCommonModuleNames()) {
@@ -77,6 +77,8 @@ internal fun commonizeTarget(
         ).invoke(mergedTree)
 
         mergedTree.accept(CommonizationVisitor(mergedTree), Unit)
+
+        mergedTree.accept(IntegerStatisticsVisitor(inputs.targets), Unit)
 
         return mergedTree
     }

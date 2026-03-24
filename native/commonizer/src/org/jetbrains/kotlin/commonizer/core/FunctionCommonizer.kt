@@ -21,7 +21,7 @@ class FunctionCommonizer(
             typeParameters = functionOrProperty.typeParameters,
             visibility = functionOrProperty.visibility,
             modality = functionOrProperty.modality,
-            containingClass = null, // does not matter
+            containingClass = values.first().containingClass, // does not matter; it does matter to me... 0_0
             valueParameters = valueParametersResult.valueParameters,
             hasStableParameterNames = valueParametersResult.hasStableParameterNames,
             extensionReceiver = functionOrProperty.extensionReceiver,

@@ -34,3 +34,4 @@ for platform in $(ls "$libs_location"); do
   done
 done
 
+python3 collect_typealias_inconsistencies.py > "$dumps_location/typealias-consistency"

@@ -14,8 +14,14 @@ for finalCommonized, mapping in finalCommonizedToPlatforms.items():
     index += 1
 
     print(
-        f'{index}. fun {finalCommonized[1]}{finalCommonized[2]} ({", ".join(finalCommonized[0])})'
+        f'{index}. {finalCommonized[3]} {finalCommonized[1]}{finalCommonized[2]} ({", ".join(finalCommonized[0])})'
     )
+
+    maxIndex = 0
+    for implementation in mapping:
+        if len(implementation[0]) == 1:
+            maxIndex += 1
+    maxIndexLength = len(str(maxIndex))
     subIndex = 0
 
     for implementation in mapping:
@@ -24,5 +30,5 @@ for finalCommonized, mapping in finalCommonizedToPlatforms.items():
 
         subIndex += 1
         print(
-            f'  {subIndex}. fun {implementation[1]}{implementation[2]} ({", ".join(implementation[0])})'
+            f'  {str(subIndex).rjust(maxIndexLength)}. {implementation[3]} {implementation[1]}{implementation[2]} ({", ".join(implementation[0])})'
         )

@@ -7,10 +7,10 @@ import sys
 
 dumps_location = "/tmp/cinterop-dumps-2"
 commonized_line_pattern = re.compile(
-    "^\\| (?:unsafe )?(?:int )?\\s*\\| fun ([a-zA-Z0-9_./:#<>]+)(.*) \\|"
+    "^\\| (?:unsafe )?(?:int )?\\s*\\| (fun|val|var) ([a-zA-Z0-9_./:#<>]+)([:(].*) \\|"
 )
 platform_line_pattern = re.compile(
-    "^\\| ([a-zA-Z0-9_]+|\\([a-zA-Z0-9_]+(?:, [a-zA-Z0-9_]+)+\\)) \\s*\\| fun ([a-zA-Z0-9_./:#<>]+)(.*) \\|"
+    "^\\| ([a-zA-Z0-9_]+|\\([a-zA-Z0-9_]+(?:, [a-zA-Z0-9_]+)+\\)) \\s*\\| (fun|val|var) ([a-zA-Z0-9_./:#<>]+)([:(].*) \\|"
 )
 tags = set(["unsafe", "int"])
 
@@ -51,8 +51,9 @@ def gather_commonization_families():
                     if match is not None:
                         currentCommonized = (
                             currentCommonizedPlatforms,
-                            match.group(1),
                             match.group(2),
+                            match.group(3),
+                            match.group(1),
                         )
                         continue
 
@@ -62,10 +63,11 @@ def gather_commonization_families():
                         debug_non_matched_lines.append(line)
                         continue
 
-                    platformString, name, signature = (
+                    platformString, name, signature, declarationKind = (
                         match.group(1),
-                        match.group(2),
                         match.group(3),
+                        match.group(4),
+                        match.group(2),
                     )
 
                     if platformString in tags:
@@ -73,7 +75,7 @@ def gather_commonization_families():
 
                     platforms = to_platform_set(platformString)
 
-                    key = (platforms, match.group(2), match.group(3))
+                    key = (platforms, name, signature, declarationKind)
 
                     if key[1] != currentCommonized[1]:
                         print(

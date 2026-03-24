@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.commonizer.core
 
 import org.jetbrains.kotlin.commonizer.cir.CirConstantValue
+import org.jetbrains.kotlin.commonizer.cir.CirContainingClass
 import org.jetbrains.kotlin.commonizer.cir.CirProperty
 import org.jetbrains.kotlin.commonizer.cir.CirPropertyGetter
 import org.jetbrains.kotlin.commonizer.core.PropertyCommonizer.ConstCommonizationState.*
@@ -17,6 +18,8 @@ class PropertyCommonizer(
     private val setter = PropertySetterCommonizer.asNullableCommonizer()
     private lateinit var constCommonizationState: ConstCommonizationState
     private val functionOrPropertyBaseCommonizer = functionOrPropertyBaseCommonizer.asCommonizer()
+
+    private var containingClass: CirContainingClass? = null
 
     override fun commonizationResult(): CirProperty? {
         val functionOrPropertyBase = functionOrPropertyBaseCommonizer.result ?: return null
@@ -34,7 +37,7 @@ class PropertyCommonizer(
             typeParameters = functionOrPropertyBase.typeParameters,
             visibility = functionOrPropertyBase.visibility,
             modality = functionOrPropertyBase.modality,
-            containingClass = null, // does not matter
+            containingClass = containingClass, // does not matter; it does matter to me... 0_0
             extensionReceiver = functionOrPropertyBase.extensionReceiver,
             returnType = functionOrPropertyBase.returnType,
             kind = functionOrPropertyBase.kind,
@@ -51,6 +54,8 @@ class PropertyCommonizer(
     }
 
     override fun initialize(first: CirProperty) {
+        containingClass = first.containingClass
+
         constCommonizationState = if (first.isConst) {
             first.compileTimeInitializer.takeIf { it != CirConstantValue.NullValue }?.let(::ConstSameValue) ?: NonConst
         } else {

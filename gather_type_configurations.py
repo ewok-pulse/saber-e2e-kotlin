@@ -37,6 +37,7 @@ for finalCommonized, implementations in finalCommonizedToPlatforms.items():
         clearedSignature = re.sub(
             "(?:^|, )(?:<#0>\\.)?[a-zA-Z0-9_]+: ", TYPE_MARKER, clearedSignature
         )
+        clearedSignature = re.sub("^: ", TYPE_MARKER, clearedSignature)
         typesInImplementation = list(
             filter(lambda it: it != "", clearedSignature.split(TYPE_MARKER))
         )

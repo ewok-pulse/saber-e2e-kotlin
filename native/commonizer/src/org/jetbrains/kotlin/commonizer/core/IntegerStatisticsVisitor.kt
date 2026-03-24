@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2026 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Copyright 2010-2019 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
@@ -14,6 +14,8 @@ import org.jetbrains.kotlin.commonizer.cir.CirEntityId
 import org.jetbrains.kotlin.commonizer.cir.CirExtensionReceiver
 import org.jetbrains.kotlin.commonizer.cir.CirFlexibleType
 import org.jetbrains.kotlin.commonizer.cir.CirFunction
+import org.jetbrains.kotlin.commonizer.cir.CirFunctionOrProperty
+import org.jetbrains.kotlin.commonizer.cir.CirProperty
 import org.jetbrains.kotlin.commonizer.cir.CirRegularTypeProjection
 import org.jetbrains.kotlin.commonizer.cir.CirType
 import org.jetbrains.kotlin.commonizer.cir.CirTypeAliasType
@@ -162,14 +164,19 @@ internal class IntegerStatisticsVisitor(
     }
 
     override fun visitPropertyNode(node: CirPropertyNode, data: Unit) {
-
+        val commonized = node.commonDeclaration() ?: return
+        visitFunctionOrPropertyNode(commonized, node.targetDeclarations)
     }
 
     override fun visitFunctionNode(node: CirFunctionNode, data: Unit) {
         val commonized = node.commonDeclaration() ?: return
+        visitFunctionOrPropertyNode(commonized, node.targetDeclarations)
+    }
+
+    private fun visitFunctionOrPropertyNode(commonized: CirFunctionOrProperty, targetDeclarations: List<CirFunctionOrProperty?>) {
         val rendered = commonized.render()
 
-        val isUnsafeCommonization = node.targetDeclarations.mapNotNull { it?.collectTypes()?.unwrapAll() }.toSet().size >= 2
+        val isUnsafeCommonization = targetDeclarations.mapNotNull { it?.collectTypes()?.unwrapAll() }.toSet().size >= 2
         val unsafeTag = if (isUnsafeCommonization) UNSAFE_COMMONIZATION_TAG else null
         val intTag = if (commonized.containsTypealiasesToIntegers()) INT_COMMONIZATION_TAG else null
         val tags = listOfNotNull(unsafeTag, intTag).joinToString(" ")
@@ -177,18 +184,21 @@ internal class IntegerStatisticsVisitor(
         currentFile.appendText("| %-${longestTargetLength}s | %s |\n".format(tags, rendered))
         currentFile.appendText("| " + "-".repeat(longestTargetLength) + " | " + "-".repeat(rendered.length) + " |\n")
 
-        for ((it, target) in node.targetDeclarations.zip(targets)) {
+        for ((it, target) in targetDeclarations.zip(targets)) {
             currentFile.appendText("| %-${longestTargetLength}s | %s |\n".format(target, it?.render()))
         }
 
         currentFile.appendText("\n")
     }
 
-    private fun CirFunction.containsTypealiasesToIntegers(): Boolean =
+    private fun CirFunctionOrProperty.containsTypealiasesToIntegers(): Boolean =
         collectTypes().any { it?.mentionsIntegers == true }
 
-    private fun CirFunction.collectTypes(): List<CirType?> =
-        listOf(extensionReceiver?.type) + valueParameters.map { it.returnType } + returnType
+    private fun CirFunctionOrProperty.collectTypes(): List<CirType?> = when (this) {
+        is CirFunction -> listOf(extensionReceiver?.type) + valueParameters.map { it.returnType } + returnType
+        is CirProperty -> listOf(extensionReceiver?.type, returnType)
+        else -> error("Unexpected CirFunctionOrProperty: $this")
+    }
 
     private fun List<CirType?>.unwrapAll(): List<CirType?> =
         map { (it as? CirClassOrTypeAliasType)?.unwrapTypealias() ?: it }
@@ -218,29 +228,38 @@ internal class IntegerStatisticsVisitor(
         return current
     }
 
-    private fun CirFunction.render(): String = buildString { renderFunction(this@render) }
+    private fun CirFunctionOrProperty.render(): String = buildString { renderFunctionOrProperty(this@render) }
 
-    private fun StringBuilder.renderFunction(function: CirFunction) {
+    private fun StringBuilder.renderFunctionOrProperty(functionOrProperty: CirFunctionOrProperty) {
 //        renderAnnotations(function.annotations)
-        append("fun ")
+        when (functionOrProperty) {
+            is CirFunction -> append("fun ")
+            is CirProperty -> append(if (functionOrProperty.isVar) "var " else "val ")
+        }
         append(currentPackage.packageName.toString())
         append("/")
-        if (function.containingClass is CirClass) {
-            append(function.containingClass.name.name)
+        val containingClass = functionOrProperty.containingClass
+        if (containingClass is CirClass) {
+            append(containingClass.name.name)
             append("::")
         }
-        if (function.extensionReceiver != null) {
-            renderExtensionReceiver(function.extensionReceiver)
+        val extensionReceiver = functionOrProperty.extensionReceiver
+        if (extensionReceiver != null) {
+            renderExtensionReceiver(extensionReceiver)
             append(".")
         }
-        append(function.name)
-        append("(")
-        append(function.valueParameters.joinToString(", ") {
-            buildString { renderValueParameter(it) }
-        })
-        append(")")
+        append(functionOrProperty.name)
+
+        if (functionOrProperty is CirFunction) {
+            append("(")
+            append(functionOrProperty.valueParameters.joinToString(", ") {
+                buildString { renderValueParameter(it) }
+            })
+            append(")")
+        }
+
         append(": ")
-        renderType(function.returnType)
+        renderType(functionOrProperty.returnType)
     }
 
     private fun StringBuilder.renderValueParameter(valueParameter: CirValueParameter) {

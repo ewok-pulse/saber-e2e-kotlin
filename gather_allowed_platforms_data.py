@@ -7,12 +7,12 @@ import sys
 
 dumps_location = "/tmp/cinterop-dumps-2"
 commonized_line_pattern = re.compile(
-    "^\\| (?:unsafe )?(?:int )?\\s*\\| (fun|val|var) ([a-zA-Z0-9_./:#<>]+)([:(].*) \\|"
+    "^\\| (?:unsafe )?(?:int )?(?:optimistic )?\\s*\\| (fun|val|var) ([a-zA-Z0-9_./:#<>]+)([:(].*) \\|"
 )
 platform_line_pattern = re.compile(
     "^\\| ([a-zA-Z0-9_]+|\\([a-zA-Z0-9_]+(?:, [a-zA-Z0-9_]+)+\\)) \\s*\\| (fun|val|var) ([a-zA-Z0-9_./:#<>]+)([:(].*) \\|"
 )
-tags = set(["unsafe", "int"])
+tags = set(["unsafe", "int", "optimistic"])
 
 
 def to_platform_set(platformString):
@@ -33,6 +33,7 @@ def gather_commonization_families():
     debug_non_matched_lines = []
 
     platformDeclarationToCommonized = {}
+    optimisticCommonized = set()
     currentCommonized = None
 
     for library in libraries:
@@ -55,6 +56,10 @@ def gather_commonization_families():
                             match.group(3),
                             match.group(1),
                         )
+
+                        if " optimistic " in match.group(0):
+                            optimisticCommonized.add(currentCommonized)
+
                         continue
 
                     match = platform_line_pattern.match(line)
@@ -98,4 +103,4 @@ def gather_commonization_families():
 
         finalCommonizedToPlatforms[finalCommonized].add(key)
 
-    return finalCommonizedToPlatforms
+    return finalCommonizedToPlatforms, optimisticCommonized

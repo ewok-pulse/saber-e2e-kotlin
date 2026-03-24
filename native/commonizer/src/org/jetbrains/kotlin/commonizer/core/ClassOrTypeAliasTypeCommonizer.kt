@@ -16,6 +16,8 @@ import org.jetbrains.kotlin.commonizer.utils.singleDistinctValueOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
+val commonizationValues: MutableList<Pair<List<CirClassOrTypeAliasType>, CirClassOrTypeAliasType?>> = mutableListOf()
+
 internal class ClassOrTypeAliasTypeCommonizer(
     private val typeCommonizer: TypeCommonizer,
     private val classifiers: CirKnownClassifiers,
@@ -45,6 +47,8 @@ internal class ClassOrTypeAliasTypeCommonizer(
                 platformIntegerCommonizer(expansions)?.makeNullableIfNecessary(isMarkedNullable)
             } ?: isOptimisticNumberTypeCommonizationEnabled.ifTrue {
                 OptimisticNumbersTypeCommonizer.commonize(expansions)?.makeNullableIfNecessary(isMarkedNullable)
+            }.also {
+                commonizationValues.add(values to it)
             }
 
             return integerCommonizationResultIfApplicable
@@ -97,11 +101,16 @@ internal class ClassOrTypeAliasTypeCommonizer(
             else -> Unit
         }
 
+        val oldSize = commonizationValues.size
         /*
         Classifier is coming from 'sources' and is commonized and therefore the type can be used in common
          */
         val commonizedClassifier = classifiers.commonizedNodes.classNode(classifierId)?.commonDeclaration?.invoke()
             ?: classifiers.commonizedNodes.typeAliasNode(classifierId)?.commonDeclaration?.invoke()
+
+        while (commonizationValues.size > oldSize) {
+            commonizationValues.removeLast()
+        }
 
         return when (commonizedClassifier) {
             is CirClass -> CirClassType.createInterned(
@@ -118,7 +127,11 @@ internal class ClassOrTypeAliasTypeCommonizer(
                 underlyingType = commonizedClassifier.underlyingType
                     .makeNullableIfNecessary(isMarkedNullable)
                     .withParentArguments(arguments)
-            )
+            ).also {
+                if (commonizedClassifier.annotations.any { it.type.classifierId.toString() == "kotlinx/cinterop/UnsafeNumber" }) {
+                    commonizationValues.add(values to it)
+                }
+            }
 
             else -> null
         }

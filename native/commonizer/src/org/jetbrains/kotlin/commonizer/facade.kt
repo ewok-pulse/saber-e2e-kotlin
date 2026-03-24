@@ -76,9 +76,8 @@ internal fun commonizeTarget(
             SignatureBuildingContextProvider(classifiers, typeAliasInvariant = true, skipArguments = true)
         ).invoke(mergedTree)
 
-        mergedTree.accept(CommonizationVisitor(mergedTree), Unit)
-
-        mergedTree.accept(IntegerStatisticsVisitor(inputs.targets), Unit)
+        val integerStatisticsVisitor = IntegerStatisticsVisitor(inputs.targets)
+        mergedTree.accept(CommonizationVisitor(mergedTree, integerStatisticsVisitor), Unit)
 
         return mergedTree
     }

@@ -7,7 +7,7 @@ import sys
 
 from gather_allowed_platforms_data import gather_commonization_families
 
-finalCommonizedToPlatforms = gather_commonization_families()
+finalCommonizedToPlatforms, optimisticCommonized = gather_commonization_families()
 
 index = 0
 for finalCommonized, mapping in finalCommonizedToPlatforms.items():

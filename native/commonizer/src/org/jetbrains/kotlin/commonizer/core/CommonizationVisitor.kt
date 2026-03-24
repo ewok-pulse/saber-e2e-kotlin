@@ -8,9 +8,12 @@ package org.jetbrains.kotlin.commonizer.core
 import org.jetbrains.kotlin.commonizer.mergedtree.*
 
 internal class CommonizationVisitor(
-    private val root: CirRootNode
+    private val root: CirRootNode,
+    private val integerStatisticsVisitor: IntegerStatisticsVisitor,
 ) : CirNodeVisitor<Unit, Unit> {
     override fun visitRootNode(node: CirRootNode, data: Unit) {
+        integerStatisticsVisitor.onRootNode(node)
+
         check(node === root)
         check(node.commonDeclaration() != null) // root should already be commonized
 
@@ -20,6 +23,8 @@ internal class CommonizationVisitor(
     }
 
     override fun visitModuleNode(node: CirModuleNode, data: Unit) {
+        integerStatisticsVisitor.onModuleNode(node)
+
         node.commonDeclaration() // commonize module
 
         node.packages.values.forEach { pkg ->
@@ -29,6 +34,8 @@ internal class CommonizationVisitor(
 
     @Suppress("DuplicatedCode")
     override fun visitPackageNode(node: CirPackageNode, data: Unit) {
+        integerStatisticsVisitor.onPackageNode(node)
+
         node.commonDeclaration() // commonize package
 
         node.properties.values.forEach { property ->
@@ -49,11 +56,25 @@ internal class CommonizationVisitor(
     }
 
     override fun visitPropertyNode(node: CirPropertyNode, data: Unit) {
-        node.commonDeclaration() // commonize property
+        commonizationValues.clear()
+        val commonized = node.commonDeclaration() ?: return // commonize property
+
+        integerStatisticsVisitor.visitFunctionOrPropertyNode(
+            commonized,
+            node.targetDeclarations,
+            isOptimistic = commonizationValues.isNotEmpty(),
+        )
     }
 
     override fun visitFunctionNode(node: CirFunctionNode, data: Unit) {
-        node.commonDeclaration() // commonize function
+        commonizationValues.clear()
+        val commonized = node.commonDeclaration() ?: return // commonize function
+
+        integerStatisticsVisitor.visitFunctionOrPropertyNode(
+            commonized,
+            node.targetDeclarations,
+            isOptimistic = commonizationValues.isNotEmpty(),
+        )
     }
 
     @Suppress("DuplicatedCode")

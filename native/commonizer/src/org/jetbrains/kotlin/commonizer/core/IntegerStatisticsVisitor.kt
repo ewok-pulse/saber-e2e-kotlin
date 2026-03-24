@@ -34,6 +34,7 @@ private val integerTypesHashSet = INTEGER_TYPES.toHashSet()
 
 private const val UNSAFE_COMMONIZATION_TAG = "unsafe"
 private const val INT_COMMONIZATION_TAG = "int"
+private const val OPTIMISTIC_TAG = "optimistic"
 
 internal class IntegerStatisticsVisitor(
     private val targets: List<CommonizerTarget>,
@@ -48,15 +49,19 @@ internal class IntegerStatisticsVisitor(
         get() = currentModuleDirectory.resolve(targetFileName)
 
     private val longestTargetLength = targets.maxOf { it.toString().length }
-        .let { maxOf(it, ("$UNSAFE_COMMONIZATION_TAG $INT_COMMONIZATION_TAG").length) }
+        .let { maxOf(it, ("$UNSAFE_COMMONIZATION_TAG $INT_COMMONIZATION_TAG $OPTIMISTIC_TAG").length) }
 
     private lateinit var currentPackage: CirPackageNode
 
-    override fun visitRootNode(node: CirRootNode, data: Unit) {
+    fun onRootNode(node: CirRootNode) {
         statsDirectory.mkdir()
 
         require(typealiasesStatsDirectory.exists()) { "Typealiases stats directory does not exist: ${typealiasesStatsDirectory.path}" }
         loadTypealiasesStats()
+    }
+
+    override fun visitRootNode(node: CirRootNode, data: Unit) {
+        onRootNode(node)
 
         node.modules.values.forEach { module ->
             module.accept(this, Unit)
@@ -105,21 +110,29 @@ internal class IntegerStatisticsVisitor(
         typealiasesToIntegers = allTypealiasesMap
     }
 
-    override fun visitModuleNode(node: CirModuleNode, data: Unit) {
-        val commonized = node.commonDeclaration() ?: return
+    fun onModuleNode(node: CirModuleNode) {
+        val commonized = node.targetDeclarations.firstOrNull() ?: return
         val moduleName = commonized.name.name.let { it.substring(1, it.length - 1) }
 
         currentModuleDirectory = statsDirectory.resolve(moduleName)
         currentModuleDirectory.mkdir()
+    }
+
+    override fun visitModuleNode(node: CirModuleNode, data: Unit) {
+        onModuleNode(node)
 
         node.packages.values.forEach { pkg ->
             pkg.accept(this, Unit)
         }
     }
 
+    fun onPackageNode(node: CirPackageNode) {
+        currentPackage = node
+    }
+
     @Suppress("DuplicatedCode")
     override fun visitPackageNode(node: CirPackageNode, data: Unit) {
-        currentPackage = node
+        onPackageNode(node)
 
         node.properties.values.forEach { property ->
             property.accept(this, Unit)
@@ -173,13 +186,18 @@ internal class IntegerStatisticsVisitor(
         visitFunctionOrPropertyNode(commonized, node.targetDeclarations)
     }
 
-    private fun visitFunctionOrPropertyNode(commonized: CirFunctionOrProperty, targetDeclarations: List<CirFunctionOrProperty?>) {
+    fun visitFunctionOrPropertyNode(
+        commonized: CirFunctionOrProperty,
+        targetDeclarations: List<CirFunctionOrProperty?>,
+        isOptimistic: Boolean = false,
+    ) {
         val rendered = commonized.render()
 
         val isUnsafeCommonization = targetDeclarations.mapNotNull { it?.collectTypes()?.unwrapAll() }.toSet().size >= 2
         val unsafeTag = if (isUnsafeCommonization) UNSAFE_COMMONIZATION_TAG else null
         val intTag = if (commonized.containsTypealiasesToIntegers()) INT_COMMONIZATION_TAG else null
-        val tags = listOfNotNull(unsafeTag, intTag).joinToString(" ")
+        val optimisticTag = if (isOptimistic) OPTIMISTIC_TAG else null
+        val tags = listOfNotNull(unsafeTag, intTag, optimisticTag).joinToString(" ")
 
         currentFile.appendText("| %-${longestTargetLength}s | %s |\n".format(tags, rendered))
         currentFile.appendText("| " + "-".repeat(longestTargetLength) + " | " + "-".repeat(rendered.length) + " |\n")

@@ -142,12 +142,13 @@ class TypeWithExpansionNode:
         return self.__str__()
 
     def is_shallowly_equal(self, other):
-        return isinstance(
-            other, TypeWithExpansionNode
-        )  # and self.types[-1].is_shallowly_equal(other.types[-1])
+        print(
+            f"Error > is_shallowly_equal() should never be called on TypeWithExpansionNode"
+        )
+        exit(10)
 
     def destruct(self):
-        return self.types[-1:]
+        return self.types[-1].destruct()
 
 
 class TypeProjectionNode:
@@ -226,9 +227,16 @@ def parse_type_projection(context):
     return TypeProjectionNode(kind=kind, type=further_type)
 
 
+def unwrap_typealias(tree):
+    if isinstance(tree, TypeWithExpansionNode):
+        return tree.types[-1]
+
+    return tree
+
+
 def drop_typealiases(tree):
     if isinstance(tree, TypeWithExpansionNode):
-        return drop_typealiases(tree.types[-1])
+        return drop_typealiases(unwrap_typealias(tree))
 
     if isinstance(tree, TypeNode):
         return tree.fmap(drop_typealiases)
@@ -278,17 +286,29 @@ class TypesInSignature:
 
 
 def find_common_typealias_abbreviation(variants):
-    if len(variants) == 0 or not isinstance(variants[0], TypeWithExpansionNode):
+    def get_classifiers(tree):
+        if isinstance(tree, TypeWithExpansionNode):
+            return tree.types
+
+        if isinstance(tree, TypeNode):
+            return [tree]
+
+        if isinstance(tree, TypeProjectionNode):
+            return get_classifiers(tree.type)
+
+        return []
+
+    if len(variants) == 0:
         return None
+
+    classifiers = get_classifiers(variants[0])
 
     def exists_in_every_other_variant(abbreviation):
         for variant in variants[1:]:
-            if not isinstance(variant, TypeWithExpansionNode):
-                return False
-
+            variant_classifiers = get_classifiers(variant)
             exists = False
 
-            for abbreviation_variant in variant.types:
+            for abbreviation_variant in variant_classifiers:
                 if str(abbreviation_variant) == str(abbreviation):
                     exists = True
                     break
@@ -298,7 +318,7 @@ def find_common_typealias_abbreviation(variants):
 
         return True
 
-    for abbreviation in variants[0].types:
+    for abbreviation in classifiers:
         if exists_in_every_other_variant(abbreviation):
             return abbreviation
 
@@ -306,6 +326,13 @@ def find_common_typealias_abbreviation(variants):
 
 
 def extract_inconsistencies_tree(platformToTree, origins=None):
+    # common_abbreviation = find_common_typealias_abbreviation(list(platformToTree.values()))
+    #
+    # if common_abbreviation is not None:
+    #     # print(f"Found common abbreviation: {common_abbreviation}")
+    #     # exit(1)
+    #     return []
+
     equivalenceClasses = []
 
     for platform, tree in platformToTree.items():
@@ -318,7 +345,9 @@ def extract_inconsistencies_tree(platformToTree, origins=None):
         for existing in equivalenceClasses:
             representative = list(existing.items())[0]
 
-            if representative[1].is_shallowly_equal(tree):
+            if unwrap_typealias(representative[1]).is_shallowly_equal(
+                unwrap_typealias(tree)
+            ):
                 existing[platform] = tree
                 added_to_existing = True
                 break
@@ -329,25 +358,7 @@ def extract_inconsistencies_tree(platformToTree, origins=None):
     incompatible_configurations = []
 
     if len(equivalenceClasses) > 1:
-        if origins is None:
-            incompatible_configurations.append(platformToTree)
-        else:
-            common_abbreviation = find_common_typealias_abbreviation(
-                list(origins.values())
-            )
-
-            if common_abbreviation is None:
-                incompatible_configurations.append({})
-
-                for platform, tree in platformToTree.items():
-                    if platform in origins and isinstance(
-                        origins[platform], TypeWithExpansionNode
-                    ):
-                        incompatible_configurations[-1][platform] = origins[platform]
-                    else:
-                        incompatible_configurations[-1][platform] = tree
-            # else:
-            #     print(f'!! common abbreviation {common_abbreviation}')
+        incompatible_configurations.append(platformToTree)
 
     for equivalenceClass in equivalenceClasses:
         delegate_inconsistencies = []

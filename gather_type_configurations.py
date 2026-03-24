@@ -12,13 +12,17 @@ from parse_types import (
     drop_typealiases,
 )
 
-finalCommonizedToPlatforms = gather_commonization_families()
+finalCommonizedToPlatforms, optimisticCommonized = gather_commonization_families()
 
 commonizationTypeConfigurationsToUsage = {}
+usageToFinalCommonized = {}
 
 for finalCommonized, implementations in finalCommonizedToPlatforms.items():
     platforms = finalCommonized[0]
     typeConfigurations = {}
+
+    if finalCommonized not in optimisticCommonized:
+        continue
 
     for implementation in implementations:
         if len(implementation[0]) > 1:
@@ -67,12 +71,13 @@ for finalCommonized, implementations in finalCommonizedToPlatforms.items():
         if frozen not in commonizationTypeConfigurationsToUsage:
             commonizationTypeConfigurationsToUsage[frozen] = []
 
-        commonizationTypeConfigurationsToUsage[frozen].append(
-            {
-                platform: f"{it.kind} {it.name}{it.signature}"
-                for platform, it in typeConfigurations.items()
-            },
-        )
+        usage = {
+            platform: f"{it.kind} {it.name}{it.signature}"
+            for platform, it in typeConfigurations.items()
+        }
+
+        commonizationTypeConfigurationsToUsage[frozen].append(usage)
+        usageToFinalCommonized[frozenset(usage.items())] = finalCommonized
 
 
 def firstTypeConfigurationSupercedesSecond(configuration1, configuration2):
@@ -89,14 +94,12 @@ def firstTypeConfigurationSupercedesSecond(configuration1, configuration2):
     return True
 
 
-leafCommonizationTypeConfigurations = set()
+commonizationTypeConfigurationsToSuperConfiguration = {}
 
 # Squash "subconfigurations"
 for index, (typeConfiguration, usages) in enumerate(
     commonizationTypeConfigurationsToUsage.items()
 ):
-    isLeaf = True
-
     for subIndex, (existingTypeConfiguration, existingUsages) in enumerate(
         commonizationTypeConfigurationsToUsage.items()
     ):
@@ -106,20 +109,30 @@ for index, (typeConfiguration, usages) in enumerate(
         if firstTypeConfigurationSupercedesSecond(
             existingTypeConfiguration, typeConfiguration
         ):
-            isLeaf = False
+            commonizationTypeConfigurationsToSuperConfiguration[typeConfiguration] = (
+                existingTypeConfiguration
+            )
+            break
 
-    if isLeaf:
-        leafCommonizationTypeConfigurations.add(typeConfiguration)
+squashedCommonizationTypeConfigurationsToUsage = {}
+
+for configuration, usages in commonizationTypeConfigurationsToUsage.items():
+    finalSuper = configuration
+
+    while finalSuper in commonizationTypeConfigurationsToSuperConfiguration:
+        finalSuper = commonizationTypeConfigurationsToSuperConfiguration[finalSuper]
+
+    if finalSuper not in squashedCommonizationTypeConfigurationsToUsage:
+        squashedCommonizationTypeConfigurationsToUsage[finalSuper] = []
+
+    squashedCommonizationTypeConfigurationsToUsage[finalSuper] += usages
 
 index = 0
 for configuration, usages in sorted(
-    commonizationTypeConfigurationsToUsage.items(),
+    squashedCommonizationTypeConfigurationsToUsage.items(),
     key=lambda it: len(it[1]),
     reverse=True,
 ):
-    if configuration not in leafCommonizationTypeConfigurations:
-        continue
-
     index += 1
     usageCount = len(usages)
     print(f"{index}. {usageCount} usages")
@@ -133,6 +146,17 @@ for configuration, usages in sorted(
     for usageIndex, usage in enumerate(usages):
         print(f"  Usage {usageIndex+1}:")
         maxUsageImplementationIndex = len(str(len(usage)))
+
+        finalCommonized = usageToFinalCommonized[frozenset(usage.items())]
+        finalCommonizedRendered = (
+            f"{finalCommonized[3]} {finalCommonized[1]}{finalCommonized[2]}"
+        )
+        print(
+            f"    {' '.rjust(maxUsageImplementationIndex)}  {finalCommonizedRendered}"
+        )
+        print(
+            f'    {"-" * maxUsageImplementationIndex}--{"-" * len(finalCommonizedRendered)}'
+        )
 
         usageImplementationIndex = 0
         for usagePlatform, usageImplementation in usage.items():

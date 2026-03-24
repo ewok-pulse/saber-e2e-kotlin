@@ -13,6 +13,7 @@ class FunctionCommonizer(
 ) : NullableSingleInvocationCommonizer<CirFunction> {
     override fun invoke(values: List<CirFunction>): CirFunction? {
         if (values.isEmpty()) return null
+
         val functionOrProperty = functionOrPropertyBaseCommonizer(values) ?: return null
         val valueParametersResult = CallableValueParametersCommonizer(typeCommonizer).commonize(values) ?: return null
         return CirFunction(

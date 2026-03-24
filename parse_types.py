@@ -142,9 +142,9 @@ class TypeWithExpansionNode:
         return self.__str__()
 
     def is_shallowly_equal(self, other):
-        return isinstance(other, TypeWithExpansionNode) and self.types[
-            -1
-        ].is_shallowly_equal(other.types[-1])
+        return isinstance(
+            other, TypeWithExpansionNode
+        )  # and self.types[-1].is_shallowly_equal(other.types[-1])
 
     def destruct(self):
         return self.types[-1:]
@@ -243,8 +243,10 @@ def drop_typealiases(tree):
 
 
 class TypesInSignature:
-    def __init__(self, name, types):
+    def __init__(self, name, signature, kind, types):
         self.name = name
+        self.signature = signature
+        self.kind = kind
         self.types = types
 
     def __str__(self):
@@ -259,7 +261,12 @@ class TypesInSignature:
         return self.__str__()
 
     def fmap(self, transform):
-        return TypesInSignature(name=self.name, types=list(map(transform, self.types)))
+        return TypesInSignature(
+            name=self.name,
+            signature=self.signature,
+            kind=self.kind,
+            types=list(map(transform, self.types)),
+        )
 
     def is_shallowly_equal(self, other):
         return isinstance(other, TypesInSignature) and len(self.types) == len(
@@ -270,7 +277,35 @@ class TypesInSignature:
         return self.types
 
 
-def extract_inconsistencies_tree(platformToTree):
+def find_common_typealias_abbreviation(variants):
+    if len(variants) == 0 or not isinstance(variants[0], TypeWithExpansionNode):
+        return None
+
+    def exists_in_every_other_variant(abbreviation):
+        for variant in variants[1:]:
+            if not isinstance(variant, TypeWithExpansionNode):
+                return False
+
+            exists = False
+
+            for abbreviation_variant in variant.types:
+                if str(abbreviation_variant) == str(abbreviation):
+                    exists = True
+                    break
+
+            if not exists:
+                return False
+
+        return True
+
+    for abbreviation in variants[0].types:
+        if exists_in_every_other_variant(abbreviation):
+            return abbreviation
+
+    return None
+
+
+def extract_inconsistencies_tree(platformToTree, origins=None):
     equivalenceClasses = []
 
     for platform, tree in platformToTree.items():
@@ -294,10 +329,29 @@ def extract_inconsistencies_tree(platformToTree):
     incompatible_configurations = []
 
     if len(equivalenceClasses) > 1:
-        incompatible_configurations.append(platformToTree)
+        if origins is None:
+            incompatible_configurations.append(platformToTree)
+        else:
+            common_abbreviation = find_common_typealias_abbreviation(
+                list(origins.values())
+            )
+
+            if common_abbreviation is None:
+                incompatible_configurations.append({})
+
+                for platform, tree in platformToTree.items():
+                    if platform in origins and isinstance(
+                        origins[platform], TypeWithExpansionNode
+                    ):
+                        incompatible_configurations[-1][platform] = origins[platform]
+                    else:
+                        incompatible_configurations[-1][platform] = tree
+            # else:
+            #     print(f'!! common abbreviation {common_abbreviation}')
 
     for equivalenceClass in equivalenceClasses:
         delegate_inconsistencies = []
+        delegate_inconsistencies_origins = []
 
         for platform, tree in equivalenceClass.items():
             for index, component in enumerate(tree.destruct()):
@@ -307,11 +361,15 @@ def extract_inconsistencies_tree(platformToTree):
 
                 while index >= len(delegate_inconsistencies):
                     delegate_inconsistencies.append({})
+                    delegate_inconsistencies_origins.append({})
 
                 delegate_inconsistencies[index][platform] = component
+                delegate_inconsistencies_origins[index][platform] = tree
 
-        for delegate in delegate_inconsistencies:
-            other_incompatible = extract_inconsistencies_tree(delegate)
+        for delegate_index, delegate in enumerate(delegate_inconsistencies):
+            other_incompatible = extract_inconsistencies_tree(
+                delegate, origins=delegate_inconsistencies_origins[delegate_index]
+            )
             incompatible_configurations += other_incompatible
 
     return incompatible_configurations

@@ -14,7 +14,7 @@ from parse_types import (
 
 finalCommonizedToPlatforms = gather_commonization_families()
 
-commonizationTypeConfigurationsToUsageCount = {}
+commonizationTypeConfigurationsToUsage = {}
 
 for finalCommonized, implementations in finalCommonizedToPlatforms.items():
     platforms = finalCommonized[0]
@@ -44,6 +44,8 @@ for finalCommonized, implementations in finalCommonizedToPlatforms.items():
 
         typeConfigurations[platform] = TypesInSignature(
             name=implementation[1],
+            signature=implementation[2],
+            kind=implementation[3],
             types=list(map(lambda it: parse_minimize(it), typesInImplementation)),
         )
 
@@ -62,10 +64,15 @@ for finalCommonized, implementations in finalCommonizedToPlatforms.items():
 
         frozen = frozenset(typeConfiguration.items())
 
-        if frozen not in commonizationTypeConfigurationsToUsageCount:
-            commonizationTypeConfigurationsToUsageCount[frozen] = 0
+        if frozen not in commonizationTypeConfigurationsToUsage:
+            commonizationTypeConfigurationsToUsage[frozen] = []
 
-        commonizationTypeConfigurationsToUsageCount[frozen] += 1
+        commonizationTypeConfigurationsToUsage[frozen].append(
+            {
+                platform: f"{it.kind} {it.name}{it.signature}"
+                for platform, it in typeConfigurations.items()
+            },
+        )
 
 
 def firstTypeConfigurationSupercedesSecond(configuration1, configuration2):
@@ -83,16 +90,15 @@ def firstTypeConfigurationSupercedesSecond(configuration1, configuration2):
 
 
 leafCommonizationTypeConfigurations = set()
-squashedCommonizationTypeConfigurationsToUsageCount = {}
 
 # Squash "subconfigurations"
-for index, (typeConfiguration, count) in enumerate(
-    commonizationTypeConfigurationsToUsageCount.items()
+for index, (typeConfiguration, usages) in enumerate(
+    commonizationTypeConfigurationsToUsage.items()
 ):
     isLeaf = True
 
-    for subIndex, (existingTypeConfiguration, existingCount) in enumerate(
-        commonizationTypeConfigurationsToUsageCount.items()
+    for subIndex, (existingTypeConfiguration, existingUsages) in enumerate(
+        commonizationTypeConfigurationsToUsage.items()
     ):
         if index == subIndex:
             continue
@@ -106,15 +112,16 @@ for index, (typeConfiguration, count) in enumerate(
         leafCommonizationTypeConfigurations.add(typeConfiguration)
 
 index = 0
-for configuration, usageCount in sorted(
-    commonizationTypeConfigurationsToUsageCount.items(),
-    key=lambda it: it[1],
+for configuration, usages in sorted(
+    commonizationTypeConfigurationsToUsage.items(),
+    key=lambda it: len(it[1]),
     reverse=True,
 ):
     if configuration not in leafCommonizationTypeConfigurations:
         continue
 
     index += 1
+    usageCount = len(usages)
     print(f"{index}. {usageCount} usages")
 
     maxIndexLength = len(str(len(configuration) - 1))
@@ -122,3 +129,14 @@ for configuration, usageCount in sorted(
     for platform, type in configuration:
         subindex += 1
         print(f"  {str(subindex).rjust(maxIndexLength)}. {type} ({platform})")
+
+    for usageIndex, usage in enumerate(usages):
+        print(f"  Usage {usageIndex+1}:")
+        maxUsageImplementationIndex = len(str(len(usage)))
+
+        usageImplementationIndex = 0
+        for usagePlatform, usageImplementation in usage.items():
+            usageImplementationIndex += 1
+            print(
+                f"    {str(usageImplementationIndex).rjust(maxUsageImplementationIndex)}. {usageImplementation} ({usagePlatform})"
+            )

@@ -1,29 +1,10 @@
 // RUN_PIPELINE_TILL: BACKEND
 // WITH_STDLIB
-// DIAGNOSTICS: -ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 fun barRegular(f: (Int) -> Unit) {}
 fun barRegularEmpty(f: () -> Unit) {}
 
-private fun testRepeated() {
-    var repeat = true
-    var attempts = 0
-    while (repeat) {
-        barRegular { index ->
-            try {
-                println(attempts)
-                repeat = false
-            } catch (e: Throwable) {
-                println(e)
-            }
-        }
-    }
-}
-
-fun testNestedFunction() {
+fun testCaptureInsideLocalFunction() {
     var r = 2
 
     fun localHelper() {
@@ -50,7 +31,7 @@ fun testNestedAnonymousFunction() {
     outer = "b"
 }
 
-fun testNestedConstructor() {
+fun testNoWarningNestedConstructor() {
     var l = 2
     class Local {
         constructor(i: Int) {
@@ -64,7 +45,7 @@ fun testNestedConstructor() {
     Local(10) // Captured l: 5
 }
 
-fun testNestedConstructorWithAnonymous() {
+fun testEscapingLambdaInsideLocalConstructor() {
     var l = 2
     var r = 2
 
@@ -96,6 +77,16 @@ fun testNestedInPlaceLambdaInsideEscaping() {
         }
     }
     l = 4
+}
+
+private fun testNestedEscapingLambdas() = barRegular {
+    var another = "hello"
+
+    barRegular {
+        println(<!CV_DIAGNOSTIC!>another<!>)
+    }
+
+    another = "hi"
 }
 
 /* GENERATED_FIR_TAGS: assignment, functionDeclaration, functionalType, integerLiteral, lambdaLiteral, localProperty,

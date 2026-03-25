@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.plugin.sandbox.fir.types.PluginFunctionalNames
 
 @Suppress("UNUSED")
 class FunctionTypeCreatorDslTestCases(session: KaSession, caretToType: Map<String, KaType>) :
-    AbstractTypeCreatorDslTest.TestCases(session, caretToType) {
+    TypeCreatorDslTestRenderer.TestCases(session, caretToType) {
     fun testBasicFunWithIntReturnType(): KaType {
         val type = getTypeByCaret("type")
         return session.typeCreator.functionType {

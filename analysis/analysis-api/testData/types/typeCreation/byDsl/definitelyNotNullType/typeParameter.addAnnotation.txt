@@ -1,0 +1,37 @@
+KaType
+KaDefinitelyNotNullType:
+  abbreviation: null
+  annotations: [
+    Anno()
+      psi: null
+  ]
+  original: KaTypeParameterType:
+    abbreviation: null
+    annotations: [
+      Anno()
+        psi: null
+    ]
+    name: T
+    symbol: KaTypeParameterSymbol:
+      annotations: []
+      compilerVisibility: Local
+      isActual: false
+      isExpect: false
+      isExternal: false
+      isReified: false
+      location: LOCAL
+      modality: FINAL
+      name: T
+      origin: SOURCE
+      upperBounds: []
+      variance: INVARIANT
+      visibility: LOCAL
+    isMarkedNullable: false
+    isNullable: true
+    hasFlexibleNullability: false
+  isMarkedNullable: false
+  isNullable: false
+  hasFlexibleNullability: false
+
+Rendered type:
+@Anno T & kotlin.Any

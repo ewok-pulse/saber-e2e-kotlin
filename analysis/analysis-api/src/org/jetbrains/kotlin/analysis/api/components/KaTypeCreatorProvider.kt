@@ -8,7 +8,19 @@ package org.jetbrains.kotlin.analysis.api.components
 import org.jetbrains.kotlin.analysis.api.KaContextParameterApi
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.types.KaCapturedType
+import org.jetbrains.kotlin.analysis.api.types.KaClassType
+import org.jetbrains.kotlin.analysis.api.types.KaDefinitelyNotNullType
+import org.jetbrains.kotlin.analysis.api.types.KaFlexibleType
+import org.jetbrains.kotlin.analysis.api.types.KaFunctionType
+import org.jetbrains.kotlin.analysis.api.types.KaTypeParameterType
+import org.jetbrains.kotlin.analysis.api.types.typeCreation.KaCapturedTypeBuilder
+import org.jetbrains.kotlin.analysis.api.types.typeCreation.KaClassTypeBuilder
+import org.jetbrains.kotlin.analysis.api.types.typeCreation.KaDefinitelyNotNullTypeBuilder
+import org.jetbrains.kotlin.analysis.api.types.typeCreation.KaFlexibleTypeBuilder
+import org.jetbrains.kotlin.analysis.api.types.typeCreation.KaFunctionTypeBuilder
 import org.jetbrains.kotlin.analysis.api.types.typeCreation.KaTypeCreator
+import org.jetbrains.kotlin.analysis.api.types.typeCreation.KaTypeParameterTypeBuilder
 
 /**
  * Provides an instance of [KaTypeCreator] to create various [types][org.jetbrains.kotlin.analysis.api.types.KaType].
@@ -22,6 +34,110 @@ public interface KaTypeCreatorProvider : KaSessionComponent {
      */
     @KaExperimentalApi
     public val typeCreator: KaTypeCreator
+
+    /**
+     * Creates a copy of this [KaClassType] with modifications applied via the [init] block.
+     *
+     * The builder is pre-populated with the properties of the original type
+     * (nullability, type arguments, and annotations).
+     * The [init] block can then selectively override these properties.
+     *
+     * #### Example:
+     *
+     * ```kotlin
+     * val nullableListOfString = listOfStringType.copy {
+     *     isMarkedNullable = true
+     * }
+     * ```
+     *
+     * @see KaTypeCreator.classType
+     */
+    @KaExperimentalApi
+    public fun <T : KaClassType> T.copy(init: KaClassTypeBuilder.() -> Unit): KaClassType
+
+    /**
+     * Creates a copy of this [KaFunctionType] with modifications applied via the [init] block.
+     *
+     * The builder is pre-populated with the properties of the original type
+     * (nullability, suspend/reflect flags, context parameters, receiver type, value parameters, return type, and annotations).
+     * The [init] block can then selectively override these properties.
+     *
+     * #### Example:
+     *
+     * ```kotlin
+     * val suspendVersion = functionType.copy {
+     *     isSuspend = true
+     * }
+     * ```
+     *
+     * @see KaTypeCreator.functionType
+     */
+    @KaExperimentalApi
+    public fun KaFunctionType.copy(init: KaFunctionTypeBuilder.() -> Unit): KaFunctionType
+
+    /**
+     * Creates a copy of this [KaTypeParameterType] with modifications applied via the [init] block.
+     *
+     * The builder is pre-populated with the properties of the original type
+     * (nullability and annotations).
+     * The [init] block can then selectively override these properties.
+     *
+     * #### Example:
+     *
+     * ```kotlin
+     * val nullableT = typeParameterType.copy {
+     *     isMarkedNullable = true
+     * }
+     * ```
+     *
+     * @see KaTypeCreator.typeParameterType
+     */
+    @KaExperimentalApi
+    public fun KaTypeParameterType.copy(init: KaTypeParameterTypeBuilder.() -> Unit): KaTypeParameterType
+
+    /**
+     * Creates a copy of this [KaCapturedType] with modifications applied via the [init] block.
+     *
+     * The builder is pre-populated with the properties of the original type
+     * (nullability and annotations).
+     * The [init] block can then selectively override these properties.
+     *
+     * @see KaTypeCreator.capturedType
+     */
+    @KaExperimentalApi
+    public fun KaCapturedType.copy(init: KaCapturedTypeBuilder.() -> Unit): KaCapturedType
+
+    /**
+     * Creates a copy of this [KaDefinitelyNotNullType] with modifications applied via the [init] block.
+     *
+     * The builder is pre-populated with the annotations of the original type.
+     * The [init] block can then selectively override these properties.
+     *
+     * @see KaTypeCreator.definitelyNotNullType
+     */
+    @KaExperimentalApi
+    public fun KaDefinitelyNotNullType.copy(init: KaDefinitelyNotNullTypeBuilder.() -> Unit): KaDefinitelyNotNullType
+
+    /**
+     * Creates a copy of this [KaFlexibleType] with modifications applied via the [init] block.
+     * Similarly to [KaTypeCreator.flexibleType], returns `null` if the lower bound is not a subtype of the upper bound.
+     * In addition, the function returns `null` if the new bounds are equal.
+     *
+     * The builder is pre-populated with the bounds and annotations of the original type.
+     * The [init] block can then selectively override these properties.
+     *
+     * #### Example:
+     *
+     * ```kotlin
+     * val withNewUpperBound = flexibleType.copy {
+     *     upperBound = newUpperBound
+     * }
+     * ```
+     *
+     * @see KaTypeCreator.flexibleType
+     */
+    @KaExperimentalApi
+    public fun KaFlexibleType.copy(init: KaFlexibleTypeBuilder.() -> Unit): KaFlexibleType?
 }
 
 /**
@@ -33,3 +149,161 @@ public interface KaTypeCreatorProvider : KaSessionComponent {
 context(session: KaSession)
 public val typeCreator: KaTypeCreator
     get() = with(session) { typeCreator }
+
+/**
+ * Creates a copy of this [KaClassType] with modifications applied via the [init] block.
+ *
+ * The builder is pre-populated with the properties of the original type
+ * (nullability, type arguments, and annotations).
+ * The [init] block can then selectively override these properties.
+ *
+ * #### Example:
+ *
+ * ```kotlin
+ * val nullableListOfString = listOfStringType.copy {
+ *     isMarkedNullable = true
+ * }
+ * ```
+ *
+ * @see KaTypeCreator.classType
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun <T : KaClassType> T.copy(init: KaClassTypeBuilder.() -> Unit): KaClassType {
+    return with(session) {
+        copy(
+            init = init,
+        )
+    }
+}
+
+/**
+ * Creates a copy of this [KaFunctionType] with modifications applied via the [init] block.
+ *
+ * The builder is pre-populated with the properties of the original type
+ * (nullability, suspend/reflect flags, context parameters, receiver type, value parameters, return type, and annotations).
+ * The [init] block can then selectively override these properties.
+ *
+ * #### Example:
+ *
+ * ```kotlin
+ * val suspendVersion = functionType.copy {
+ *     isSuspend = true
+ * }
+ * ```
+ *
+ * @see KaTypeCreator.functionType
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KaFunctionType.copy(init: KaFunctionTypeBuilder.() -> Unit): KaFunctionType {
+    return with(session) {
+        copy(
+            init = init,
+        )
+    }
+}
+
+/**
+ * Creates a copy of this [KaTypeParameterType] with modifications applied via the [init] block.
+ *
+ * The builder is pre-populated with the properties of the original type
+ * (nullability and annotations).
+ * The [init] block can then selectively override these properties.
+ *
+ * #### Example:
+ *
+ * ```kotlin
+ * val nullableT = typeParameterType.copy {
+ *     isMarkedNullable = true
+ * }
+ * ```
+ *
+ * @see KaTypeCreator.typeParameterType
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KaTypeParameterType.copy(init: KaTypeParameterTypeBuilder.() -> Unit): KaTypeParameterType {
+    return with(session) {
+        copy(
+            init = init,
+        )
+    }
+}
+
+/**
+ * Creates a copy of this [KaCapturedType] with modifications applied via the [init] block.
+ *
+ * The builder is pre-populated with the properties of the original type
+ * (nullability and annotations).
+ * The [init] block can then selectively override these properties.
+ *
+ * @see KaTypeCreator.capturedType
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KaCapturedType.copy(init: KaCapturedTypeBuilder.() -> Unit): KaCapturedType {
+    return with(session) {
+        copy(
+            init = init,
+        )
+    }
+}
+
+/**
+ * Creates a copy of this [KaDefinitelyNotNullType] with modifications applied via the [init] block.
+ *
+ * The builder is pre-populated with the annotations of the original type.
+ * The [init] block can then selectively override these properties.
+ *
+ * @see KaTypeCreator.definitelyNotNullType
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KaDefinitelyNotNullType.copy(init: KaDefinitelyNotNullTypeBuilder.() -> Unit): KaDefinitelyNotNullType {
+    return with(session) {
+        copy(
+            init = init,
+        )
+    }
+}
+
+/**
+ * Creates a copy of this [KaFlexibleType] with modifications applied via the [init] block.
+ * Similarly to [KaTypeCreator.flexibleType], returns `null` if the lower bound is not a subtype of the upper bound.
+ * In addition, the function returns `null` if the new bounds are equal.
+ *
+ * The builder is pre-populated with the bounds and annotations of the original type.
+ * The [init] block can then selectively override these properties.
+ *
+ * #### Example:
+ *
+ * ```kotlin
+ * val withNewUpperBound = flexibleType.copy {
+ *     upperBound = newUpperBound
+ * }
+ * ```
+ *
+ * @see KaTypeCreator.flexibleType
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KaFlexibleType.copy(init: KaFlexibleTypeBuilder.() -> Unit): KaFlexibleType? {
+    return with(session) {
+        copy(
+            init = init,
+        )
+    }
+}

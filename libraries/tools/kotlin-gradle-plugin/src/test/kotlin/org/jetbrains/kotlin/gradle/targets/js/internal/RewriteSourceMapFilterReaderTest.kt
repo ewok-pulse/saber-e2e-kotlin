@@ -1,6 +1,10 @@
-package org.jetbrains.kotlin.gradle.org.jetbrains.kotlin.gradle.targets.js.internal
+/*
+ * Copyright 2010-2026 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ */
 
-import org.jetbrains.kotlin.gradle.targets.js.internal.RewriteSourceMapFilterReader
+package org.jetbrains.kotlin.gradle.targets.js.internal
+
 import kotlin.test.assertEquals
 import kotlin.test.Test
 import java.io.Reader

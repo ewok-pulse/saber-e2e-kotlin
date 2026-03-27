@@ -168,6 +168,8 @@ internal class FindVisibleWrites(
             // Inherit parent-graph captured writes to properties as visible writes.
             // Subgraphs should inherit their own captured writes if they are not in-place,
             // as they could be concurrently executed with themselves, and any write could be read.
+            // if excludeLocalInPlaceWrites is true, writes are excluded if their owner is a current graph,
+            // leaving only those visible writes whose owner graph is different
             fromGraph != toGraph -> {
                 val capturedWrites = futureWrites[from]
                 if (capturedWrites != null) {

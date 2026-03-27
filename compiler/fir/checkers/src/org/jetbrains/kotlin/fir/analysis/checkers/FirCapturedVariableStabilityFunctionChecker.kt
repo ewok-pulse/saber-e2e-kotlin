@@ -27,9 +27,9 @@ import org.jetbrains.kotlin.fir.types.ConeDynamicType
 object FirCapturedVariableStabilityFunctionChecker : AbstractFirPropertyInitializationChecker(MppCheckerKind.Common) {
     context(reporter: DiagnosticReporter, context: CheckerContext)
     override fun analyze(data: VariableInitializationInfoData) {
-        val trackedProperties = data.properties.map { it as FirPropertySymbol }
-            .filterTo(linkedSetOf())
-            { symbol ->
+        val trackedProperties = data.properties
+            .map { it as FirPropertySymbol }
+            .filterTo(linkedSetOf()) { symbol ->
                 symbol.isLocal &&
                         !symbol.isVal &&
                         symbol.resolvedReturnType !is ConeDynamicType
@@ -37,7 +37,8 @@ object FirCapturedVariableStabilityFunctionChecker : AbstractFirPropertyInitiali
         if (trackedProperties.isEmpty()) return
 
         val capturedWrites = data.graph.traverseToFixedPoint(FindCapturedWrites(trackedProperties))
-        val visibleWrites = data.graph.traverseToFixedPoint(FindVisibleWrites(capturedWrites, trackedProperties, true))
+        val visibleWrites =
+            data.graph.traverseToFixedPoint(FindVisibleWrites(capturedWrites, trackedProperties, excludeLocalInPlaceWrites = true))
 
         val escapingProperties = mutableSetOf<Pair<FirPropertySymbol, FirQualifiedAccessExpression>>()
         data.graph.traverse(
@@ -71,6 +72,7 @@ private class CapturedVariableVisitor(
     }
 
     override fun visitFunctionCallEnterNode(node: FunctionCallEnterNode) {
+        // TODO(KT-76534): remove when implicit invoke is handled in CFG correctly.
         val call = node.fir as? FirImplicitInvokeCall ?: return
         val receiver = (call.dispatchReceiver ?: call.explicitReceiver) as? FirQualifiedAccessExpression ?: return
         val receiverExitNode =

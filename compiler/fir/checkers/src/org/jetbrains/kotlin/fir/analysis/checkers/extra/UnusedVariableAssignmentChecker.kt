@@ -194,7 +194,6 @@ object UnusedVariableAssignmentChecker : AbstractFirPropertyInitializationChecke
         }
 
         private fun visitQualifiedAccess(node: CFGNode<*>, fir: FirQualifiedAccessExpression) {
-            // hi
             val symbol = fir.calleeReference.toResolvedPropertySymbol() ?: return
             if (symbol.name.isSpecial) return
             data.variablesWithoutReads.remove(symbol)

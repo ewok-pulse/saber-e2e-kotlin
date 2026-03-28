@@ -53,6 +53,13 @@ object FirTypeArgumentsNotAllowedExpressionChecker : FirQualifiedAccessExpressio
                     "when static member is accessed",
                     positioningStrategy = SourceElementPositioningStrategies.TYPE_ARGUMENT_LIST_OR_WITHOUT_RECEIVER,
                 )
+            } else if (explicitReceiver.symbol != null && symbol?.isStatic == true && expression is FirCallableReferenceAccess) {
+                reporter.reportOn(
+                    qualifierWithTypeArguments.source,
+                    FirErrors.TYPE_ARGUMENTS_NOT_ALLOWED,
+                    "for callable references to static members",
+                    positioningStrategy = SourceElementPositioningStrategies.TYPE_ARGUMENT_LIST_OR_WITHOUT_RECEIVER,
+                )
             }
         }
 

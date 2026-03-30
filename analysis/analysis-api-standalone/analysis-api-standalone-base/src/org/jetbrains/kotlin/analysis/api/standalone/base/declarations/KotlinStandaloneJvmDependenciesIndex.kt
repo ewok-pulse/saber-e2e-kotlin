@@ -19,10 +19,12 @@ import org.jetbrains.kotlin.utils.SmartList
  *
  * In contrast to the compiler implementation, this implementation caches the virtual files of each class for each package. While Standalone
  * workloads benefit from this optimization, this is not true for compiler workloads. So the optimization is limited to Standalone.
+ *
+ * The Standalone JVM dependencies index always returns all possible virtual files from [findClassVirtualFiles], as Standalone does not
+ * necessarily operate under a single-module view. Since class virtual files are cached, the performance impact from finding all files
+ * instead of only the first is negligible.
  */
-internal class KotlinStandaloneJvmDependenciesIndex(
-    roots: List<JavaRoot>,
-) : JvmDependenciesIndexBase(roots, shouldOnlyFindFirstClass = false) {
+internal class KotlinStandaloneJvmDependenciesIndex(roots: List<JavaRoot>) : JvmDependenciesIndexBase(roots) {
     /**
      * For each package [FqName], caches a list of virtual files for every class in the package. The [String] key of the map represents each
      * class's relative name.

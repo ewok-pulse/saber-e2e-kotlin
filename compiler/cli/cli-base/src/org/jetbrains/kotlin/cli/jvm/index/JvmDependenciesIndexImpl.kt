@@ -7,12 +7,16 @@ package org.jetbrains.kotlin.cli.jvm.index
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.name.ClassId
+import java.util.EnumSet
 import kotlin.concurrent.withLock
 
-class JvmDependenciesIndexImpl(
-    roots: List<JavaRoot>,
-    shouldOnlyFindFirstClass: Boolean,
-) : JvmDependenciesIndexBase(roots, shouldOnlyFindFirstClass) {
+/**
+ * The compiler implementation of [JvmDependenciesIndex].
+ *
+ * When searching for a class, the index returns only the first result and does not search for all possible results. This is legal in
+ * compiler mode because it has a single-module view.
+ */
+class JvmDependenciesIndexImpl(roots: List<JavaRoot>) : JvmDependenciesIndexBase(roots) {
     // holds the request and the result last time we searched for class
     // helps improve several scenarios, LazyJavaResolverContext.findClassInJava being the most important
     private var lastClassVirtualFileSearch: Pair<ClassSearchRequest, Collection<VirtualFile>>? = null
@@ -45,6 +49,42 @@ class JvmDependenciesIndexImpl(
             lastClassVirtualFileSearch = ClassSearchRequest(classId, acceptedExtensions) to result
             return result
         }
+    }
+
+    /**
+     * Searches for class virtual files matching the given [classId] and [acceptedExtensions] by traversing the index.
+     *
+     * This method does not acquire [lock]. The caller is responsible for synchronization.
+     */
+    private fun searchClasses(
+        classId: ClassId,
+        acceptedExtensions: Collection<JavaFileExtension>,
+    ): Collection<VirtualFile> {
+        val acceptedRootTypes = acceptedExtensions.mapTo(EnumSet.noneOf(JavaRoot.RootType::class.java)) { it.rootType }
+        val fileNameWithoutExtension = classId.relativeClassName.asString().replace('.', '$')
+        val results = mutableListOf<VirtualFile>()
+
+        traverseIndex(classId.packageFqName, acceptedRootTypes) { directoryInRoot, root ->
+            for (ext in acceptedExtensions) {
+                if (ext.rootType != root.type) continue
+
+                val file = directoryInRoot
+                    .findChild("$fileNameWithoutExtension.${ext.extension}")
+                    ?.takeIf { it.isValid }
+
+                if (file != null) {
+                    results.add(file)
+
+                    // Stop the search. We've found the first class virtual file.
+                    return@traverseIndex false
+                }
+            }
+
+            // Continue the search until a class virtual file has been found.
+            true
+        }
+
+        return results.ifEmpty { emptyList() }
     }
 
     private data class ClassSearchRequest(

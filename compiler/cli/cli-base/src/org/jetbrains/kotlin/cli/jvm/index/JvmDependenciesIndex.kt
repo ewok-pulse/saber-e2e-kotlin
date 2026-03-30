@@ -34,9 +34,6 @@ interface JvmDependenciesIndex {
      * matching each extension in [acceptedExtensions]. Only extensions whose [JavaFileExtension.rootType] matches the root's type are tried
      * for a given root.
      *
-     * [acceptedExtensions] determines the order in which files are searched in each root. When a file has been found in a root, other
-     * extensions are not tried for that root.
-     *
      * ### Multiple results for the same [classId]
      *
      * [findClassVirtualFiles] may return multiple results for the same [classId]. This is because a [JvmDependenciesIndex] is shared
@@ -46,6 +43,8 @@ interface JvmDependenciesIndex {
      *
      * The [JvmDependenciesIndex] implementation may choose to find only the first result instead of all results if it's operated under a
      * single-module view. This avoids the possible negative performance impact of looking for multiple results.
+     *
+     * When finding only the first result, [acceptedExtensions] determines the order in which files are searched in each root.
      */
     fun findClassVirtualFiles(
         classId: ClassId,

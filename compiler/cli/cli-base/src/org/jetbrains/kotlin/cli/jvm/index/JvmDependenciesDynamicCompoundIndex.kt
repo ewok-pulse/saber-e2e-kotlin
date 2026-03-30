@@ -41,7 +41,7 @@ class JvmDependenciesDynamicCompoundIndex(private val shouldOnlyFindFirstClass: 
             val alreadyIndexed = indexedRoots.toHashSet()
             val newRoots = roots.filter { root -> root !in alreadyIndexed }
             if (newRoots.isEmpty()) null
-            else JvmDependenciesIndexImpl(newRoots, shouldOnlyFindFirstClass).also(this::addIndex)
+            else JvmDependenciesIndexImpl(newRoots).also(this::addIndex)
         }
 
     override val indexedRoots: Sequence<JavaRoot> get() = indices.asSequence().flatMap { it.indexedRoots }

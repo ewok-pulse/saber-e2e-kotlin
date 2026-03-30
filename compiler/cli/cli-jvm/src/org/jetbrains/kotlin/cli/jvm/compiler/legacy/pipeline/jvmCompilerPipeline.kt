@@ -240,7 +240,7 @@ fun createProjectEnvironment(
 
     // REPL and kapt2 update classpath dynamically
     val rootsIndex = JvmDependenciesDynamicCompoundIndex(shouldOnlyFindFirstClass = true).apply {
-        addIndex(JvmDependenciesIndexImpl(roots, shouldOnlyFindFirstClass = true))
+        addIndex(JvmDependenciesIndexImpl(roots))
         indexedRoots.forEach {
             projectEnvironment.addSourcesToClasspath(it.file)
 //            javaFileManager.addToClasspath(it.file)

@@ -22,23 +22,18 @@ import kotlin.concurrent.withLock
  * Speeds up finding files/classes in the classpath/Java source roots.
  *
  * The main idea of this class is for each package to store all roots that contain the package to avoid excessive file system traversal.
- *
- * @param shouldOnlyFindFirstClass The index will stop the search in [findClassVirtualFiles] once it finds one result.
  */
-abstract class JvmDependenciesIndexBase(
-    _roots: List<JavaRoot>,
-    private val shouldOnlyFindFirstClass: Boolean,
-) : JvmDependenciesIndex {
+abstract class JvmDependenciesIndexBase(_roots: List<JavaRoot>) : JvmDependenciesIndex {
     protected val lock = ReentrantLock()
 
     //these fields are computed based on _roots passed to constructor which are filled in later
-    private val roots: List<JavaRoot> by lazy { _roots.toList() }
+    protected val roots: List<JavaRoot> by lazy { _roots.toList() }
 
     private val maxIndex: Int
         get() = roots.size
 
     // each "Cache" object corresponds to a package
-    private class Cache {
+    protected class Cache {
         private val innerPackageCaches = HashMap<String, Cache>()
 
         operator fun get(name: String) = innerPackageCaches.getOrPut(name, ::Cache)
@@ -98,51 +93,10 @@ abstract class JvmDependenciesIndexBase(
     ): Collection<VirtualFile>
 
     /**
-     * Searches for class virtual files matching the given [classId] and [acceptedExtensions] by traversing the index.
-     *
-     * This method does not acquire [lock]. The caller is responsible for synchronization.
-     */
-    protected fun searchClasses(
-        classId: ClassId,
-        acceptedExtensions: Collection<JavaFileExtension>,
-    ): Collection<VirtualFile> {
-        val acceptedRootTypes = acceptedExtensions.mapTo(EnumSet.noneOf(JavaRoot.RootType::class.java)) { it.rootType }
-        val fileNameWithoutExtension = classId.relativeClassName.asString().replace('.', '$')
-        val results = mutableListOf<VirtualFile>()
-
-        traverseIndex(classId.packageFqName, acceptedRootTypes) { directoryInRoot, root ->
-            for (ext in acceptedExtensions) {
-                if (ext.rootType != root.type) continue
-
-                val file = directoryInRoot
-                    .findChild("$fileNameWithoutExtension.${ext.extension}")
-                    ?.takeIf { it.isValid }
-
-                if (file != null) {
-                    results.add(file)
-
-                    if (shouldOnlyFindFirstClass) {
-                        return@traverseIndex false
-                    }
-
-                    // We found a result for this directory. We should move to the next root, as the same class in the same root won't be
-                    // represented by multiple file types.
-                    break
-                }
-            }
-
-            // Traverse the whole index to find all classes. `shouldOnlyFindFirstClass` is handled above.
-            true
-        }
-
-        return results.ifEmpty { emptyList() }
-    }
-
-    /**
      * @param handleEntry A function that is given an index entry made up of the directory in the root ([VirtualFile]) and the [JavaRoot].
      *  It should handle this entry and return whether the traversal should be continued.
      */
-    private inline fun traverseIndex(
+    protected inline fun traverseIndex(
         packageFqName: FqName,
         acceptedRootTypes: Set<JavaRoot.RootType>,
         handleEntry: (VirtualFile, JavaRoot) -> Boolean,
@@ -177,7 +131,7 @@ abstract class JvmDependenciesIndexBase(
 
     // try to find a target directory corresponding to package represented by packagesPath in a given root represented by index
     // possibly filling "Cache" objects with new information
-    private fun travelPath(
+    protected fun travelPath(
         rootIndex: Int,
         packageFqName: FqName,
         packagesPath: List<String>,
@@ -245,7 +199,7 @@ abstract class JvmDependenciesIndexBase(
         return childDirectory
     }
 
-    private fun cachesPath(path: List<String>): List<Cache> {
+    protected fun cachesPath(path: List<String>): List<Cache> {
         val caches = ArrayList<Cache>(path.size + 1)
         caches.add(rootCache)
         var currentCache = rootCache

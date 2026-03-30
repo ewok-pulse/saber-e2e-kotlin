@@ -95,8 +95,8 @@ fun Project.configureJavaBasePlugin() {
     }
 }
 
-val projectsUsedInIntelliJKotlinPlugin: Array<String> by rootProject.extra
-val kotlinApiVersionForProjectsUsedInIntelliJKotlinPlugin: String by rootProject.extra
+val projectsDependingOnStableStdlib: Array<String> by rootProject.extra
+val kotlinApiVersionForProjectsDependingOnStableStdlib: String by rootProject.extra
 
 /**
  * In all specified modules `-XXexplicit-return-types` flag will be added to warn about
@@ -136,8 +136,8 @@ fun Project.configureKotlinCompilationOptions() {
                 apiVersion.set(KotlinVersion.fromVersion(kotlinLanguageVersion))
                 freeCompilerArgs.add("-Xskip-prerelease-check")
 
-                if (project.path in projectsUsedInIntelliJKotlinPlugin) {
-                    apiVersion.set(KotlinVersion.fromVersion(kotlinApiVersionForProjectsUsedInIntelliJKotlinPlugin))
+                if (project.path in projectsDependingOnStableStdlib) {
+                    apiVersion.set(KotlinVersion.fromVersion(kotlinApiVersionForProjectsDependingOnStableStdlib))
                 }
                 if (project.path in modulesWithRequiredExplicitTypes) {
                     freeCompilerArgs.add("-XXexplicit-return-types=warning")

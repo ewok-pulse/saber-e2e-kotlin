@@ -15,7 +15,6 @@ import org.jetbrains.kotlin.cli.jvm.index.JvmDependenciesIndex
 import org.jetbrains.kotlin.load.kotlin.VirtualFileFinder
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.serialization.deserialization.METADATA_FILE_EXTENSION
 import org.jetbrains.kotlin.serialization.deserialization.builtins.BuiltInSerializerProtocol
 import org.jetbrains.kotlin.util.PerformanceManager
 import java.io.InputStream
@@ -46,24 +45,19 @@ class CliVirtualFileFinder(
 
     override fun findMetadataTopLevelClassesInPackage(packageFqName: FqName): Set<String> {
         val result = ObjectOpenHashSet<String>()
-        index.traverseVirtualFilesInPackage(packageFqName, continueSearch = { file, _ ->
-            if (file.extension == METADATA_FILE_EXTENSION) {
-                result.add(file.nameWithoutExtension)
-            }
+        index.traverseClassVirtualFilesInPackage(packageFqName, KOTLIN_METADATA_EXTENSIONS) { file ->
+            result.add(file.nameWithoutExtension)
             true
-        })
-
+        }
         return result
     }
 
     override fun hasMetadataPackage(fqName: FqName): Boolean {
         var found = false
-        index.traverseVirtualFilesInPackage(fqName, continueSearch = { file, _ ->
-            if (file.extension == METADATA_FILE_EXTENSION) {
-                found = true
-            }
-            !found
-        })
+        index.traverseClassVirtualFilesInPackage(fqName, KOTLIN_METADATA_EXTENSIONS) { _ ->
+            found = true
+            false
+        }
         return found
     }
 

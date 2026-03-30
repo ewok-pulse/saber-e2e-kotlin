@@ -48,7 +48,7 @@ internal class KotlinStandaloneJvmDependenciesIndex(roots: List<JavaRoot>) : Jvm
         classId: ClassId,
         acceptedExtensions: JavaFileExtensions,
     ): Collection<VirtualFile> {
-        val classVirtualFiles = classVirtualFilesByPackage.get(classId.packageFqName, ::computeClassVirtualFiles)!!
+        val classVirtualFiles = getClassVirtualFiles(classId.packageFqName)
         val files = classVirtualFiles[classId.relativeClassName.asString()] ?: return emptyList()
 
         // We don't need to filter the files if all extensions are requested.
@@ -60,6 +60,29 @@ internal class KotlinStandaloneJvmDependenciesIndex(roots: List<JavaRoot>) : Jvm
             val extension = file.extension ?: return@filter false
             extension in acceptedExtensions
         }
+    }
+
+    override fun traverseClassVirtualFilesInPackage(
+        packageFqName: FqName,
+        acceptedExtensions: JavaFileExtensions,
+        continueSearch: (VirtualFile) -> Boolean,
+    ) {
+        getClassVirtualFiles(packageFqName).forEach { (_, files) ->
+            files.forEach { file ->
+                val extension = file.extension
+                if (extension != null && extension in acceptedExtensions) {
+                    val shouldContinueSearch = continueSearch(file)
+                    if (!shouldContinueSearch) return
+                }
+            }
+        }
+    }
+
+    private fun getClassVirtualFiles(packageFqName: FqName): Map<String, List<VirtualFile>> {
+        val classVirtualFiles = classVirtualFilesByPackage.get(packageFqName, ::computeClassVirtualFiles)
+
+        requireNotNull(classVirtualFiles) { "The map of class virtual files should always be non-null." }
+        return classVirtualFiles
     }
 
     private fun computeClassVirtualFiles(packageFqName: FqName): Map<String, List<VirtualFile>> {

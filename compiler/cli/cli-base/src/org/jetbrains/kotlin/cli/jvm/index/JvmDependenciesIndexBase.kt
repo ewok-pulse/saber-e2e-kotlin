@@ -92,6 +92,22 @@ abstract class JvmDependenciesIndexBase(_roots: List<JavaRoot>) : JvmDependencie
         acceptedExtensions: JavaFileExtensions,
     ): Collection<VirtualFile>
 
+    override fun traverseClassVirtualFilesInPackage(
+        packageFqName: FqName,
+        acceptedExtensions: JavaFileExtensions,
+        continueSearch: (VirtualFile) -> Boolean,
+    ) {
+        traverseVirtualFilesInPackage(packageFqName, acceptedExtensions.rootTypes) { file, _ ->
+            val extension = file.extension ?: return@traverseVirtualFilesInPackage true
+
+            if (extension in acceptedExtensions) {
+                continueSearch(file)
+            } else {
+                true
+            }
+        }
+    }
+
     /**
      * @param handleEntry A function that is given an index entry made up of the directory in the root ([VirtualFile]) and the [JavaRoot].
      *  It should handle this entry and return whether the traversal should be continued.

@@ -57,6 +57,14 @@ class JvmDependenciesDynamicCompoundIndex(private val shouldOnlyFindFirstClass: 
         }
     }
 
+    override fun traverseClassVirtualFilesInPackage(
+        packageFqName: FqName,
+        acceptedExtensions: JavaFileExtensions,
+        continueSearch: (VirtualFile) -> Boolean
+    ) = lock.read {
+        indices.forEach { it.traverseClassVirtualFilesInPackage(packageFqName, acceptedExtensions, continueSearch) }
+    }
+
     override fun traverseDirectoriesInPackage(
         packageFqName: FqName,
         acceptedRootTypes: Set<JavaRoot.RootType>,

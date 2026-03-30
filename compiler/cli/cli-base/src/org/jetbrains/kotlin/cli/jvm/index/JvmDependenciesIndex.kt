@@ -52,6 +52,24 @@ interface JvmDependenciesIndex {
     ): Collection<VirtualFile>
 
     /**
+     * Traverses the index for all *class* [VirtualFile]s contained in directories corresponding to the [packageFqName], and calls
+     * [continueSearch] for each class [VirtualFile].
+     *
+     * Only files that match the [acceptedExtensions] are considered.
+     *
+     * In contrast to [traverseVirtualFilesInPackage], this function may rely on the same caches as [findClassVirtualFiles], and might thus
+     * perform better. This depends on whether the index implementation caches results.
+     *
+     * @param continueSearch This function is called for each class [VirtualFile] found in the index. It should return `true` to continue
+     *  the traversal and `false` to stop it.
+     */
+    fun traverseClassVirtualFilesInPackage(
+        packageFqName: FqName,
+        acceptedExtensions: JavaFileExtensions,
+        continueSearch: (VirtualFile) -> Boolean,
+    )
+
+    /**
      * Traverses the index for all [VirtualFile] directories corresponding to the [packageFqName], and calls [continueSearch] for each
      * directory with its [JavaRoot.RootType].
      *

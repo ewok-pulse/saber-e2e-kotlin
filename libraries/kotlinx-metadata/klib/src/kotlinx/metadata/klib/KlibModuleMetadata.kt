@@ -126,9 +126,7 @@ class KlibModuleMetadata(
             val moduleHeader = moduleHeaderProto.readHeader()
             val moduleFragments = moduleHeader.packageFragmentName.flatMap { packageFqName ->
                 library.packageMetadataParts(packageFqName).map { part ->
-                    val packageFragment = parsePackageFragment(library.packageMetadata(packageFqName, part))
-                    val nameResolver = NameResolverImpl(packageFragment.strings, packageFragment.qualifiedNames)
-                    packageFragment.toKmModuleFragment(nameResolver)
+                    readPackageFragment(library.packageMetadata(packageFqName, part))
                 }.let(readStrategy::processModuleParts)
             }
             return KlibModuleMetadata(
@@ -137,6 +135,12 @@ class KlibModuleMetadata(
                 library.metadataVersion,
                 isAllowedToWrite = !lenient,
             )
+        }
+
+        fun readPackageFragment(bytes: ByteArray): KmModuleFragment {
+            val packageFragment = parsePackageFragment(bytes)
+            val nameResolver = NameResolverImpl(packageFragment.strings, packageFragment.qualifiedNames)
+            return packageFragment.toKmModuleFragment(nameResolver)
         }
 
         private fun checkMetadataVersionForRead(klibMetadataVersion: KlibMetadataVersion, lenient: Boolean) {

@@ -115,7 +115,15 @@ public interface KaSymbolInformationProvider : KaSessionComponent {
      * A set of applicable targets for an annotation class symbol, or `null` if the symbol is not an annotation class.
      */
     @KaExperimentalApi
+    @Deprecated("Use 'applicableAnnotationTargets' instead", level = DeprecationLevel.HIDDEN)
+    @KaNoContextParameterBridgeRequired
     public val KaClassSymbol.annotationApplicableTargets: Set<KotlinTarget>?
+
+    /**
+     * A set of applicable targets for an annotation class symbol, or `null` if the symbol is not an annotation class.
+     */
+    @KaExperimentalApi
+    public val KaClassSymbol.applicableAnnotationTargets: Set<AnnotationTarget>?
 
     /**
      * Whether the property is an [inline property](https://kotlinlang.org/docs/inline-functions.html#inline-properties).
@@ -222,6 +230,22 @@ public sealed class KaReturnValueStatus(public val name: String) {
 }
 
 /**
+ * A set of applicable targets for an annotation class symbol, or `null` if the symbol is not an annotation class.
+ */
+@Deprecated("Use 'applicableAnnotationTargets' instead", level = DeprecationLevel.HIDDEN)
+@KaExperimentalApi
+@KaContextParameterApi
+@KaCustomContextParameterBridge
+context(session: KaSession)
+public val KaClassSymbol.annotationApplicableTargets: Set<KotlinTarget>?
+    get() {
+        @Suppress("UNCHECKED_CAST")
+        @OptIn(KaSessionComponentImplementationDetail::class)
+        return KaSymbolInformationProvider::class.java.getDeclaredMethod("getAnnotationApplicableTargets", KaClassSymbol::class.java)
+            .invoke(session, this) as Set<KotlinTarget>?
+    }
+
+/**
  * The deprecation status of the given symbol, or `null` if the symbol is not deprecated.
  *
  * This considers deprecation annotations applied to the symbol itself and, for property-related
@@ -302,8 +326,8 @@ public fun KaSymbol.deprecation(useSiteTarget: KaAnnotationUseSiteTarget?): KaDe
 @KaExperimentalApi
 @KaContextParameterApi
 context(session: KaSession)
-public val KaClassSymbol.annotationApplicableTargets: Set<KotlinTarget>?
-    get() = with(session) { annotationApplicableTargets }
+public val KaClassSymbol.applicableAnnotationTargets: Set<AnnotationTarget>?
+    get() = with(session) { applicableAnnotationTargets }
 
 /**
  * Whether the property is an [inline property](https://kotlinlang.org/docs/inline-functions.html#inline-properties).

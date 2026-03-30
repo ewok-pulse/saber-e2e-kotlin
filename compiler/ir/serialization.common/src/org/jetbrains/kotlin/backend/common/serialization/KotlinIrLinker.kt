@@ -209,6 +209,10 @@ abstract class KotlinIrLinker(
     }
 
     override fun postProcess(inOrAfterLinkageStep: Boolean) {
+        for (moduleDeserializer in deserializersForModules.values) {
+            moduleDeserializer.postProcess()
+        }
+
         if (inOrAfterLinkageStep) {
             // We have to exclude classifiers with unbound symbols in supertypes and in type parameter upper bounds from F.O. generation
             // to avoid failing with `Symbol for <signature> is unbound` error or generating fake overrides with incorrect signatures.
@@ -261,7 +265,7 @@ abstract class KotlinIrLinker(
             "${moduleDescriptor.name.asString()} != $moduleName"
         }
 
-        val moduleFragment = deserializersForModules.getOrPut(moduleName) {
+        val deserializer = deserializersForModules.getOrPut(moduleName) {
             maybeWrapWithBuiltInAndInit(
                 moduleDescriptor = moduleDescriptor,
                 moduleDeserializer = createModuleDeserializer(
@@ -270,9 +274,12 @@ abstract class KotlinIrLinker(
                     strategyResolver = deserializationStrategy
                 )
             )
-        }.moduleFragment
+        }
 
+        val moduleFragment = deserializer.moduleFragment
         moduleFragment.kotlinLibrary = kotlinLibrary
+        // TODO: probably not good, as this will keep the deserializer instance during the entire compilation process
+        moduleFragment.moduleDeserializer = deserializer
         moduleDependencyTracker.addModuleForTracking(module = moduleFragment)
 
         // The IrModule and its IrFiles have been created during module initialization.
@@ -339,4 +346,7 @@ enum class DeserializationStrategy(
 
 /** This is an auxiliary attribute that is used to store [KotlinLibrary] instance for deserialized [IrModuleFragment]. */
 var IrModuleFragment.kotlinLibrary: KotlinLibrary? by irAttribute(copyByDefault = false)
+    private set
+
+var IrModuleFragment.moduleDeserializer: IrModuleDeserializer? by irAttribute(copyByDefault = false)
     private set

@@ -14,6 +14,7 @@ javaDiffUtils = "4.12"
 kotlinx-serialization = "1.7.3"
 # Version of the coroutines should be aligned with the oldest supported IntelliJ IDEA. IntelliJ IDEA uses 1.6 since 2022.3
 # Check the version in this file: https://github.com/JetBrains/intellij-community/blob/cc37866d3827c51712f9856f5e580d405784d1ef/.idea/libraries/kotlinx_coroutines_core.xml
+# Should be synchronized with 'analysis-api-kotlinx-coroutines'
 kotlinx-coroutines = "1.8.0"
 shadow = "9.3.2"
 spdx = "0.10.0-dev-15"
@@ -45,6 +46,7 @@ kotlin-for-gradle-plugins-compilation = "2.2.21"
 intellij-asm = "9.6.1"
 diff-utils = "4.12"
 opentelemetry-api = "1.41.0"
+auto-value-annotations = "1.11.0" # Used in opentelemetry-api
 fastutil = "8.5.14-jb1"
 rwmutex-idea = "0.0.7"
 # Wasm specific
@@ -77,6 +79,9 @@ org-tukaani-xz = "1.10"
 slf4j = "2.0.17"
 maven-xml-impl = "4.0.0-beta-5"
 yarn = "1.22.22"
+
+analysis-api-kotlin = "2.3.20"
+analysis-api-kotlinx-coroutines = "1.8.0-intellij-13" # Should be synchronized with 'kotlinx-coroutines'
 
 [libraries]
 kotlin-compiler-arguments-release = { module = "org.jetbrains.kotlin:kotlin-compiler-arguments-description", version.ref = "kotlin-release" }
@@ -164,6 +169,7 @@ intellij-asm = { module = "org.jetbrains.intellij.deps:asm-all", version.ref = "
 diff-utils = { module = "io.github.java-diff-utils:java-diff-utils", version.ref = "diff-utils" }
 okhttp = { module  = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry-api" }
+auto-value-annotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "auto-value-annotations" }
 
 javaDiffUtils = { module = "io.github.java-diff-utils:java-diff-utils", version.ref = "javaDiffUtils" }
 kotlinx-bcv = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "kotlinx-bcv" }
@@ -187,6 +193,12 @@ org-tukaani-xz = { module = "org.tukaani:xz", version.ref = "org-tukaani-xz"}
 
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 maven-xml-impl = { module = "org.apache.maven:maven-xml-impl", version.ref = "maven-xml-impl" }
+
+analysis-api-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "analysis-api-kotlin" }
+analysis-api-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "analysis-api-kotlin" }
+analysis-api-kotlin-metadata-jvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "analysis-api-kotlin" }
+analysis-api-intellij-patched-kotlinx-coroutines-core-jvm = { module = "com.intellij.platform:kotlinx-coroutines-core-jvm", version.ref = "analysis-api-kotlinx-coroutines" }
+analysis-api-intellij-patched-kotlinx-coroutines-debug = { module = "com.intellij.platform:kotlinx-coroutines-debug", version.ref = "analysis-api-kotlinx-coroutines" }
 
 [plugins]
 gradle-node = { id = "com.github.node-gradle.node", version.ref = "gradle-node-plugin" }

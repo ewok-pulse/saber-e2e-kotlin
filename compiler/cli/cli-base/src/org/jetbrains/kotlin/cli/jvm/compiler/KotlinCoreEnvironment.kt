@@ -354,7 +354,11 @@ class KotlinCoreEnvironment private constructor(
         // TODO: add new Java modules to CliJavaModuleResolver
         val newRoots = classpathRootsResolver.convertClasspathRoots(contentRoots).roots - initialRoots
 
-        val newIndex = rootsIndex.addNewIndexForRoots(newRoots) ?: return null
+        val unindexedRoots = rootsIndex.getUnindexedRoots(newRoots)
+        if (unindexedRoots.isEmpty()) return null
+
+        val newIndex = JvmDependenciesIndexImpl(unindexedRoots)
+        rootsIndex.addIndex(newIndex)
         updateClasspathFromRootsIndex(newIndex)
 
         if (packagePartProviders.isEmpty()) {

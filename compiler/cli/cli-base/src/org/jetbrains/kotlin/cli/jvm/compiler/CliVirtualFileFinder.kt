@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import org.jetbrains.kotlin.cli.jvm.index.JavaFileExtension
+import org.jetbrains.kotlin.cli.jvm.index.JavaFileExtensions
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
 import org.jetbrains.kotlin.cli.jvm.index.JvmDependenciesIndex
 import org.jetbrains.kotlin.load.kotlin.VirtualFileFinder
@@ -19,10 +20,10 @@ import org.jetbrains.kotlin.serialization.deserialization.builtins.BuiltInSerial
 import org.jetbrains.kotlin.util.PerformanceManager
 import java.io.InputStream
 
-private val BINARY_CLASS_EXTENSIONS = listOf(JavaFileExtension.CLASS)
-private val BINARY_CLASS_AND_SIG_EXTENSIONS = listOf(JavaFileExtension.CLASS, JavaFileExtension.SIG)
-private val JAVA_SOURCE_EXTENSIONS = listOf(JavaFileExtension.JAVA)
-private val KOTLIN_METADATA_EXTENSIONS = listOf(JavaFileExtension.KOTLIN_METADATA)
+private val BINARY_CLASS_EXTENSIONS = JavaFileExtensions(JavaFileExtension.CLASS)
+private val BINARY_CLASS_AND_SIG_EXTENSIONS = JavaFileExtensions(JavaFileExtension.CLASS, JavaFileExtension.SIG)
+private val JAVA_SOURCE_EXTENSIONS = JavaFileExtensions(JavaFileExtension.JAVA)
+private val KOTLIN_METADATA_EXTENSIONS = JavaFileExtensions(JavaFileExtension.KOTLIN_METADATA)
 
 class CliVirtualFileFinder(
     private val index: JvmDependenciesIndex,
@@ -88,6 +89,6 @@ class CliVirtualFileFinder(
         return findClass(classId, extensions)
     }
 
-    private fun findClass(classId: ClassId, extensions: Collection<JavaFileExtension>) =
+    private fun findClass(classId: ClassId, extensions: JavaFileExtensions) =
         index.findClassVirtualFiles(classId, extensions).firstOrNull { it in scope }
 }

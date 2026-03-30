@@ -48,7 +48,7 @@ interface JvmDependenciesIndex {
      */
     fun findClassVirtualFiles(
         classId: ClassId,
-        acceptedExtensions: Collection<JavaFileExtension>,
+        acceptedExtensions: JavaFileExtensions,
     ): Collection<VirtualFile>
 
     /**
@@ -101,4 +101,35 @@ enum class JavaFileExtension(val extension: String, val rootType: JavaRoot.RootT
     CLASS(JavaClassFileType.DEFAULT_EXTENSION, JavaRoot.RootType.BINARY),
     SIG("sig", JavaRoot.RootType.BINARY_SIG),
     KOTLIN_METADATA(METADATA_FILE_EXTENSION, JavaRoot.RootType.BINARY),
+}
+
+/**
+ * A collection of [JavaFileExtension]s with pre-computed root type and extension sets.
+ *
+ * Instances of this class should be passed as constants to APIs of [JvmDependenciesIndex].
+ *
+ * @param extensions The extensions to be included in the collection. Their order might be significant, depending on the specific
+ *  [JvmDependenciesIndex] implementation.
+ */
+class JavaFileExtensions(val extensions: Collection<JavaFileExtension>) {
+    private val extensionSet = extensions.mapTo(EnumSet.noneOf(JavaFileExtension::class.java)) { it }
+
+    private val stringExtensionSet: Set<String> = extensions.mapTo(mutableSetOf()) { it.extension }
+
+    val rootTypes: Set<JavaRoot.RootType> = extensions.mapTo(EnumSet.noneOf(JavaRoot.RootType::class.java)) { it.rootType }
+
+    constructor(vararg extensions: JavaFileExtension) : this(extensions.asList())
+
+    operator fun iterator(): Iterator<JavaFileExtension> = extensions.iterator()
+
+    operator fun contains(extension: JavaFileExtension): Boolean = extension in extensionSet
+
+    operator fun contains(extension: String): Boolean = extension in stringExtensionSet
+
+    fun containsAll(other: JavaFileExtensions): Boolean = this == other || other.extensions.all { it in this }
+
+    override fun equals(other: Any?): Boolean =
+        this === other || other is JavaFileExtensions && extensions == other.extensions
+
+    override fun hashCode(): Int = extensions.hashCode()
 }

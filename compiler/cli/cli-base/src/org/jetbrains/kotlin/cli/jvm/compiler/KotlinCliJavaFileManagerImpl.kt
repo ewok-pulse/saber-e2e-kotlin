@@ -25,6 +25,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import org.jetbrains.kotlin.cli.jvm.index.JavaFileExtension
+import org.jetbrains.kotlin.cli.jvm.index.JavaFileExtensions
 import org.jetbrains.kotlin.cli.jvm.index.JvmDependenciesIndex
 import org.jetbrains.kotlin.cli.jvm.index.SingleJavaFileRootsIndex
 import org.jetbrains.kotlin.load.java.JavaClassFinder
@@ -46,7 +47,7 @@ import org.jetbrains.kotlin.util.tryMeasureSideTime
 import org.jetbrains.kotlin.utils.SmartList
 import org.jetbrains.kotlin.utils.addIfNotNull
 
-private val RELEVANT_JAVA_FILE_EXTENSIONS = listOf(JavaFileExtension.CLASS, JavaFileExtension.SIG, JavaFileExtension.JAVA)
+private val RELEVANT_JAVA_FILE_EXTENSIONS = JavaFileExtensions(JavaFileExtension.CLASS, JavaFileExtension.SIG, JavaFileExtension.JAVA)
 
 // TODO: do not inherit from CoreJavaFileManager to avoid accidental usage of its methods which do not use caches/indices
 // Currently, the only relevant usage of this class as CoreJavaFileManager is at CoreJavaDirectoryService.getPackage,

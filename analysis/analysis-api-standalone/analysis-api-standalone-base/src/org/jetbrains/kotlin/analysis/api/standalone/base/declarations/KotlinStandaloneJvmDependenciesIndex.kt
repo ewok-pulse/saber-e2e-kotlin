@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.analysis.api.standalone.base.declarations
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.cli.jvm.index.JavaFileExtension
+import org.jetbrains.kotlin.cli.jvm.index.JavaFileExtensions
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
 import org.jetbrains.kotlin.cli.jvm.index.JvmDependenciesIndexBase
 import org.jetbrains.kotlin.name.ClassId
@@ -45,21 +46,19 @@ internal class KotlinStandaloneJvmDependenciesIndex(roots: List<JavaRoot>) : Jvm
 
     override fun findClassVirtualFiles(
         classId: ClassId,
-        acceptedExtensions: Collection<JavaFileExtension>,
+        acceptedExtensions: JavaFileExtensions,
     ): Collection<VirtualFile> {
         val classVirtualFiles = classVirtualFilesByPackage.get(classId.packageFqName, ::computeClassVirtualFiles)!!
         val files = classVirtualFiles[classId.relativeClassName.asString()] ?: return emptyList()
 
         // We don't need to filter the files if all extensions are requested.
-        if (acceptedExtensions.size == JavaFileExtension.entries.size) {
+        if (acceptedExtensions.extensions.size == JavaFileExtension.entries.size) {
             return files
         }
 
-        // While this is technically quadratic, the list of files should be very small (usually 1 element). I believe this will be faster
-        // for most cases compared to building a hash set of accepted extensions.
         return files.filter { file ->
             val extension = file.extension ?: return@filter false
-            acceptedExtensions.any { it.extension == extension }
+            extension in acceptedExtensions
         }
     }
 

@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.cli.jvm.index
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.name.ClassId
-import java.util.EnumSet
 import kotlin.concurrent.withLock
 
 /**
@@ -23,7 +22,7 @@ class JvmDependenciesIndexImpl(roots: List<JavaRoot>) : JvmDependenciesIndexBase
 
     override fun findClassVirtualFiles(
         classId: ClassId,
-        acceptedExtensions: Collection<JavaFileExtension>,
+        acceptedExtensions: JavaFileExtensions,
     ): Collection<VirtualFile> {
         lock.withLock {
             // TODO: KT-58327 probably should be changed to thread local to fix fast-path
@@ -58,13 +57,12 @@ class JvmDependenciesIndexImpl(roots: List<JavaRoot>) : JvmDependenciesIndexBase
      */
     private fun searchClasses(
         classId: ClassId,
-        acceptedExtensions: Collection<JavaFileExtension>,
+        acceptedExtensions: JavaFileExtensions,
     ): Collection<VirtualFile> {
-        val acceptedRootTypes = acceptedExtensions.mapTo(EnumSet.noneOf(JavaRoot.RootType::class.java)) { it.rootType }
         val fileNameWithoutExtension = classId.relativeClassName.asString().replace('.', '$')
         val results = mutableListOf<VirtualFile>()
 
-        traverseIndex(classId.packageFqName, acceptedRootTypes) { directoryInRoot, root ->
+        traverseIndex(classId.packageFqName, acceptedExtensions.rootTypes) { directoryInRoot, root ->
             for (ext in acceptedExtensions) {
                 if (ext.rootType != root.type) continue
 
@@ -89,6 +87,6 @@ class JvmDependenciesIndexImpl(roots: List<JavaRoot>) : JvmDependenciesIndexBase
 
     private data class ClassSearchRequest(
         val classId: ClassId,
-        val acceptedExtensions: Collection<JavaFileExtension>,
+        val acceptedExtensions: JavaFileExtensions,
     )
 }

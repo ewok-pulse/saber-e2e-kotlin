@@ -89,7 +89,7 @@ abstract class JvmDependenciesIndexBase(_roots: List<JavaRoot>) : JvmDependencie
 
     abstract override fun findClassVirtualFiles(
         classId: ClassId,
-        acceptedExtensions: Collection<JavaFileExtension>,
+        acceptedExtensions: JavaFileExtensions,
     ): Collection<VirtualFile>
 
     /**

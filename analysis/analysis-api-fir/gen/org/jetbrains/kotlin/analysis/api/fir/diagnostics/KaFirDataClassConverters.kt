@@ -3194,13 +3194,6 @@ private fun KaDiagnosticConverterBuilder.addConversions71() {
             token,
         )
     }
-    add(FirErrors.DEPENDENCY_GRAPH_INFO) { firDiagnostic ->
-        DependencyGraphInfoImpl(
-            firDiagnostic.a,
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
     add(FirJvmErrors.REDUNDANT_REPEATABLE_ANNOTATION) { firDiagnostic ->
         RedundantRepeatableAnnotationImpl(
             firDiagnostic.a,
@@ -7095,15 +7088,6 @@ private fun KaDiagnosticConverterBuilder.addConversions160() {
             token,
         )
     }
-    add(FirErrors.POSSIBLE_DEADLOCK) { firDiagnostic ->
-        PossibleDeadlockImpl(
-            firDiagnostic.a.map { firBasedSymbol ->
-                firSymbolBuilder.buildSymbol(firBasedSymbol)
-            },
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
 }
 
 private fun KaDiagnosticConverterBuilder.addConversions161() {
@@ -7832,6 +7816,7 @@ private fun KaDiagnosticConverterBuilder.addConversions176() {
     }
     add(FirErrors.UNINITIALIZED_PROPERTY) { firDiagnostic ->
         UninitializedPropertyImpl(
+            firSymbolBuilder.variableBuilder.buildVariableSymbol(firDiagnostic.a),
             firDiagnostic as KtPsiDiagnostic,
             token,
         )

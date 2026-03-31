@@ -5727,7 +5727,6 @@ internal class CompanionExtensionNullableReceiverImpl(
 ) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.CompanionExtensionNullableReceiver
 
 internal class UninitializedPropertyImpl(
-    override val property: KaVariableSymbol,
     firDiagnostic: KtPsiDiagnostic,
     token: KaLifetimeToken,
 ) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.UninitializedProperty

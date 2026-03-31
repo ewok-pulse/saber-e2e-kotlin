@@ -2,6 +2,6 @@
 // FIR_IDENTICAL
 <!UNINITIALIZED_PROPERTY!>val a = <!UNINITIALIZED_ACCESS("val b: Any")!>A.b<!><!>
 
-<!POSSIBLE_INITIALIZATION_DEADLOCK!>object A<!> {
+object A {
     <!UNINITIALIZED_PROPERTY!>val b: Any = <!UNINITIALIZED_ACCESS("val a: Any")!>a<!><!>
 }

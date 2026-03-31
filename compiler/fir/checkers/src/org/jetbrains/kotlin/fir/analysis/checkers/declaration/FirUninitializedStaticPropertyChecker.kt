@@ -15,12 +15,13 @@ import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.utils.isEnumEntry
 import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.expressions.toResolvedCallableSymbol
-import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraphBuilder
+import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraph
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asEnumEntryEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asFileEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asInstancedPropertyEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asObjectEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.NodeIndex
+import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.NodeIndex.Companion.beginIndex
 import org.jetbrains.kotlin.fir.resolve.getContainingSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousObjectSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirFileSymbol
@@ -33,6 +34,7 @@ object FirUninitializedStaticPropertyChecker : FirPropertyChecker(MppCheckerKind
 
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirProperty) {
+        val dependencyGraph = context.session.dependencyGraph
         declaration.symbol.getContainingSymbol(context.session)?.let { containingSymbol ->
             val enclosingEntity = when (containingSymbol) {
                 is FirRegularClassSymbol if containingSymbol.classKind.isObject -> containingSymbol.asObjectEntity() ?: return
@@ -40,27 +42,20 @@ object FirUninitializedStaticPropertyChecker : FirPropertyChecker(MppCheckerKind
                 is FirFileSymbol -> containingSymbol.asFileEntity()
                 else -> return
             }
-            val index = if (declaration.initializer != null) {
-                declaration.symbol.resolvedReturnType.let { type ->
-                    if (type.isPrimitiveOrNullablePrimitive || type.isUnit || type.isNothing) {
-                        NodeIndex.PrimitivePropertyIndex(enclosingEntity, declaration.symbol)
-                    } else {
-                        declaration.symbol.asInstancedPropertyEntity(enclosingEntity).beginSubgraphIndex
-                    }
-                }
-            } else NodeIndex.FunctionLikeIndex(enclosingEntity, declaration.symbol)
-            val dependencyGraph = declaration.moduleData.dependencyGraphBuilder.graph
-            if (dependencyGraph.isPoisoned(index)) {
+            val type = declaration.symbol.resolvedReturnType
+            val index = if (type.isPrimitiveOrNullablePrimitive || type.isUnit || type.isNothing) {
+                NodeIndex.DeclarationIndex(enclosingEntity, declaration.symbol)
+            } else {
+                declaration.symbol.asInstancedPropertyEntity(enclosingEntity).beginIndex()
+            }
+            if (dependencyGraph.isBad(index)) {
                 reporter.reportOn(declaration.source, FirErrors.UNINITIALIZED_PROPERTY)
-                dependencyGraph.poisoningAccessesFor(index).forEach {
-                    when (it) {
-                        is FirResolvedQualifier -> it.symbol?.let { symbol ->
-                            reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, symbol)
-                        }
-                        else -> it.toResolvedCallableSymbol(context.session)?.let { symbol ->
-                            reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, symbol)
-                        }
+                dependencyGraph.badAccessesFor(index).forEach {
+                    val declaration = when (it) {
+                        is FirResolvedQualifier -> it.symbol!!
+                        else -> it.toResolvedCallableSymbol(context.session)!!
                     }
+                    reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, declaration)
                 }
             }
         }

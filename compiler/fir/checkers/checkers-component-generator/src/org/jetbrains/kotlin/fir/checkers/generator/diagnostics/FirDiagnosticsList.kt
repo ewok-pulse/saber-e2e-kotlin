@@ -2394,6 +2394,13 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
         val COMPANION_EXTENSION_RECEIVER_ANNOTATED by error<PsiElement>()
         val COMPANION_EXTENSION_NULLABLE_RECEIVER by error<PsiElement>()
     }
+
+    val STATIC_INITIALIZATION by object : DiagnosticGroup("Static Initialization") {
+        val UNINITIALIZED_PROPERTY by warning<PsiElement>()
+        val UNINITIALIZED_ACCESS by warning<PsiElement> {
+            parameter<FirBasedSymbol<*>>("accessedDeclaration")
+        }
+    }
 }
 
 private val exposedVisibilityDiagnosticInit: DiagnosticBuilder.() -> Unit = {

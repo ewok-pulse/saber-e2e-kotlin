@@ -7816,7 +7816,6 @@ private fun KaDiagnosticConverterBuilder.addConversions176() {
     }
     add(FirErrors.UNINITIALIZED_PROPERTY) { firDiagnostic ->
         UninitializedPropertyImpl(
-            firSymbolBuilder.variableBuilder.buildVariableSymbol(firDiagnostic.a),
             firDiagnostic as KtPsiDiagnostic,
             token,
         )

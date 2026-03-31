@@ -4771,7 +4771,6 @@ sealed interface KaFirDiagnostic<PSI : PsiElement> : KaDiagnosticWithPsi<PSI> {
 
     interface UninitializedProperty : KaFirDiagnostic<PsiElement> {
         override val diagnosticClass get() = UninitializedProperty::class
-        val property: KaVariableSymbol
     }
 
     interface UninitializedAccess : KaFirDiagnostic<PsiElement> {

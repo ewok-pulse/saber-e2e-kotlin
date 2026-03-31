@@ -5,13 +5,10 @@
 
 package org.jetbrains.kotlin.fir.resolve.dependencies.semantics
 
-import org.jetbrains.kotlin.fir.declarations.FirAnonymousInitializer
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym
 import org.jetbrains.kotlin.fir.declarations.FirDeclaration
-import org.jetbrains.kotlin.fir.declarations.FirEnumEntry
-import org.jetbrains.kotlin.fir.declarations.FirFile
-import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.FirProperty
-import org.jetbrains.kotlin.fir.declarations.FirRegularClass
+import org.jetbrains.kotlin.fir.render
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousInitializerSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirFunctionSymbol
@@ -19,91 +16,45 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 
 sealed interface NodeIndex<out D : FirDeclaration> {
 
-    val canBePoisonedOnCyclicAccess: Boolean
-
-    sealed interface DeclarationIndex<D : FirDeclaration> : NodeIndex<D> {
-        val enclosingEntity: EnclosingEntity<*>
-
+    data class DeclarationIndex<D : FirDeclaration>(
+        val containingEntity: EnclosingEntity<*>,
         val symbol: FirBasedSymbol<D>
+    ) : NodeIndex<D> {
+        override fun toString(): String {
+            val name = when (symbol) {
+                is FirPropertySymbol -> symbol.name.asString()
+                is FirFunctionSymbol<*> -> "${symbol.name.asString()}()"
+                is FirAnonymousInitializerSymbol -> "<init_block>"
+                else -> ""
+            }
+            return "${if (containingEntity is EnclosingEntity.File) "" else "$containingEntity."}$name"
+        }
     }
 
-    data class PrimitivePropertyIndex(
-        override val enclosingEntity: EnclosingEntity<*>,
-        override val symbol: FirPropertySymbol
-    ) : DeclarationIndex<FirProperty> {
-        override val canBePoisonedOnCyclicAccess: Boolean get() = symbol.hasInitializer
-        override fun toString(): String =
-            "${if (enclosingEntity is EnclosingEntity.File) "" else "$enclosingEntity."}${symbol.name.asString()}"
-    }
-
-    data class AnonymousInitializerIndex(
-        override val enclosingEntity: EnclosingEntity<*>,
-        override val symbol: FirAnonymousInitializerSymbol
-    ) : DeclarationIndex<FirAnonymousInitializer> {
-        override val canBePoisonedOnCyclicAccess: Boolean = true
-        override fun toString(): String =
-            "${if (enclosingEntity is EnclosingEntity.File) "" else "$enclosingEntity."}<init_block>"
-    }
-
-    data class FunctionIndex<D : FirFunction>(
-        override val enclosingEntity: EnclosingEntity<*>,
-        override val symbol: FirFunctionSymbol<D>
-    ) : DeclarationIndex<D> {
-        override val canBePoisonedOnCyclicAccess: Boolean = false
-        override fun toString(): String =
-            "${if (enclosingEntity is EnclosingEntity.File) "" else "$enclosingEntity."}${symbol.name.asString()}()"
-    }
-
-    sealed interface BeginSubgraphIndex<D : FirDeclaration> : NodeIndex<D> {
+    data class BeginSubgraphIndex<D : FirDeclaration>(
         val enclosingEntity: EnclosingEntity<D>
-    }
-
-    data class TopLevelIndex(
-        override val enclosingEntity: EnclosingEntity.File
-    ) : BeginSubgraphIndex<FirFile> {
-        override val canBePoisonedOnCyclicAccess: Boolean = false
-        override fun toString(): String = "<$enclosingEntity>"
-    }
-
-    data class QualifierIndex(
-        override val enclosingEntity: EnclosingEntity.Object,
-    ) : BeginSubgraphIndex<FirRegularClass> {
-        override val canBePoisonedOnCyclicAccess: Boolean = false
-        override fun toString(): String = enclosingEntity.toString()
-    }
-
-    data class ClinitIndex(
-        override val enclosingEntity: EnclosingEntity.Class
-    ) : BeginSubgraphIndex<FirRegularClass> {
-        override val canBePoisonedOnCyclicAccess: Boolean = false
-        override fun toString(): String = "$enclosingEntity.<clinit>"
-    }
-
-    data class EnumEntryIndex(
-        override val enclosingEntity: EnclosingEntity.EnumEntry,
-    ) : BeginSubgraphIndex<FirEnumEntry> {
-        override val canBePoisonedOnCyclicAccess: Boolean = true
-        override fun toString(): String = enclosingEntity.toString()
-    }
-
-    data class InstancedPropertyIndex(
-        override val enclosingEntity: EnclosingEntity.InstancedProperty,
-    ) : BeginSubgraphIndex<FirProperty> {
-        override val canBePoisonedOnCyclicAccess: Boolean get() = enclosingEntity.symbol.hasInitializer
-        override fun toString(): String = enclosingEntity.toString()
+    ) : NodeIndex<D> {
+        override fun toString(): String = when (enclosingEntity) {
+            is EnclosingEntity.File -> "<$enclosingEntity>"
+            is EnclosingEntity.Class -> "$enclosingEntity.<clinit>"
+            else -> enclosingEntity.toString()
+        }
     }
 
     data class EndSubgraphIndex<D : FirDeclaration>(
         val beginIndex: BeginSubgraphIndex<D>
     ) : NodeIndex<D> {
-        override val canBePoisonedOnCyclicAccess: Boolean = false
         override fun toString(): String = "<${beginIndex.enclosingEntity} initialized>"
     }
 
     data class CompositeIndex(
         val indices: Set<NodeIndex<*>>
     ) : NodeIndex<Nothing> {
-        override val canBePoisonedOnCyclicAccess: Boolean = false
         override fun toString(): String = indices.joinToString(prefix = "{", postfix = "}")
+    }
+
+    companion object {
+        fun <D : FirDeclaration> EnclosingEntity<D>.beginIndex(): BeginSubgraphIndex<D> = BeginSubgraphIndex(this)
+        fun <D : FirDeclaration> EnclosingEntity<D>.endIndex(): EndSubgraphIndex<D> = EndSubgraphIndex(beginIndex())
     }
 }

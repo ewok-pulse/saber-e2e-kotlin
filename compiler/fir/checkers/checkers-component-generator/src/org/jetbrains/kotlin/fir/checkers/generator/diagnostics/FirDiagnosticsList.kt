@@ -123,6 +123,9 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
             LanguageFeature.ForbidParenthesizedLhsInAssignments,
             PositioningStrategy.OUTERMOST_PARENTHESES_IN_ASSIGNMENT_LHS,
         )
+        val PARENTHESIZED_PACKAGE_QUALIFIER by deprecationError<PsiElement>(
+            LanguageFeature.ForbidAnnotationsTypeArgumentsAndParenthesesForPackageQualifier,
+        )
         val UNSUPPORTED_ARRAY_LITERAL_OUTSIDE_OF_ANNOTATION by deprecationError<PsiElement>(
             LanguageFeature.ForbidArrayLiteralsInNonAnnotationContexts,
         )
@@ -939,37 +942,24 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
         val RECURSION_IN_IMPLICIT_TYPES by error<PsiElement>()
         val INFERENCE_ERROR by error<PsiElement>()
         val PROJECTION_ON_NON_CLASS_TYPE_ARGUMENT by error<PsiElement>()
-        val UPPER_BOUND_VIOLATED by error<PsiElement> {
-            parameter<ConeKotlinType>("expectedUpperBound")
-            parameter<ConeKotlinType>("actualUpperBound")
-            parameter<String>("extraMessage")
-        }
-        val UPPER_BOUND_VIOLATED_DEPRECATION_WARNING by warning<PsiElement> {
-            parameter<ConeKotlinType>("expectedUpperBound")
-            parameter<ConeKotlinType>("actualUpperBound")
-            parameter<String>("extraMessage")
-        }
+
+        val UPPER_BOUND_VIOLATED by error<PsiElement>(init = upperBoundViolatedDiagnosticInit(withExtraMessage = true))
+        val UPPER_BOUND_VIOLATED_DEPRECATION_WARNING by warning<PsiElement>(init = upperBoundViolatedDiagnosticInit(withExtraMessage = true))
         val UPPER_BOUND_VIOLATED_IN_TYPE_OPERATOR_OR_PARAMETER_BOUNDS by deprecationError<PsiElement>(
             LanguageFeature.ForbidUpperBoundsViolationOnTypeOperatorAndParameterBounds,
-        ) {
-            parameter<ConeKotlinType>("expectedUpperBound")
-            parameter<ConeKotlinType>("actualUpperBound")
-            parameter<String>("extraMessage")
-        }
-        val UPPER_BOUND_VIOLATED_IN_TYPEALIAS_EXPANSION by error<PsiElement> {
-            parameter<ConeKotlinType>("expectedUpperBound")
-            parameter<ConeKotlinType>("actualUpperBound")
-        }
-        val UPPER_BOUND_VIOLATED_IN_TYPEALIAS_EXPANSION_DEPRECATION_WARNING by warning<PsiElement> {
-            parameter<ConeKotlinType>("expectedUpperBound")
-            parameter<ConeKotlinType>("actualUpperBound")
-        }
+            init = upperBoundViolatedDiagnosticInit(withExtraMessage = true),
+        )
+        val UPPER_BOUND_VIOLATED_IN_TYPEALIAS_EXPANSION by error<PsiElement>(init = upperBoundViolatedDiagnosticInit())
+        val UPPER_BOUND_VIOLATED_IN_TYPEALIAS_EXPANSION_DEPRECATION_WARNING by warning<PsiElement>(init = upperBoundViolatedDiagnosticInit())
+        val UPPER_BOUND_VIOLATED_IN_LHS_OF_CLASS_LITERAL_WARNING by warning<PsiElement>(init = upperBoundViolatedDiagnosticInit())
+
         val TYPE_ARGUMENTS_NOT_ALLOWED by error<PsiElement> {
             parameter<String>("place")
         }
         val TYPE_ARGUMENTS_NOT_ALLOWED_WARNING by warning<PsiElement> {
             parameter<String>("place")
         }
+        val TYPE_ARGUMENTS_NOT_ALLOWED_IN_PACKAGE_QUALIFIER_WARNING by warning<PsiElement>()
         val TYPE_ARGUMENTS_FOR_OUTER_CLASS_WHEN_NESTED_REFERENCED by error<PsiElement>()
         val WRONG_NUMBER_OF_TYPE_ARGUMENTS by error<PsiElement>(PositioningStrategy.TYPE_ARGUMENT_LIST_OR_SELF) {
             parameter<Int>("expectedCount")
@@ -1644,6 +1634,7 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
 
         val UNNAMED_VAR_PROPERTY by error<PsiElement>(PositioningStrategy.VAL_OR_VAR_NODE)
         val UNNAMED_DELEGATED_PROPERTY by error<PsiElement>(PositioningStrategy.PROPERTY_DELEGATE_BY_KEYWORD)
+        val UNNAMED_PROPERTY_WITH_IMPLICIT_UNIT_TYPE by warning<PsiElement>(PositioningStrategy.NAME_IDENTIFIER)
 
         val DESTRUCTURING_SHORT_FORM_NAME_MISMATCH by warning<KtElement>(PositioningStrategy.REFERENCED_NAME_BY_QUALIFIED) {
             parameter<Name>("destructuredName")

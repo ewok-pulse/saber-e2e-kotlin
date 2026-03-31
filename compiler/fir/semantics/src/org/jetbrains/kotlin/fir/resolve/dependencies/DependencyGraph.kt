@@ -64,7 +64,6 @@ import org.jetbrains.kotlin.fir.expressions.FirQualifiedAccessExpression
 import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.expressions.FirReturnExpression
 import org.jetbrains.kotlin.fir.expressions.FirSafeCallExpression
-import org.jetbrains.kotlin.fir.expressions.FirSamConversionExpression
 import org.jetbrains.kotlin.fir.expressions.FirSmartCastExpression
 import org.jetbrains.kotlin.fir.expressions.FirSpreadArgumentExpression
 import org.jetbrains.kotlin.fir.expressions.FirStringConcatenationCall
@@ -1733,9 +1732,6 @@ data class DependencyGraph(
         override fun visitSafeCallExpression(safeCallExpression: FirSafeCallExpression): Unit = safeCallExpression.visit {
             acceptChildren(this@Builder)
         }
-
-        override fun visitSamConversionExpression(samConversionExpression: FirSamConversionExpression): Unit =
-            samConversionExpression.visit { acceptChildren(this@Builder) }
 
         override fun visitSmartCastExpression(smartCastExpression: FirSmartCastExpression): Unit =
             smartCastExpression.visit { acceptChildren(this@Builder) }

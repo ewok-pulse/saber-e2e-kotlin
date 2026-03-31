@@ -99,6 +99,7 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
         FirInlinePropertyChecker,
         FirUnnamedPropertyChecker,
         FirContextualPropertyWithBackingFieldChecker,
+        FirUninitializedStaticPropertyChecker,
     )
 
     override val backingFieldCheckers: Set<FirBackingFieldChecker> = setOf(
@@ -168,6 +169,7 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
     override val constructorCheckers: Set<FirConstructorChecker> = setOf(
         FirConstructorAllowedChecker,
         FirMissingConstructorKeywordSyntaxChecker,
+        FirUninitializedAccessInObjectConstructorChecker,
     )
 
     override val fileCheckers: Set<FirFileChecker> = setOf(
@@ -178,7 +180,6 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
         FirTopLevelPropertiesChecker,
         FirPackageConflictsWithClassifierChecker,
         PlatformClassMappedToKotlinImportsChecker,
-        FirStaticInitializationChecker
     )
 
     override val scriptCheckers: Set<FirScriptChecker> = setOf(
@@ -215,7 +216,8 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
     )
 
     override val anonymousInitializerCheckers: Set<FirAnonymousInitializerChecker> = setOf(
-        FirAnonymousInitializerInInterfaceChecker
+        FirAnonymousInitializerInInterfaceChecker,
+        FirUninitializedAccessInStaticInitializerChecker,
     )
 
     override val valueParameterCheckers: Set<FirValueParameterChecker> = setOf(
@@ -227,5 +229,6 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
     override val enumEntryCheckers: Set<FirEnumEntryChecker> = setOf(
         FirEnumEntriesRedeclarationChecker,
         FirOptInEnumEntryChecker,
+        FirUninitializedEnumEntryChecker,
     )
 }

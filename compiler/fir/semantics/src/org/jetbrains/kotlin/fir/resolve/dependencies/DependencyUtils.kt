@@ -5,20 +5,22 @@
 
 package org.jetbrains.kotlin.fir.resolve.dependencies
 
-import org.jetbrains.kotlin.fir.FirSession
-import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
 import org.jetbrains.kotlin.fir.declarations.collectEnumEntries
+import org.jetbrains.kotlin.fir.declarations.fullyExpandedClass
 import org.jetbrains.kotlin.fir.declarations.utils.isEnumClass
 import org.jetbrains.kotlin.fir.declarations.utils.isEnumEntry
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
-import org.jetbrains.kotlin.fir.resolve.getContainingSymbol
+import org.jetbrains.kotlin.fir.resolve.getContainingClassSymbol
+import org.jetbrains.kotlin.fir.resolve.getContainingDeclaration
+import org.jetbrains.kotlin.fir.resolve.getSuperTypes
+import org.jetbrains.kotlin.fir.resolve.providers.firProvider
+import org.jetbrains.kotlin.fir.resolve.providers.getContainingFile
 import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.scopes.impl.declaredMemberScope
 import org.jetbrains.kotlin.fir.scopes.processAllProperties
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousObjectSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirEnumEntrySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirFileSymbol
@@ -61,18 +63,6 @@ sealed class TraversalOrder {
     }
 }
 
-// Essentially a union find data structure which automatically unites each element on their direct parent
-// NOTE: the supplier should have O(1) time complexity
-open class PathCompressingFinder<T>(private val directParentSupplier: (T) -> T) {
-    private val parents = mutableMapOf<T, T>()
-
-    fun find(element: T): T {
-        if (parents.getOrPut(element) { directParentSupplier(element) } == element) return element
-        parents[element] = find(parents.getValue(element))
-        return parents.getValue(element)
-    }
-}
-
 fun <E> MutableSet<E>.join(other: Iterable<E>): MutableSet<E> = apply {
     other.forEach { add(it) }
 }
@@ -98,26 +88,9 @@ fun FirAnonymousObjectSymbol.findCorrespondingEnumEntry(): FirEnumEntrySymbol? =
         false -> null
     }
 
-val FirCallableSymbol<*>.containingFileSymbol: FirFileSymbol? get() = getContainingSymbol(moduleData.session)?.let { it as? FirFileSymbol }
+val FirBasedSymbol<*>.containingFileSymbol: FirFileSymbol? get() = moduleData.session.firProvider.getContainingFile(this)?.symbol
 
-fun FirPropertyAccessorSymbol.hasImplementation(): Boolean = !isDefault && hasBody
+fun FirPropertyAccessorSymbol.hasImplementation(): Boolean = isDefault != true && hasBody == true
 
 fun FirPropertySymbol.hasAnyImplementation(): Boolean =
     (getterSymbol?.hasImplementation() ?: false) || (setterSymbol?.hasImplementation() ?: false)
-
-val FirBasedSymbol<*>.isLibraryDeclaration: Boolean
-    get() = origin == FirDeclarationOrigin.Library
-            || origin == FirDeclarationOrigin.Java.Library
-            || moduleData.session.kind == FirSession.Kind.Library
-
-inline fun <T> Sequence<T>.countUntil(count: Int, crossinline predicate: (T) -> Boolean): Boolean {
-    var current = 0
-    for (element in this) {
-        if (predicate(element)) {
-            if (++current < 0) throw ArithmeticException("Count overflow has happened.")
-            // Short-circuit if count is exceeded
-            if (current > count) break
-        }
-    }
-    return current == count
-}

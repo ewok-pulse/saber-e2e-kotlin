@@ -4,6 +4,6 @@
 val a = 5
 <!UNINITIALIZED_PROPERTY!>val b = <!UNINITIALIZED_ACCESS!>A.b<!><!>
 
-<!POSSIBLE_INITIALIZATION_DEADLOCK!>object A<!> {
+object A {
     val b = a
 }

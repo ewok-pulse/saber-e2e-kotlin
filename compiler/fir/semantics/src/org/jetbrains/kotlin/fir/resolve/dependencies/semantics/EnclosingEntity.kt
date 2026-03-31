@@ -6,10 +6,8 @@
 package org.jetbrains.kotlin.fir.resolve.dependencies.semantics
 
 import org.jetbrains.kotlin.descriptors.isEnumClass
+import org.jetbrains.kotlin.descriptors.isEnumEntry
 import org.jetbrains.kotlin.descriptors.isObject
-import org.jetbrains.kotlin.fir.FirSession
-import org.jetbrains.kotlin.fir.FirSessionComponent
-import org.jetbrains.kotlin.fir.SessionAndScopeSessionHolder
 import org.jetbrains.kotlin.fir.declarations.FirDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirEnumEntry
 import org.jetbrains.kotlin.fir.declarations.FirFile
@@ -17,15 +15,11 @@ import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.fullyExpandedClass
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
-import org.jetbrains.kotlin.fir.resolve.dependencies.PathCompressingFinder
 import org.jetbrains.kotlin.fir.resolve.dependencies.findCorrespondingEnumEntry
-import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
 import org.jetbrains.kotlin.fir.resolve.getContainingClassSymbol
-import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousObjectSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassLikeSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirEnumEntrySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirFileSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
@@ -34,68 +28,51 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 /**
  * Represents the sources of static entities such as properties in objects or top-level properties
  */
-sealed class EnclosingEntity<D : FirDeclaration> {
+sealed interface EnclosingEntity<out D : FirDeclaration> {
 
     /**
      * Returns the symbol representing the entity's declaration
      */
-    abstract val symbol: FirBasedSymbol<D>
+    val symbol: FirBasedSymbol<D>
 
     /**
-     * Returns the enclosing entity whose initialization directly triggers the initialization of this entity, if applicable
+     * Returns the enclosing entity under which this entity is directly nested (declared), if applicable
      */
-    abstract val parentEnclosingEntity: EnclosingEntity<*>?
+    val outerEnclosingEntity: EnclosingEntity<*>?
 
-    abstract val beginSubgraphIndex: NodeIndex.BeginSubgraphIndex<D>
-
-    abstract val correspondingClassSymbol: FirClassSymbol<*>?
-
-    val endSubgraphIndex: NodeIndex.EndSubgraphIndex<D> by lazy { NodeIndex.EndSubgraphIndex(beginSubgraphIndex) }
-
-    data class Class(override val symbol: FirRegularClassSymbol) : EnclosingEntity<FirRegularClass>() {
-        override val parentEnclosingEntity: EnclosingEntity<*>? get() = null
-        override val correspondingClassSymbol: FirClassSymbol<*> get() = symbol
-        override val beginSubgraphIndex: NodeIndex.BeginSubgraphIndex<FirRegularClass> = NodeIndex.ClinitIndex(this)
+    data class Class(override val symbol: FirRegularClassSymbol) : EnclosingEntity<FirRegularClass> {
+        override val outerEnclosingEntity: EnclosingEntity<*>? get() = null
         override fun toString(): String = "${symbol.name}::class"
     }
 
     data class Object(
         override val symbol: FirRegularClassSymbol,
-        override val parentEnclosingEntity: Class? = null
-    ) : EnclosingEntity<FirRegularClass>() {
-        override val correspondingClassSymbol: FirClassSymbol<*> get() = symbol
-        override val beginSubgraphIndex: NodeIndex.QualifierIndex = NodeIndex.QualifierIndex(this)
-        override fun toString(): String = parentEnclosingEntity?.let { outerEnclosingEntity ->
+        override val outerEnclosingEntity: Class? = null
+    ) : EnclosingEntity<FirRegularClass> {
+        override fun toString(): String = outerEnclosingEntity?.let { outerEnclosingEntity ->
             "$outerEnclosingEntity.${symbol.name}"
         } ?: "${symbol.name}"
     }
 
-    data class File(override val symbol: FirFileSymbol) : EnclosingEntity<FirFile>() {
-        override val parentEnclosingEntity: EnclosingEntity<*>? get() = null
-        override val correspondingClassSymbol: FirClassSymbol<*>? get() = null
-        override val beginSubgraphIndex: NodeIndex.TopLevelIndex = NodeIndex.TopLevelIndex(this)
+    data class File(override val symbol: FirFileSymbol) : EnclosingEntity<FirFile> {
+        override val outerEnclosingEntity: EnclosingEntity<*>? get() = null
         override fun toString(): String = symbol.fir.name
     }
 
-    data class EnumEntry(override val symbol: FirEnumEntrySymbol) : EnclosingEntity<FirEnumEntry>() {
-        override val parentEnclosingEntity: Class = symbol.getContainingClassSymbol()
+    data class EnumEntry(override val symbol: FirEnumEntrySymbol) : EnclosingEntity<FirEnumEntry> {
+        override val outerEnclosingEntity: Class = symbol.getContainingClassSymbol()
             ?.fullyExpandedClass(symbol.moduleData.session)
             ?.asClassEntity()
             ?: error("An enum entry entity must always be nested under an enum class entity!")
-        override val correspondingClassSymbol: FirClassSymbol<*>? get() = symbol.initializerObjectSymbol
-        override val beginSubgraphIndex: NodeIndex.EnumEntryIndex = NodeIndex.EnumEntryIndex(this)
-        override fun toString(): String = "$parentEnclosingEntity.${symbol.name}"
+
+        override fun toString(): String = "$outerEnclosingEntity.${symbol.name}"
     }
 
     data class InstancedProperty(
         override val symbol: FirPropertySymbol,
-        override val parentEnclosingEntity: EnclosingEntity<*>
-    ) : EnclosingEntity<FirProperty>() {
-        override val correspondingClassSymbol: FirClassSymbol<*>? = symbol.resolvedReturnType
-            .fullyExpandedType(symbol.moduleData.session)
-            .toRegularClassSymbol(symbol.moduleData.session)
-        override val beginSubgraphIndex: NodeIndex.InstancedPropertyIndex = NodeIndex.InstancedPropertyIndex(this)
-        override fun toString(): String = "${if (parentEnclosingEntity is File) "" else "$parentEnclosingEntity."}${symbol.name}"
+        override val outerEnclosingEntity: EnclosingEntity<*>
+    ) : EnclosingEntity<FirProperty> {
+        override fun toString(): String = "${if (outerEnclosingEntity is File) "" else "$outerEnclosingEntity."}${symbol.name}"
     }
 
     companion object {
@@ -134,12 +111,13 @@ sealed class EnclosingEntity<D : FirDeclaration> {
         fun FirPropertySymbol.asInstancedPropertyEntity(outerEnclosingEntity: EnclosingEntity<*>): InstancedProperty =
             InstancedProperty(this, outerEnclosingEntity)
 
-        object OutermostEnclosingEntityFinder : PathCompressingFinder<EnclosingEntity<*>>({ it.parentEnclosingEntity ?: it }),
-            FirSessionComponent
-
-        val FirSession.outermostEntityFinder: OutermostEnclosingEntityFinder by FirSession.sessionComponentAccessor()
-
-        context(holder: SessionAndScopeSessionHolder)
-        val EnclosingEntity<*>.outermostEntity: EnclosingEntity<*> get() = holder.session.outermostEntityFinder.find(this)
+        val EnclosingEntity<*>.outermostEntity: EnclosingEntity<*>
+            get() = when (this) {
+                is Class -> this
+                is Object -> outerEnclosingEntity?.outermostEntity ?: this
+                is File -> this
+                is EnumEntry -> outerEnclosingEntity.outermostEntity
+                is InstancedProperty -> outerEnclosingEntity.outermostEntity
+            }
     }
 }

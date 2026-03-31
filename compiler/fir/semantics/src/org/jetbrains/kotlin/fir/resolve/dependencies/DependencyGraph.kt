@@ -16,22 +16,22 @@ import org.jetbrains.kotlin.fir.declarations.DirectDeclarationsAccess
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousFunction
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousInitializer
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousObject
-import org.jetbrains.kotlin.fir.declarations.FirCallableDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirClass
 import org.jetbrains.kotlin.fir.declarations.FirConstructor
 import org.jetbrains.kotlin.fir.declarations.FirDeclaration
+import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.fir.declarations.FirEnumEntry
 import org.jetbrains.kotlin.fir.declarations.FirFile
 import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.FirNamedFunction
 import org.jetbrains.kotlin.fir.declarations.FirProperty
-import org.jetbrains.kotlin.fir.declarations.FirPropertyAccessor
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.fullyExpandedClass
 import org.jetbrains.kotlin.fir.declarations.primaryConstructorIfAny
 import org.jetbrains.kotlin.fir.declarations.processAllClassifiers
 import org.jetbrains.kotlin.fir.declarations.processAllDeclarations
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
+import org.jetbrains.kotlin.fir.declarations.utils.isEnumClass
 import org.jetbrains.kotlin.fir.declarations.utils.isInterface
 import org.jetbrains.kotlin.fir.declarations.utils.visibility
 import org.jetbrains.kotlin.fir.expressions.FirAnonymousFunctionExpression
@@ -56,6 +56,7 @@ import org.jetbrains.kotlin.fir.expressions.FirGetClassCall
 import org.jetbrains.kotlin.fir.expressions.FirImplicitInvokeCall
 import org.jetbrains.kotlin.fir.expressions.FirIncrementDecrementExpression
 import org.jetbrains.kotlin.fir.expressions.FirIntegerLiteralOperatorCall
+import org.jetbrains.kotlin.fir.expressions.FirLazyBlock
 import org.jetbrains.kotlin.fir.expressions.FirMultiDelegatedConstructorCall
 import org.jetbrains.kotlin.fir.expressions.FirNamedArgumentExpression
 import org.jetbrains.kotlin.fir.expressions.FirPropertyAccessExpression
@@ -63,6 +64,7 @@ import org.jetbrains.kotlin.fir.expressions.FirQualifiedAccessExpression
 import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.expressions.FirReturnExpression
 import org.jetbrains.kotlin.fir.expressions.FirSafeCallExpression
+import org.jetbrains.kotlin.fir.expressions.FirSamConversionExpression
 import org.jetbrains.kotlin.fir.expressions.FirSmartCastExpression
 import org.jetbrains.kotlin.fir.expressions.FirSpreadArgumentExpression
 import org.jetbrains.kotlin.fir.expressions.FirStringConcatenationCall
@@ -75,11 +77,12 @@ import org.jetbrains.kotlin.fir.expressions.FirWhenSubjectExpression
 import org.jetbrains.kotlin.fir.expressions.FirWrappedArgumentExpression
 import org.jetbrains.kotlin.fir.expressions.FirWrappedDelegateExpression
 import org.jetbrains.kotlin.fir.expressions.FirWrappedExpression
-import org.jetbrains.kotlin.fir.isGeneratedStaticEnumMember
+import org.jetbrains.kotlin.fir.references.toResolvedCallableSymbol
 import org.jetbrains.kotlin.fir.references.toResolvedConstructorSymbol
 import org.jetbrains.kotlin.fir.references.toResolvedEnumEntrySymbol
 import org.jetbrains.kotlin.fir.references.toResolvedFunctionSymbol
 import org.jetbrains.kotlin.fir.references.toResolvedPropertySymbol
+import org.jetbrains.kotlin.fir.resolve.ExplicitlyPassedSession
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.Companion.accesses
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.Companion.happensBefore
@@ -96,15 +99,22 @@ import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.C
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asObjectEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.outermostEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.NodeIndex
+import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.NodeIndex.Companion.beginIndex
+import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.NodeIndex.Companion.endIndex
 import org.jetbrains.kotlin.fir.resolve.dfa.Stack
 import org.jetbrains.kotlin.fir.resolve.dfa.isNotEmpty
 import org.jetbrains.kotlin.fir.resolve.dfa.stackOf
 import org.jetbrains.kotlin.fir.resolve.dfa.topOrNull
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
+import org.jetbrains.kotlin.fir.resolve.getContainingClassSymbol
 import org.jetbrains.kotlin.fir.resolve.toClassLikeSymbol
 import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.resolve.toSymbol
+import org.jetbrains.kotlin.fir.symbols.SymbolInternals
+import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousInitializerSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.types.coneTypeOrNull
 import org.jetbrains.kotlin.fir.types.isEnum
 import org.jetbrains.kotlin.fir.types.isNothing
@@ -126,10 +136,10 @@ import kotlin.sequences.forEach
 
 data class DependencyGraph(
     private val nodes: MutableMap<NodeIndex<*>, DependencyNode<*>> = linkedMapOf(),
-    private val entities: MutableMap<EnclosingEntity<*>, MutableSet<NodeIndex<*>>> = linkedMapOf()
+    private val entities: MutableMap<EnclosingEntity<*>, MutableSet<DependencyNode<*>>> = linkedMapOf()
 ) : FirSessionComponent, Set<DependencyGraph.DependencyNode<*>> {
 
-    private val poisonedNodes = mutableSetOf<NodeIndex<*>>()
+    private val badNodes = mutableSetOf<NodeIndex<*>>()
 
     val enclosingEntities: Set<EnclosingEntity<*>> get() = entities.keys
 
@@ -145,30 +155,55 @@ data class DependencyGraph(
 
     operator fun get(index: NodeIndex<*>): DependencyNode<*>? = nodes[index]
 
-    operator fun get(enclosingEntity: EnclosingEntity<*>): Sequence<NodeIndex<*>> =
+    operator fun get(enclosingEntity: EnclosingEntity<*>): Sequence<DependencyNode<*>> =
         entities[enclosingEntity]?.asSequence() ?: emptySequence()
 
     operator fun contains(index: NodeIndex<*>): Boolean = index in nodes
 
     operator fun contains(enclosingEntity: EnclosingEntity<*>): Boolean = enclosingEntity in enclosingEntities
 
-    fun poisoningAccessesFor(index: NodeIndex<*>, visited: MutableSet<NodeIndex<*>> = mutableSetOf()): Set<FirExpression> {
-        require(index in poisonedNodes)
+    fun badAccessesFor(index: NodeIndex<*>, visited: MutableSet<NodeIndex<*>> = mutableSetOf()): Set<FirExpression> {
+        require(index in badNodes)
         return this[index]?.let { node ->
             when (node) {
                 is DependencyNode.CompositeNode -> mutableSetOf<FirExpression>().apply {
+                    val canShortcircuit = when (index) {
+                        is NodeIndex.DeclarationIndex -> index.symbol is FirPropertySymbol && index.symbol.hasInitializer || index.symbol is FirAnonymousInitializerSymbol
+                        is NodeIndex.BeginSubgraphIndex -> {
+                            if (index.enclosingEntity is EnclosingEntity.InstancedProperty) {
+                                index.enclosingEntity.symbol.hasInitializer
+                            } else {
+                                index.enclosingEntity is EnclosingEntity.EnumEntry || index.enclosingEntity is EnclosingEntity.Object
+                            }
+                        }
+                        else -> false
+                    }
+
+                    // KT-20238: We must check that we are in a cycle with the property's enclosing entity, and such that
+                    // the enclosing entity is a companion object nested in an interface
+                    fun isEnclosedInCompanionOfInterface(index: NodeIndex<*>) = when (index) {
+                        is NodeIndex.DeclarationIndex ->
+                            index.containingEntity is EnclosingEntity.Object
+                                    && index.containingEntity in node
+                                    && index.containingEntity.outerEnclosingEntity is EnclosingEntity.Class
+                                    && index.containingEntity.outerEnclosingEntity.symbol.isInterface
+                        is NodeIndex.BeginSubgraphIndex ->
+                            index.enclosingEntity is EnclosingEntity.InstancedProperty
+                                    && index.enclosingEntity.outerEnclosingEntity is EnclosingEntity.Object
+                                    && index.enclosingEntity.outerEnclosingEntity in node
+                                    && index.enclosingEntity.outerEnclosingEntity.outerEnclosingEntity is EnclosingEntity.Class
+                                    && index.enclosingEntity.outerEnclosingEntity.outerEnclosingEntity.symbol.isInterface
+                        else -> false
+                    }
                     node.accessesFor(index).forEach { (from, exprs) ->
-                        if (index.canBePoisonedOnCyclicAccess && from in node
-                            || from.isInPossiblyUninitializedEntity(node)
-                            || isPoisoned(from, visited)
-                        ) {
+                        if (canShortcircuit && from in node || from !in node && (isEnclosedInCompanionOfInterface(from) || isBad(from, visited))) {
                             addAll(exprs)
                         }
                     }
                 }
                 is DependencyNode.SingletonNode -> mutableSetOf<FirExpression>().apply {
                     node.accesses.forEach { (from, exprs) ->
-                        if (isPoisoned(from, visited)) {
+                        if (isBad(from, visited)) {
                             addAll(exprs)
                         }
                     }
@@ -177,11 +212,11 @@ data class DependencyGraph(
         } ?: emptySet()
     }
 
-    fun isPoisoned(index: NodeIndex<*>, visited: MutableSet<NodeIndex<*>> = mutableSetOf()): Boolean {
+    fun isBad(index: NodeIndex<*>, visited: MutableSet<NodeIndex<*>> = mutableSetOf()): Boolean {
         if (index !in this) return false
-        if (index in poisonedNodes) return true
+        if (index in badNodes) return true
         if (index in visited) {
-            poisonedNodes += index
+            badNodes += index
             return true
         }
         // Visit the index and check its accesses
@@ -191,29 +226,45 @@ data class DependencyGraph(
                 // If it belongs to a composite node, ...
                 is DependencyNode.CompositeNode -> {
                     val accesses = node.accessesFor(index)
-                    var hasInCycleAccess = false
-                    var hasAccessCausingExceptionInInitializer = false
-                    val uncheckedIndices = mutableSetOf<NodeIndex<*>>()
-                    for ((from, _) in accesses) {
-                        if (index.canBePoisonedOnCyclicAccess && from in node) {
-                            hasInCycleAccess = true
-                            break
-                        }
-                        if (from.isInPossiblyUninitializedEntity(node)) {
-                            hasAccessCausingExceptionInInitializer = true
-                            break
-                        }
-                        uncheckedIndices.add(from)
-                    }
                     // Base case: if any information flowing to the node is from a node in its own strong component (time loop)
-                    // or there is an access to a possibly-uninitialized entity
-                    if (hasInCycleAccess || hasAccessCausingExceptionInInitializer) {
-                        poisonedNodes += index
+                    val canShortcircuit = when (index) {
+                        is NodeIndex.DeclarationIndex -> index.symbol is FirPropertySymbol && index.symbol.hasInitializer || index.symbol is FirAnonymousInitializerSymbol
+                        is NodeIndex.BeginSubgraphIndex -> {
+                            if (index.enclosingEntity is EnclosingEntity.InstancedProperty) {
+                                index.enclosingEntity.symbol.hasInitializer
+                            } else {
+                                index.enclosingEntity is EnclosingEntity.EnumEntry || index.enclosingEntity is EnclosingEntity.Object
+                            }
+                        }
+                        else -> false
+                    }
+                    if (canShortcircuit && accesses.any { (from, _) -> from.apply(::println) in node }) {
+                        println("found one")
+                        badNodes += index
                         return@let true
                     }
+                    // KT-20238: We must check that we are in a cycle with the property's enclosing entity, and such that
+                    // the enclosing entity is a companion object nested in an interface
+                    fun isEnclosedInCompanionOfInterface(index: NodeIndex<*>) = when (index) {
+                        is NodeIndex.DeclarationIndex ->
+                            index.containingEntity is EnclosingEntity.Object
+                                    && index.containingEntity in node
+                                    && index.containingEntity.outerEnclosingEntity is EnclosingEntity.Class
+                                    && index.containingEntity.outerEnclosingEntity.symbol.isInterface
+                        is NodeIndex.BeginSubgraphIndex ->
+                            index.enclosingEntity is EnclosingEntity.InstancedProperty
+                                    && index.enclosingEntity.outerEnclosingEntity is EnclosingEntity.Object
+                                    && index.enclosingEntity.outerEnclosingEntity in node
+                                    && index.enclosingEntity.outerEnclosingEntity.outerEnclosingEntity is EnclosingEntity.Class
+                                    && index.enclosingEntity.outerEnclosingEntity.outerEnclosingEntity.symbol.isInterface
+                        else -> false
+                    }
                     // Inductive step: if any information flowing to the node is from a node that is bad (elsewhere)
-                    if (uncheckedIndices.any { isPoisoned(it, visited) }) {
-                        poisonedNodes += index
+                    if (canShortcircuit
+                        && accesses.any { (from, _) ->
+                            from !in node && (isEnclosedInCompanionOfInterface(from) || isBad(from, visited))
+                        }) {
+                        badNodes += index
                         return@let true
                     }
                     false
@@ -221,8 +272,8 @@ data class DependencyGraph(
                 // If it belongs to a singleton node, ...
                 is DependencyNode.SingletonNode<*> -> {
                     // Inductive step: if any information flowing to the node is from a node that is bad (elsewhere)
-                    if (node.accesses.any { (from, _) -> isPoisoned(from, visited) }) {
-                        poisonedNodes += index
+                    if (node.accesses.any { (from, _) -> isBad(from, visited) }) {
+                        badNodes += index
                         return@let true
                     }
                     false
@@ -231,13 +282,10 @@ data class DependencyGraph(
         } ?: false
     }
 
-    context(holder: SessionAndScopeSessionHolder)
     fun deadlockingEntities(enclosingEntity: EnclosingEntity<*>): Sequence<EnclosingEntity<*>> =
-        this[enclosingEntity].mapNotNull(::get)
-            .filterIsInstance<DependencyNode.CondensedNode>()
+        this[enclosingEntity].filterIsInstance<DependencyNode.CondensedNode>()
             .flatMap { it.enclosingEntities }
-            .map { it.outermostEntity }
-            .filter { it != enclosingEntity }
+            .filter { it == enclosingEntity }
             .distinct()
 
     override fun toString(): String {
@@ -251,14 +299,14 @@ data class DependencyGraph(
                 println(
                     "n$index [shape=${
                         when (node) {
-                            is DependencyNode.PrimitivePropertyNode,
+                            is DependencyNode.PropertyNode,
                             is DependencyNode.FunctionNode<*>,
                             is DependencyNode.QualifierNode,
                             is DependencyNode.EnumEntryNode,
                             is DependencyNode.CompositeNode,
                             is DependencyNode.InstancedPropertyNode
                                 -> "circle"
-                            is DependencyNode.AnonymousInitializerNode,
+                            is DependencyNode.InitializerBlockNode,
                             is DependencyNode.ClinitNode,
                             is DependencyNode.TopLevelNode,
                             is DependencyNode.EndInitializationNode<*>
@@ -287,27 +335,6 @@ data class DependencyGraph(
             println("}")
         }
         return builder.toString()
-    }
-
-    companion object {
-        // Accessing an entity in a cycle which can be possibly uninitialized happens iff its outermost entity is a class and:
-        // - the outermost class entity is an interface (KT-20238)
-        // - OR the class' begin node is in the cycle as well
-        private fun EnclosingEntity<*>.isAccessedPossiblyUninitialized(cycle: DependencyNode.CompositeNode): Boolean =
-            parentEnclosingEntity?.let { outer ->
-                // The only entities whose their outer entity is a class are companion objects and enum entries (which must be in the cycle)
-                // If this is not the case, recurse further up the hierarchy (i.e., we are looking at an instanced property (not) in the cycle)
-                this in cycle && outer is EnclosingEntity.Class && (outer.symbol.isInterface || outer.beginSubgraphIndex in cycle)
-                        || outer.isAccessedPossiblyUninitialized(cycle)
-            } ?: false
-
-        private fun NodeIndex<*>.isInPossiblyUninitializedEntity(cycle: DependencyNode.CompositeNode): Boolean =
-            // Only consider accessible nodes
-            when (this) {
-                is NodeIndex.DeclarationIndex -> enclosingEntity.isAccessedPossiblyUninitialized(cycle)
-                is NodeIndex.BeginSubgraphIndex -> enclosingEntity.isAccessedPossiblyUninitialized(cycle)
-                else -> false
-            }
     }
 
     sealed class DependencyNode<out D : FirDeclaration> {
@@ -528,40 +555,55 @@ data class DependencyGraph(
             }
         }
 
-        sealed class DeclarationNode<D : FirDeclaration> : SingletonNode<D>() {
-            abstract override val index: NodeIndex.DeclarationIndex<D>
-            override val enclosingEntity: EnclosingEntity<*> get() = index.enclosingEntity
-        }
-
         sealed class BeginInitializationNode<D : FirDeclaration> : SingletonNode<D>() {
             abstract override val enclosingEntity: EnclosingEntity<D>
-            override val index: NodeIndex.BeginSubgraphIndex<D> get() = enclosingEntity.beginSubgraphIndex
+            override val index: NodeIndex.BeginSubgraphIndex<D> by lazy { enclosingEntity.beginIndex() }
         }
 
         data class EndInitializationNode<D : FirDeclaration>(override val enclosingEntity: EnclosingEntity<D>) : SingletonNode<D>() {
-            override val index: NodeIndex.EndSubgraphIndex<D> = enclosingEntity.endSubgraphIndex
+            override val index: NodeIndex.EndSubgraphIndex<D> = enclosingEntity.endIndex()
         }
 
         /**
          * Represents access to a static property (i.e., to a top-level property, an object property, or an enum entry property)
          */
-        data class PrimitivePropertyNode(override val index: NodeIndex.PrimitivePropertyIndex) : DeclarationNode<FirProperty>()
+        data class PropertyNode(
+            override val index: NodeIndex.DeclarationIndex<FirProperty>
+        ) : SingletonNode<FirProperty>() {
+            override val enclosingEntity: EnclosingEntity<*> get() = index.containingEntity
+        }
 
-        data class AnonymousInitializerNode(override val index: NodeIndex.AnonymousInitializerIndex) :
-            DeclarationNode<FirAnonymousInitializer>()
+        data class InitializerBlockNode(
+            override val index: NodeIndex.DeclarationIndex<FirAnonymousInitializer>
+        ) : SingletonNode<FirAnonymousInitializer>() {
+            override val enclosingEntity: EnclosingEntity<*> get() = index.containingEntity
+        }
 
-        data class FunctionNode<D : FirFunction>(override val index: NodeIndex.FunctionIndex<D>) : DeclarationNode<D>()
+        data class FunctionNode<D : FirFunction>(
+            override val index: NodeIndex.DeclarationIndex<D>,
+        ) : SingletonNode<D>() {
+            override val enclosingEntity: EnclosingEntity<*> get() = index.containingEntity
+        }
 
-        data class QualifierNode(override val enclosingEntity: EnclosingEntity.Object) : BeginInitializationNode<FirRegularClass>()
+        data class QualifierNode(
+            override val enclosingEntity: EnclosingEntity.Object
+        ) : BeginInitializationNode<FirRegularClass>()
 
-        data class TopLevelNode(override val enclosingEntity: EnclosingEntity.File) : BeginInitializationNode<FirFile>()
+        data class TopLevelNode(
+            override val enclosingEntity: EnclosingEntity.File
+        ) : BeginInitializationNode<FirFile>()
 
-        data class ClinitNode(override val enclosingEntity: EnclosingEntity.Class) : BeginInitializationNode<FirRegularClass>()
+        data class ClinitNode(
+            override val enclosingEntity: EnclosingEntity.Class
+        ) : BeginInitializationNode<FirRegularClass>()
 
-        data class EnumEntryNode(override val enclosingEntity: EnclosingEntity.EnumEntry) : BeginInitializationNode<FirEnumEntry>()
+        data class EnumEntryNode(
+            override val enclosingEntity: EnclosingEntity.EnumEntry
+        ) : BeginInitializationNode<FirEnumEntry>()
 
-        data class InstancedPropertyNode(override val enclosingEntity: EnclosingEntity.InstancedProperty) :
-            BeginInitializationNode<FirProperty>()
+        data class InstancedPropertyNode(
+            override val enclosingEntity: EnclosingEntity.InstancedProperty
+        ) : BeginInitializationNode<FirProperty>()
 
         data class CondensedNode(
             private val indices: Set<NodeIndex<*>>,
@@ -653,21 +695,21 @@ data class DependencyGraph(
                                 // For singleton nodes, we keep the mapping of their node indices to this condensed node,
                                 // as we require their presence in the graph for further analysis of their accesses
                                 graph.nodes[node.index] = this
-//                                graph.entities[node.enclosingEntity]?.let { nodes ->
-//                                    nodes.remove(node)
-//                                    nodes.add(this)
-//                                }
+                                graph.entities[node.enclosingEntity]?.let { nodes ->
+                                    nodes.remove(node)
+                                    nodes.add(this)
+                                }
                             }
                             is CompositeNode -> {
                                 // For composite nodes, they are only preserved through time dependencies, so once the node
                                 // is detached, it has no accesses by itself and can be safely removed from the graph
                                 graph.nodes.remove(node.index)
-//                                node.enclosingEntities.asSequence()
-//                                    .mapNotNull(graph.entities::get)
-//                                    .forEach { nodes ->
-//                                        nodes.remove(node)
-//                                        nodes.add(this)
-//                                    }
+                                node.enclosingEntities.asSequence()
+                                    .mapNotNull(graph.entities::get)
+                                    .forEach { nodes ->
+                                        nodes.remove(node)
+                                        nodes.add(this)
+                                    }
                             }
                         }
                     }
@@ -776,32 +818,15 @@ data class DependencyGraph(
         val graph: DependencyGraph = session.dependencyGraph,
     ) : FirVisitorVoid(), SessionAndScopeSessionHolder {
 
-        private sealed interface SubgraphScope {
-            val visitingEntity: EnclosingEntity<*>
-            val lastConstructedNode: NodeIndex<*>
-            val firstUses: MutableMap<NodeIndex<*>, NodeIndex<*>>
-            val isStatic: Boolean
-
-            data class StaticScope(
-                override val visitingEntity: EnclosingEntity<*>,
-                override var lastConstructedNode: NodeIndex<*>,
-                override val firstUses: MutableMap<NodeIndex<*>, NodeIndex<*>> = mutableMapOf(),
-            ) : SubgraphScope {
-                override val isStatic: Boolean = true
-            }
-
-            data class DynamicScope(
-                override val visitingEntity: EnclosingEntity<*>,
-                override val lastConstructedNode: NodeIndex<*>,
-                override val firstUses: MutableMap<NodeIndex<*>, NodeIndex<*>> = mutableMapOf(),
-            ) : SubgraphScope {
-                override val isStatic: Boolean = false
-            }
-        }
+        private data class SubgraphScope(
+            val visitingEntity: EnclosingEntity<*>,
+            var lastConstructedNode: NodeIndex<*>,
+            val firstUses: MutableMap<NodeIndex<*>, NodeIndex<*>> = mutableMapOf(),
+        )
 
         private val scopes: Stack<SubgraphScope> = stackOf()
         private val visiting: Stack<FirElement> = stackOf()
-        private val startedInitializing: MutableSet<EnclosingEntity<*>> = mutableSetOf()
+        private val initializedEntities: MutableSet<EnclosingEntity<*>> = mutableSetOf()
         private val dirtyNodes: MutableSet<NodeIndex<*>> = mutableSetOf()
 
         private inline fun <E : FirElement> E.visit(
@@ -815,13 +840,15 @@ data class DependencyGraph(
             }
         }
 
-        private val scope: SubgraphScope? get() = scopes.topOrNull()
+        private val visitingEntity: EnclosingEntity<*>?
+            get() = scopes.topOrNull()?.visitingEntity
 
-        private val visitingEntity: EnclosingEntity<*>? get() = scope?.visitingEntity
+        private var lastConstructedNode: NodeIndex<*>?
+            get() = scopes.topOrNull()?.lastConstructedNode
+            set(value) = value?.let { scopes.topOrNull()?.lastConstructedNode = it } ?: Unit
 
-        private val lastConstructedNode: NodeIndex<*>? get() = scope?.lastConstructedNode
-
-        private val firstUses: MutableMap<NodeIndex<*>, NodeIndex<*>>? get() = scope?.firstUses
+        private val firstUses: MutableMap<NodeIndex<*>, NodeIndex<*>>?
+            get() = scopes.topOrNull()?.firstUses
 
         private fun NodeIndex<*>?.accesses(other: NodeIndex<*>, at: FirExpression): Boolean =
             context(graph) {
@@ -850,20 +877,22 @@ data class DependencyGraph(
                 } ?: false
             }
 
-        private fun <E : EnclosingEntity<*>> E.markFirstUse(allowInnerAccess: Boolean = false): E = apply {
+        private fun <E : EnclosingEntity<*>> E.markFirstUse(whenSimilar: Boolean = false): E = apply {
             visitingEntity?.let { visitingEntity ->
                 // Disallow marking of first uses of an entity due to an access from its outer entities
                 val outermostEntity = outermostEntity
-                if (visitingEntity.outermostEntity != outermostEntity || allowInnerAccess) {
-                    scope?.let { scope ->
-                        val index = outermostEntity.endSubgraphIndex
-                        if (index !in scope.firstUses) {
-                            buildEndInitializationNode(
-                                enclosingEntity = outermostEntity,
-                                initialize = false
-                            )
-                            index.mayHappenBefore(scope.lastConstructedNode)
-                            scope.firstUses[index] = scope.lastConstructedNode
+                if (visitingEntity.outermostEntity != outermostEntity || whenSimilar) {
+                    lastConstructedNode?.let { lastConstructedNode ->
+                        firstUses?.let { firstUses ->
+                            val index = outermostEntity.endIndex()
+                            if (index !in firstUses) {
+                                buildEndInitializationNode(
+                                    enclosingEntity = outermostEntity,
+                                    initialize = false
+                                )
+                                index.mayHappenBefore(lastConstructedNode)
+                                firstUses[index] = lastConstructedNode
+                            }
                         }
                     }
                 }
@@ -872,7 +901,7 @@ data class DependencyGraph(
 
         private fun DependencyNode<*>.markFirstUse(): DependencyNode<*> = apply {
             lastConstructedNode?.let { lastConstructedNode ->
-                firstUses?.let { firstUses ->
+                scopes.topOrNull()?.firstUses?.let { firstUses ->
                     if (index !in firstUses) {
                         index.happensBefore(lastConstructedNode)
                         firstUses[index] = lastConstructedNode
@@ -881,10 +910,12 @@ data class DependencyGraph(
             }
         }
 
-        private val FirClassSymbol<*>.inheritancePropagatedDeclarations: InheritancePropagatedDeclarations
+        @OptIn(SymbolInternals::class)
+        private val FirClassSymbol<*>.inheritancePropagatedDeclarations: Sequence<FirDeclaration>
             get() = session.propagatedDeclarationsStorage.propagatedDeclarations.getValue(this, this@Builder)
+                .asSequence().map { it.fir }
 
-        private val FirClass.inheritancePropagatedDeclarations: InheritancePropagatedDeclarations
+        private val FirClass.inheritancePropagatedDeclarations: Sequence<FirDeclaration>
             get() = symbol.inheritancePropagatedDeclarations
 
         private fun FirResolvedQualifier.toEnclosingEntity(): EnclosingEntity<FirRegularClass>? = symbol?.let { symbol ->
@@ -900,25 +931,13 @@ data class DependencyGraph(
         }
 
         private fun FirPropertyAccessExpression.toEnclosingEntity(): EnclosingEntity<*>? =
-            calleeReference.toResolvedEnumEntrySymbol(discardErrorReference = true)?.asEnumEntryEntity()
-                ?: calleeReference.toResolvedPropertySymbol(discardErrorReference = true)?.let { propertySymbol ->
-                    // If accessing local properties, add the dependencies from its children,
-                    // as the builder will not visit the declaration at all
-                    if (propertySymbol.isLocal) {
-                        // What if I encounter another local property access in one of its blocks that is also local?
-                        propertySymbol.fir.acceptChildren(this@Builder)
-                        return@let null
-                    }
-                    // There can be no enclosing entity corresponding to a primitive property
-                    if (propertySymbol.resolvedReturnType.let { it.isPrimitiveOrNullablePrimitive || it.isUnit || it.isNothing }) return@let null
+            calleeReference.toResolvedEnumEntrySymbol()?.asEnumEntryEntity()
+                ?: calleeReference.toResolvedPropertySymbol()?.let { propertySymbol ->
+                    if (propertySymbol.resolvedStatus.visibility != Visibilities.Public) return@let null
+                    if (propertySymbol.resolvedReturnType.isPrimitiveOrNullablePrimitive) return@let null
                     val enclosingEntity = (dispatchReceiver ?: extensionReceiver)?.let { receiver ->
                         when (receiver) {
-                            is FirSuperReceiverExpression, is FirThisReceiverExpression -> scope?.isStatic?.ifTrue {
-                                visitingEntity?.correspondingClassSymbol
-                                    ?.inheritancePropagatedDeclarations
-                                    ?.let { propertySymbol in it }
-                                    ?.ifTrue { visitingEntity }
-                            }
+                            is FirSuperReceiverExpression, is FirThisReceiverExpression -> visitingEntity
                             is FirResolvedQualifier -> receiver.toEnclosingEntity()
                             is FirPropertyAccessExpression -> receiver.toEnclosingEntity()
                             else -> null
@@ -926,6 +945,20 @@ data class DependencyGraph(
                     } ?: propertySymbol.containingFileSymbol?.asFileEntity()
                     enclosingEntity?.let { propertySymbol.asInstancedPropertyEntity(it) }
                 }
+
+        private fun FirFunctionCall.toNodeIndex(): NodeIndex.DeclarationIndex<FirFunction>? =
+            calleeReference.toResolvedFunctionSymbol()?.let { functionSymbol ->
+                if (functionSymbol.resolvedStatus.visibility != Visibilities.Public) return@let null
+                val enclosingEntity = (dispatchReceiver ?: extensionReceiver)?.let { receiver ->
+                    when (receiver) {
+                        is FirSuperReceiverExpression, is FirThisReceiverExpression -> visitingEntity
+                        is FirResolvedQualifier -> receiver.toEnclosingEntity()
+                        is FirPropertyAccessExpression -> receiver.toEnclosingEntity()
+                        else -> null
+                    }
+                } ?: functionSymbol.containingFileSymbol?.asFileEntity()
+                enclosingEntity?.let { NodeIndex.DeclarationIndex(it, functionSymbol) }
+            }
 
         private inline fun <D : FirDeclaration, T : DependencyNode<D>> buildNode(
             index: NodeIndex<D>,
@@ -937,7 +970,7 @@ data class DependencyGraph(
             (graph[index] ?: new().apply {
                 // Store the node under its index and its entity
                 graph.nodes[index] = this
-                graph.entities.getOrPut(enclosingEntity) { linkedSetOf() }.add(index)
+                graph.entities.getOrPut(enclosingEntity) { linkedSetOf() }.add(this)
                 // Mark the new node dirty
                 dirtyNodes.add(index)
             }).apply {
@@ -953,24 +986,28 @@ data class DependencyGraph(
             crossinline new: (E) -> T,
             crossinline connect: NodeIndex<*>?.(NodeIndex<*>) -> Boolean = { _, _ -> false },
             crossinline init: (DependencyNode<*>) -> Unit,
-        ): DependencyNode<*> = enclosingEntity.beginSubgraphIndex.let { index ->
+        ): DependencyNode<*> = enclosingEntity.beginIndex().let { index ->
             buildNode(
                 index = index,
                 enclosingEntity = enclosingEntity,
                 new = { new(enclosingEntity) },
                 connect = connect,
                 init = {
+                    // Set this node to be the last constructed, as the constructor or initializer dependencies need to be connected to this node
+                    val prevNode = lastConstructedNode
+                    lastConstructedNode = index
+                    // Initialize the node
+                    init(it)
+                    lastConstructedNode = prevNode
                     // Push the new subgraph scope of the enclosing entity onto the stack
-                    val scope = SubgraphScope.StaticScope(
+                    val scope = SubgraphScope(
                         visitingEntity = enclosingEntity,
                         lastConstructedNode = index,
-                        firstUses = scope?.takeIf { scope ->
-                            scope.visitingEntity == enclosingEntity.parentEnclosingEntity
+                        firstUses = scopes.topOrNull()?.takeIf { scope ->
+                            scope.visitingEntity == enclosingEntity.outerEnclosingEntity
                         }?.firstUses ?: mutableMapOf()
                     )
                     scopes.push(scope)
-                    // Initialize the node
-                    init(it)
                 }
             )
         }
@@ -979,7 +1016,7 @@ data class DependencyGraph(
             enclosingEntity: E,
             crossinline new: (E) -> T,
             crossinline connect: NodeIndex<*>?.(NodeIndex<*>) -> Boolean = { _, _ -> false },
-        ): DependencyNode<*> = buildNode(enclosingEntity.beginSubgraphIndex, enclosingEntity, { new(enclosingEntity) }, connect)
+        ): DependencyNode<*> = buildNode(enclosingEntity.beginIndex(), enclosingEntity, { new(enclosingEntity) }, connect)
 
         private inline fun <D : FirDeclaration, E : EnclosingEntity<D>> buildEndInitializationNode(
             enclosingEntity: E,
@@ -990,7 +1027,7 @@ data class DependencyGraph(
             // It is fully initialized only at the end of the entity's subgraph
             when (initialize && visitingEntity == enclosingEntity) {
                 true -> buildNode(
-                    index = enclosingEntity.endSubgraphIndex,
+                    index = enclosingEntity.endIndex(),
                     enclosingEntity = enclosingEntity,
                     new = { DependencyNode.EndInitializationNode(enclosingEntity) },
                     connect = connect,
@@ -1000,53 +1037,35 @@ data class DependencyGraph(
                     }
                 )
                 false -> buildNode(
-                    index = enclosingEntity.endSubgraphIndex,
+                    index = enclosingEntity.endIndex(),
                     enclosingEntity = enclosingEntity,
                     new = { DependencyNode.EndInitializationNode(enclosingEntity) },
                     connect = connect
                 )
             }
 
-        private inline fun <D : FirDeclaration, T : DependencyNode<D>, I : NodeIndex.DeclarationIndex<D>> buildDeclarationNode(
-            index: I,
-            crossinline new: (I) -> T,
+        private inline fun <D : FirDeclaration, T : DependencyNode<D>> buildDeclarationNode(
+            index: NodeIndex.DeclarationIndex<D>,
+            crossinline new: (NodeIndex.DeclarationIndex<D>) -> T,
             crossinline connect: NodeIndex<*>?.(NodeIndex<*>) -> Boolean = { _, _ -> false },
             crossinline init: (DependencyNode<*>) -> Unit,
         ): DependencyNode<*> = buildNode(
             index = index,
-            enclosingEntity = index.enclosingEntity,
+            enclosingEntity = index.containingEntity,
             new = { new(index) },
             connect = connect,
             init = {
-                require(scope?.let(SubgraphScope::isStatic) ?: true)
                 // Set the last constructed node to this one
-                (scope as? SubgraphScope.StaticScope)?.lastConstructedNode = index
+                lastConstructedNode = index
                 // Initialize the node
                 init(it)
             })
 
-        private inline fun <D : FirDeclaration, T : DependencyNode<D>, I : NodeIndex.DeclarationIndex<D>> buildDeclarationNode(
-            index: I,
-            crossinline new: (I) -> T,
+        private inline fun <D : FirDeclaration, T : DependencyNode<D>> buildDeclarationNode(
+            index: NodeIndex.DeclarationIndex<D>,
+            crossinline new: (NodeIndex.DeclarationIndex<D>) -> T,
             crossinline connect: NodeIndex<*>?.(NodeIndex<*>) -> Boolean = { _, _ -> false },
-        ): DependencyNode<*> = buildNode(index, index.enclosingEntity, { new(index) }, connect)
-
-        private inline fun <D : FirFunction> buildFunctionNode(
-            index: NodeIndex.FunctionIndex<D>,
-            crossinline connect: NodeIndex<*>?.(NodeIndex<*>) -> Boolean = { _, _ -> false },
-            crossinline init: (DependencyNode<*>) -> Unit,
-        ): DependencyNode<*> = buildNode(
-            index = index,
-            enclosingEntity = index.enclosingEntity,
-            new = { DependencyNode.FunctionNode(index) },
-            connect = connect,
-            init = {
-                // Function nodes are build lazily
-                scopes.push(SubgraphScope.StaticScope(visitingEntity = index.enclosingEntity, lastConstructedNode = index))
-                init(it)
-                scopes.pop()
-            }
-        )
+        ): DependencyNode<*> = buildNode(index, index.containingEntity, { new(index) }, connect)
 
         /**
          * Condenses the graph by removing multi-node strongly connected components and replacing them with composite nodes
@@ -1098,49 +1117,62 @@ data class DependencyGraph(
         @OptIn(DirectDeclarationsAccess::class)
         override fun visitFile(file: FirFile): Unit = file.visit {
             val enclosingEntity = symbol.asFileEntity()
-            if (!startedInitializing.add(enclosingEntity)) return@visit
+            if (enclosingEntity in initializedEntities) return@visit
             buildBeginInitializationNode(
                 enclosingEntity = enclosingEntity,
                 new = DependencyNode<FirFile>::TopLevelNode,
                 init = {}
             )
             // Keep track of which node has been previously constructed as properties and functions reside in different branches
+            var prevNode: NodeIndex<*> = enclosingEntity.beginIndex()
+            val functionNodes = mutableSetOf<NodeIndex<*>>()
             file.declarations.forEach { declaration ->
                 when (declaration) {
-                    is FirProperty -> declaration.accept(this@Builder)
+                    is FirProperty -> {
+                        declaration.accept(this@Builder)
+                        lastConstructedNode?.let { prevNode = it }
+                    }
+                    is FirFunction -> {
+                        declaration.accept(this@Builder)
+                        lastConstructedNode?.let { functionNodes += it }
+                        lastConstructedNode = prevNode
+                    }
+                    // it is enclosed inside a file and hence will not be connected to its last constructed node
                     is FirRegularClass if declaration.visibility == Visibilities.Public ->
-                        // It cannot be a companion object or an enum entry, hence it will not be connected to the file's last constructed node
                         declaration.accept(this@Builder)
                     else -> {}
                 }
             }
             buildEndInitializationNode(enclosingEntity) { happensBefore(it) }
+            functionNodes.forEach { enclosingEntity.endIndex().mayHappenBefore(it) }
+            initializedEntities += enclosingEntity
             // Condense the graph
             condenseGraph()
         }
 
+        @OptIn(ExplicitlyPassedSession::class)
         private fun EnclosingEntity<*>.visitSuperTypes() {
-            correspondingClassSymbol?.resolvedSuperTypes?.forEach { superType ->
-                superType.fullyExpandedType().toRegularClassSymbol()?.let { superTypeSymbol ->
+            val classSymbol = when (this) {
+                is EnclosingEntity.Class -> symbol
+                is EnclosingEntity.Object -> symbol
+                is EnclosingEntity.EnumEntry -> symbol.initializerObjectSymbol ?: return
+                is EnclosingEntity.InstancedProperty -> symbol.resolvedReturnType.fullyExpandedType().toRegularClassSymbol() ?: return
+                else -> return
+            }
+            classSymbol.resolvedSuperTypes.forEach { superType ->
+                superType.fullyExpandedType().toRegularClassSymbol()?.let { classSymbol ->
                     // Skip library supertypes, as they cannot have mutual dependencies with the source types
-                    if (superTypeSymbol.isLibraryDeclaration || !superTypeSymbol.inheritancePropagatedDeclarations.initializesWithSubtypes) return@let
-                    superTypeSymbol.asClassEntity()?.let { enclosingEntity ->
-                        // Skip directly nested entities as they are connected during construction in the order of declaration
-                        if (parentEnclosingEntity == enclosingEntity) return@let
-                        // Visit the entity iff it has not started initializing to prevent infinite recursion, e.g. in enum entries or
-                        // companion objects that inherit the class they are enclosed in
-                        if (enclosingEntity !in startedInitializing) superTypeSymbol.fir.accept(this@Builder)
-                        // It is not known whether the super enclosing entity has static declarations, so to connect it to its descendant,
-                        // we need to check if its graph was constructed, i.e., it has "started initializing"
-                        // NOTE: we assume that there are no cycles in the inheritance hierarchy!!
-                        if (enclosingEntity in startedInitializing) {
+                    if (classSymbol.moduleData.session.kind == FirSession.Kind.Library) return@let
+                    classSymbol.asClassEntity()?.let { enclosingEntity ->
+                        // Skip the supertype entity, since we might be in the process of constructing it, and visiting it again will cause
+                        // an infinite recursive loop
+                        if (enclosingEntity == outerEnclosingEntity && classSymbol.isEnumClass) return@forEach
+                        enclosingEntity.symbol.fir.accept(this@Builder)
+                        // If the entity is in the graph, it has static declarations, but to connect it to its descendant,
+                        // we need to check if it becomes initialized during its static initialization
+                        if (enclosingEntity in initializedEntities) {
                             lastConstructedNode?.let {
-                                // Build the end node if it does not exist, i.e., if subtypes are contained in the body of the supertype (sealed classes)
-                                buildEndInitializationNode(
-                                    enclosingEntity = enclosingEntity,
-                                    initialize = false,
-                                )
-                                enclosingEntity.endSubgraphIndex.happensBefore(it)
+                                enclosingEntity.endIndex().happensBefore(it)
                             }
                         } else {
                             enclosingEntity.visitSuperTypes()
@@ -1154,15 +1186,14 @@ data class DependencyGraph(
             // Case 1: an object with or without inheritance
             if (classKind.isObject) {
                 symbol.asObjectEntity(visitingEntity as? EnclosingEntity.Class)?.let { enclosingEntity ->
-                    if (!startedInitializing.add(enclosingEntity)) return@visit
+                    if (enclosingEntity in initializedEntities) return@visit
                     buildBeginInitializationNode(
                         enclosingEntity = enclosingEntity,
                         new = DependencyNode<FirRegularClass>::QualifierNode,
                         connect = {
-                            enclosingEntity.parentEnclosingEntity?.let { parent ->
-                                require(parent == visitingEntity)
+                            enclosingEntity.outerEnclosingEntity?.let { outer ->
                                 // Connect to the last constructed node of the outer entity if we are currently visiting it
-                                happensBefore(it)
+                                if (outer == visitingEntity) happensBefore(it) else false
                             } ?: false
                         },
                         init = {
@@ -1170,16 +1201,44 @@ data class DependencyGraph(
                             symbol.primaryConstructorIfAny(session)?.fir?.accept(this@Builder)
                         }
                     )
-                    inheritancePropagatedDeclarations.orderedDeclarations.forEach { it.fir.accept(this@Builder) }
+                    // Keep track of which node has been previously constructed as properties and functions reside in different branches
+                    val beginIndex = enclosingEntity.beginIndex()
+                    var prevNode: NodeIndex<*> = beginIndex
+                    val functionNodes = mutableSetOf<NodeIndex<*>>()
+                    inheritancePropagatedDeclarations.forEach { declaration ->
+                        when (declaration) {
+                            is FirProperty, is FirAnonymousInitializer -> {
+                                declaration.accept(this@Builder)
+                                lastConstructedNode?.let { prevNode = it }
+                            }
+                            is FirFunction -> {
+                                lastConstructedNode = beginIndex
+                                declaration.accept(this@Builder)
+                                lastConstructedNode?.let { functionNodes += it }
+                                lastConstructedNode = prevNode
+                            }
+                            else -> {}
+                        }
+                    }
                     // Build the end node
                     buildEndInitializationNode(enclosingEntity) { happensBefore(it) }
+                    // Construct or retrieve the outermost end node to connect its initialization with
+                    // this object's function nodes
+                    val outermostEntity = enclosingEntity.outermostEntity
+                    val outermostIndex = outermostEntity.endIndex()
+                    buildEndInitializationNode(
+                        enclosingEntity = outermostEntity,
+                        initialize = false
+                    )
+                    functionNodes.forEach { outermostIndex.mayHappenBefore(it) }
                     // Ensure that the last constructed node points to the end node of this subgraph to
-                    // maintain the correct happens-before relationship due to initialization order, and continue its initialization,
-                    // otherwise condense the graph as this is the outermost entity
-                    enclosingEntity.parentEnclosingEntity?.let {
-                        require(it == visitingEntity)
-                        (scope as? SubgraphScope.StaticScope)?.lastConstructedNode = enclosingEntity.endSubgraphIndex
-                    } ?: condenseGraph()
+                    // maintain the correct happens-before relationship due to initialization order
+                    enclosingEntity.outerEnclosingEntity?.let { outer ->
+                        if (outer == visitingEntity) lastConstructedNode = enclosingEntity.endIndex()
+                    }
+                    initializedEntities += enclosingEntity
+                    // Condense the graph
+                    condenseGraph()
                     // Visit nested classifiers
                     symbol.processAllClassifiers(session) {
                         it.toLookupTag().toClassLikeSymbol()?.resolvedStatus?.let { status ->
@@ -1191,7 +1250,7 @@ data class DependencyGraph(
             // Case 2: a class with static declarations, i.e., an enum class and/or a class with a companion object
             else if (classKind.isEnumClass || symbol.resolvedCompanionObjectSymbol != null) {
                 symbol.asClassEntity()?.let { enclosingEntity ->
-                    if (!startedInitializing.add(enclosingEntity)) return@visit
+                    if (enclosingEntity in initializedEntities) return@visit
                     buildBeginInitializationNode(
                         enclosingEntity = enclosingEntity,
                         new = DependencyNode<FirRegularClass>::ClinitNode,
@@ -1200,21 +1259,23 @@ data class DependencyGraph(
                             symbol.primaryConstructorIfAny(session)?.fir?.accept(this@Builder)
                         }
                     )
-                    processAllDeclarations(session) { declSymbol ->
-                        when (val declaration = declSymbol.fir) {
-                            is FirCallableDeclaration if declaration.isGeneratedStaticEnumMember(this) -> declaration.accept(this@Builder)
+                    val nestedClassifiers = mutableSetOf<FirRegularClass>()
+                    processAllDeclarations(session) { symbol ->
+                        when (val declaration = symbol.fir) {
                             is FirEnumEntry -> declaration.accept(this@Builder)
                             is FirRegularClass if declaration.isCompanion -> declaration.accept(this@Builder)
                             // The classifier is either a public class or an object that is not a companion, either will not be connected
                             // to the last constructed node of this class
-                            is FirRegularClass if declaration.visibility == Visibilities.Public -> declaration.accept(this@Builder)
-                            // What about synthetic valuesOf or entries for enum classes?
+                            is FirRegularClass if declaration.visibility == Visibilities.Public -> nestedClassifiers += declaration
                             else -> {}
                         }
                     }
                     buildEndInitializationNode(enclosingEntity) { happensBefore(it) }
+                    initializedEntities += enclosingEntity
                     // Condense the graph
                     condenseGraph()
+                    // Visit nested classifiers
+                    nestedClassifiers.forEach { it.accept(this@Builder) }
                 }
             }
         }
@@ -1227,24 +1288,56 @@ data class DependencyGraph(
         override fun visitAnonymousObject(anonymousObject: FirAnonymousObject): Unit =
             anonymousObject.visit {
                 symbol.asEnumEntryEntity()?.let { enclosingEntity ->
-                    if (!startedInitializing.add(enclosingEntity)) return@visit
-                    // Invariant: the currently visiting entity is the parent of the enum entry
-                    require(enclosingEntity.parentEnclosingEntity == visitingEntity)
+                    if (enclosingEntity in initializedEntities) return@visit
+                    val beginIndex = enclosingEntity.beginIndex()
                     buildBeginInitializationNode(
                         enclosingEntity = enclosingEntity,
                         new = DependencyNode<FirEnumEntry>::EnumEntryNode,
-                        connect = { happensBefore(it) },
+                        connect = {
+                            // Connect to the last constructed node of the outer entity if we are currently visiting it
+                            if (enclosingEntity.outerEnclosingEntity == visitingEntity) happensBefore(it) else false
+                        },
                         init = {
                             enclosingEntity.visitSuperTypes()
                             symbol.primaryConstructorIfAny(session)?.fir?.accept(this@Builder)
                         }
                     )
-                    inheritancePropagatedDeclarations.orderedDeclarations.forEach { it.fir.accept(this@Builder) }
+                    // Keep track of which node has been previously constructed as properties and functions reside in different branches
+                    var prevNode: NodeIndex<*> = beginIndex
+                    val functionNodes = mutableSetOf<NodeIndex<*>>()
+                    inheritancePropagatedDeclarations.forEach { declaration ->
+                        when (declaration) {
+                            is FirProperty, is FirAnonymousInitializer -> {
+                                declaration.accept(this@Builder)
+                                lastConstructedNode?.let { prevNode = it }
+                            }
+                            is FirFunction -> {
+                                declaration.accept(this@Builder)
+                                lastConstructedNode?.let { functionNodes += it }
+                                lastConstructedNode = prevNode
+                            }
+                            else -> {}
+                        }
+                    }
                     // Build the end node
                     buildEndInitializationNode(enclosingEntity) { happensBefore(it) }
-                    (scope as? SubgraphScope.StaticScope)?.lastConstructedNode = enclosingEntity.endSubgraphIndex
-                    // NOTE: no classifiers should be accessible from an enum entry's anonymous object, as the enum entry has the type of
-                    // its (parent) enum class
+                    // Construct or retrieve the outermost end node to connect its initialization with
+                    // this object's function nodes
+                    val outermostEntity = enclosingEntity.outermostEntity
+                    val outermostIndex = outermostEntity.endIndex()
+                    buildEndInitializationNode(
+                        enclosingEntity = outermostEntity,
+                        initialize = false
+                    )
+                    functionNodes.forEach { outermostIndex.mayHappenBefore(it) }
+                    if (enclosingEntity.outerEnclosingEntity == visitingEntity) lastConstructedNode = enclosingEntity.endIndex()
+                    initializedEntities += enclosingEntity
+                    // Visit nested classifiers
+                    symbol.processAllClassifiers(session) {
+                        it.toLookupTag().toClassLikeSymbol()?.resolvedStatus?.let { status ->
+                            if (status.visibility == Visibilities.Public) it.fir.accept(this@Builder)
+                        }
+                    }
                 }
             }
 
@@ -1257,8 +1350,8 @@ data class DependencyGraph(
             anonymousInitializer.visit {
                 visitingEntity?.let { visitingEntity ->
                     buildDeclarationNode(
-                        index = NodeIndex.AnonymousInitializerIndex(visitingEntity, symbol),
-                        new = DependencyNode<FirAnonymousInitializer>::AnonymousInitializerNode,
+                        index = NodeIndex.DeclarationIndex(visitingEntity, symbol),
+                        new = DependencyNode<FirAnonymousInitializer>::InitializerBlockNode,
                         connect = { happensBefore(it) }
                     ) {
                         acceptChildren(this@Builder)
@@ -1277,59 +1370,70 @@ data class DependencyGraph(
                         // Case 1: property without a subgraph -> primitive type
                         if (type.isPrimitiveOrNullablePrimitive || type.isUnit || type.isNothing) {
                             buildDeclarationNode(
-                                index = NodeIndex.PrimitivePropertyIndex(visitingEntity, symbol),
-                                new = DependencyNode<FirProperty>::PrimitivePropertyNode,
+                                index = NodeIndex.DeclarationIndex(visitingEntity, symbol),
+                                new = DependencyNode<FirProperty>::PropertyNode,
                                 connect = { happensBefore(it) },
-                                init = { acceptChildren(this@Builder) }
+                                init = {
+                                    initializer?.accept(this@Builder)
+                                    getter?.acceptChildren(this@Builder)
+                                }
                             )
                         }
                         // Case 2: property with a subgraph -> class type
                         else {
                             type.toRegularClassSymbol()?.let { classSymbol ->
                                 val enclosingEntity = symbol.asInstancedPropertyEntity(visitingEntity)
-                                if (!startedInitializing.add(enclosingEntity)) return@let
-                                require(enclosingEntity.parentEnclosingEntity == visitingEntity)
+                                if (enclosingEntity in initializedEntities) return@let
+                                val beginIndex = enclosingEntity.beginIndex()
                                 buildBeginInitializationNode(
                                     enclosingEntity = enclosingEntity,
                                     new = DependencyNode<FirProperty>::InstancedPropertyNode,
                                     connect = { happensBefore(it) },
                                     init = {
                                         // Skip building a graph for static initialization of its library type
-                                        if (!classSymbol.isLibraryDeclaration) {
-                                            // The type's clinit (and of its supertypes) happens before the property's initialization
-                                            classSymbol.asClassEntity()?.let { parentEnclosingEntity ->
-                                                // Visit the class' declaration as well, as its initialization triggers its clinit
-                                                if (parentEnclosingEntity !in startedInitializing) classSymbol.fir.accept(this@Builder)
-                                                if (parentEnclosingEntity in startedInitializing) {
-                                                    parentEnclosingEntity.endSubgraphIndex.happensBefore(enclosingEntity.beginSubgraphIndex)
-                                                }
-                                            } ?: enclosingEntity.visitSuperTypes()
+                                        if (classSymbol.moduleData.session.kind == FirSession.Kind.Source) {
+                                            // Visit the class' declaration as well, as its initialization triggers its clinit
+                                            classSymbol.fir.accept(this@Builder)
+                                            // The class' clinit (and of its supertypes) happens before the property's initialization
+                                            classSymbol.asClassEntity()?.endIndex()?.happensBefore(beginIndex)
+                                                ?: enclosingEntity.visitSuperTypes()
                                         }
-                                        // Visit the available subexpressions of the property declaration
-                                        scope?.let { currentScope ->
-                                            // Push the scope of the parent enclosing entity with the begin node as the last constructed node,
-                                            // to resolve property declaration dependencies
-                                            scopes.push(
-                                                SubgraphScope.StaticScope(
-                                                    visitingEntity = visitingEntity,
-                                                    lastConstructedNode = enclosingEntity.beginSubgraphIndex,
-                                                    firstUses = currentScope.firstUses
-                                                )
-                                            )
-                                            try {
-                                                // Traverse the property declaration to look for dependencies
-                                                acceptChildren(this@Builder)
-                                            } finally {
-                                                scopes.pop()
-                                            }
-                                        }
+                                        initializer?.accept(this@Builder)
+                                        getter?.acceptChildren(this@Builder)
                                     }
                                 )
+                                // Keep track of which node has been previously constructed as properties and functions reside in different branches
+                                var prevNode: NodeIndex<*> = beginIndex
+                                val functionNodes = mutableSetOf<NodeIndex<*>>()
+                                classSymbol.inheritancePropagatedDeclarations.forEach { declaration ->
+                                    when (declaration) {
+                                        is FirProperty, is FirAnonymousInitializer -> {
+                                            declaration.accept(this@Builder)
+                                            lastConstructedNode?.let { prevNode = it }
+                                        }
+                                        is FirFunction -> {
+                                            declaration.accept(this@Builder)
+                                            lastConstructedNode?.let { functionNodes += it }
+                                            lastConstructedNode = prevNode
+                                        }
+                                        else -> {}
+                                    }
+                                }
                                 // Build the end node
                                 buildEndInitializationNode(enclosingEntity) { happensBefore(it) }
+                                // Construct or retrieve the outermost end node to connect its initialization with
+                                // this object's function nodes
+                                val outermostEntity = enclosingEntity.outermostEntity
+                                val outermostIndex = outermostEntity.endIndex()
+                                buildEndInitializationNode(
+                                    enclosingEntity = outermostEntity,
+                                    initialize = false
+                                )
+                                functionNodes.forEach { outermostIndex.mayHappenBefore(it) }
+                                initializedEntities += enclosingEntity
                                 // Ensure that the last constructed node points to the end node of this subgraph to
                                 // maintain the correct happens-before relationship due to initialization order
-                                (scope as? SubgraphScope.StaticScope)?.lastConstructedNode = enclosingEntity.endSubgraphIndex
+                                if (enclosingEntity.outerEnclosingEntity == visitingEntity) lastConstructedNode = enclosingEntity.endIndex()
                             }
                         }
                     }
@@ -1337,23 +1441,29 @@ data class DependencyGraph(
             }
         }
 
-        override fun visitPropertyAccessor(propertyAccessor: FirPropertyAccessor): Unit = propertyAccessor.acceptChildren(this@Builder)
-
         override fun visitFunction(function: FirFunction): Unit = function.visit {
-//            visitingEntity?.let { visitingEntity ->
-//                buildDeclarationNode(
-//                    index = NodeIndex.FunctionIndex(visitingEntity, symbol),
-//                    new = DependencyNode<FirFunction>::FunctionNode,
-//                    init = { acceptChildren(this@Builder) }
-//                )
-//            }
-            if (function.symbol.isLibraryDeclaration) return@visit
-            acceptChildren(this@Builder)
+            visitingEntity?.let { visitingEntity ->
+                buildDeclarationNode(
+                    index = NodeIndex.DeclarationIndex(visitingEntity, symbol),
+                    new = DependencyNode<FirFunction>::FunctionNode,
+                    init = { acceptChildren(this@Builder) }
+                )
+            }
         }
 
-        override fun visitNamedFunction(namedFunction: FirNamedFunction): Unit = visitFunction(namedFunction)
+        override fun visitNamedFunction(namedFunction: FirNamedFunction): Unit = namedFunction.visit {
+            visitingEntity?.let { visitingEntity ->
+                buildDeclarationNode(
+                    index = NodeIndex.DeclarationIndex(visitingEntity, symbol),
+                    new = DependencyNode<FirFunction>::FunctionNode,
+                    init = { acceptChildren(this@Builder) }
+                )
+            }
+        }
 
-        override fun visitAnonymousFunction(anonymousFunction: FirAnonymousFunction): Unit = visitFunction(anonymousFunction)
+        override fun visitAnonymousFunction(anonymousFunction: FirAnonymousFunction): Unit = anonymousFunction.visit {
+            anonymousFunction.acceptChildren(this@Builder)
+        }
 
         /**
          * =============================================
@@ -1367,7 +1477,8 @@ data class DependencyGraph(
         override fun visitAnonymousObjectExpression(anonymousObjectExpression: FirAnonymousObjectExpression): Unit =
             anonymousObjectExpression.visit { acceptChildren(this@Builder) }
 
-        override fun visitBlock(block: FirBlock): Unit = block.visit { acceptChildren(this@Builder) }
+        override fun visitBlock(block: FirBlock): Unit =
+            block.visit { acceptChildren(this@Builder) }
 
         override fun visitBooleanOperatorExpression(booleanOperatorExpression: FirBooleanOperatorExpression): Unit =
             booleanOperatorExpression.visit { acceptChildren(this@Builder) }
@@ -1385,9 +1496,17 @@ data class DependencyGraph(
             classReferenceExpression.visit {
                 classTypeRef.toRegularClassSymbol(session)?.asEntity()?.let { classEntity ->
                     when (classEntity) {
-                        is EnclosingEntity.Class -> classEntity.markFirstUse()
-                        is EnclosingEntity.Object -> classEntity.markFirstUse()
-                        else -> {}
+                        is EnclosingEntity.Class -> buildBeginInitializationNode(
+                            enclosingEntity = classEntity.markFirstUse(),
+                            new = DependencyNode<FirRegularClass>::ClinitNode,
+                            connect = { accesses(classEntity.beginIndex(), classReferenceExpression) }
+                        )
+                        is EnclosingEntity.Object -> buildBeginInitializationNode(
+                            enclosingEntity = classEntity.markFirstUse(),
+                            new = DependencyNode<FirRegularClass>::QualifierNode,
+                            connect = { accesses(classEntity.beginIndex(), classReferenceExpression) }
+                        )
+                        else -> return@visit
                     }
                 }
             }
@@ -1398,13 +1517,22 @@ data class DependencyGraph(
         override fun visitComparisonExpression(comparisonExpression: FirComparisonExpression): Unit =
             comparisonExpression.visit { acceptChildren(this@Builder) }
 
-        override fun visitComponentCall(componentCall: FirComponentCall): Unit = visitFunctionCall(componentCall)
+        override fun visitComponentCall(componentCall: FirComponentCall): Unit = componentCall.visit {
+            if (dispatchReceiver == null && extensionReceiver != null
+                && calleeReference.toResolvedCallableSymbol()?.origin == FirDeclarationOrigin.Library) return@visit
+            toNodeIndex()?.let { index ->
+                buildDeclarationNode(
+                    index = index,
+                    new = DependencyNode<FirFunction>::FunctionNode,
+                    connect = { accesses(index, componentCall) }
+                ).markFirstUse()
+            }
+        }
 
         override fun visitDelegatedConstructorCall(delegatedConstructorCall: FirDelegatedConstructorCall): Unit =
             delegatedConstructorCall.visit {
-                calleeReference.toResolvedConstructorSymbol(discardErrorReference = true)?.let {
-                    // Skip constructor calls of library declarations, as they cannot create any dependencies
-                    if (it.isLibraryDeclaration) return@visit
+                calleeReference.toResolvedConstructorSymbol()?.let {
+                    if (it.origin == FirDeclarationOrigin.Library) return@visit
                     argumentList.acceptChildren(this@Builder)
                     it.fir.accept(this@Builder)
                 }
@@ -1431,7 +1559,7 @@ data class DependencyGraph(
                     buildBeginInitializationNode(
                         enclosingEntity = enumEntry.markFirstUse(),
                         new = DependencyNode<FirEnumEntry>::EnumEntryNode,
-                        connect = { accesses(enumEntry.beginSubgraphIndex, enumEntryDeserializedAccessExpression) }
+                        connect = { accesses(enumEntry.beginIndex(), enumEntryDeserializedAccessExpression) }
                     )
                 }
         }
@@ -1440,101 +1568,17 @@ data class DependencyGraph(
             acceptChildren(this@Builder)
         }
 
-        private fun FirFunctionCall.toNodeIndex(): NodeIndex.FunctionIndex<*>? =
-            calleeReference.toResolvedFunctionSymbol(discardErrorReference = true)?.let { functionSymbol ->
-                val enclosingEntity = (dispatchReceiver ?: extensionReceiver)?.let { receiver ->
-                    when (receiver) {
-                        is FirSuperReceiverExpression, is FirThisReceiverExpression -> scope?.isStatic?.ifTrue {
-                            visitingEntity?.correspondingClassSymbol
-                                ?.inheritancePropagatedDeclarations
-                                ?.let { functionSymbol in it }
-                                ?.ifTrue { visitingEntity }
-                        }
-                        is FirResolvedQualifier -> receiver.toEnclosingEntity()
-                        is FirPropertyAccessExpression -> receiver.toEnclosingEntity()
-                        else -> null
-                    }
-                } ?: functionSymbol.containingFileSymbol?.asFileEntity()
-                enclosingEntity?.let { NodeIndex.FunctionIndex(it, functionSymbol) }
-            }
-
         override fun visitFunctionCall(functionCall: FirFunctionCall): Unit = functionCall.visit {
-            // At least check dependencies from the arguments
             argumentList.acceptChildren(this@Builder)
-            // If the function is called on a static enclosing entity receiver...
+            if (dispatchReceiver == null && extensionReceiver != null
+                && calleeReference.toResolvedCallableSymbol()?.origin == FirDeclarationOrigin.Library) return@visit
             toNodeIndex()?.let { index ->
-                // 1. Build/Get the end node of the outermost enclosing entity of this function node
-                val outermostEnclosingEntity = index.enclosingEntity.outermostEntity
-                val endNode = buildEndInitializationNode(
-                    enclosingEntity = outermostEnclosingEntity,
-                    initialize = false,
-                )
-                // 2. Build/Get the function node and connect it to the end node and the currently constructing node, and initialize it
-                val wasInGraph = index in graph
-                val node = buildFunctionNode(
+                buildDeclarationNode(
                     index = index,
-                    connect = { accesses(it, functionCall) },
-                    // Visit the function declaration for dependencies if wasn't visited before
-                    init = { if (!wasInGraph) index.symbol.fir.accept(this@Builder) }
+                    new = DependencyNode<FirFunction>::FunctionNode,
+                    connect = { accesses(it, functionCall) }
                 ).markFirstUse()
-                endNode.index.mayHappenBefore(node.index)
-            } ?:
-            // If the receiver is either a static primitive property or it is non-static, ...
-            functionCall.calleeReference.toResolvedFunctionSymbol(discardErrorReference = true)?.let { functionSymbol ->
-                // If the receiver is a static primitive property, ...
-                ((dispatchReceiver ?: extensionReceiver) as? FirPropertyAccessExpression)?.let { propertyAccess ->
-                    // If the property access is not a primitive type (only possible case), return null
-                    if (!propertyAccess.resolvedType.isPrimitiveOrNullablePrimitive
-                        && !propertyAccess.resolvedType.isUnit
-                        && !propertyAccess.resolvedType.isNothing
-                    ) return@let null
-                    propertyAccess.calleeReference.toResolvedPropertySymbol(discardErrorReference = true)?.let { propertySymbol ->
-                        val enclosingEntity = (propertyAccess.dispatchReceiver ?: propertyAccess.extensionReceiver)?.let { receiver ->
-                            when (receiver) {
-                                is FirSuperReceiverExpression, is FirThisReceiverExpression -> scope?.isStatic?.ifTrue {
-                                    visitingEntity?.correspondingClassSymbol
-                                        ?.inheritancePropagatedDeclarations
-                                        ?.let { propertySymbol in it }
-                                        ?.ifTrue { visitingEntity }
-                                }
-                                is FirResolvedQualifier -> receiver.toEnclosingEntity()
-                                is FirPropertyAccessExpression -> receiver.toEnclosingEntity()
-                                else -> null
-                            }
-                        } ?: propertySymbol.containingFileSymbol?.asFileEntity()
-                        // If the receiver is static, ...
-                        enclosingEntity?.let { enclosingEntity ->
-                            enclosingEntity.unwrap()
-                            // Connect to the declaration node of the property
-                            buildDeclarationNode(
-                                // Handle accessor-only properties, i.e., create a may-happen-before cycle to the accessed node,
-                                // such that the accesses to this accessor-only property can be checked for uninitialized accesses
-                                index = NodeIndex.PrimitivePropertyIndex(
-                                    enclosingEntity = enclosingEntity.markFirstUse(allowInnerAccess = !propertySymbol.hasInitializer || scope?.isStatic?.not() ?: false),
-                                    symbol = propertySymbol
-                                ),
-                                new = DependencyNode<FirProperty>::PrimitivePropertyNode,
-                                connect = { accesses(it, propertyAccess) }
-                            )
-                        }
-                    }
-                } ?:
-                // If the receiver is not static, ...
-                scope?.let { prevScope ->
-                    acceptChildren(this@Builder)
-                    // Push a dynamic scope for this function call
-                    scopes.push(
-                        SubgraphScope.DynamicScope(
-                            visitingEntity = prevScope.visitingEntity,
-                            lastConstructedNode = prevScope.lastConstructedNode,
-                            firstUses = prevScope.firstUses,
-                        )
-                    )
-                    // We traverse the function body and add its dependencies to the currently constructing node
-                    functionSymbol.fir.accept(this@Builder)
-                    scopes.pop()
-                }
-            }
+            } ?: dispatchReceiver?.accept(this@Builder)
         }
 
         override fun visitGetClassCall(getClassCall: FirGetClassCall): Unit = getClassCall.visit {
@@ -1542,63 +1586,56 @@ data class DependencyGraph(
         }
 
         override fun visitImplicitInvokeCall(implicitInvokeCall: FirImplicitInvokeCall): Unit =
-            visitFunctionCall(implicitInvokeCall)
+            implicitInvokeCall.visit {
+                argumentList.acceptChildren(this@Builder)
+                if (dispatchReceiver == null && extensionReceiver != null
+                    && calleeReference.toResolvedCallableSymbol()?.origin == FirDeclarationOrigin.Library) return@visit
+                toNodeIndex()?.let { index ->
+                    buildDeclarationNode(
+                        index = index,
+                        new = DependencyNode<FirFunction>::FunctionNode,
+                        connect = { accesses(it, implicitInvokeCall) }
+                    ).markFirstUse()
+                } ?: dispatchReceiver?.accept(this@Builder)
+            }
 
         override fun visitIncrementDecrementExpression(incrementDecrementExpression: FirIncrementDecrementExpression): Unit =
             incrementDecrementExpression.visit { acceptChildren(this@Builder) }
 
         override fun visitIntegerLiteralOperatorCall(integerLiteralOperatorCall: FirIntegerLiteralOperatorCall): Unit =
-            visitFunctionCall(integerLiteralOperatorCall)
+            integerLiteralOperatorCall.visit {
+                argumentList.acceptChildren(this@Builder)
+                if (dispatchReceiver == null && extensionReceiver != null
+                    && calleeReference.toResolvedCallableSymbol()?.origin == FirDeclarationOrigin.Library) return@visit
+                toNodeIndex()?.let { index ->
+                    buildDeclarationNode(
+                        index = index,
+                        new = DependencyNode<FirFunction>::FunctionNode,
+                        connect = { accesses(index, integerLiteralOperatorCall) }
+                    ).markFirstUse()
+                } ?: dispatchReceiver?.accept(this@Builder)
+            }
+
+        override fun visitLazyBlock(lazyBlock: FirLazyBlock): Unit = lazyBlock.visit { acceptChildren(this@Builder) }
 
         override fun visitMultiDelegatedConstructorCall(
             multiDelegatedConstructorCall: FirMultiDelegatedConstructorCall
-        ): Unit = Unit
+        ) {
+            TODO("Not yet implemented")
+        }
 
         override fun visitNamedArgumentExpression(namedArgumentExpression: FirNamedArgumentExpression): Unit =
             namedArgumentExpression.visit { acceptChildren(this@Builder) }
-
-        fun EnclosingEntity<*>.unwrap() {
-            // If the entity was not encountered before, so the graph has no begin node nor end node for this entity,
-            // i.e., its parent must also be missing
-            if (this !in graph) {
-                // Recursively unwrap its parent
-                parentEnclosingEntity?.unwrap()
-            }
-            // The entity was encountered before during construction of its parent entity (or it was unwrapped), i.e.,
-            // begin node and end node are present. However, there are no nodes constructed between them
-            if (beginSubgraphIndex in graph && endSubgraphIndex in graph && graph[this].countUntil(2) { it !is NodeIndex.FunctionIndex<*> }) {
-                // We don't care that the first uses are not preserved, because if there exist earlier uses, they already create a cycle,
-                // so the new uses created here are going to be transitively subsumed by an earlier cycle
-                scopes.push(
-                    SubgraphScope.StaticScope(
-                        visitingEntity = this,
-                        lastConstructedNode = beginSubgraphIndex
-                    )
-                )
-                try {
-                    correspondingClassSymbol?.inheritancePropagatedDeclarations
-                        ?.orderedDeclarations
-                        ?.forEach { it.fir.accept(this@Builder) }
-                    buildEndInitializationNode(
-                        enclosingEntity = this,
-                        initialize = false,
-                        connect = { happensBefore(it) }
-                    )
-                } finally {
-                    scopes.pop()
-                }
-            }
-        }
 
         override fun visitPropertyAccessExpression(propertyAccessExpression: FirPropertyAccessExpression): Unit =
             propertyAccessExpression.visit {
                 // Case 1: accessing an enum entry
                 if (resolvedType.isEnum) {
-                    calleeReference.toResolvedEnumEntrySymbol(discardErrorReference = true)?.asEnumEntryEntity()?.let { enumEntry ->
+                    calleeReference.toResolvedEnumEntrySymbol()?.asEnumEntryEntity()?.let { enumEntry ->
                         buildBeginInitializationNode(
                             enclosingEntity = enumEntry.markFirstUse(),
                             new = DependencyNode<FirEnumEntry>::EnumEntryNode,
-                            connect = { accesses(enumEntry.beginSubgraphIndex, propertyAccessExpression) }
+                            connect = { accesses(enumEntry.beginIndex(), propertyAccessExpression) }
                         )
                     }
                 }
@@ -1607,103 +1644,58 @@ data class DependencyGraph(
                     && !resolvedType.isPrimitiveOrNullablePrimitive
                     && !resolvedType.isUnit && !resolvedType.isNothing
                 ) {
-                    calleeReference.toResolvedPropertySymbol(discardErrorReference = true)?.let { propertySymbol ->
+                    calleeReference.toResolvedPropertySymbol()?.let { propertySymbol ->
                         val outerEnclosingEntity = (dispatchReceiver ?: extensionReceiver)?.let { receiver ->
                             when (receiver) {
-                                is FirSuperReceiverExpression, is FirThisReceiverExpression -> scope?.isStatic?.ifTrue {
-                                    visitingEntity?.correspondingClassSymbol
-                                        ?.inheritancePropagatedDeclarations
-                                        ?.let { propertySymbol in it }
-                                        ?.ifTrue { visitingEntity }
-                                }
+                                is FirSuperReceiverExpression, is FirThisReceiverExpression -> visitingEntity
                                 is FirResolvedQualifier -> receiver.toEnclosingEntity()
                                 is FirPropertyAccessExpression -> receiver.toEnclosingEntity()
                                 else -> null
                             }
                         } ?: propertySymbol.containingFileSymbol?.asFileEntity()
-                        // If the receiver is static, ...
                         outerEnclosingEntity?.let { outerEnclosingEntity ->
-                            outerEnclosingEntity.unwrap()
-                            // Connect to the declaration node of the property
                             val enclosingEntity = propertySymbol.asInstancedPropertyEntity(outerEnclosingEntity)
                             buildBeginInitializationNode(
                                 // Handle accessor-only properties, i.e., create a may-happen-before cycle to the accessed node,
                                 // such that the accesses to this accessor-only property can be checked for uninitialized accesses
-                                enclosingEntity = enclosingEntity.markFirstUse(allowInnerAccess = !propertySymbol.hasInitializer || scope?.isStatic?.not() ?: false),
+                                enclosingEntity = enclosingEntity.markFirstUse(whenSimilar = !propertySymbol.hasInitializer),
                                 new = DependencyNode<FirProperty>::InstancedPropertyNode,
                                 connect = { accesses(it, propertyAccessExpression) }
                             )
-                        } ?:
-                        // Otherwise, if the receiver is dynamic, ...
-                        scope?.let { prevScope ->
-                            acceptChildren(this@Builder)
-                            // Push a dynamic scope for this function call
-                            scopes.push(
-                                SubgraphScope.DynamicScope(
-                                    visitingEntity = prevScope.visitingEntity,
-                                    lastConstructedNode = prevScope.lastConstructedNode,
-                                    firstUses = prevScope.firstUses,
-                                )
-                            )
-                            // We traverse the property access subexpressions and the property declaration to look for dependencies
-                            propertySymbol.fir.initializer?.accept(this@Builder)
-                            propertySymbol.fir.getter?.accept(this@Builder)
-                            scopes.pop()
                         }
                     }
                 }
                 // Case 3: accessing a property with a primitive type
                 else {
-                    calleeReference.toResolvedPropertySymbol(discardErrorReference = true)?.let { propertySymbol ->
+                    calleeReference.toResolvedPropertySymbol()?.let { propertySymbol ->
+                        if (propertySymbol.resolvedStatus.visibility != Visibilities.Public) return@let
                         val enclosingEntity = (dispatchReceiver ?: extensionReceiver).let { receiver ->
                             when (receiver) {
-                                is FirSuperReceiverExpression, is FirThisReceiverExpression -> scope?.isStatic?.ifTrue {
-                                    visitingEntity?.correspondingClassSymbol
-                                        ?.inheritancePropagatedDeclarations
-                                        ?.let { propertySymbol in it }
-                                        ?.ifTrue { visitingEntity }
-                                }
+                                is FirSuperReceiverExpression, is FirThisReceiverExpression -> visitingEntity
                                 is FirResolvedQualifier -> receiver.toEnclosingEntity()
                                 is FirPropertyAccessExpression -> receiver.toEnclosingEntity()
                                 else -> null
                             }
                         } ?: propertySymbol.containingFileSymbol?.asFileEntity()
-                        // If the receiver is static, ...
                         enclosingEntity?.let { enclosingEntity ->
-                            enclosingEntity.unwrap()
-                            // Connect to the declaration node of the property
                             buildDeclarationNode(
                                 // Handle accessor-only properties, i.e., create a may-happen-before cycle to the accessed node,
                                 // such that the accesses to this accessor-only property can be checked for uninitialized accesses
-                                index = NodeIndex.PrimitivePropertyIndex(
-                                    enclosingEntity = enclosingEntity.markFirstUse(allowInnerAccess = !propertySymbol.hasInitializer || scope?.isStatic?.not() ?: false),
+                                index = NodeIndex.DeclarationIndex(
+                                    containingEntity = enclosingEntity.markFirstUse(whenSimilar = !propertySymbol.hasInitializer),
                                     symbol = propertySymbol
                                 ),
-                                new = DependencyNode<FirProperty>::PrimitivePropertyNode,
+                                new = DependencyNode<FirProperty>::PropertyNode,
                                 connect = { accesses(it, propertyAccessExpression) }
                             )
-                        } ?:
-                        // Otherwise, if the receiver is dynamic, ...
-                        scope?.let { prevScope ->
-                            acceptChildren(this@Builder)
-                            // Push a dynamic scope for this function call
-                            scopes.push(
-                                SubgraphScope.DynamicScope(
-                                    visitingEntity = prevScope.visitingEntity,
-                                    lastConstructedNode = prevScope.lastConstructedNode,
-                                    firstUses = prevScope.firstUses,
-                                )
-                            )
-                            // We traverse the property access subexpressions and the property declaration to look for dependencies
-                            propertySymbol.fir.initializer?.accept(this@Builder)
-                            propertySymbol.fir.getter?.accept(this@Builder)
-                            scopes.pop()
                         }
                     }
                 }
             }
 
-        override fun visitQualifiedAccessExpression(qualifiedAccessExpression: FirQualifiedAccessExpression): Unit = Unit
+        override fun visitQualifiedAccessExpression(qualifiedAccessExpression: FirQualifiedAccessExpression): Unit {
+            TODO("Not yet implemented")
+        }
 
         override fun visitResolvedQualifier(resolvedQualifier: FirResolvedQualifier): Unit =
             resolvedQualifier.visit {
@@ -1741,6 +1733,9 @@ data class DependencyGraph(
         override fun visitSafeCallExpression(safeCallExpression: FirSafeCallExpression): Unit = safeCallExpression.visit {
             acceptChildren(this@Builder)
         }
+
+        override fun visitSamConversionExpression(samConversionExpression: FirSamConversionExpression): Unit =
+            samConversionExpression.visit { acceptChildren(this@Builder) }
 
         override fun visitSmartCastExpression(smartCastExpression: FirSmartCastExpression): Unit =
             smartCastExpression.visit { acceptChildren(this@Builder) }

@@ -1,7 +1,7 @@
 // RUN_PIPELINE_TILL: FRONTEND
 // FIR_IDENTICAL
 // WITH_STDLIB
-<!POSSIBLE_INITIALIZATION_DEADLOCK!>object B<!> {
+object B {
     val y = 5
     init {
         println("A = " + A)
@@ -9,7 +9,7 @@
     }
 }
 
-<!POSSIBLE_INITIALIZATION_DEADLOCK!>object A<!> {
+object A {
     val x = B.y
     val y = "test"
     init {

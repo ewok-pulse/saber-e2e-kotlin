@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.expressions.toResolvedCallableSymbol
 import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraph
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asEnumEntryEntity
+import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.NodeIndex.Companion.beginIndex
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 
 object FirUninitializedEnumEntryChecker : FirEnumEntryChecker(MppCheckerKind.Common) {
@@ -22,19 +23,16 @@ object FirUninitializedEnumEntryChecker : FirEnumEntryChecker(MppCheckerKind.Com
     @OptIn(SymbolInternals::class)
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirEnumEntry) {
-        val enumEntryIndex = declaration.symbol.asEnumEntryEntity().beginSubgraphIndex
         val dependencyGraph = context.session.dependencyGraph
-        if (dependencyGraph.isPoisoned(enumEntryIndex)) {
+        val enumEntryIndex = declaration.symbol.asEnumEntryEntity().beginIndex()
+        if (dependencyGraph.isBad(enumEntryIndex)) {
             reporter.reportOn(declaration.source, FirErrors.UNINITIALIZED_PROPERTY)
-            dependencyGraph.poisoningAccessesFor(enumEntryIndex).forEach {
-                when (it) {
-                    is FirResolvedQualifier -> it.symbol?.let { symbol ->
-                        reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, symbol)
-                    }
-                    else -> it.toResolvedCallableSymbol(context.session)?.let { symbol ->
-                        reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, symbol)
-                    }
+            dependencyGraph.badAccessesFor(enumEntryIndex).forEach {
+                val declaration = when (it) {
+                    is FirResolvedQualifier -> it.symbol!!
+                    else -> it.toResolvedCallableSymbol(context.session)!!
                 }
+                reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, declaration)
             }
         }
     }

@@ -2,7 +2,7 @@
 // FIR_IDENTICAL
 
 // FILE: test1.kt
-<!POSSIBLE_INITIALIZATION_DEADLOCK!>object A<!> {
+object A {
     <!UNINITIALIZED_PROPERTY!>val a = <!UNINITIALIZED_ACCESS!>test<!><!>
     val b = "test"
 }

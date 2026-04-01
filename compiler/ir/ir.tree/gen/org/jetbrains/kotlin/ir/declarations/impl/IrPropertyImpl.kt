@@ -33,7 +33,7 @@ class IrPropertyImpl @IrImplementationDetail constructor(
     override var modality: Modality,
     override var isFakeOverride: Boolean,
     override val containerSource: DeserializedContainerSource?,
-    override val symbol: IrPropertySymbol,
+    override var symbol: IrPropertySymbol,
     override var isVar: Boolean,
     override var isConst: Boolean,
     override var isLateinit: Boolean,

@@ -49,4 +49,5 @@ internal class KaFe10Session(
     dataFlowProvider = KaFe10DataFlowProvider(analysisSessionProvider),
     sourceProvider = KaFe10SourceProvider(analysisSessionProvider),
     kDocProvider = KaFe10KDocProvider(analysisSessionProvider),
+    fileAnnotationProvider = KaFe10FileAnnotationProvider(analysisSessionProvider)
 )

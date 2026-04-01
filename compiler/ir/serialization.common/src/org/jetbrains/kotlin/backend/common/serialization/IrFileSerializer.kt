@@ -1485,6 +1485,7 @@ open class IrFileSerializer(
             is MultiFieldValueClassRepresentation ->
                 proto.multiFieldValueClassRepresentation = serializeMultiFieldValueClassRepresentation(representation)
             is InlineClassRepresentation -> proto.inlineClassRepresentation = serializeInlineClassRepresentation(representation)
+            is ExtendedValueClassRepresentation -> proto.isExtendedValueClass = true
             null -> Unit
         }
 

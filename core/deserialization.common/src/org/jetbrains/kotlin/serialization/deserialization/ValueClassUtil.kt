@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.serialization.deserialization
 import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
 import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
 import org.jetbrains.kotlin.descriptors.ValueClassRepresentation
+import org.jetbrains.kotlin.descriptors.ExtendedValueClassRepresentation
 import org.jetbrains.kotlin.metadata.ProtoBuf
 import org.jetbrains.kotlin.metadata.deserialization.*
 import org.jetbrains.kotlin.name.Name
@@ -20,6 +21,8 @@ fun <T : RigidTypeMarker> ProtoBuf.Class.loadValueClassRepresentation(
     typeDeserializer: (ProtoBuf.Type) -> T,
     typeOfPublicProperty: (Name) -> T?,
 ): ValueClassRepresentation<T>? {
+    if (isExtendedValueClass) return ExtendedValueClassRepresentation()
+
     if (hasInlineClassUnderlyingPropertyName()) {
         val propertyName = nameResolver.getName(inlineClassUnderlyingPropertyName)
         val propertyType = inlineClassUnderlyingType(typeTable)?.let(typeDeserializer)

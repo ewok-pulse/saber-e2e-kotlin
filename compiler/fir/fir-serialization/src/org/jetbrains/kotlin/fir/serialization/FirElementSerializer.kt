@@ -300,6 +300,7 @@ class FirElementSerializer private constructor(
                 }
             }
             is MultiFieldValueClassRepresentation -> {}
+            is ExtendedValueClassRepresentation -> builder.isExtendedValueClass = true
             null -> {}
         }
 

@@ -105,6 +105,10 @@ internal class ClassGenerator(
                 generateAdditionalMembersForMultiFieldValueClasses(irClass, ktClassOrObject)
             }
 
+            if (irClass.isExtendedValueClass && ktClassOrObject is KtClassOrObject) {
+                generateAdditionalMembersForExtendedValueClasses(irClass, ktClassOrObject)
+            }
+
             if (DescriptorUtils.isEnumClass(classDescriptor)) {
                 generateAdditionalMembersForEnumClass(irClass)
             }
@@ -422,6 +426,10 @@ internal class ClassGenerator(
 
     private fun generateAdditionalMembersForMultiFieldValueClasses(irClass: IrClass, ktClassOrObject: KtClassOrObject) {
         DataClassMembersGenerator(declarationGenerator, context.configuration.generateBodies).generateMultiFieldValueClassMembers(ktClassOrObject, irClass)
+    }
+
+    private fun generateAdditionalMembersForExtendedValueClasses(irClass: IrClass, ktClassOrObject: KtClassOrObject) {
+        DataClassMembersGenerator(declarationGenerator, context.configuration.generateBodies).generateExtendedValueClassMembers(ktClassOrObject, irClass)
     }
 
     private fun generateAdditionalMembersForDataClass(irClass: IrClass, ktClassOrObject: KtClassOrObject) {

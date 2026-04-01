@@ -190,6 +190,11 @@ open class ProtoCompareGenerated(
             if (!checkEquals(oldTypeTable.getType(old.inlineClassUnderlyingTypeId), newTypeTable.getType(new.inlineClassUnderlyingTypeId))) return false
         }
 
+        if (old.hasIsExtendedValueClass() != new.hasIsExtendedValueClass()) return false
+        if (old.hasIsExtendedValueClass()) {
+            if (old.isExtendedValueClass != new.isExtendedValueClass) return false
+        }
+
         if (!checkEqualsClassAnnotation(old, new)) return false
 
         if (!checkEqualsClassVersionRequirement(old, new)) return false
@@ -283,6 +288,7 @@ open class ProtoCompareGenerated(
         INLINE_CLASS_UNDERLYING_PROPERTY_NAME,
         INLINE_CLASS_UNDERLYING_TYPE,
         INLINE_CLASS_UNDERLYING_TYPE_ID,
+        IS_EXTENDED_VALUE_CLASS,
         ANNOTATION_LIST,
         VERSION_REQUIREMENT_LIST,
         VERSION_REQUIREMENT_TABLE,
@@ -350,6 +356,11 @@ open class ProtoCompareGenerated(
         if (old.hasInlineClassUnderlyingTypeId() != new.hasInlineClassUnderlyingTypeId()) result.add(ProtoBufClassKind.INLINE_CLASS_UNDERLYING_TYPE_ID)
         if (old.hasInlineClassUnderlyingTypeId()) {
             if (!checkEquals(oldTypeTable.getType(old.inlineClassUnderlyingTypeId), newTypeTable.getType(new.inlineClassUnderlyingTypeId))) result.add(ProtoBufClassKind.INLINE_CLASS_UNDERLYING_TYPE_ID)
+        }
+
+        if (old.hasIsExtendedValueClass() != new.hasIsExtendedValueClass()) result.add(ProtoBufClassKind.IS_EXTENDED_VALUE_CLASS)
+        if (old.hasIsExtendedValueClass()) {
+            if (old.isExtendedValueClass != new.isExtendedValueClass) result.add(ProtoBufClassKind.IS_EXTENDED_VALUE_CLASS)
         }
 
         if (!checkEqualsClassAnnotation(old, new)) result.add(ProtoBufClassKind.ANNOTATION_LIST)
@@ -2155,6 +2166,10 @@ fun ProtoBuf.Class.hashCode(stringIndexes: (Int) -> Int, fqNameIndexes: (Int) ->
 
     if (hasInlineClassUnderlyingTypeId()) {
         hashCode = 31 * hashCode + typeById(inlineClassUnderlyingTypeId).hashCode(stringIndexes, fqNameIndexes, typeById)
+    }
+
+    if (hasIsExtendedValueClass()) {
+        hashCode = 31 * hashCode + isExtendedValueClass.hashCode()
     }
 
     for(i in 0..annotationCount - 1) {

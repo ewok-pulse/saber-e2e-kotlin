@@ -13,10 +13,7 @@ import org.jetbrains.kotlin.backend.common.serialization.encodings.BinarySymbolD
 import org.jetbrains.kotlin.backend.common.serialization.encodings.BinarySymbolData.SymbolKind.*
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrDeclaration.DeclaratorCase.*
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrType.KindCase.*
-import org.jetbrains.kotlin.descriptors.ClassKind
-import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
-import org.jetbrains.kotlin.descriptors.Modality
-import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
@@ -395,8 +392,13 @@ class IrDeclarationDeserializer(
 
                 valueClassRepresentation = when {
                     !flags.isValue -> null
+                    proto.isExtendedValueClass && proto.hasMultiFieldValueClassRepresentation() ->
+                        error("Class cannot be both extended value and basic multi-field value: $name")
+                    proto.isExtendedValueClass && proto.hasInlineClassRepresentation() ->
+                        error("Class cannot be both extended value and basic single-field value: $name")
                     proto.hasMultiFieldValueClassRepresentation() && proto.hasInlineClassRepresentation() ->
                         error("Class cannot be both inline and multi-field value: $name")
+                    proto.isExtendedValueClass -> ExtendedValueClassRepresentation()
                     proto.hasInlineClassRepresentation() -> deserializeInlineClassRepresentation(proto.inlineClassRepresentation)
                     proto.hasMultiFieldValueClassRepresentation() ->
                         deserializeMultiFieldValueClassRepresentation(proto.multiFieldValueClassRepresentation)

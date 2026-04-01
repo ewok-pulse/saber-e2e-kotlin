@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.fir.declarations.utils.*
 import org.jetbrains.kotlin.fir.deserialization.addCloneForArrayIfNeeded
 import org.jetbrains.kotlin.fir.deserialization.applyKDoc
 import org.jetbrains.kotlin.fir.deserialization.deserializationExtension
-import org.jetbrains.kotlin.fir.deserialization.kdocText
 import org.jetbrains.kotlin.fir.deserialization.toLazyEffectiveVisibility
 import org.jetbrains.kotlin.fir.resolve.transformers.setLazyPublishedVisibility
 import org.jetbrains.kotlin.fir.scopes.FirScopeProvider
@@ -300,6 +299,8 @@ private fun KotlinClassStubImpl.deserializeValueClassRepresentation(klass: FirRe
             withFirEntry("class", klass)
         }
     }
+
+    if (valueClassRepresentation == KotlinValueClassRepresentation.EXTENDED_VALUE_CLASS) return ExtendedValueClassRepresentation()
 
     if (valueClassRepresentation == KotlinValueClassRepresentation.INLINE_CLASS) {
         val parameter = constructor.valueParameters.single()

@@ -1,0 +1,20 @@
+kotlin/Any.equals
+    isImplemented: false
+    hasInheritedImplementation: true
+    canBeImplemented: true
+    mustBeImplemented: false
+kotlin/Any.hashCode
+    isImplemented: false
+    hasInheritedImplementation: true
+    canBeImplemented: true
+    mustBeImplemented: false
+kotlin/Any.toString
+    isImplemented: false
+    hasInheritedImplementation: true
+    canBeImplemented: true
+    mustBeImplemented: false
+/Base.foo
+    isImplemented: false
+    hasInheritedImplementation: true
+    canBeImplemented: false
+    mustBeImplemented: false

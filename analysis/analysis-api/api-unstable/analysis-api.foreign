@@ -68,4 +68,3 @@ org/jetbrains/kotlin/psi/KtWhenConditionInRange
 org/jetbrains/kotlin/resolution/KtResolvable
 org/jetbrains/kotlin/resolution/KtResolvableCall
 org/jetbrains/kotlin/types/Variance
-org/jetbrains/kotlin/util/ImplementationStatus

@@ -316,7 +316,7 @@ class DifferenceCalculatorForClass(
                 ProtoBufClassKind.INLINE_CLASS_UNDERLYING_PROPERTY_NAME,
                 ProtoBufClassKind.INLINE_CLASS_UNDERLYING_TYPE,
                 ProtoBufClassKind.INLINE_CLASS_UNDERLYING_TYPE_ID,
-                ProtoBufClassKind.IS_EXTENDED_VALUE_CLASS, -> {
+                ProtoBufClassKind.EXTENDED_VALUE_CLASS_REPRESENTATION, -> {
                     isClassAffected = true
                 }
                 ProtoBufClassKind.CONTEXT_RECEIVER_TYPE_LIST,

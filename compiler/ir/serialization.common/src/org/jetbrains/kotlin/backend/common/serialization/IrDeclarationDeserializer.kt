@@ -52,6 +52,7 @@ import org.jetbrains.kotlin.backend.common.serialization.proto.IrFunctionBase as
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrInlineClassRepresentation as ProtoIrInlineClassRepresentation
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrLocalDelegatedProperty as ProtoLocalDelegatedProperty
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrMultiFieldValueClassRepresentation as ProtoIrMultiFieldValueClassRepresentation
+import org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation as ProtoIrExtendedValueClassRepresentation
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrProperty as ProtoProperty
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrSimpleType as ProtoSimpleType
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrSimpleTypeLegacy as ProtoSimpleTypeLegacy
@@ -392,13 +393,14 @@ class IrDeclarationDeserializer(
 
                 valueClassRepresentation = when {
                     !flags.isValue -> null
-                    proto.isExtendedValueClass && proto.hasMultiFieldValueClassRepresentation() ->
+                    proto.hasExtendedValueClassRepresentation() && proto.hasMultiFieldValueClassRepresentation() ->
                         error("Class cannot be both extended value and basic multi-field value: $name")
-                    proto.isExtendedValueClass && proto.hasInlineClassRepresentation() ->
+                    proto.hasExtendedValueClassRepresentation() && proto.hasInlineClassRepresentation() ->
                         error("Class cannot be both extended value and basic single-field value: $name")
                     proto.hasMultiFieldValueClassRepresentation() && proto.hasInlineClassRepresentation() ->
                         error("Class cannot be both inline and multi-field value: $name")
-                    proto.isExtendedValueClass -> ExtendedValueClassRepresentation()
+                    proto.hasExtendedValueClassRepresentation() ->
+                        deserializeExtendedValueClassRepresentation(proto.extendedValueClassRepresentation, modality)
                     proto.hasInlineClassRepresentation() -> deserializeInlineClassRepresentation(proto.inlineClassRepresentation)
                     proto.hasMultiFieldValueClassRepresentation() ->
                         deserializeMultiFieldValueClassRepresentation(proto.multiFieldValueClassRepresentation)
@@ -422,6 +424,17 @@ class IrDeclarationDeserializer(
         val names = proto.underlyingPropertyNameList.memoryOptimizedMap { deserializeName(it) }
         val types = proto.underlyingPropertyTypeList.memoryOptimizedMap { deserializeIrType(it) as IrSimpleType }
         return MultiFieldValueClassRepresentation(names memoryOptimizedZip types)
+    }
+
+    private fun deserializeExtendedValueClassRepresentation(
+        proto: ProtoIrExtendedValueClassRepresentation,
+        modality: Modality,
+    ): ExtendedValueClassRepresentation<IrSimpleType> {
+        val isAbstractOrSealed = modality == Modality.ABSTRACT || modality == Modality.SEALED
+        if (isAbstractOrSealed) return ExtendedValueClassRepresentation(null)
+        val names = proto.underlyingPropertyNameList.memoryOptimizedMap { deserializeName(it) }
+        val types = proto.underlyingPropertyTypeList.memoryOptimizedMap { deserializeIrType(it) as IrSimpleType }
+        return ExtendedValueClassRepresentation(names memoryOptimizedZip types)
     }
 
     private fun computeMissingInlineClassRepresentationForCompatibility(irClass: IrClass): InlineClassRepresentation<IrSimpleType> {

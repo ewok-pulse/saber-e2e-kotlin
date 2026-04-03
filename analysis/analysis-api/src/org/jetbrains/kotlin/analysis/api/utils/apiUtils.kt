@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.analysis.api.utils
 import org.jetbrains.kotlin.analysis.api.KaImplementationDetail
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
+import kotlin.reflect.full.hasAnnotation
 
 private val implementationPackageNames = listOf(
     "org.jetbrains.kotlin.analysis.api.impl.base",
@@ -20,6 +21,14 @@ private val implementationPackageNames = listOf(
 public fun getApiKClassOf(value: Any): KClass<*> {
     fun KClass<*>.isImplementationIndependent(): Boolean {
         if (this == Any::class) return false
+
+        @Suppress("INVISIBLE_REFERENCE")
+        if (this.hasAnnotation<org.jetbrains.kotlin.idea.references.KtReferenceImplementationDetail>()) {
+            // Base classes for KDoc references cannot be simply moved to a different package as they are used in IJ.
+            // With KT-84925, reference implementations are expected to be refactored, likely making this check redundant.
+            return false
+        }
+
         val qualifiedName = qualifiedName ?: return false
         return implementationPackageNames.none { qualifiedName.startsWith("$it.") }
     }

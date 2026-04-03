@@ -1,7 +1,7 @@
 org.jetbrains.kotlin.idea.references.AbstractKtReference
 org.jetbrains.kotlin.idea.references.AbstractKtReference.canRename()
 org.jetbrains.kotlin.idea.references.AbstractKtReference.expression
-org.jetbrains.kotlin.idea.references.KDocReference
+org.jetbrains.kotlin.idea.references.KDocReferenceBase
 org.jetbrains.kotlin.idea.references.KtArrayAccessReference
 org.jetbrains.kotlin.idea.references.KtCollectionLiteralReference
 org.jetbrains.kotlin.idea.references.KtConstructorDelegationReference
@@ -11,8 +11,6 @@ org.jetbrains.kotlin.idea.references.KtForLoopInReference
 org.jetbrains.kotlin.idea.references.KtInvokeFunctionReference
 org.jetbrains.kotlin.idea.references.KtMultiReference
 org.jetbrains.kotlin.idea.references.KtPropertyDelegationMethodsReference
-org.jetbrains.kotlin.idea.references.KtReference
-org.jetbrains.kotlin.idea.references.KtReference.resolver
 org.jetbrains.kotlin.idea.references.KtReferenceMutateService.bindToElement(KtSimpleNameReference, PsiElement, KtSimpleNameReference.ShorteningMode)
 org.jetbrains.kotlin.idea.references.KtReferenceMutateService.bindToFqName(KtSimpleNameReference, FqName, KtSimpleNameReference.ShorteningMode, PsiElement?)
 org.jetbrains.kotlin.idea.references.KtSimpleNameReference

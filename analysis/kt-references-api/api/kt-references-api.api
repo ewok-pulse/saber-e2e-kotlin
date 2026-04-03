@@ -1,0 +1,10 @@
+public abstract interface class org/jetbrains/kotlin/idea/references/KDocReference : org/jetbrains/kotlin/idea/references/KtReference {
+}
+
+public abstract interface class org/jetbrains/kotlin/idea/references/KtReference : com/intellij/psi/PsiPolyVariantReference, org/jetbrains/kotlin/resolution/KtResolvable {
+	public synthetic fun getElement ()Lcom/intellij/psi/PsiElement;
+	public abstract fun getElement ()Lorg/jetbrains/kotlin/psi/KtElement;
+	public abstract fun getResolver ()Lcom/intellij/psi/impl/source/resolve/ResolveCache$PolyVariantResolver;
+	public abstract fun getResolvesByNames ()Ljava/util/Collection;
+}
+

@@ -68,6 +68,7 @@ import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.fir.utils.exceptions.withFirEntry
 import org.jetbrains.kotlin.fir.utils.exceptions.withFirSymbolEntry
 import org.jetbrains.kotlin.idea.references.KDocReference
+import org.jetbrains.kotlin.idea.references.KDocReferenceBase
 import org.jetbrains.kotlin.idea.references.KtReference
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
@@ -159,6 +160,7 @@ internal class KaFirResolver(
 
     @KaNonPublicApi
     override fun KDocReference.resolveToSymbolWithClassicKDocResolver(): KaSymbol? = withValidityAssertion {
+        require(this is KDocReferenceBase)
         val element = this.element
         val fullFqName = generateSequence(element) { it.parent as? KDocName }.last().getQualifiedNameAsFqName()
         val selectedFqName = element.getQualifiedNameAsFqName()

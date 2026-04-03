@@ -9,13 +9,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":analysis:kt-references-api"))
-
     implementation(project(":compiler:psi:psi-api"))
-    implementation(project(":analysis:light-classes-base"))
     implementation(intellijCore())
-
-    compileOnly(libs.guava)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter.api)
@@ -51,6 +46,6 @@ projectTests {
 }
 
 val checkForeignClassUsage by tasks.registering(CheckForeignClassUsageTask::class) {
-    outputFile = file("api/kt-references.foreign")
+    outputFile = file("api/kt-references-api.foreign")
     nonPublicMarkers.addAll(stableNonPublicMarkers)
 }

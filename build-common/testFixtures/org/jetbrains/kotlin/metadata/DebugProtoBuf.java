@@ -11271,13 +11271,17 @@ public final class DebugProtoBuf {
     int getInlineClassUnderlyingTypeId();
 
     /**
-     * <code>optional bool is_extended_value_class = 22;</code>
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
      */
-    boolean hasIsExtendedValueClass();
+    boolean hasExtendedValueClassRepresentation();
     /**
-     * <code>optional bool is_extended_value_class = 22;</code>
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
      */
-    boolean getIsExtendedValueClass();
+    org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation getExtendedValueClassRepresentation();
+    /**
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
+     */
+    org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentationOrBuilder getExtendedValueClassRepresentationOrBuilder();
 
     /**
      * <code>repeated .org.jetbrains.kotlin.metadata.Annotation annotation = 25;</code>
@@ -11617,9 +11621,17 @@ public final class DebugProtoBuf {
               input.popLimit(limit);
               break;
             }
-            case 176: {
+            case 178: {
+              org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000040) == 0x00000040)) {
+                subBuilder = extendedValueClassRepresentation_.toBuilder();
+              }
+              extendedValueClassRepresentation_ = input.readMessage(org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(extendedValueClassRepresentation_);
+                extendedValueClassRepresentation_ = subBuilder.buildPartial();
+              }
               bitField0_ |= 0x00000040;
-              isExtendedValueClass_ = input.readBool();
               break;
             }
             case 202: {
@@ -12401,19 +12413,25 @@ public final class DebugProtoBuf {
       return inlineClassUnderlyingTypeId_;
     }
 
-    public static final int IS_EXTENDED_VALUE_CLASS_FIELD_NUMBER = 22;
-    private boolean isExtendedValueClass_;
+    public static final int EXTENDED_VALUE_CLASS_REPRESENTATION_FIELD_NUMBER = 22;
+    private org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation extendedValueClassRepresentation_;
     /**
-     * <code>optional bool is_extended_value_class = 22;</code>
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
      */
-    public boolean hasIsExtendedValueClass() {
+    public boolean hasExtendedValueClassRepresentation() {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional bool is_extended_value_class = 22;</code>
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
      */
-    public boolean getIsExtendedValueClass() {
-      return isExtendedValueClass_;
+    public org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation getExtendedValueClassRepresentation() {
+      return extendedValueClassRepresentation_;
+    }
+    /**
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
+     */
+    public org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentationOrBuilder getExtendedValueClassRepresentationOrBuilder() {
+      return extendedValueClassRepresentation_;
     }
 
     public static final int ANNOTATION_FIELD_NUMBER = 25;
@@ -12581,7 +12599,7 @@ public final class DebugProtoBuf {
       inlineClassUnderlyingPropertyName_ = 0;
       inlineClassUnderlyingType_ = org.jetbrains.kotlin.metadata.DebugProtoBuf.Type.getDefaultInstance();
       inlineClassUnderlyingTypeId_ = 0;
-      isExtendedValueClass_ = false;
+      extendedValueClassRepresentation_ = org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
       annotation_ = java.util.Collections.emptyList();
       typeTable_ = org.jetbrains.kotlin.metadata.DebugProtoBuf.TypeTable.getDefaultInstance();
       versionRequirement_ = java.util.Collections.emptyList();
@@ -12755,7 +12773,7 @@ public final class DebugProtoBuf {
         output.writeInt32NoTag(contextReceiverTypeId_.get(i));
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBool(22, isExtendedValueClass_);
+        output.writeMessage(22, extendedValueClassRepresentation_);
       }
       for (int i = 0; i < annotation_.size(); i++) {
         output.writeMessage(25, annotation_.get(i));
@@ -12896,7 +12914,7 @@ public final class DebugProtoBuf {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += org.jetbrains.kotlin.protobuf.CodedOutputStream
-          .computeBoolSize(22, isExtendedValueClass_);
+          .computeMessageSize(22, extendedValueClassRepresentation_);
       }
       for (int i = 0; i < annotation_.size(); i++) {
         size += org.jetbrains.kotlin.protobuf.CodedOutputStream
@@ -13043,6 +13061,7 @@ public final class DebugProtoBuf {
           getTypeAliasFieldBuilder();
           getEnumEntryFieldBuilder();
           getInlineClassUnderlyingTypeFieldBuilder();
+          getExtendedValueClassRepresentationFieldBuilder();
           getAnnotationFieldBuilder();
           getTypeTableFieldBuilder();
           getVersionRequirementTableFieldBuilder();
@@ -13127,7 +13146,11 @@ public final class DebugProtoBuf {
         bitField0_ = (bitField0_ & ~0x00010000);
         inlineClassUnderlyingTypeId_ = 0;
         bitField0_ = (bitField0_ & ~0x00020000);
-        isExtendedValueClass_ = false;
+        if (extendedValueClassRepresentationBuilder_ == null) {
+          extendedValueClassRepresentation_ = org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
+        } else {
+          extendedValueClassRepresentationBuilder_.clear();
+        }
         bitField0_ = (bitField0_ & ~0x00040000);
         if (annotationBuilder_ == null) {
           annotation_ = java.util.Collections.emptyList();
@@ -13306,7 +13329,11 @@ public final class DebugProtoBuf {
         if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.isExtendedValueClass_ = isExtendedValueClass_;
+        if (extendedValueClassRepresentationBuilder_ == null) {
+          result.extendedValueClassRepresentation_ = extendedValueClassRepresentation_;
+        } else {
+          result.extendedValueClassRepresentation_ = extendedValueClassRepresentationBuilder_.build();
+        }
         if (annotationBuilder_ == null) {
           if (((bitField0_ & 0x00080000) == 0x00080000)) {
             annotation_ = java.util.Collections.unmodifiableList(annotation_);
@@ -13628,8 +13655,8 @@ public final class DebugProtoBuf {
         if (other.hasInlineClassUnderlyingTypeId()) {
           setInlineClassUnderlyingTypeId(other.getInlineClassUnderlyingTypeId());
         }
-        if (other.hasIsExtendedValueClass()) {
-          setIsExtendedValueClass(other.getIsExtendedValueClass());
+        if (other.hasExtendedValueClassRepresentation()) {
+          mergeExtendedValueClassRepresentation(other.getExtendedValueClassRepresentation());
         }
         if (annotationBuilder_ == null) {
           if (!other.annotation_.isEmpty()) {
@@ -16323,36 +16350,120 @@ public final class DebugProtoBuf {
         return this;
       }
 
-      private boolean isExtendedValueClass_ ;
+      private org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation extendedValueClassRepresentation_ = org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
+      private org.jetbrains.kotlin.protobuf.SingleFieldBuilder<
+          org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation, org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.Builder, org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentationOrBuilder> extendedValueClassRepresentationBuilder_;
       /**
-       * <code>optional bool is_extended_value_class = 22;</code>
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
        */
-      public boolean hasIsExtendedValueClass() {
+      public boolean hasExtendedValueClassRepresentation() {
         return ((bitField0_ & 0x00040000) == 0x00040000);
       }
       /**
-       * <code>optional bool is_extended_value_class = 22;</code>
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
        */
-      public boolean getIsExtendedValueClass() {
-        return isExtendedValueClass_;
+      public org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation getExtendedValueClassRepresentation() {
+        if (extendedValueClassRepresentationBuilder_ == null) {
+          return extendedValueClassRepresentation_;
+        } else {
+          return extendedValueClassRepresentationBuilder_.getMessage();
+        }
       }
       /**
-       * <code>optional bool is_extended_value_class = 22;</code>
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
        */
-      public Builder setIsExtendedValueClass(boolean value) {
+      public Builder setExtendedValueClassRepresentation(org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation value) {
+        if (extendedValueClassRepresentationBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          extendedValueClassRepresentation_ = value;
+          onChanged();
+        } else {
+          extendedValueClassRepresentationBuilder_.setMessage(value);
+        }
         bitField0_ |= 0x00040000;
-        isExtendedValueClass_ = value;
-        onChanged();
         return this;
       }
       /**
-       * <code>optional bool is_extended_value_class = 22;</code>
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
        */
-      public Builder clearIsExtendedValueClass() {
-        bitField0_ = (bitField0_ & ~0x00040000);
-        isExtendedValueClass_ = false;
-        onChanged();
+      public Builder setExtendedValueClassRepresentation(
+          org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.Builder builderForValue) {
+        if (extendedValueClassRepresentationBuilder_ == null) {
+          extendedValueClassRepresentation_ = builderForValue.build();
+          onChanged();
+        } else {
+          extendedValueClassRepresentationBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00040000;
         return this;
+      }
+      /**
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
+       */
+      public Builder mergeExtendedValueClassRepresentation(org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation value) {
+        if (extendedValueClassRepresentationBuilder_ == null) {
+          if (((bitField0_ & 0x00040000) == 0x00040000) &&
+              extendedValueClassRepresentation_ != org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance()) {
+            extendedValueClassRepresentation_ =
+              org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.newBuilder(extendedValueClassRepresentation_).mergeFrom(value).buildPartial();
+          } else {
+            extendedValueClassRepresentation_ = value;
+          }
+          onChanged();
+        } else {
+          extendedValueClassRepresentationBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00040000;
+        return this;
+      }
+      /**
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
+       */
+      public Builder clearExtendedValueClassRepresentation() {
+        if (extendedValueClassRepresentationBuilder_ == null) {
+          extendedValueClassRepresentation_ = org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
+          onChanged();
+        } else {
+          extendedValueClassRepresentationBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00040000);
+        return this;
+      }
+      /**
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
+       */
+      public org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.Builder getExtendedValueClassRepresentationBuilder() {
+        bitField0_ |= 0x00040000;
+        onChanged();
+        return getExtendedValueClassRepresentationFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
+       */
+      public org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentationOrBuilder getExtendedValueClassRepresentationOrBuilder() {
+        if (extendedValueClassRepresentationBuilder_ != null) {
+          return extendedValueClassRepresentationBuilder_.getMessageOrBuilder();
+        } else {
+          return extendedValueClassRepresentation_;
+        }
+      }
+      /**
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
+       */
+      private org.jetbrains.kotlin.protobuf.SingleFieldBuilder<
+          org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation, org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.Builder, org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentationOrBuilder> 
+          getExtendedValueClassRepresentationFieldBuilder() {
+        if (extendedValueClassRepresentationBuilder_ == null) {
+          extendedValueClassRepresentationBuilder_ = new org.jetbrains.kotlin.protobuf.SingleFieldBuilder<
+              org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation, org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.Builder, org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentationOrBuilder>(
+                  getExtendedValueClassRepresentation(),
+                  getParentForChildren(),
+                  isClean());
+          extendedValueClassRepresentation_ = null;
+        }
+        return extendedValueClassRepresentationBuilder_;
       }
 
       private java.util.List<org.jetbrains.kotlin.metadata.DebugProtoBuf.Annotation> annotation_ =
@@ -17170,6 +17281,652 @@ public final class DebugProtoBuf {
     }
 
     // @@protoc_insertion_point(class_scope:org.jetbrains.kotlin.metadata.Class)
+  }
+
+  public interface ExtendedValueClassRepresentationOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
+      org.jetbrains.kotlin.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    java.util.List<java.lang.Integer> getPropertyNameList();
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    int getPropertyNameCount();
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    int getPropertyName(int index);
+
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    java.util.List<java.lang.Integer> getPropertyTypeIdList();
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    int getPropertyTypeIdCount();
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    int getPropertyTypeId(int index);
+  }
+  /**
+   * Protobuf type {@code org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation}
+   */
+  public static final class ExtendedValueClassRepresentation extends
+      org.jetbrains.kotlin.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
+      ExtendedValueClassRepresentationOrBuilder {
+    // Use ExtendedValueClassRepresentation.newBuilder() to construct.
+    private ExtendedValueClassRepresentation(org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private ExtendedValueClassRepresentation(boolean noInit) { this.unknownFields = org.jetbrains.kotlin.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final ExtendedValueClassRepresentation defaultInstance;
+    public static ExtendedValueClassRepresentation getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public ExtendedValueClassRepresentation getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final org.jetbrains.kotlin.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final org.jetbrains.kotlin.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private ExtendedValueClassRepresentation(
+        org.jetbrains.kotlin.protobuf.CodedInputStream input,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      org.jetbrains.kotlin.protobuf.UnknownFieldSet.Builder unknownFields =
+          org.jetbrains.kotlin.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                propertyName_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              propertyName_.add(input.readInt32());
+              break;
+            }
+            case 10: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
+                propertyName_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                propertyName_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 16: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                propertyTypeId_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              propertyTypeId_.add(input.readInt32());
+              break;
+            }
+            case 18: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
+                propertyTypeId_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                propertyTypeId_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+          }
+        }
+      } catch (org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          propertyName_ = java.util.Collections.unmodifiableList(propertyName_);
+        }
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          propertyTypeId_ = java.util.Collections.unmodifiableList(propertyTypeId_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.jetbrains.kotlin.metadata.DebugProtoBuf.internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_descriptor;
+    }
+
+    protected org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.jetbrains.kotlin.metadata.DebugProtoBuf.internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.class, org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.Builder.class);
+    }
+
+    public static org.jetbrains.kotlin.protobuf.Parser<ExtendedValueClassRepresentation> PARSER =
+        new org.jetbrains.kotlin.protobuf.AbstractParser<ExtendedValueClassRepresentation>() {
+      public ExtendedValueClassRepresentation parsePartialFrom(
+          org.jetbrains.kotlin.protobuf.CodedInputStream input,
+          org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+        return new ExtendedValueClassRepresentation(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public org.jetbrains.kotlin.protobuf.Parser<ExtendedValueClassRepresentation> getParserForType() {
+      return PARSER;
+    }
+
+    public static final int PROPERTY_NAME_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.Integer> propertyName_;
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getPropertyNameList() {
+      return propertyName_;
+    }
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    public int getPropertyNameCount() {
+      return propertyName_.size();
+    }
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    public int getPropertyName(int index) {
+      return propertyName_.get(index);
+    }
+    private int propertyNameMemoizedSerializedSize = -1;
+
+    public static final int PROPERTY_TYPE_ID_FIELD_NUMBER = 2;
+    private java.util.List<java.lang.Integer> propertyTypeId_;
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getPropertyTypeIdList() {
+      return propertyTypeId_;
+    }
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    public int getPropertyTypeIdCount() {
+      return propertyTypeId_.size();
+    }
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    public int getPropertyTypeId(int index) {
+      return propertyTypeId_.get(index);
+    }
+    private int propertyTypeIdMemoizedSerializedSize = -1;
+
+    private void initFields() {
+      propertyName_ = java.util.Collections.emptyList();
+      propertyTypeId_ = java.util.Collections.emptyList();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(org.jetbrains.kotlin.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (getPropertyNameList().size() > 0) {
+        output.writeRawVarint32(10);
+        output.writeRawVarint32(propertyNameMemoizedSerializedSize);
+      }
+      for (int i = 0; i < propertyName_.size(); i++) {
+        output.writeInt32NoTag(propertyName_.get(i));
+      }
+      if (getPropertyTypeIdList().size() > 0) {
+        output.writeRawVarint32(18);
+        output.writeRawVarint32(propertyTypeIdMemoizedSerializedSize);
+      }
+      for (int i = 0; i < propertyTypeId_.size(); i++) {
+        output.writeInt32NoTag(propertyTypeId_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      {
+        int dataSize = 0;
+        for (int i = 0; i < propertyName_.size(); i++) {
+          dataSize += org.jetbrains.kotlin.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(propertyName_.get(i));
+        }
+        size += dataSize;
+        if (!getPropertyNameList().isEmpty()) {
+          size += 1;
+          size += org.jetbrains.kotlin.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        propertyNameMemoizedSerializedSize = dataSize;
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < propertyTypeId_.size(); i++) {
+          dataSize += org.jetbrains.kotlin.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(propertyTypeId_.get(i));
+        }
+        size += dataSize;
+        if (!getPropertyTypeIdList().isEmpty()) {
+          size += 1;
+          size += org.jetbrains.kotlin.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        propertyTypeIdMemoizedSerializedSize = dataSize;
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        org.jetbrains.kotlin.protobuf.ByteString data)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        org.jetbrains.kotlin.protobuf.ByteString data,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseFrom(byte[] data)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        byte[] data,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        java.io.InputStream input,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseDelimitedFrom(
+        java.io.InputStream input,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        org.jetbrains.kotlin.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        org.jetbrains.kotlin.protobuf.CodedInputStream input,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        org.jetbrains.kotlin.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation}
+     */
+    public static final class Builder extends
+        org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
+        org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentationOrBuilder {
+      public static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.jetbrains.kotlin.metadata.DebugProtoBuf.internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_descriptor;
+      }
+
+      protected org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.jetbrains.kotlin.metadata.DebugProtoBuf.internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.class, org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.Builder.class);
+      }
+
+      // Construct using org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          org.jetbrains.kotlin.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (org.jetbrains.kotlin.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        propertyName_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        propertyTypeId_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.jetbrains.kotlin.metadata.DebugProtoBuf.internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_descriptor;
+      }
+
+      public org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation getDefaultInstanceForType() {
+        return org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
+      }
+
+      public org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation build() {
+        org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation buildPartial() {
+        org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation result = new org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation(this);
+        int from_bitField0_ = bitField0_;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          propertyName_ = java.util.Collections.unmodifiableList(propertyName_);
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
+        result.propertyName_ = propertyName_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          propertyTypeId_ = java.util.Collections.unmodifiableList(propertyTypeId_);
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.propertyTypeId_ = propertyTypeId_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(org.jetbrains.kotlin.protobuf.Message other) {
+        if (other instanceof org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation) {
+          return mergeFrom((org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation other) {
+        if (other == org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance()) return this;
+        if (!other.propertyName_.isEmpty()) {
+          if (propertyName_.isEmpty()) {
+            propertyName_ = other.propertyName_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensurePropertyNameIsMutable();
+            propertyName_.addAll(other.propertyName_);
+          }
+          onChanged();
+        }
+        if (!other.propertyTypeId_.isEmpty()) {
+          if (propertyTypeId_.isEmpty()) {
+            propertyTypeId_ = other.propertyTypeId_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensurePropertyTypeIdIsMutable();
+            propertyTypeId_.addAll(other.propertyTypeId_);
+          }
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          org.jetbrains.kotlin.protobuf.CodedInputStream input,
+          org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.jetbrains.kotlin.metadata.DebugProtoBuf.ExtendedValueClassRepresentation) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<java.lang.Integer> propertyName_ = java.util.Collections.emptyList();
+      private void ensurePropertyNameIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          propertyName_ = new java.util.ArrayList<java.lang.Integer>(propertyName_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getPropertyNameList() {
+        return java.util.Collections.unmodifiableList(propertyName_);
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public int getPropertyNameCount() {
+        return propertyName_.size();
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public int getPropertyName(int index) {
+        return propertyName_.get(index);
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public Builder setPropertyName(
+          int index, int value) {
+        ensurePropertyNameIsMutable();
+        propertyName_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public Builder addPropertyName(int value) {
+        ensurePropertyNameIsMutable();
+        propertyName_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public Builder addAllPropertyName(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensurePropertyNameIsMutable();
+        org.jetbrains.kotlin.protobuf.AbstractMessageLite.Builder.addAll(
+            values, propertyName_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public Builder clearPropertyName() {
+        propertyName_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<java.lang.Integer> propertyTypeId_ = java.util.Collections.emptyList();
+      private void ensurePropertyTypeIdIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          propertyTypeId_ = new java.util.ArrayList<java.lang.Integer>(propertyTypeId_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getPropertyTypeIdList() {
+        return java.util.Collections.unmodifiableList(propertyTypeId_);
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public int getPropertyTypeIdCount() {
+        return propertyTypeId_.size();
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public int getPropertyTypeId(int index) {
+        return propertyTypeId_.get(index);
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public Builder setPropertyTypeId(
+          int index, int value) {
+        ensurePropertyTypeIdIsMutable();
+        propertyTypeId_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public Builder addPropertyTypeId(int value) {
+        ensurePropertyTypeIdIsMutable();
+        propertyTypeId_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public Builder addAllPropertyTypeId(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensurePropertyTypeIdIsMutable();
+        org.jetbrains.kotlin.protobuf.AbstractMessageLite.Builder.addAll(
+            values, propertyTypeId_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public Builder clearPropertyTypeId() {
+        propertyTypeId_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
+    }
+
+    static {
+      defaultInstance = new ExtendedValueClassRepresentation(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
   }
 
   public interface PackageOrBuilder extends
@@ -45951,6 +46708,11 @@ public final class DebugProtoBuf {
     org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_jetbrains_kotlin_metadata_Class_fieldAccessorTable;
   private static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
+    internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_descriptor;
+  private static
+    org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_fieldAccessorTable;
+  private static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
     internal_static_org_jetbrains_kotlin_metadata_Package_descriptor;
   private static
     org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable
@@ -46095,7 +46857,7 @@ public final class DebugProtoBuf {
       ".metadata.Type\022\036\n\016upper_bound_id\030\006 \003(\005B\006" +
       "\020\001\240\265\030\001\022=\n\nannotation\030d \003(\0132).org.jetbrai",
       "ns.kotlin.metadata.Annotation\"$\n\010Varianc" +
-      "e\022\006\n\002IN\020\000\022\007\n\003OUT\020\001\022\007\n\003INV\020\002*\005\010e\020\350\007\"\366\n\n\005C" +
+      "e\022\006\n\002IN\020\000\022\007\n\003OUT\020\001\022\007\n\003INV\020\002*\005\010e\020\350\007\"\303\013\n\005C" +
       "lass\022\020\n\005flags\030\001 \001(\005:\0016\022\025\n\007fq_name\030\003 \002(\005B" +
       "\004\220\265\030\001\022#\n\025companion_object_name\030\004 \001(\005B\004\210\265" +
       "\030\001\022D\n\016type_parameter\030\005 \003(\0132,.org.jetbrai" +
@@ -46118,180 +46880,184 @@ public final class DebugProtoBuf {
       "roperty_name\030\021 \001(\005B\004\210\265\030\001\022I\n\034inline_class" +
       "_underlying_type\030\022 \001(\0132#.org.jetbrains.k" +
       "otlin.metadata.Type\022-\n\037inline_class_unde" +
-      "rlying_type_id\030\023 \001(\005B\004\240\265\030\001\022\037\n\027is_extende" +
-      "d_value_class\030\026 \001(\010\022=\n\nannotation\030\031 \003(\0132" +
-      ").org.jetbrains.kotlin.metadata.Annotati" +
-      "on\022<\n\ntype_table\030\036 \001(\0132(.org.jetbrains.k" +
-      "otlin.metadata.TypeTable\022\033\n\023version_requ" +
-      "irement\030\037 \003(\005\022Y\n\031version_requirement_tab",
-      "le\030  \001(\01326.org.jetbrains.kotlin.metadata" +
-      ".VersionRequirementTable\022O\n\024compiler_plu" +
-      "gin_data\030! \003(\01321.org.jetbrains.kotlin.me" +
-      "tadata.CompilerPluginData\"x\n\004Kind\022\t\n\005CLA" +
-      "SS\020\000\022\r\n\tINTERFACE\020\001\022\016\n\nENUM_CLASS\020\002\022\016\n\nE" +
-      "NUM_ENTRY\020\003\022\024\n\020ANNOTATION_CLASS\020\004\022\n\n\006OBJ" +
-      "ECT\020\005\022\024\n\020COMPANION_OBJECT\020\006*\006\010d\020\270\224\001\"\335\002\n\007" +
-      "Package\0229\n\010function\030\003 \003(\0132\'.org.jetbrain" +
-      "s.kotlin.metadata.Function\0229\n\010property\030\004" +
-      " \003(\0132\'.org.jetbrains.kotlin.metadata.Pro",
-      "perty\022<\n\ntype_alias\030\005 \003(\0132(.org.jetbrain" +
-      "s.kotlin.metadata.TypeAlias\022<\n\ntype_tabl" +
-      "e\030\036 \001(\0132(.org.jetbrains.kotlin.metadata." +
-      "TypeTable\022Y\n\031version_requirement_table\030 " +
-      " \001(\01326.org.jetbrains.kotlin.metadata.Ver" +
-      "sionRequirementTable*\005\010d\020\310\001\"`\n\tTypeTable" +
-      "\0221\n\004type\030\001 \003(\0132#.org.jetbrains.kotlin.me" +
-      "tadata.Type\022\032\n\016first_nullable\030\002 \001(\005:\002-1:" +
-      "\004\240\273\030\001\"\234\002\n\013Constructor\022\020\n\005flags\030\001 \001(\005:\0016\022" +
-      "F\n\017value_parameter\030\002 \003(\0132-.org.jetbrains",
-      ".kotlin.metadata.ValueParameter\022\033\n\023versi" +
-      "on_requirement\030\037 \003(\005\022O\n\024compiler_plugin_" +
-      "data\030  \003(\01321.org.jetbrains.kotlin.metada" +
-      "ta.CompilerPluginData\022=\n\nannotation\030\003 \003(" +
-      "\0132).org.jetbrains.kotlin.metadata.Annota" +
-      "tion*\006\010d\020\270\224\001\"\300\007\n\010Function\022\020\n\005flags\030\t \001(\005" +
-      ":\0016\022\024\n\told_flags\030\001 \001(\005:\0016\022\022\n\004name\030\002 \002(\005B" +
-      "\004\210\265\030\001\0228\n\013return_type\030\003 \001(\0132#.org.jetbrai" +
-      "ns.kotlin.metadata.Type\022\034\n\016return_type_i" +
-      "d\030\007 \001(\005B\004\240\265\030\001\022D\n\016type_parameter\030\004 \003(\0132,.",
-      "org.jetbrains.kotlin.metadata.TypeParame" +
-      "ter\022:\n\rreceiver_type\030\005 \001(\0132#.org.jetbrai" +
-      "ns.kotlin.metadata.Type\022\036\n\020receiver_type" +
-      "_id\030\010 \001(\005B\004\240\265\030\001\022B\n\025context_receiver_type" +
-      "\030\n \003(\0132#.org.jetbrains.kotlin.metadata.T" +
-      "ype\022(\n\030context_receiver_type_id\030\013 \003(\005B\006\020" +
-      "\001\240\265\030\001\022H\n\021context_parameter\030\r \003(\0132-.org.j" +
-      "etbrains.kotlin.metadata.ValueParameter\022" +
-      "F\n\017value_parameter\030\006 \003(\0132-.org.jetbrains" +
-      ".kotlin.metadata.ValueParameter\022<\n\ntype_",
-      "table\030\036 \001(\0132(.org.jetbrains.kotlin.metad" +
-      "ata.TypeTable\022\033\n\023version_requirement\030\037 \003" +
-      "(\005\0229\n\010contract\030  \001(\0132\'.org.jetbrains.kot" +
-      "lin.metadata.Contract\022O\n\024compiler_plugin" +
+      "rlying_type_id\030\023 \001(\005B\004\240\265\030\001\022l\n#extended_v" +
+      "alue_class_representation\030\026 \001(\0132?.org.je" +
+      "tbrains.kotlin.metadata.ExtendedValueCla" +
+      "ssRepresentation\022=\n\nannotation\030\031 \003(\0132).o" +
+      "rg.jetbrains.kotlin.metadata.Annotation\022" +
+      "<\n\ntype_table\030\036 \001(\0132(.org.jetbrains.kotl",
+      "in.metadata.TypeTable\022\033\n\023version_require" +
+      "ment\030\037 \003(\005\022Y\n\031version_requirement_table\030" +
+      "  \001(\01326.org.jetbrains.kotlin.metadata.Ve" +
+      "rsionRequirementTable\022O\n\024compiler_plugin" +
       "_data\030! \003(\01321.org.jetbrains.kotlin.metad" +
-      "ata.CompilerPluginData\022=\n\nannotation\030\014 \003" +
-      "(\0132).org.jetbrains.kotlin.metadata.Annot" +
-      "ation\022P\n\035extension_receiver_annotation\030\"" +
-      " \003(\0132).org.jetbrains.kotlin.metadata.Ann" +
-      "otation*\006\010d\020\270\224\001\"\250\n\n\010Property\022\022\n\005flags\030\013 ",
-      "\001(\005:\003518\022\027\n\told_flags\030\001 \001(\005:\0042054\022\022\n\004nam" +
-      "e\030\002 \002(\005B\004\210\265\030\001\0228\n\013return_type\030\003 \001(\0132#.org" +
-      ".jetbrains.kotlin.metadata.Type\022\034\n\016retur" +
-      "n_type_id\030\t \001(\005B\004\240\265\030\001\022D\n\016type_parameter\030" +
-      "\004 \003(\0132,.org.jetbrains.kotlin.metadata.Ty" +
-      "peParameter\022:\n\rreceiver_type\030\005 \001(\0132#.org" +
-      ".jetbrains.kotlin.metadata.Type\022\036\n\020recei" +
-      "ver_type_id\030\n \001(\005B\004\240\265\030\001\022B\n\025context_recei" +
-      "ver_type\030\014 \003(\0132#.org.jetbrains.kotlin.me" +
-      "tadata.Type\022(\n\030context_receiver_type_id\030",
-      "\r \003(\005B\006\020\001\240\265\030\001\022H\n\021context_parameter\030\021 \003(\013" +
-      "2-.org.jetbrains.kotlin.metadata.ValuePa" +
-      "rameter\022M\n\026setter_value_parameter\030\006 \001(\0132" +
-      "-.org.jetbrains.kotlin.metadata.ValuePar" +
-      "ameter\022\024\n\014getter_flags\030\007 \001(\005\022\024\n\014setter_f" +
-      "lags\030\010 \001(\005\022\033\n\023version_requirement\030\037 \003(\005\022" +
-      "O\n\024compiler_plugin_data\030  \003(\01321.org.jetb" +
-      "rains.kotlin.metadata.CompilerPluginData" +
-      "\022=\n\nannotation\030\016 \003(\0132).org.jetbrains.kot" +
-      "lin.metadata.Annotation\022D\n\021getter_annota",
-      "tion\030\017 \003(\0132).org.jetbrains.kotlin.metada" +
-      "ta.Annotation\022D\n\021setter_annotation\030\020 \003(\013" +
-      "2).org.jetbrains.kotlin.metadata.Annotat" +
-      "ion\022P\n\035extension_receiver_annotation\030! \003" +
-      "(\0132).org.jetbrains.kotlin.metadata.Annot" +
-      "ation\022K\n\030backing_field_annotation\030\" \003(\0132" +
-      ").org.jetbrains.kotlin.metadata.Annotati" +
-      "on\022L\n\031delegate_field_annotation\030# \003(\0132)." +
-      "org.jetbrains.kotlin.metadata.Annotation" +
-      "\022?\n\016getterContract\030( \001(\0132\'.org.jetbrains",
-      ".kotlin.metadata.Contract\022?\n\016setterContr" +
-      "act\030) \001(\0132\'.org.jetbrains.kotlin.metadat" +
-      "a.Contract*\006\010d\020\270\224\001\"\224\003\n\016ValueParameter\022\020\n" +
-      "\005flags\030\001 \001(\005:\0010\022\022\n\004name\030\002 \002(\005B\004\210\265\030\001\0221\n\004t" +
-      "ype\030\003 \001(\0132#.org.jetbrains.kotlin.metadat" +
-      "a.Type\022\025\n\007type_id\030\005 \001(\005B\004\240\265\030\001\022@\n\023vararg_" +
-      "element_type\030\004 \001(\0132#.org.jetbrains.kotli" +
-      "n.metadata.Type\022$\n\026vararg_element_type_i" +
-      "d\030\006 \001(\005B\004\240\265\030\001\022=\n\nannotation\030\007 \003(\0132).org." +
-      "jetbrains.kotlin.metadata.Annotation\022d\n\"",
-      "annotation_parameter_default_value\030\010 \001(\013" +
-      "28.org.jetbrains.kotlin.metadata.Annotat" +
-      "ion.Argument.Value*\005\010d\020\310\001\"\347\003\n\tTypeAlias\022" +
-      "\020\n\005flags\030\001 \001(\005:\0016\022\022\n\004name\030\002 \002(\005B\004\210\265\030\001\022D\n" +
-      "\016type_parameter\030\003 \003(\0132,.org.jetbrains.ko" +
-      "tlin.metadata.TypeParameter\022<\n\017underlyin" +
-      "g_type\030\004 \001(\0132#.org.jetbrains.kotlin.meta" +
-      "data.Type\022 \n\022underlying_type_id\030\005 \001(\005B\004\240" +
-      "\265\030\001\022:\n\rexpanded_type\030\006 \001(\0132#.org.jetbrai" +
-      "ns.kotlin.metadata.Type\022\036\n\020expanded_type",
-      "_id\030\007 \001(\005B\004\240\265\030\001\022=\n\nannotation\030\010 \003(\0132).or" +
-      "g.jetbrains.kotlin.metadata.Annotation\022\033" +
-      "\n\023version_requirement\030\037 \003(\005\022O\n\024compiler_" +
-      "plugin_data\030  \003(\01321.org.jetbrains.kotlin" +
-      ".metadata.CompilerPluginData*\005\010d\020\310\001\"e\n\tE" +
-      "numEntry\022\022\n\004name\030\001 \001(\005B\004\210\265\030\001\022=\n\nannotati" +
-      "on\030\002 \003(\0132).org.jetbrains.kotlin.metadata" +
-      ".Annotation*\005\010d\020\310\001\"\225\003\n\022VersionRequiremen" +
-      "t\022\017\n\007version\030\001 \001(\005\022\024\n\014version_full\030\002 \001(\005" +
-      "\022M\n\005level\030\003 \001(\01627.org.jetbrains.kotlin.m",
-      "etadata.VersionRequirement.Level:\005ERROR\022" +
-      "\022\n\nerror_code\030\004 \001(\005\022\025\n\007message\030\005 \001(\005B\004\230\265" +
-      "\030\001\022e\n\014version_kind\030\006 \001(\0162=.org.jetbrains" +
-      ".kotlin.metadata.VersionRequirement.Vers" +
-      "ionKind:\020LANGUAGE_VERSION\"+\n\005Level\022\013\n\007WA" +
-      "RNING\020\000\022\t\n\005ERROR\020\001\022\n\n\006HIDDEN\020\002\"J\n\013Versio" +
-      "nKind\022\024\n\020LANGUAGE_VERSION\020\000\022\024\n\020COMPILER_" +
-      "VERSION\020\001\022\017\n\013API_VERSION\020\002\"a\n\027VersionReq" +
-      "uirementTable\022F\n\013requirement\030\001 \003(\01321.org" +
-      ".jetbrains.kotlin.metadata.VersionRequir",
-      "ement\"\323\002\n\017PackageFragment\022;\n\007strings\030\001 \001" +
-      "(\0132*.org.jetbrains.kotlin.metadata.Strin" +
-      "gTable\022J\n\017qualified_names\030\002 \001(\01321.org.je" +
-      "tbrains.kotlin.metadata.QualifiedNameTab" +
-      "le\0227\n\007package\030\003 \001(\0132&.org.jetbrains.kotl" +
-      "in.metadata.Package\0223\n\005class\030\004 \003(\0132$.org" +
-      ".jetbrains.kotlin.metadata.Class\022B\n\017file" +
-      "_annotation\030\005 \003(\0132).org.jetbrains.kotlin" +
-      ".metadata.Annotation*\005\010d\020\310\001\"A\n\010Contract\022" +
-      "5\n\006effect\030\001 \003(\0132%.org.jetbrains.kotlin.m",
-      "etadata.Effect\"\217\005\n\006Effect\022E\n\013effect_type" +
-      "\030\001 \001(\01620.org.jetbrains.kotlin.metadata.E" +
-      "ffect.EffectType\022N\n\033effect_constructor_a" +
-      "rgument\030\002 \003(\0132).org.jetbrains.kotlin.met" +
-      "adata.Expression\022S\n conclusion_of_condit" +
-      "ional_effect\030\003 \001(\0132).org.jetbrains.kotli" +
-      "n.metadata.Expression\022B\n\004kind\030\004 \001(\01624.or" +
-      "g.jetbrains.kotlin.metadata.Effect.Invoc" +
-      "ationKind\022Q\n\016condition_kind\030\005 \001(\01629.org." +
-      "jetbrains.kotlin.metadata.Effect.EffectC",
-      "onditionKind\"Z\n\nEffectType\022\024\n\020RETURNS_CO" +
-      "NSTANT\020\000\022\t\n\005CALLS\020\001\022\024\n\020RETURNS_NOT_NULL\020" +
-      "\002\022\025\n\021RETURNS_RESULT_OF\020\003\"G\n\016InvocationKi" +
-      "nd\022\020\n\014AT_MOST_ONCE\020\000\022\020\n\014EXACTLY_ONCE\020\001\022\021" +
-      "\n\rAT_LEAST_ONCE\020\002\"]\n\023EffectConditionKind" +
-      "\022\030\n\024CONCLUSION_CONDITION\020\000\022\025\n\021RETURNS_CO" +
-      "NDITION\020\001\022\025\n\021HOLDSIN_CONDITION\020\002\"\245\003\n\nExp" +
-      "ression\022\020\n\005flags\030\001 \001(\005:\0010\022!\n\031value_param" +
-      "eter_reference\030\002 \001(\005\022O\n\016constant_value\030\003" +
-      " \001(\01627.org.jetbrains.kotlin.metadata.Exp",
-      "ression.ConstantValue\022=\n\020is_instance_typ" +
-      "e\030\004 \001(\0132#.org.jetbrains.kotlin.metadata." +
-      "Type\022!\n\023is_instance_type_id\030\005 \001(\005B\004\240\265\030\001\022" +
-      "?\n\014and_argument\030\006 \003(\0132).org.jetbrains.ko" +
-      "tlin.metadata.Expression\022>\n\013or_argument\030" +
-      "\007 \003(\0132).org.jetbrains.kotlin.metadata.Ex" +
-      "pression\".\n\rConstantValue\022\010\n\004TRUE\020\000\022\t\n\005F" +
-      "ALSE\020\001\022\010\n\004NULL\020\002\";\n\022CompilerPluginData\022\027" +
-      "\n\tplugin_id\030\001 \002(\005B\004\230\265\030\001\022\014\n\004data\030\002 \002(\014*9\n" +
-      "\010Modality\022\t\n\005FINAL\020\000\022\010\n\004OPEN\020\001\022\014\n\010ABSTRA",
-      "CT\020\002\022\n\n\006SEALED\020\003*b\n\nVisibility\022\014\n\010INTERN" +
-      "AL\020\000\022\013\n\007PRIVATE\020\001\022\r\n\tPROTECTED\020\002\022\n\n\006PUBL" +
-      "IC\020\003\022\023\n\017PRIVATE_TO_THIS\020\004\022\t\n\005LOCAL\020\005*Q\n\n" +
-      "MemberKind\022\017\n\013DECLARATION\020\000\022\021\n\rFAKE_OVER" +
-      "RIDE\020\001\022\016\n\nDELEGATION\020\002\022\017\n\013SYNTHESIZED\020\003*" +
-      "L\n\021ReturnValueStatus\022\017\n\013UNSPECIFIED\020\000\022\014\n" +
-      "\010MUST_USE\020\001\022\030\n\024EXPLICITLY_IGNORABLE\020\002B\017B" +
-      "\rDebugProtoBuf"
+      "ata.CompilerPluginData\"x\n\004Kind\022\t\n\005CLASS\020" +
+      "\000\022\r\n\tINTERFACE\020\001\022\016\n\nENUM_CLASS\020\002\022\016\n\nENUM" +
+      "_ENTRY\020\003\022\024\n\020ANNOTATION_CLASS\020\004\022\n\n\006OBJECT" +
+      "\020\005\022\024\n\020COMPANION_OBJECT\020\006*\006\010d\020\270\224\001\"c\n Exte" +
+      "ndedValueClassRepresentation\022\035\n\rproperty",
+      "_name\030\001 \003(\005B\006\020\001\210\265\030\001\022 \n\020property_type_id\030" +
+      "\002 \003(\005B\006\020\001\240\265\030\001\"\335\002\n\007Package\0229\n\010function\030\003 " +
+      "\003(\0132\'.org.jetbrains.kotlin.metadata.Func" +
+      "tion\0229\n\010property\030\004 \003(\0132\'.org.jetbrains.k" +
+      "otlin.metadata.Property\022<\n\ntype_alias\030\005 " +
+      "\003(\0132(.org.jetbrains.kotlin.metadata.Type" +
+      "Alias\022<\n\ntype_table\030\036 \001(\0132(.org.jetbrain" +
+      "s.kotlin.metadata.TypeTable\022Y\n\031version_r" +
+      "equirement_table\030  \001(\01326.org.jetbrains.k" +
+      "otlin.metadata.VersionRequirementTable*\005",
+      "\010d\020\310\001\"`\n\tTypeTable\0221\n\004type\030\001 \003(\0132#.org.j" +
+      "etbrains.kotlin.metadata.Type\022\032\n\016first_n" +
+      "ullable\030\002 \001(\005:\002-1:\004\240\273\030\001\"\234\002\n\013Constructor\022" +
+      "\020\n\005flags\030\001 \001(\005:\0016\022F\n\017value_parameter\030\002 \003" +
+      "(\0132-.org.jetbrains.kotlin.metadata.Value" +
+      "Parameter\022\033\n\023version_requirement\030\037 \003(\005\022O" +
+      "\n\024compiler_plugin_data\030  \003(\01321.org.jetbr" +
+      "ains.kotlin.metadata.CompilerPluginData\022" +
+      "=\n\nannotation\030\003 \003(\0132).org.jetbrains.kotl" +
+      "in.metadata.Annotation*\006\010d\020\270\224\001\"\300\007\n\010Funct",
+      "ion\022\020\n\005flags\030\t \001(\005:\0016\022\024\n\told_flags\030\001 \001(\005" +
+      ":\0016\022\022\n\004name\030\002 \002(\005B\004\210\265\030\001\0228\n\013return_type\030\003" +
+      " \001(\0132#.org.jetbrains.kotlin.metadata.Typ" +
+      "e\022\034\n\016return_type_id\030\007 \001(\005B\004\240\265\030\001\022D\n\016type_" +
+      "parameter\030\004 \003(\0132,.org.jetbrains.kotlin.m" +
+      "etadata.TypeParameter\022:\n\rreceiver_type\030\005" +
+      " \001(\0132#.org.jetbrains.kotlin.metadata.Typ" +
+      "e\022\036\n\020receiver_type_id\030\010 \001(\005B\004\240\265\030\001\022B\n\025con" +
+      "text_receiver_type\030\n \003(\0132#.org.jetbrains" +
+      ".kotlin.metadata.Type\022(\n\030context_receive",
+      "r_type_id\030\013 \003(\005B\006\020\001\240\265\030\001\022H\n\021context_param" +
+      "eter\030\r \003(\0132-.org.jetbrains.kotlin.metada" +
+      "ta.ValueParameter\022F\n\017value_parameter\030\006 \003" +
+      "(\0132-.org.jetbrains.kotlin.metadata.Value" +
+      "Parameter\022<\n\ntype_table\030\036 \001(\0132(.org.jetb" +
+      "rains.kotlin.metadata.TypeTable\022\033\n\023versi" +
+      "on_requirement\030\037 \003(\005\0229\n\010contract\030  \001(\0132\'" +
+      ".org.jetbrains.kotlin.metadata.Contract\022" +
+      "O\n\024compiler_plugin_data\030! \003(\01321.org.jetb" +
+      "rains.kotlin.metadata.CompilerPluginData",
+      "\022=\n\nannotation\030\014 \003(\0132).org.jetbrains.kot" +
+      "lin.metadata.Annotation\022P\n\035extension_rec" +
+      "eiver_annotation\030\" \003(\0132).org.jetbrains.k" +
+      "otlin.metadata.Annotation*\006\010d\020\270\224\001\"\250\n\n\010Pr" +
+      "operty\022\022\n\005flags\030\013 \001(\005:\003518\022\027\n\told_flags\030" +
+      "\001 \001(\005:\0042054\022\022\n\004name\030\002 \002(\005B\004\210\265\030\001\0228\n\013retur" +
+      "n_type\030\003 \001(\0132#.org.jetbrains.kotlin.meta" +
+      "data.Type\022\034\n\016return_type_id\030\t \001(\005B\004\240\265\030\001\022" +
+      "D\n\016type_parameter\030\004 \003(\0132,.org.jetbrains." +
+      "kotlin.metadata.TypeParameter\022:\n\rreceive",
+      "r_type\030\005 \001(\0132#.org.jetbrains.kotlin.meta" +
+      "data.Type\022\036\n\020receiver_type_id\030\n \001(\005B\004\240\265\030" +
+      "\001\022B\n\025context_receiver_type\030\014 \003(\0132#.org.j" +
+      "etbrains.kotlin.metadata.Type\022(\n\030context" +
+      "_receiver_type_id\030\r \003(\005B\006\020\001\240\265\030\001\022H\n\021conte" +
+      "xt_parameter\030\021 \003(\0132-.org.jetbrains.kotli" +
+      "n.metadata.ValueParameter\022M\n\026setter_valu" +
+      "e_parameter\030\006 \001(\0132-.org.jetbrains.kotlin" +
+      ".metadata.ValueParameter\022\024\n\014getter_flags" +
+      "\030\007 \001(\005\022\024\n\014setter_flags\030\010 \001(\005\022\033\n\023version_",
+      "requirement\030\037 \003(\005\022O\n\024compiler_plugin_dat" +
+      "a\030  \003(\01321.org.jetbrains.kotlin.metadata." +
+      "CompilerPluginData\022=\n\nannotation\030\016 \003(\0132)" +
+      ".org.jetbrains.kotlin.metadata.Annotatio" +
+      "n\022D\n\021getter_annotation\030\017 \003(\0132).org.jetbr" +
+      "ains.kotlin.metadata.Annotation\022D\n\021sette" +
+      "r_annotation\030\020 \003(\0132).org.jetbrains.kotli" +
+      "n.metadata.Annotation\022P\n\035extension_recei" +
+      "ver_annotation\030! \003(\0132).org.jetbrains.kot" +
+      "lin.metadata.Annotation\022K\n\030backing_field",
+      "_annotation\030\" \003(\0132).org.jetbrains.kotlin" +
+      ".metadata.Annotation\022L\n\031delegate_field_a" +
+      "nnotation\030# \003(\0132).org.jetbrains.kotlin.m" +
+      "etadata.Annotation\022?\n\016getterContract\030( \001" +
+      "(\0132\'.org.jetbrains.kotlin.metadata.Contr" +
+      "act\022?\n\016setterContract\030) \001(\0132\'.org.jetbra" +
+      "ins.kotlin.metadata.Contract*\006\010d\020\270\224\001\"\224\003\n" +
+      "\016ValueParameter\022\020\n\005flags\030\001 \001(\005:\0010\022\022\n\004nam" +
+      "e\030\002 \002(\005B\004\210\265\030\001\0221\n\004type\030\003 \001(\0132#.org.jetbra" +
+      "ins.kotlin.metadata.Type\022\025\n\007type_id\030\005 \001(",
+      "\005B\004\240\265\030\001\022@\n\023vararg_element_type\030\004 \001(\0132#.o" +
+      "rg.jetbrains.kotlin.metadata.Type\022$\n\026var" +
+      "arg_element_type_id\030\006 \001(\005B\004\240\265\030\001\022=\n\nannot" +
+      "ation\030\007 \003(\0132).org.jetbrains.kotlin.metad" +
+      "ata.Annotation\022d\n\"annotation_parameter_d" +
+      "efault_value\030\010 \001(\01328.org.jetbrains.kotli" +
+      "n.metadata.Annotation.Argument.Value*\005\010d" +
+      "\020\310\001\"\347\003\n\tTypeAlias\022\020\n\005flags\030\001 \001(\005:\0016\022\022\n\004n" +
+      "ame\030\002 \002(\005B\004\210\265\030\001\022D\n\016type_parameter\030\003 \003(\0132" +
+      ",.org.jetbrains.kotlin.metadata.TypePara",
+      "meter\022<\n\017underlying_type\030\004 \001(\0132#.org.jet" +
+      "brains.kotlin.metadata.Type\022 \n\022underlyin" +
+      "g_type_id\030\005 \001(\005B\004\240\265\030\001\022:\n\rexpanded_type\030\006" +
+      " \001(\0132#.org.jetbrains.kotlin.metadata.Typ" +
+      "e\022\036\n\020expanded_type_id\030\007 \001(\005B\004\240\265\030\001\022=\n\nann" +
+      "otation\030\010 \003(\0132).org.jetbrains.kotlin.met" +
+      "adata.Annotation\022\033\n\023version_requirement\030" +
+      "\037 \003(\005\022O\n\024compiler_plugin_data\030  \003(\01321.or" +
+      "g.jetbrains.kotlin.metadata.CompilerPlug" +
+      "inData*\005\010d\020\310\001\"e\n\tEnumEntry\022\022\n\004name\030\001 \001(\005",
+      "B\004\210\265\030\001\022=\n\nannotation\030\002 \003(\0132).org.jetbrai" +
+      "ns.kotlin.metadata.Annotation*\005\010d\020\310\001\"\225\003\n" +
+      "\022VersionRequirement\022\017\n\007version\030\001 \001(\005\022\024\n\014" +
+      "version_full\030\002 \001(\005\022M\n\005level\030\003 \001(\01627.org." +
+      "jetbrains.kotlin.metadata.VersionRequire" +
+      "ment.Level:\005ERROR\022\022\n\nerror_code\030\004 \001(\005\022\025\n" +
+      "\007message\030\005 \001(\005B\004\230\265\030\001\022e\n\014version_kind\030\006 \001" +
+      "(\0162=.org.jetbrains.kotlin.metadata.Versi" +
+      "onRequirement.VersionKind:\020LANGUAGE_VERS" +
+      "ION\"+\n\005Level\022\013\n\007WARNING\020\000\022\t\n\005ERROR\020\001\022\n\n\006",
+      "HIDDEN\020\002\"J\n\013VersionKind\022\024\n\020LANGUAGE_VERS" +
+      "ION\020\000\022\024\n\020COMPILER_VERSION\020\001\022\017\n\013API_VERSI" +
+      "ON\020\002\"a\n\027VersionRequirementTable\022F\n\013requi" +
+      "rement\030\001 \003(\01321.org.jetbrains.kotlin.meta" +
+      "data.VersionRequirement\"\323\002\n\017PackageFragm" +
+      "ent\022;\n\007strings\030\001 \001(\0132*.org.jetbrains.kot" +
+      "lin.metadata.StringTable\022J\n\017qualified_na" +
+      "mes\030\002 \001(\01321.org.jetbrains.kotlin.metadat" +
+      "a.QualifiedNameTable\0227\n\007package\030\003 \001(\0132&." +
+      "org.jetbrains.kotlin.metadata.Package\0223\n",
+      "\005class\030\004 \003(\0132$.org.jetbrains.kotlin.meta" +
+      "data.Class\022B\n\017file_annotation\030\005 \003(\0132).or" +
+      "g.jetbrains.kotlin.metadata.Annotation*\005" +
+      "\010d\020\310\001\"A\n\010Contract\0225\n\006effect\030\001 \003(\0132%.org." +
+      "jetbrains.kotlin.metadata.Effect\"\217\005\n\006Eff" +
+      "ect\022E\n\013effect_type\030\001 \001(\01620.org.jetbrains" +
+      ".kotlin.metadata.Effect.EffectType\022N\n\033ef" +
+      "fect_constructor_argument\030\002 \003(\0132).org.je" +
+      "tbrains.kotlin.metadata.Expression\022S\n co" +
+      "nclusion_of_conditional_effect\030\003 \001(\0132).o",
+      "rg.jetbrains.kotlin.metadata.Expression\022" +
+      "B\n\004kind\030\004 \001(\01624.org.jetbrains.kotlin.met" +
+      "adata.Effect.InvocationKind\022Q\n\016condition" +
+      "_kind\030\005 \001(\01629.org.jetbrains.kotlin.metad" +
+      "ata.Effect.EffectConditionKind\"Z\n\nEffect" +
+      "Type\022\024\n\020RETURNS_CONSTANT\020\000\022\t\n\005CALLS\020\001\022\024\n" +
+      "\020RETURNS_NOT_NULL\020\002\022\025\n\021RETURNS_RESULT_OF" +
+      "\020\003\"G\n\016InvocationKind\022\020\n\014AT_MOST_ONCE\020\000\022\020" +
+      "\n\014EXACTLY_ONCE\020\001\022\021\n\rAT_LEAST_ONCE\020\002\"]\n\023E" +
+      "ffectConditionKind\022\030\n\024CONCLUSION_CONDITI",
+      "ON\020\000\022\025\n\021RETURNS_CONDITION\020\001\022\025\n\021HOLDSIN_C" +
+      "ONDITION\020\002\"\245\003\n\nExpression\022\020\n\005flags\030\001 \001(\005" +
+      ":\0010\022!\n\031value_parameter_reference\030\002 \001(\005\022O" +
+      "\n\016constant_value\030\003 \001(\01627.org.jetbrains.k" +
+      "otlin.metadata.Expression.ConstantValue\022" +
+      "=\n\020is_instance_type\030\004 \001(\0132#.org.jetbrain" +
+      "s.kotlin.metadata.Type\022!\n\023is_instance_ty" +
+      "pe_id\030\005 \001(\005B\004\240\265\030\001\022?\n\014and_argument\030\006 \003(\0132" +
+      ").org.jetbrains.kotlin.metadata.Expressi" +
+      "on\022>\n\013or_argument\030\007 \003(\0132).org.jetbrains.",
+      "kotlin.metadata.Expression\".\n\rConstantVa" +
+      "lue\022\010\n\004TRUE\020\000\022\t\n\005FALSE\020\001\022\010\n\004NULL\020\002\";\n\022Co" +
+      "mpilerPluginData\022\027\n\tplugin_id\030\001 \002(\005B\004\230\265\030" +
+      "\001\022\014\n\004data\030\002 \002(\014*9\n\010Modality\022\t\n\005FINAL\020\000\022\010" +
+      "\n\004OPEN\020\001\022\014\n\010ABSTRACT\020\002\022\n\n\006SEALED\020\003*b\n\nVi" +
+      "sibility\022\014\n\010INTERNAL\020\000\022\013\n\007PRIVATE\020\001\022\r\n\tP" +
+      "ROTECTED\020\002\022\n\n\006PUBLIC\020\003\022\023\n\017PRIVATE_TO_THI" +
+      "S\020\004\022\t\n\005LOCAL\020\005*Q\n\nMemberKind\022\017\n\013DECLARAT" +
+      "ION\020\000\022\021\n\rFAKE_OVERRIDE\020\001\022\016\n\nDELEGATION\020\002" +
+      "\022\017\n\013SYNTHESIZED\020\003*L\n\021ReturnValueStatus\022\017",
+      "\n\013UNSPECIFIED\020\000\022\014\n\010MUST_USE\020\001\022\030\n\024EXPLICI" +
+      "TLY_IGNORABLE\020\002B\017B\rDebugProtoBuf"
     };
     org.jetbrains.kotlin.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new org.jetbrains.kotlin.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -46365,93 +47131,99 @@ public final class DebugProtoBuf {
     internal_static_org_jetbrains_kotlin_metadata_Class_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_Class_descriptor,
-        new java.lang.String[] { "Flags", "FqName", "CompanionObjectName", "TypeParameter", "Supertype", "SupertypeId", "NestedClassName", "ContextReceiverType", "ContextReceiverTypeId", "Constructor", "Function", "Property", "TypeAlias", "EnumEntry", "SealedSubclassFqName", "InlineClassUnderlyingPropertyName", "InlineClassUnderlyingType", "InlineClassUnderlyingTypeId", "IsExtendedValueClass", "Annotation", "TypeTable", "VersionRequirement", "VersionRequirementTable", "CompilerPluginData", });
-    internal_static_org_jetbrains_kotlin_metadata_Package_descriptor =
+        new java.lang.String[] { "Flags", "FqName", "CompanionObjectName", "TypeParameter", "Supertype", "SupertypeId", "NestedClassName", "ContextReceiverType", "ContextReceiverTypeId", "Constructor", "Function", "Property", "TypeAlias", "EnumEntry", "SealedSubclassFqName", "InlineClassUnderlyingPropertyName", "InlineClassUnderlyingType", "InlineClassUnderlyingTypeId", "ExtendedValueClassRepresentation", "Annotation", "TypeTable", "VersionRequirement", "VersionRequirementTable", "CompilerPluginData", });
+    internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_descriptor =
       getDescriptor().getMessageTypes().get(6);
+    internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_fieldAccessorTable = new
+      org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_org_jetbrains_kotlin_metadata_ExtendedValueClassRepresentation_descriptor,
+        new java.lang.String[] { "PropertyName", "PropertyTypeId", });
+    internal_static_org_jetbrains_kotlin_metadata_Package_descriptor =
+      getDescriptor().getMessageTypes().get(7);
     internal_static_org_jetbrains_kotlin_metadata_Package_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_Package_descriptor,
         new java.lang.String[] { "Function", "Property", "TypeAlias", "TypeTable", "VersionRequirementTable", });
     internal_static_org_jetbrains_kotlin_metadata_TypeTable_descriptor =
-      getDescriptor().getMessageTypes().get(7);
+      getDescriptor().getMessageTypes().get(8);
     internal_static_org_jetbrains_kotlin_metadata_TypeTable_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_TypeTable_descriptor,
         new java.lang.String[] { "Type", "FirstNullable", });
     internal_static_org_jetbrains_kotlin_metadata_Constructor_descriptor =
-      getDescriptor().getMessageTypes().get(8);
+      getDescriptor().getMessageTypes().get(9);
     internal_static_org_jetbrains_kotlin_metadata_Constructor_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_Constructor_descriptor,
         new java.lang.String[] { "Flags", "ValueParameter", "VersionRequirement", "CompilerPluginData", "Annotation", });
     internal_static_org_jetbrains_kotlin_metadata_Function_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(10);
     internal_static_org_jetbrains_kotlin_metadata_Function_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_Function_descriptor,
         new java.lang.String[] { "Flags", "OldFlags", "Name", "ReturnType", "ReturnTypeId", "TypeParameter", "ReceiverType", "ReceiverTypeId", "ContextReceiverType", "ContextReceiverTypeId", "ContextParameter", "ValueParameter", "TypeTable", "VersionRequirement", "Contract", "CompilerPluginData", "Annotation", "ExtensionReceiverAnnotation", });
     internal_static_org_jetbrains_kotlin_metadata_Property_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(11);
     internal_static_org_jetbrains_kotlin_metadata_Property_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_Property_descriptor,
         new java.lang.String[] { "Flags", "OldFlags", "Name", "ReturnType", "ReturnTypeId", "TypeParameter", "ReceiverType", "ReceiverTypeId", "ContextReceiverType", "ContextReceiverTypeId", "ContextParameter", "SetterValueParameter", "GetterFlags", "SetterFlags", "VersionRequirement", "CompilerPluginData", "Annotation", "GetterAnnotation", "SetterAnnotation", "ExtensionReceiverAnnotation", "BackingFieldAnnotation", "DelegateFieldAnnotation", "GetterContract", "SetterContract", });
     internal_static_org_jetbrains_kotlin_metadata_ValueParameter_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(12);
     internal_static_org_jetbrains_kotlin_metadata_ValueParameter_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_ValueParameter_descriptor,
         new java.lang.String[] { "Flags", "Name", "Type", "TypeId", "VarargElementType", "VarargElementTypeId", "Annotation", "AnnotationParameterDefaultValue", });
     internal_static_org_jetbrains_kotlin_metadata_TypeAlias_descriptor =
-      getDescriptor().getMessageTypes().get(12);
+      getDescriptor().getMessageTypes().get(13);
     internal_static_org_jetbrains_kotlin_metadata_TypeAlias_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_TypeAlias_descriptor,
         new java.lang.String[] { "Flags", "Name", "TypeParameter", "UnderlyingType", "UnderlyingTypeId", "ExpandedType", "ExpandedTypeId", "Annotation", "VersionRequirement", "CompilerPluginData", });
     internal_static_org_jetbrains_kotlin_metadata_EnumEntry_descriptor =
-      getDescriptor().getMessageTypes().get(13);
+      getDescriptor().getMessageTypes().get(14);
     internal_static_org_jetbrains_kotlin_metadata_EnumEntry_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_EnumEntry_descriptor,
         new java.lang.String[] { "Name", "Annotation", });
     internal_static_org_jetbrains_kotlin_metadata_VersionRequirement_descriptor =
-      getDescriptor().getMessageTypes().get(14);
+      getDescriptor().getMessageTypes().get(15);
     internal_static_org_jetbrains_kotlin_metadata_VersionRequirement_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_VersionRequirement_descriptor,
         new java.lang.String[] { "Version", "VersionFull", "Level", "ErrorCode", "Message", "VersionKind", });
     internal_static_org_jetbrains_kotlin_metadata_VersionRequirementTable_descriptor =
-      getDescriptor().getMessageTypes().get(15);
+      getDescriptor().getMessageTypes().get(16);
     internal_static_org_jetbrains_kotlin_metadata_VersionRequirementTable_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_VersionRequirementTable_descriptor,
         new java.lang.String[] { "Requirement", });
     internal_static_org_jetbrains_kotlin_metadata_PackageFragment_descriptor =
-      getDescriptor().getMessageTypes().get(16);
+      getDescriptor().getMessageTypes().get(17);
     internal_static_org_jetbrains_kotlin_metadata_PackageFragment_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_PackageFragment_descriptor,
         new java.lang.String[] { "Strings", "QualifiedNames", "Package", "Class_", "FileAnnotation", });
     internal_static_org_jetbrains_kotlin_metadata_Contract_descriptor =
-      getDescriptor().getMessageTypes().get(17);
+      getDescriptor().getMessageTypes().get(18);
     internal_static_org_jetbrains_kotlin_metadata_Contract_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_Contract_descriptor,
         new java.lang.String[] { "Effect", });
     internal_static_org_jetbrains_kotlin_metadata_Effect_descriptor =
-      getDescriptor().getMessageTypes().get(18);
+      getDescriptor().getMessageTypes().get(19);
     internal_static_org_jetbrains_kotlin_metadata_Effect_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_Effect_descriptor,
         new java.lang.String[] { "EffectType", "EffectConstructorArgument", "ConclusionOfConditionalEffect", "Kind", "ConditionKind", });
     internal_static_org_jetbrains_kotlin_metadata_Expression_descriptor =
-      getDescriptor().getMessageTypes().get(19);
+      getDescriptor().getMessageTypes().get(20);
     internal_static_org_jetbrains_kotlin_metadata_Expression_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_Expression_descriptor,
         new java.lang.String[] { "Flags", "ValueParameterReference", "ConstantValue", "IsInstanceType", "IsInstanceTypeId", "AndArgument", "OrArgument", });
     internal_static_org_jetbrains_kotlin_metadata_CompilerPluginData_descriptor =
-      getDescriptor().getMessageTypes().get(20);
+      getDescriptor().getMessageTypes().get(21);
     internal_static_org_jetbrains_kotlin_metadata_CompilerPluginData_fieldAccessorTable = new
       org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jetbrains_kotlin_metadata_CompilerPluginData_descriptor,
@@ -46481,6 +47253,8 @@ public final class DebugProtoBuf {
     registry.add(org.jetbrains.kotlin.metadata.DebugExtOptionsProtoBuf.nameIdInTable);
     registry.add(org.jetbrains.kotlin.metadata.DebugExtOptionsProtoBuf.typeIdInTable);
     registry.add(org.jetbrains.kotlin.metadata.DebugExtOptionsProtoBuf.fqNameIdInTable);
+    registry.add(org.jetbrains.kotlin.metadata.DebugExtOptionsProtoBuf.nameIdInTable);
+    registry.add(org.jetbrains.kotlin.metadata.DebugExtOptionsProtoBuf.typeIdInTable);
     registry.add(org.jetbrains.kotlin.metadata.DebugExtOptionsProtoBuf.nameIdInTable);
     registry.add(org.jetbrains.kotlin.metadata.DebugExtOptionsProtoBuf.typeIdInTable);
     registry.add(org.jetbrains.kotlin.metadata.DebugExtOptionsProtoBuf.skipMessageInComparison);

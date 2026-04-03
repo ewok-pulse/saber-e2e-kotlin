@@ -201,7 +201,7 @@ class DeserializedClassDescriptor(
     override fun getValueClassRepresentation(): ValueClassRepresentation<SimpleType>? = valueClassRepresentation()
 
     private fun computeValueClassRepresentation(): ValueClassRepresentation<SimpleType>? {
-        if (!isInline && !isValue && !classProto.isExtendedValueClass) return null
+        if (!isInline && !isValue && !classProto.hasExtendedValueClassRepresentation()) return null
         val hasInlineClassRepresentationInMetadata = metadataVersion.isAtLeast(1, 5, 1)
         classProto.loadValueClassRepresentation(
             tryLoadMultiFieldValueClass = hasInlineClassRepresentationInMetadata,

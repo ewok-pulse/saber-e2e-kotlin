@@ -80,7 +80,8 @@ class WasmTypeTransformer(
         builtIns.nothingType to WasmAnyRef, // Value will not be created. Just using a random Wasm type.
     )
 
-    fun IrType.toWasmValueType(): WasmType {
+    fun IrType.toWasmValueType(): WasmType = toWasmValueType(mutableSetOf())
+    private fun IrType.toWasmValueType(seenTypes: MutableSet<IrType>): WasmType {
         irBuiltInToWasmType[this]?.let { return it }
 
         if (this == symbols.voidType) {
@@ -106,7 +107,12 @@ class WasmTypeTransformer(
         } else {
             val ic = backendContext.inlineClassesUtils.getInlinedClass(this)
             if (ic != null) {
-                backendContext.inlineClassesUtils.getInlineClassUnderlyingType(ic).toWasmValueType()
+                val inlineClassUnderlyingType = backendContext.inlineClassesUtils.getInlineClassUnderlyingType(ic)
+                if (seenTypes.add(this)) {
+                    inlineClassUnderlyingType.toWasmValueType(seenTypes)
+                } else {
+                    this.toWasmGcRefType()
+                }
             } else {
                 this.toWasmGcRefType()
             }

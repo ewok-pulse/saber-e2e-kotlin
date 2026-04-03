@@ -94,13 +94,13 @@ public interface IrClassOrBuilder extends
   org.jetbrains.kotlin.backend.common.serialization.proto.IrMultiFieldValueClassRepresentation getMultiFieldValueClassRepresentation();
 
   /**
-   * <code>optional bool is_extended_value_class = 10;</code>
+   * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
    */
-  boolean hasIsExtendedValueClass();
+  boolean hasExtendedValueClassRepresentation();
   /**
-   * <code>optional bool is_extended_value_class = 10;</code>
+   * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
    */
-  boolean getIsExtendedValueClass();
+  org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation getExtendedValueClassRepresentation();
 
   /**
    * <code>repeated int64 sealed_subclass = 8 [packed = true];</code>

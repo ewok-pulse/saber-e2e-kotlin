@@ -9034,13 +9034,13 @@ public final class ProtoBuf {
     int getInlineClassUnderlyingTypeId();
 
     /**
-     * <code>optional bool is_extended_value_class = 22;</code>
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
      */
-    boolean hasIsExtendedValueClass();
+    boolean hasExtendedValueClassRepresentation();
     /**
-     * <code>optional bool is_extended_value_class = 22;</code>
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
      */
-    boolean getIsExtendedValueClass();
+    org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation getExtendedValueClassRepresentation();
 
     /**
      * <code>repeated .org.jetbrains.kotlin.metadata.Annotation annotation = 25;</code>
@@ -9350,9 +9350,17 @@ public final class ProtoBuf {
               input.popLimit(limit);
               break;
             }
-            case 176: {
+            case 178: {
+              org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000040) == 0x00000040)) {
+                subBuilder = extendedValueClassRepresentation_.toBuilder();
+              }
+              extendedValueClassRepresentation_ = input.readMessage(org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(extendedValueClassRepresentation_);
+                extendedValueClassRepresentation_ = subBuilder.buildPartial();
+              }
               bitField0_ |= 0x00000040;
-              isExtendedValueClass_ = input.readBool();
               break;
             }
             case 202: {
@@ -10096,19 +10104,19 @@ public final class ProtoBuf {
       return inlineClassUnderlyingTypeId_;
     }
 
-    public static final int IS_EXTENDED_VALUE_CLASS_FIELD_NUMBER = 22;
-    private boolean isExtendedValueClass_;
+    public static final int EXTENDED_VALUE_CLASS_REPRESENTATION_FIELD_NUMBER = 22;
+    private org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation extendedValueClassRepresentation_;
     /**
-     * <code>optional bool is_extended_value_class = 22;</code>
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
      */
-    public boolean hasIsExtendedValueClass() {
+    public boolean hasExtendedValueClassRepresentation() {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional bool is_extended_value_class = 22;</code>
+     * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
      */
-    public boolean getIsExtendedValueClass() {
-      return isExtendedValueClass_;
+    public org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation getExtendedValueClassRepresentation() {
+      return extendedValueClassRepresentation_;
     }
 
     public static final int ANNOTATION_FIELD_NUMBER = 25;
@@ -10264,7 +10272,7 @@ public final class ProtoBuf {
       inlineClassUnderlyingPropertyName_ = 0;
       inlineClassUnderlyingType_ = org.jetbrains.kotlin.metadata.ProtoBuf.Type.getDefaultInstance();
       inlineClassUnderlyingTypeId_ = 0;
-      isExtendedValueClass_ = false;
+      extendedValueClassRepresentation_ = org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
       annotation_ = java.util.Collections.emptyList();
       typeTable_ = org.jetbrains.kotlin.metadata.ProtoBuf.TypeTable.getDefaultInstance();
       versionRequirement_ = java.util.Collections.emptyList();
@@ -10438,7 +10446,7 @@ public final class ProtoBuf {
         output.writeInt32NoTag(contextReceiverTypeId_.get(i));
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBool(22, isExtendedValueClass_);
+        output.writeMessage(22, extendedValueClassRepresentation_);
       }
       for (int i = 0; i < annotation_.size(); i++) {
         output.writeMessage(25, annotation_.get(i));
@@ -10579,7 +10587,7 @@ public final class ProtoBuf {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += org.jetbrains.kotlin.protobuf.CodedOutputStream
-          .computeBoolSize(22, isExtendedValueClass_);
+          .computeMessageSize(22, extendedValueClassRepresentation_);
       }
       for (int i = 0; i < annotation_.size(); i++) {
         size += org.jetbrains.kotlin.protobuf.CodedOutputStream
@@ -10736,7 +10744,7 @@ public final class ProtoBuf {
         bitField0_ = (bitField0_ & ~0x00010000);
         inlineClassUnderlyingTypeId_ = 0;
         bitField0_ = (bitField0_ & ~0x00020000);
-        isExtendedValueClass_ = false;
+        extendedValueClassRepresentation_ = org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
         bitField0_ = (bitField0_ & ~0x00040000);
         annotation_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00080000);
@@ -10858,7 +10866,7 @@ public final class ProtoBuf {
         if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.isExtendedValueClass_ = isExtendedValueClass_;
+        result.extendedValueClassRepresentation_ = extendedValueClassRepresentation_;
         if (((bitField0_ & 0x00080000) == 0x00080000)) {
           annotation_ = java.util.Collections.unmodifiableList(annotation_);
           bitField0_ = (bitField0_ & ~0x00080000);
@@ -11026,8 +11034,8 @@ public final class ProtoBuf {
         if (other.hasInlineClassUnderlyingTypeId()) {
           setInlineClassUnderlyingTypeId(other.getInlineClassUnderlyingTypeId());
         }
-        if (other.hasIsExtendedValueClass()) {
-          setIsExtendedValueClass(other.getIsExtendedValueClass());
+        if (other.hasExtendedValueClassRepresentation()) {
+          mergeExtendedValueClassRepresentation(other.getExtendedValueClassRepresentation());
         }
         if (!other.annotation_.isEmpty()) {
           if (annotation_.isEmpty()) {
@@ -12714,35 +12722,63 @@ public final class ProtoBuf {
         return this;
       }
 
-      private boolean isExtendedValueClass_ ;
+      private org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation extendedValueClassRepresentation_ = org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
       /**
-       * <code>optional bool is_extended_value_class = 22;</code>
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
        */
-      public boolean hasIsExtendedValueClass() {
+      public boolean hasExtendedValueClassRepresentation() {
         return ((bitField0_ & 0x00040000) == 0x00040000);
       }
       /**
-       * <code>optional bool is_extended_value_class = 22;</code>
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
        */
-      public boolean getIsExtendedValueClass() {
-        return isExtendedValueClass_;
+      public org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation getExtendedValueClassRepresentation() {
+        return extendedValueClassRepresentation_;
       }
       /**
-       * <code>optional bool is_extended_value_class = 22;</code>
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
        */
-      public Builder setIsExtendedValueClass(boolean value) {
+      public Builder setExtendedValueClassRepresentation(org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        extendedValueClassRepresentation_ = value;
+
         bitField0_ |= 0x00040000;
-        isExtendedValueClass_ = value;
-        
         return this;
       }
       /**
-       * <code>optional bool is_extended_value_class = 22;</code>
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
        */
-      public Builder clearIsExtendedValueClass() {
+      public Builder setExtendedValueClassRepresentation(
+          org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.Builder builderForValue) {
+        extendedValueClassRepresentation_ = builderForValue.build();
+
+        bitField0_ |= 0x00040000;
+        return this;
+      }
+      /**
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
+       */
+      public Builder mergeExtendedValueClassRepresentation(org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation value) {
+        if (((bitField0_ & 0x00040000) == 0x00040000) &&
+            extendedValueClassRepresentation_ != org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance()) {
+          extendedValueClassRepresentation_ =
+            org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.newBuilder(extendedValueClassRepresentation_).mergeFrom(value).buildPartial();
+        } else {
+          extendedValueClassRepresentation_ = value;
+        }
+
+        bitField0_ |= 0x00040000;
+        return this;
+      }
+      /**
+       * <code>optional .org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation extended_value_class_representation = 22;</code>
+       */
+      public Builder clearExtendedValueClassRepresentation() {
+        extendedValueClassRepresentation_ = org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
+
         bitField0_ = (bitField0_ & ~0x00040000);
-        isExtendedValueClass_ = false;
-        
         return this;
       }
 
@@ -13219,6 +13255,607 @@ public final class ProtoBuf {
     }
 
     // @@protoc_insertion_point(class_scope:org.jetbrains.kotlin.metadata.Class)
+  }
+
+  public interface ExtendedValueClassRepresentationOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
+      org.jetbrains.kotlin.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    java.util.List<java.lang.Integer> getPropertyNameList();
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    int getPropertyNameCount();
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    int getPropertyName(int index);
+
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    java.util.List<java.lang.Integer> getPropertyTypeIdList();
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    int getPropertyTypeIdCount();
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    int getPropertyTypeId(int index);
+  }
+  /**
+   * Protobuf type {@code org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation}
+   */
+  public static final class ExtendedValueClassRepresentation extends
+      org.jetbrains.kotlin.protobuf.GeneratedMessageLite implements
+      // @@protoc_insertion_point(message_implements:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
+      ExtendedValueClassRepresentationOrBuilder {
+    // Use ExtendedValueClassRepresentation.newBuilder() to construct.
+    private ExtendedValueClassRepresentation(org.jetbrains.kotlin.protobuf.GeneratedMessageLite.Builder builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private ExtendedValueClassRepresentation(boolean noInit) { this.unknownFields = org.jetbrains.kotlin.protobuf.ByteString.EMPTY;}
+
+    private static final ExtendedValueClassRepresentation defaultInstance;
+    public static ExtendedValueClassRepresentation getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public ExtendedValueClassRepresentation getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final org.jetbrains.kotlin.protobuf.ByteString unknownFields;
+    private ExtendedValueClassRepresentation(
+        org.jetbrains.kotlin.protobuf.CodedInputStream input,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      org.jetbrains.kotlin.protobuf.ByteString.Output unknownFieldsOutput =
+          org.jetbrains.kotlin.protobuf.ByteString.newOutput();
+      org.jetbrains.kotlin.protobuf.CodedOutputStream unknownFieldsCodedOutput =
+          org.jetbrains.kotlin.protobuf.CodedOutputStream.newInstance(
+              unknownFieldsOutput, 1);
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFieldsCodedOutput,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                propertyName_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              propertyName_.add(input.readInt32());
+              break;
+            }
+            case 10: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
+                propertyName_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                propertyName_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 16: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                propertyTypeId_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              propertyTypeId_.add(input.readInt32());
+              break;
+            }
+            case 18: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
+                propertyTypeId_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                propertyTypeId_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+          }
+        }
+      } catch (org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          propertyName_ = java.util.Collections.unmodifiableList(propertyName_);
+        }
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          propertyTypeId_ = java.util.Collections.unmodifiableList(propertyTypeId_);
+        }
+        try {
+          unknownFieldsCodedOutput.flush();
+        } catch (java.io.IOException e) {
+        // Should not happen
+        } finally {
+          unknownFields = unknownFieldsOutput.toByteString();
+        }
+        makeExtensionsImmutable();
+      }
+    }
+    public static org.jetbrains.kotlin.protobuf.Parser<ExtendedValueClassRepresentation> PARSER =
+        new org.jetbrains.kotlin.protobuf.AbstractParser<ExtendedValueClassRepresentation>() {
+      public ExtendedValueClassRepresentation parsePartialFrom(
+          org.jetbrains.kotlin.protobuf.CodedInputStream input,
+          org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+        return new ExtendedValueClassRepresentation(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public org.jetbrains.kotlin.protobuf.Parser<ExtendedValueClassRepresentation> getParserForType() {
+      return PARSER;
+    }
+
+    public static final int PROPERTY_NAME_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.Integer> propertyName_;
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getPropertyNameList() {
+      return propertyName_;
+    }
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    public int getPropertyNameCount() {
+      return propertyName_.size();
+    }
+    /**
+     * <code>repeated int32 property_name = 1 [packed = true];</code>
+     */
+    public int getPropertyName(int index) {
+      return propertyName_.get(index);
+    }
+    private int propertyNameMemoizedSerializedSize = -1;
+
+    public static final int PROPERTY_TYPE_ID_FIELD_NUMBER = 2;
+    private java.util.List<java.lang.Integer> propertyTypeId_;
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getPropertyTypeIdList() {
+      return propertyTypeId_;
+    }
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    public int getPropertyTypeIdCount() {
+      return propertyTypeId_.size();
+    }
+    /**
+     * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+     */
+    public int getPropertyTypeId(int index) {
+      return propertyTypeId_.get(index);
+    }
+    private int propertyTypeIdMemoizedSerializedSize = -1;
+
+    private void initFields() {
+      propertyName_ = java.util.Collections.emptyList();
+      propertyTypeId_ = java.util.Collections.emptyList();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(org.jetbrains.kotlin.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (getPropertyNameList().size() > 0) {
+        output.writeRawVarint32(10);
+        output.writeRawVarint32(propertyNameMemoizedSerializedSize);
+      }
+      for (int i = 0; i < propertyName_.size(); i++) {
+        output.writeInt32NoTag(propertyName_.get(i));
+      }
+      if (getPropertyTypeIdList().size() > 0) {
+        output.writeRawVarint32(18);
+        output.writeRawVarint32(propertyTypeIdMemoizedSerializedSize);
+      }
+      for (int i = 0; i < propertyTypeId_.size(); i++) {
+        output.writeInt32NoTag(propertyTypeId_.get(i));
+      }
+      output.writeRawBytes(unknownFields);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      {
+        int dataSize = 0;
+        for (int i = 0; i < propertyName_.size(); i++) {
+          dataSize += org.jetbrains.kotlin.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(propertyName_.get(i));
+        }
+        size += dataSize;
+        if (!getPropertyNameList().isEmpty()) {
+          size += 1;
+          size += org.jetbrains.kotlin.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        propertyNameMemoizedSerializedSize = dataSize;
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < propertyTypeId_.size(); i++) {
+          dataSize += org.jetbrains.kotlin.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(propertyTypeId_.get(i));
+        }
+        size += dataSize;
+        if (!getPropertyTypeIdList().isEmpty()) {
+          size += 1;
+          size += org.jetbrains.kotlin.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        propertyTypeIdMemoizedSerializedSize = dataSize;
+      }
+      size += unknownFields.size();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        org.jetbrains.kotlin.protobuf.ByteString data)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        org.jetbrains.kotlin.protobuf.ByteString data,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseFrom(byte[] data)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        byte[] data,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        java.io.InputStream input,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseDelimitedFrom(
+        java.io.InputStream input,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        org.jetbrains.kotlin.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parseFrom(
+        org.jetbrains.kotlin.protobuf.CodedInputStream input,
+        org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    /**
+     * Protobuf type {@code org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation}
+     */
+    public static final class Builder extends
+        org.jetbrains.kotlin.protobuf.GeneratedMessageLite.Builder<
+          org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation, Builder>
+        implements
+        // @@protoc_insertion_point(builder_implements:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
+        org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentationOrBuilder {
+      // Construct using org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private void maybeForceBuilderInitialization() {
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        propertyName_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        propertyTypeId_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation getDefaultInstanceForType() {
+        return org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance();
+      }
+
+      public org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation build() {
+        org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation buildPartial() {
+        org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation result = new org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation(this);
+        int from_bitField0_ = bitField0_;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          propertyName_ = java.util.Collections.unmodifiableList(propertyName_);
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
+        result.propertyName_ = propertyName_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          propertyTypeId_ = java.util.Collections.unmodifiableList(propertyTypeId_);
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.propertyTypeId_ = propertyTypeId_;
+        return result;
+      }
+
+      public Builder mergeFrom(org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation other) {
+        if (other == org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation.getDefaultInstance()) return this;
+        if (!other.propertyName_.isEmpty()) {
+          if (propertyName_.isEmpty()) {
+            propertyName_ = other.propertyName_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensurePropertyNameIsMutable();
+            propertyName_.addAll(other.propertyName_);
+          }
+          
+        }
+        if (!other.propertyTypeId_.isEmpty()) {
+          if (propertyTypeId_.isEmpty()) {
+            propertyTypeId_ = other.propertyTypeId_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensurePropertyTypeIdIsMutable();
+            propertyTypeId_.addAll(other.propertyTypeId_);
+          }
+          
+        }
+        setUnknownFields(
+            getUnknownFields().concat(other.unknownFields));
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          org.jetbrains.kotlin.protobuf.CodedInputStream input,
+          org.jetbrains.kotlin.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.jetbrains.kotlin.metadata.ProtoBuf.ExtendedValueClassRepresentation) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<java.lang.Integer> propertyName_ = java.util.Collections.emptyList();
+      private void ensurePropertyNameIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          propertyName_ = new java.util.ArrayList<java.lang.Integer>(propertyName_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getPropertyNameList() {
+        return java.util.Collections.unmodifiableList(propertyName_);
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public int getPropertyNameCount() {
+        return propertyName_.size();
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public int getPropertyName(int index) {
+        return propertyName_.get(index);
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public Builder setPropertyName(
+          int index, int value) {
+        ensurePropertyNameIsMutable();
+        propertyName_.set(index, value);
+        
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public Builder addPropertyName(int value) {
+        ensurePropertyNameIsMutable();
+        propertyName_.add(value);
+        
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public Builder addAllPropertyName(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensurePropertyNameIsMutable();
+        org.jetbrains.kotlin.protobuf.AbstractMessageLite.Builder.addAll(
+            values, propertyName_);
+        
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_name = 1 [packed = true];</code>
+       */
+      public Builder clearPropertyName() {
+        propertyName_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        
+        return this;
+      }
+
+      private java.util.List<java.lang.Integer> propertyTypeId_ = java.util.Collections.emptyList();
+      private void ensurePropertyTypeIdIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          propertyTypeId_ = new java.util.ArrayList<java.lang.Integer>(propertyTypeId_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getPropertyTypeIdList() {
+        return java.util.Collections.unmodifiableList(propertyTypeId_);
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public int getPropertyTypeIdCount() {
+        return propertyTypeId_.size();
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public int getPropertyTypeId(int index) {
+        return propertyTypeId_.get(index);
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public Builder setPropertyTypeId(
+          int index, int value) {
+        ensurePropertyTypeIdIsMutable();
+        propertyTypeId_.set(index, value);
+        
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public Builder addPropertyTypeId(int value) {
+        ensurePropertyTypeIdIsMutable();
+        propertyTypeId_.add(value);
+        
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public Builder addAllPropertyTypeId(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensurePropertyTypeIdIsMutable();
+        org.jetbrains.kotlin.protobuf.AbstractMessageLite.Builder.addAll(
+            values, propertyTypeId_);
+        
+        return this;
+      }
+      /**
+       * <code>repeated int32 property_type_id = 2 [packed = true];</code>
+       */
+      public Builder clearPropertyTypeId() {
+        propertyTypeId_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
+    }
+
+    static {
+      defaultInstance = new ExtendedValueClassRepresentation(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:org.jetbrains.kotlin.metadata.ExtendedValueClassRepresentation)
   }
 
   public interface PackageOrBuilder extends 

@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.analysis.api.standalone.base.projectStructure.Kotlin
 import org.jetbrains.kotlin.analysis.api.standalone.base.projectStructure.StandaloneProjectFactory.findJvmRootsForJavaFiles
 import org.jetbrains.kotlin.analysis.low.level.api.fir.LLFirInternals
 import org.jetbrains.kotlin.analysis.low.level.api.fir.projectStructure.LLFirBuiltinsSessionFactory
+import org.jetbrains.kotlin.analysis.project.structure.builder.KaModuleContainer
 import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.serialization.deserialization.builtins.BuiltInSerializerProtocol
 import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
@@ -28,7 +29,7 @@ import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 internal class KotlinStandaloneProjectStructureProvider(
     private val platform: TargetPlatform,
     private val project: Project,
-    override val allModules: List<KaModule>,
+    private val moduleContainer: KaModuleContainer,
 ) : KotlinStaticProjectStructureProvider() {
     private val ktNotUnderContentRootModuleWithoutPsiFile by lazy {
         KaNotUnderContentRootModuleImpl(
@@ -87,6 +88,9 @@ internal class KotlinStandaloneProjectStructureProvider(
             .flatMap { it.allDirectDependencies() }
             .filterIsInstance<KaLibraryModule>()
     }
+
+    override val allModules: List<KaModule>
+        get() = moduleContainer.allModules
 
     @OptIn(KaExperimentalApi::class)
     override val allSourceFiles: List<PsiFileSystemItem> by lazy {

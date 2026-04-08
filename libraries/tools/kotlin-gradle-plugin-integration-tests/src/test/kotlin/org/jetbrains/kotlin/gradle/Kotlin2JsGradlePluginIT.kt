@@ -1179,8 +1179,9 @@ class Kotlin2JsIrGradlePluginIT : KGPBaseTest() {
                     .resolve("build/compileSync/js/main/developmentExecutable/kotlin/$projectName-app.js.map")
                 assertFileContains(
                     appSourceMap,
-                    "\"../../../../../../src/jsMain/kotlin/main.kt\"",
-                    "\"../../../../../../../lib/src/jsMain/kotlin/foo.kt\"",
+                    "\"sourceRoot\":\"../../../../../../\"",
+                    "\"src/jsMain/kotlin/main.kt\"",
+                    "\"../lib/src/jsMain/kotlin/foo.kt\"",
                     "\"sourcesContent\":[null",
                 )
 
@@ -1213,8 +1214,9 @@ class Kotlin2JsIrGradlePluginIT : KGPBaseTest() {
                 assertFileContains(
                     projectPath
                         .resolve("build/js/packages/$projectName-app/kotlin/$projectName-app.js.map"),
-                    "\"../../../../../app/src/jsMain/kotlin/main.kt\"",
-                    "\"../../../../../lib/src/jsMain/kotlin/foo.kt\"",
+                    "\"sourceRoot\":\"../../../../../app\"",
+                    "\"src/jsMain/kotlin/main.kt\"",
+                    "\"../lib/src/jsMain/kotlin/foo.kt\"",
                     "\"sourcesContent\":[null",
                 )
             }
@@ -1289,9 +1291,10 @@ class Kotlin2JsIrGradlePluginIT : KGPBaseTest() {
             build("compileDevelopmentExecutableKotlinJs") {
                 val mapFilePath = subProject("app").projectPath
                     .resolve("build/kotlin2js/app.js.map")
-                assertFileContains(mapFilePath, "\"../../src/jsMain/kotlin/main.kt\"")
+                assertFileContains(mapFilePath, "\"sourceRoot\":\"../../\"")
+                assertFileContains(mapFilePath, "\"src/jsMain/kotlin/main.kt\"")
                 // The IR BE generates correct paths for dependencies
-                assertFileContains(mapFilePath, "\"../../../lib/src/jsMain/kotlin/foo.kt\"")
+                assertFileContains(mapFilePath, "\"../lib/src/jsMain/kotlin/foo.kt\"")
             }
         }
     }

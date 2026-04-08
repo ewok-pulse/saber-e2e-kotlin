@@ -55,8 +55,53 @@ class SourceMap3Builder(
     }
 
     private fun appendSources(json: JsonObject) {
+        /**
+         * Calculates the length of the common directory prefix for given Unix-style paths,
+         * including the trailing '/' separator.
+         *
+         * Returns 0 if:
+         * - Paths list is empty or contains less than 2 entries
+         * - There is no common directory prefix, i.e. paths have no shared '/'-separated segments
+         *
+         * Example:
+         * For paths
+         * ```
+         * foo/bar.kt
+         * foo/bar/a.kt
+         * ```
+         * Returns 4 (the length of 'foo/').
+         */
+        fun commonUnixPathPrefixLength(paths: List<String>): Int {
+            // There is no sense in calculating common parent for the single directory, we will save it as is
+            if (paths.size < 2) return 0
+
+            // The idea is to find common directory between least common paths - first one and last one of sorted paths list.
+            val sortedPaths = paths.sortedDescending()
+
+            val (first, last) = sortedPaths.first() to sortedPaths.last()
+            val (shorter, longer) = if (first.length < last.length) first to last else last to first
+
+            var latestSeparatorIndex = -1
+
+            for (i in shorter.indices) {
+                if (shorter[i] == '/') latestSeparatorIndex = i
+                if (shorter[i] != longer[i]) break
+            }
+
+            return latestSeparatorIndex + 1
+        }
+
+        var prefixedPaths = orderedSources.map { pathPrefix + it }
+        val sourceRootLength = commonUnixPathPrefixLength(prefixedPaths)
+
+        if (sourceRootLength > 0) {
+            // Source root should contain the leading '/', so upper index also includes it
+            json.properties["sourceRoot"] = JsonString(prefixedPaths[0].substring(0, sourceRootLength))
+            prefixedPaths = prefixedPaths.map { it.substring(sourceRootLength) }
+        }
+
         json.properties["sources"] = JsonArray(
-            orderedSources.mapTo(mutableListOf()) { JsonString(pathPrefix + it) }
+            prefixedPaths.mapTo(mutableListOf()) { JsonString(it) }
         )
     }
 

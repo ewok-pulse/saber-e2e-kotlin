@@ -1,33 +1,27 @@
 // RUN_PIPELINE_TILL: FRONTEND
 // FIR_IDENTICAL
 
-enum class Enum(val y: String) {
+<!POSSIBLE_INITIALIZATION_DEADLOCK!>enum class Enum(val y: String) {
     <!UNINITIALIZED_PROPERTY!>ENTRY(<!UNINITIALIZED_ACCESS!>EnumTest.x<!>) {
         override fun toString(): String = y
     };<!>
-}
+}<!>
 
-interface EnumTest {
-    companion object {
+<!POSSIBLE_INITIALIZATION_DEADLOCK!>interface EnumTest {
+    companion <!POSSIBLE_INITIALIZATION_DEADLOCK!>object<!> {
         val x = "OK"
         <!UNINITIALIZED_PROPERTY!>val z = <!UNINITIALIZED_ACCESS!>Enum.ENTRY.y<!><!>
     }
+}<!>
+
+class Class {
+    val y = <!UNINITIALIZED_ACCESS!>ClassTest.y<!>
 }
 
-//class Class {
-//    init {
-//        println("Class.<init>")
-//    }
-//    val y = ClassTest.y
-//}
-//
-//interface ClassTest {
-//    companion object {
-//        init {
-//            println("ClassTest.<clinit>")
-//        }
-//        val x = "OK"
-//        val z = Class().y
-//        val y = "yay"
-//    }
-//}
+interface ClassTest {
+    companion <!POSSIBLE_INITIALIZATION_DEADLOCK!>object<!> {
+        val x = "OK"
+        <!UNINITIALIZED_PROPERTY!>val z = Class().y<!>
+        val y = "yay"
+    }
+}

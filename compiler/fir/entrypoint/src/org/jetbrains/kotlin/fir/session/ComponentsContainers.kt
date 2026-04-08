@@ -42,7 +42,8 @@ import org.jetbrains.kotlin.fir.resolve.*
 import org.jetbrains.kotlin.fir.resolve.calls.FirSyntheticNamesProvider
 import org.jetbrains.kotlin.fir.resolve.calls.jvm.JvmCallConflictResolverFactory
 import org.jetbrains.kotlin.fir.resolve.calls.overloads.FirDeclarationOverloadabilityHelperImpl
-import org.jetbrains.kotlin.fir.resolve.dependencies.FirDependencyGraphStorage
+import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph
+import org.jetbrains.kotlin.fir.resolve.dependencies.FirInheritancePropagatedDeclarationsStorage
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.OutermostEnclosingEntityFinder
 import org.jetbrains.kotlin.fir.resolve.inference.InferenceComponents
 import org.jetbrains.kotlin.fir.resolve.providers.impl.FirQualifierResolverImpl
@@ -107,8 +108,9 @@ fun FirSession.registerCommonComponents(languageVersionSettings: LanguageVersion
     register(FirInlineCheckerPlatformSpecificComponent::class, FirInlineCheckerPlatformSpecificComponent.NonJvmDefault)
     register(FirExpectActualMappingStorage::class, FirExpectActualMappingStorage(this))
     register(FirInlineConstTrackerComponent::class, FirInlineConstTrackerComponent.Default)
+    register(FirInheritancePropagatedDeclarationsStorage::class, FirInheritancePropagatedDeclarationsStorage(this))
     register(OutermostEnclosingEntityFinder::class, OutermostEnclosingEntityFinder)
-    register(FirDependencyGraphStorage::class, FirDependencyGraphStorage())
+    register(DependencyGraph::class, DependencyGraph())
 }
 
 @OptIn(SessionConfiguration::class)

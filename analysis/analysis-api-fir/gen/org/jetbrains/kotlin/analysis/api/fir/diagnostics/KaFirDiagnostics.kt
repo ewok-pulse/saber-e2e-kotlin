@@ -4740,6 +4740,11 @@ sealed interface KaFirDiagnostic<PSI : PsiElement> : KaDiagnosticWithPsi<PSI> {
         override val diagnosticClass get() = CompanionExtensionNullableReceiver::class
     }
 
+    interface PossibleInitializationDeadlock : KaFirDiagnostic<PsiElement> {
+        override val diagnosticClass get() = PossibleInitializationDeadlock::class
+        val deadlockingDeclarations: List<KaSymbol>
+    }
+
     interface UninitializedProperty : KaFirDiagnostic<PsiElement> {
         override val diagnosticClass get() = UninitializedProperty::class
     }

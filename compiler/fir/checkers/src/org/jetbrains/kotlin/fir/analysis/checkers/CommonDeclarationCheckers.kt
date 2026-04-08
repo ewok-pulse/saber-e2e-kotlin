@@ -166,6 +166,7 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
         FirObjectConstructorChecker,
         FirInlineClassDeclarationChecker,
         FirEnumEntryInitializationChecker,
+        FirDeadlockingClassDeclarationChecker
     )
 
     override val constructorCheckers: Set<FirConstructorChecker> = setOf(
@@ -219,7 +220,7 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
 
     override val anonymousInitializerCheckers: Set<FirAnonymousInitializerChecker> = setOf(
         FirAnonymousInitializerInInterfaceChecker,
-        FirUninitializedAccessInStaticInitializerChecker,
+        FirUninitializedAccessInStaticAnonymousInitializerChecker,
     )
 
     override val valueParameterCheckers: Set<FirValueParameterChecker> = setOf(

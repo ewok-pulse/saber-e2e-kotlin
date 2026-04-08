@@ -149,7 +149,11 @@ internal open class ComposableTypeTransformer(
             // Only process fun interfaces with @Composable types
             clsSymbol.owner.isFun
         ) {
-            clsSymbol.functions.filter { it.owner.needsComposableRemapping() }.forEach { visitExternalFunction(it.owner) }
+            clsSymbol.functions.forEach {
+                if (it.owner.needsComposableRemapping()) {
+                    visitExternalFunction(it.owner)
+                }
+            }
         }
 
         return super.visitTypeOperator(expression)

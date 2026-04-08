@@ -7,7 +7,7 @@ private val init = run {
     println("Test1Kt.<clinit>")
 }
 
-object B {
+<!POSSIBLE_INITIALIZATION_DEADLOCK!>object B<!> {
     init {
         println("B.<clinit>")
     }

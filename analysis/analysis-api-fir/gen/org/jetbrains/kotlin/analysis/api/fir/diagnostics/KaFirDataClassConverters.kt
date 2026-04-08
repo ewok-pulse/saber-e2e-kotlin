@@ -334,6 +334,15 @@ private fun KaDiagnosticConverterBuilder.addConversions0() {
             token,
         )
     }
+    add(FirErrors.POSSIBLE_INITIALIZATION_DEADLOCK) { firDiagnostic ->
+        PossibleInitializationDeadlockImpl(
+            firDiagnostic.a.map { firBasedSymbol ->
+                firSymbolBuilder.buildSymbol(firBasedSymbol)
+            },
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
     add(FirJsErrors.JS_NO_RUNTIME_WRONG_TARGET) { firDiagnostic ->
         JsNoRuntimeWrongTargetImpl(
             firDiagnostic as KtPsiDiagnostic,

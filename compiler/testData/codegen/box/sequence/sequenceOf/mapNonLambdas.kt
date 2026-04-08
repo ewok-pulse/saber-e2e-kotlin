@@ -1,5 +1,7 @@
 // WITH_STDLIB
 
+// CHECK_BYTECODE_TEXT
+// 0 iterator
 fun test(x: Int): Int {
     return x * 2
 }

@@ -1,5 +1,8 @@
 // WITH_STDLIB
 
+// CHECK_BYTECODE_TEXT
+// 0 iterator
+
 fun box(): String {
     val seq = sequenceOf(5, 7, 9).map { it.toString() }
     val list = listOf("5", "7", "9")

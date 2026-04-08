@@ -19,6 +19,8 @@ import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irIfThen
 import org.jetbrains.kotlin.ir.builders.irNotEquals
 import org.jetbrains.kotlin.ir.builders.irNull
+import org.jetbrains.kotlin.ir.builders.irReturnUnit
+import org.jetbrains.kotlin.ir.builders.irReturnableBlock
 import org.jetbrains.kotlin.ir.builders.irSet
 import org.jetbrains.kotlin.ir.builders.irTemporary
 import org.jetbrains.kotlin.ir.builders.irWhile
@@ -38,8 +40,11 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationBase
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueDeclaration
+import org.jetbrains.kotlin.ir.expressions.IrBreak
 import org.jetbrains.kotlin.ir.expressions.IrBreakContinue
+import org.jetbrains.kotlin.ir.expressions.IrContinue
 import org.jetbrains.kotlin.ir.expressions.IrLoop
+import org.jetbrains.kotlin.ir.expressions.IrReturnableBlock
 import org.jetbrains.kotlin.ir.expressions.IrSpreadElement
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrVararg
@@ -55,7 +60,6 @@ import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.isImmutable
-import org.jetbrains.kotlin.ir.visitors.IrVisitor
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -103,29 +107,29 @@ private const val FILTER = "filter"
 
 class SequenceFusionLowering(val context: JvmBackendContext) : FileLoweringPass {
     override fun lower(irFile: IrFile) {
+        val reuseMarker = ReusedSequenceMarker(context)
+        irFile.acceptChildrenVoid(reuseMarker)
         val gatherer = SequenceDataGatherer(context)
         // appends sequence data to the appropriate IrElements
-        irFile.acceptChildren(gatherer, context)
+        irFile.acceptChildrenVoid(gatherer)
         val transformer = SequenceFusionTransformer(context)
         irFile.transformChildrenVoid(transformer)
-        // TODO: support break inside sequenceOf,
-        //   debugger work,
-        //   clean up,
-        //   make correct for loop structure for loops other than sequenceOf
-        //   generateSequenceThirdOverload if we are sure only one iteration will occur
     }
 }
 
-sealed class GenerateInitialValue {
-    class InitialValue(val expression: IrExpression) : GenerateInitialValue()
-    class InitialFunction(val function: IrRichFunctionReference) : GenerateInitialValue()
+sealed class GenerateSequenceInitialValue {
+    class InitialValue(val expression: IrExpression) : GenerateSequenceInitialValue()
+    class InitialFunction(val function: IrRichFunctionReference) : GenerateSequenceInitialValue()
+    class NoInitialValue : GenerateSequenceInitialValue()
 }
 
 // sequenceSource is what the sequence was created from, to be substituted if the loop is to be fused
 private sealed class SequenceSource {
     class SequenceOf(val elements: List<IrExpression>) : SequenceSource()
     class Variable(val variable: IrValueSymbol) : SequenceSource()
-    class GenerateSequence(val initialValue: GenerateInitialValue, val generatingFunction: IrRichFunctionReference) : SequenceSource()
+    class GenerateSequence(val initialValue: GenerateSequenceInitialValue, val generatingFunction: IrRichFunctionReference) :
+        SequenceSource()
+
     class AsSequence(val iterable: IrExpression) : SequenceSource()
 }
 
@@ -134,7 +138,7 @@ typealias IrBuilderWithParent = Pair<IrBuilderWithScope, IrDeclarationParent>
 private class SequenceData(
     val mapReplacement: MapReplacement = { _, argument -> argument },
     val sequenceSource: SequenceSource? = null,
-    val filterReplacement: FilterReplacement = { _, valueGenerator, expressionModifier -> expressionModifier(valueGenerator) },
+    val filterReplacement: FilterReplacement = { _, initialValue, expressionModifier -> expressionModifier(initialValue) },
 ) {
     // mapReplacement for a given sequence expression stores a composition of functions applied to the base sequence via `map`
     typealias MapReplacement = (IrBuilderWithParent, IrExpression) -> IrExpression
@@ -238,6 +242,8 @@ private var IrValueDeclaration.sequenceDataOfVariable: SequenceData? by irAttrib
 // In general, sequence data is gathered from `sequenceOf` or existing sequence variables, modified `by` map calls,
 // and consumed by for loops and variable declarations
 
+private var IrValueDeclaration.usageCounter: Int? by irAttribute(false)
+
 private fun isElementSequence(context: JvmBackendContext, element: IrElement): Boolean {
     val sequenceSymbol = context.symbols.sequence ?: return false
     val type = when (element) {
@@ -267,23 +273,31 @@ private fun isSequenceProducer(context: JvmBackendContext, expression: IrCall): 
     return true
 }
 
-private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitor<Unit, JvmBackendContext>() {
-    override fun visitElement(element: IrElement, data: JvmBackendContext) {
-        element.acceptChildren(this, data)
+private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitorVoid() {
+    override fun visitElement(element: IrElement) {
+        element.acceptChildrenVoid(this)
     }
 
-    override fun visitVariable(declaration: IrVariable, data: JvmBackendContext) {
-        super.visitVariable(declaration, data)
+    override fun visitVariable(declaration: IrVariable) {
+        super.visitVariable(declaration)
         if (declaration.isVar) return
         if (!isElementSequence(context, declaration)) return
-        declaration.symbol.owner.sequenceDataOfVariable = declaration.initializer?.sequenceDataOfExpression ?: SequenceData(
-            sequenceSource = SequenceSource.Variable(declaration.symbol)
-        )
+        val expressionSequenceData = declaration.initializer?.sequenceDataOfExpression
+        declaration.symbol.owner.sequenceDataOfVariable = if (expressionSequenceData?.sequenceSource is SequenceSource.GenerateSequence &&
+            expressionSequenceData.sequenceSource.initialValue is GenerateSequenceInitialValue.NoInitialValue &&
+            (declaration.usageCounter ?: 0) > 1
+        ) {
+            SequenceData(
+                sequenceSource = SequenceSource.Variable(declaration.symbol),
+            )
+        } else {
+            expressionSequenceData
+        }
     }
 
     // assigns sequence data of the variable to the corresponding expression
-    override fun visitGetValue(expression: IrGetValue, data: JvmBackendContext) {
-        super.visitGetValue(expression, data)
+    override fun visitGetValue(expression: IrGetValue) {
+        super.visitGetValue(expression)
         // now the children have assigned appropriate sequence data
         if (!isElementSequence(context, expression)) return
         expression.sequenceDataOfExpression = expression.symbol.owner.sequenceDataOfVariable
@@ -367,10 +381,8 @@ private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitor<U
         val (initialValue, func) = when (expression.arguments.size) {
             1 -> {
                 // generateSequence(() -> T?)
-                // we do not lower this overload, since it is not reusable,
-                // and it is not possible to remove the iterator without breaking its exception throwing on reuse
-                // if it is assigned to a variable, then the unknown variable lowering still occurs
-                return
+                val func = expression.arguments.getOrNull(0) as? IrRichFunctionReference ?: return
+                GenerateSequenceInitialValue.NoInitialValue() to func
             }
             2 -> {
                 val initialValueOrFunction = expression.arguments.getOrNull(0)
@@ -378,13 +390,13 @@ private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitor<U
                 when (initialValueOrFunction) {
                     is IrRichFunctionReference -> {
                         // generateSequence(() -> T?, (T) -> T?)
-                        GenerateInitialValue.InitialFunction(initialValueOrFunction) to func
+                        GenerateSequenceInitialValue.InitialFunction(initialValueOrFunction) to func
                     }
                     else -> {
                         // generateSequence(T?, (T) -> T?)
                         if (initialValueOrFunction == null) return
                         if (containsMutable(initialValueOrFunction)) return
-                        GenerateInitialValue.InitialValue(initialValueOrFunction) to func
+                        GenerateSequenceInitialValue.InitialValue(initialValueOrFunction) to func
                     }
                 }
             }
@@ -398,7 +410,11 @@ private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitor<U
 
     private fun matchWithSequenceOf(expression: IrCall) {
         // store the sequence of arguments inside the sequence source
-        if (expression.arguments.size != 1) return
+        if (expression.arguments.size > 1) return
+        if (expression.arguments.isEmpty()) {
+            expression.sequenceDataOfExpression = SequenceData(sequenceSource = SequenceSource.SequenceOf(listOf()))
+            return
+        }
         val argument = expression.arguments.getOrNull(0) ?: return
         val sequenceOfArguments: List<IrExpression>
         if (argument is IrVararg) {
@@ -428,8 +444,8 @@ private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitor<U
         )
     }
 
-    override fun visitCall(expression: IrCall, data: JvmBackendContext) {
-        super.visitCall(expression, data)
+    override fun visitCall(expression: IrCall) {
+        super.visitCall(expression)
         if (!isElementSequence(context, expression)) return
         val functionName = expression.symbol.owner.name.asString()
         when (functionName) {
@@ -468,7 +484,6 @@ private class LoopBodyTransformer(
     val builder: IrBuilderWithScope,
     val oldVariable: IrVariable,
     val newVariable: IrVariable,
-    val newLoop: IrLoop?
 ) : IrElementTransformerVoidWithContext() {
     override fun visitGetValue(expression: IrGetValue): IrExpression {
         if (expression.symbol == oldVariable.symbol) {
@@ -482,11 +497,60 @@ private class LoopBodyTransformer(
         }
         return super.visitGetValue(expression)
     }
+}
 
+private class BreakContinueUpdater(
+    val newLoop: IrLoop,
+    val oldLoop: IrLoop
+) : IrElementTransformerVoidWithContext() {
     override fun visitBreakContinue(jump: IrBreakContinue): IrExpression {
-        if (newLoop != null)
+        if (jump.loop == oldLoop)
             jump.loop = newLoop
         return super.visitBreakContinue(jump)
+    }
+}
+
+private class BreakContinueToReturnConverter(
+    val newInnerBlock: IrReturnableBlock,
+    val newOuterBlock: IrReturnableBlock,
+    val oldLoop: IrLoop,
+    val builder: IrBuilderWithScope,
+) : IrElementTransformerVoidWithContext() {
+    override fun visitBreak(jump: IrBreak): IrExpression {
+        if (jump.loop == oldLoop) {
+            val ret = builder.irReturnUnit()
+            ret.returnTargetSymbol = newOuterBlock.symbol
+            return ret
+        }
+        return super.visitBreak(jump)
+    }
+
+    override fun visitContinue(jump: IrContinue): IrExpression {
+        if (jump.loop == oldLoop) {
+            val ret = builder.irReturnUnit()
+            ret.returnTargetSymbol = newInnerBlock.symbol
+            return ret
+        }
+        return super.visitContinue(jump)
+    }
+}
+
+private class ReusedSequenceMarker(val context: JvmBackendContext) : IrVisitorVoid() {
+    val sequences = mutableListOf<IrVariable>()
+    override fun visitElement(element: IrElement) {
+        element.acceptChildrenVoid(this)
+    }
+
+    override fun visitGetValue(expression: IrGetValue) {
+        if (sequences.any { it == expression.symbol.owner }) {
+            expression.symbol.owner.usageCounter = (expression.symbol.owner.usageCounter ?: 0) + 1
+        }
+        super.visitGetValue(expression)
+    }
+
+    override fun visitVariable(declaration: IrVariable) {
+        if (declaration.initializer != null && isElementSequence(context, declaration.initializer!!)) sequences.add(declaration)
+        super.visitVariable(declaration)
     }
 }
 
@@ -557,9 +621,24 @@ private sealed class LoweringStrategy {
         builder: IrBuilderWithScope,
         oldLoopVariable: IrVariable,
         body: IrBlock,
-        newLoop: IrLoop?,
+        newLoop: IrLoop,
+        oldLoop: IrLoop,
     ): (IrVariable) -> IrBlock = { newLoopVariable ->
-        body.transformChildrenVoid(LoopBodyTransformer(builder, oldLoopVariable, newLoopVariable, newLoop))
+        body.transformChildrenVoid(LoopBodyTransformer(builder, oldLoopVariable, newLoopVariable))
+        body.transformChildrenVoid(BreakContinueUpdater(newLoop, oldLoop))
+        body
+    }
+
+    protected fun createUnrolledBody(
+        builder: IrBuilderWithScope,
+        oldLoopVariable: IrVariable,
+        body: IrBlock,
+        newInnerBlock: IrReturnableBlock,
+        newOuterBlock: IrReturnableBlock,
+        oldLoop: IrLoop,
+    ): (IrVariable) -> IrBlock = { newLoopVariable ->
+        body.transformChildrenVoid(LoopBodyTransformer(builder, oldLoopVariable, newLoopVariable))
+        body.transformChildrenVoid(BreakContinueToReturnConverter(newInnerBlock, newOuterBlock, oldLoop, builder))
         body
     }
 
@@ -572,7 +651,8 @@ private sealed class LoweringStrategy {
         val copiedLoopData = loopData.deepCopy(parent)
         val loopVariable = lookupForLoopVariable(copiedLoopData.loopBody) ?: return copiedLoopData.block
         copiedLoopData.loopBody.statements.remove(loopVariable)
-        val bodyRewriter = createBodyExpectingNewLoopVariable(builder, loopVariable, copiedLoopData.loopBody, copiedLoopData.loop)
+        val bodyRewriter =
+            createBodyExpectingNewLoopVariable(builder, loopVariable, copiedLoopData.loopBody, copiedLoopData.loop, loopData.loop)
         copiedLoopData.loop.body = builder.irBlock {
             +loopVariable
             +addMapAndFilterReplacementsToBody(
@@ -602,33 +682,22 @@ private sealed class LoweringStrategy {
      * }
      * ```
      * */
-    class SequenceOfStrategy(private val source: SequenceSource.SequenceOf) : LoweringStrategy() {
+    class SequenceOfStrategy(private val source: SequenceSource.SequenceOf, val context: JvmBackendContext) : LoweringStrategy() {
         override fun lowerLoop(builderWithParent: IrBuilderWithParent, loopData: LoopData, sequenceData: SequenceData): IrExpression? {
             val (builder, parent) = builderWithParent
-            var wasBreak = false
-            val breakContinueFinder = object : IrVisitorVoid() {
-                override fun visitElement(element: IrElement) {
-                    if (!wasBreak) element.acceptChildrenVoid(this)
-                }
+            val outerBlock = builder.irReturnableBlock(resultType = context.irBuiltIns.unitType) {}
+            source.elements.forEach { sequenceOfValue ->
+                val sequenceOfValueCopy = sequenceOfValue.deepCopyWithSymbols(parent)
+                sequenceOfValueCopy.markAsSynthetic() // we do this to avoid jumping to the sequenceOf declaration on every iteration
+                val newBody = loopData.loopBody.deepCopyWithSymbols(parent)
+                newBody.origin = null // FOR_LOOP_INNER_WHILE origin is no longer necessary, as the result is not a loop
 
-                override fun visitBreakContinue(jump: IrBreakContinue) {
-                    if (jump.loop == loopData.loop) {
-                        wasBreak = true
-                    }
-                }
-            }
-            loopData.loopBody.acceptVoid(breakContinueFinder)
-            if (wasBreak) return null
-            return builder.irBlock(startOffset = UNDEFINED_OFFSET, endOffset = UNDEFINED_OFFSET) {
-                source.elements.forEach { sequenceOfValue ->
-                    val sequenceOfValueCopy = sequenceOfValue.deepCopyWithSymbols(parent)
-                    sequenceOfValueCopy.markAsSynthetic() // we do this to avoid jumping to the sequenceOf declaration on every iteration
-                    val newBody = loopData.loopBody.deepCopyWithSymbols(parent)
-                    newBody.origin = null // removes FOR_LOOP_INNER_WHILE origin
-                    val loopVariable = lookupForLoopVariable(newBody) ?: return null
-                    newBody.statements.remove(loopVariable)
-                    val bodyRewriter = createBodyExpectingNewLoopVariable(builder, loopVariable, newBody, null)
-                    +addMapAndFilterReplacementsToBody(
+                val loopVariable = lookupForLoopVariable(newBody) ?: return null
+                newBody.statements.remove(loopVariable)
+                val innerBlock = builder.irReturnableBlock(resultType = context.irBuiltIns.unitType) {}
+                val bodyRewriter = createUnrolledBody(builder, loopVariable, newBody, innerBlock, outerBlock, loopData.loop)
+                innerBlock.statements.add(
+                    addMapAndFilterReplacementsToBody(
                         builderWithParent,
                         bodyRewriter,
                         sequenceData,
@@ -636,8 +705,12 @@ private sealed class LoweringStrategy {
                         null,
                         loopVariable.name,
                     )
-                }
+                )
+                outerBlock.statements.add(
+                    innerBlock
+                )
             }
+            return outerBlock
         }
     }
 
@@ -648,16 +721,23 @@ private sealed class LoweringStrategy {
             sequenceData: SequenceData,
         ): IrExpression? {
             val (builder, parent) = builderWithParent
+            val generatingFunction = source.generatingFunction
             val nextFromCurrent: (IrVariable) -> IrExpression = { variable ->
-                builder.callRichFunctionReference(source.generatingFunction, parent, builder.irNotNull(builder.irGet(variable)))
+                builder.callRichFunctionReference(generatingFunction, parent, builder.irNotNull(builder.irGet(variable)))
             }
 
-            val (initialExpression, nextEvaluator) = when (val initialValue = source.initialValue) {
-                is GenerateInitialValue.InitialValue -> {
+            val (initialExpression, nextEvaluator: (IrVariable) -> IrExpression) = when (val initialValue = source.initialValue) {
+                is GenerateSequenceInitialValue.InitialValue -> {
                     initialValue.expression.deepCopyWithSymbols(parent) to nextFromCurrent
                 }
-                is GenerateInitialValue.InitialFunction -> {
+                is GenerateSequenceInitialValue.InitialFunction -> {
                     builder.callRichFunctionReference(initialValue.function, parent) to nextFromCurrent
+                }
+                is GenerateSequenceInitialValue.NoInitialValue -> {
+                    builder.callRichFunctionReference(
+                        generatingFunction,
+                        parent
+                    ) to { _: IrVariable -> builder.callRichFunctionReference(generatingFunction, parent) }
                 }
             }
             val (inductionVariable, newCondition, iteratorNextReplacement) =
@@ -665,7 +745,7 @@ private sealed class LoweringStrategy {
             return buildNewGenerateSequenceLoop(
                 builderWithParent,
                 sequenceData,
-                loopData.loopBody,
+                loopData,
                 inductionVariable,
                 newCondition,
                 iteratorNextReplacement
@@ -699,7 +779,7 @@ private sealed class LoweringStrategy {
         private fun buildNewGenerateSequenceLoop(
             builderWithParent: IrBuilderWithParent,
             sequenceData: SequenceData,
-            loopBody: IrBlock,
+            loopData: LoopData,
             inductionVariable: IrVariable,
             newCondition: IrExpression,
             iteratorNextReplacement: IrExpression,
@@ -711,10 +791,10 @@ private sealed class LoweringStrategy {
                     val parent = builderWithParent.second
                     val currentSequenceElement = irTemporary(irNotNull(irGet(inductionVariable)))
                     +irSet(inductionVariable, iteratorNextReplacement)
-                    val newBody = loopBody.deepCopyWithSymbols(parent)
+                    val newBody = loopData.loopBody.deepCopyWithSymbols(parent)
                     val loopVariable = lookupForLoopVariable(newBody) ?: return null
                     newBody.statements.remove(loopVariable)
-                    val bodyRewriter = createBodyExpectingNewLoopVariable(this, loopVariable, newBody, this@apply)
+                    val bodyRewriter = createBodyExpectingNewLoopVariable(this, loopVariable, newBody, this@apply, loopData.loop)
 
                     +addMapAndFilterReplacementsToBody(
                         builderWithParent,
@@ -835,7 +915,7 @@ private class SequenceFusionTransformer(val context: JvmBackendContext) : IrElem
         return when (this) {
             is SequenceSource.AsSequence -> LoweringStrategy.UnknownVariableStrategy(this.iterable)
             is SequenceSource.GenerateSequence -> LoweringStrategy.GenerateSequenceStrategy(this)
-            is SequenceSource.SequenceOf -> LoweringStrategy.SequenceOfStrategy(this)
+            is SequenceSource.SequenceOf -> LoweringStrategy.SequenceOfStrategy(this, context)
             is SequenceSource.Variable -> LoweringStrategy.UnknownVariableStrategy(builder.irGet(this.variable.owner))
         }
     }

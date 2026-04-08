@@ -1,5 +1,7 @@
 // WITH_STDLIB
 
+// CHECK_BYTECODE_TEXT
+// 2 iterator
 fun box(): String {
     var k = 1
     val seq = generateSequence(k, { if (it < 4) it + 1 else null })

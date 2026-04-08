@@ -1,5 +1,7 @@
 // WITH_STDLIB
 
+// CHECK_BYTECODE_TEXT
+// 1 iterator
 fun box(): String {
     var k = 1
     val seq = sequenceOf(k)

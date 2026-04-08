@@ -1,4 +1,6 @@
 // WITH_STDLIB
+// CHECK_BYTECODE_TEXT
+// 0 iterator
 
 fun testMaps(): Boolean {
     val seq = sequenceOf(1, 2, 3).map { it * 3 }

@@ -2,12 +2,12 @@
 // FIR_IDENTICAL
 abstract class X(val y: Bar)
 
-object Bar {
+<!POSSIBLE_INITIALIZATION_DEADLOCK!>object Bar<!> {
     <!UNINITIALIZED_PROPERTY!>val prop = <!UNINITIALIZED_ACCESS!>Foo.const<!><!>
 }
 
-class Foo {
-    companion object : X(Bar) {
+<!POSSIBLE_INITIALIZATION_DEADLOCK!>class Foo {
+    companion <!POSSIBLE_INITIALIZATION_DEADLOCK!>object<!> : X(Bar) {
         val const = "AAA"
     }
-}
+}<!>

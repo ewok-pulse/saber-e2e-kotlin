@@ -11,7 +11,7 @@ interface I1 : I {
     override val a: String get() = "test1"
 }
 
-open class C(open val x: Int, override val z: Int) : I {
+open class C(open val x: Int, override val z: Int) : I1 {
     open val y: String = "a"
     override val a: String = y
 }

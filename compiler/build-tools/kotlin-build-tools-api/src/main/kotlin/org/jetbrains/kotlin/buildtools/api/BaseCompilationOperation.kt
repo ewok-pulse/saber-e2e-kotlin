@@ -80,6 +80,9 @@ public interface BaseCompilationOperation : BuildOperation<CompilationResult> {
          * If no specific renderer is provided, the system defaults to a standard format:
          * file://<path>:<line>:<column> <message>
          *
+         * Renderers that also implement [CompilerMessageRendererWithDiagnosticId] receive the optional
+         * compiler diagnostic identifier for real diagnostics.
+         *
          * Example Output:
          * file:///path/to/File.kt:10:5 Unresolved reference: foo
          *

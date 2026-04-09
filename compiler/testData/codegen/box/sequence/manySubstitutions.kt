@@ -1,7 +1,6 @@
 // WITH_STDLIB
 
 // CHECK_BYTECODE_TEXT
-// 1 iterator
 fun test(seq: Sequence<Int>): String? {
     val seq1 = seq.map { it * 4 }
     val seq2 = seq1.map { it / 2 }

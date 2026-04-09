@@ -1,7 +1,6 @@
 // WITH_STDLIB
 
 // CHECK_BYTECODE_TEXT
-// 0 iterator
 fun box(): String {
     val seq = sequenceOf("abc", "bc", "a")
     val list = listOf(3, 2, 1)

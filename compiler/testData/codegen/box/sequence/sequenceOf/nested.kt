@@ -3,7 +3,6 @@ import kotlin.text.plus
 // WITH_STDLIB
 
 // CHECK_BYTECODE_TEXT
-// 0 iterator
 fun box(): String {
     val seq = sequenceOf(1, 2, 3)
     val seq2 = sequenceOf(1, 2, 3)

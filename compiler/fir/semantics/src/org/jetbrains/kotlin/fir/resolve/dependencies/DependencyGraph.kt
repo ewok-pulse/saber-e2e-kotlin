@@ -80,6 +80,7 @@ import org.jetbrains.kotlin.fir.references.toResolvedConstructorSymbol
 import org.jetbrains.kotlin.fir.references.toResolvedEnumEntrySymbol
 import org.jetbrains.kotlin.fir.references.toResolvedFunctionSymbol
 import org.jetbrains.kotlin.fir.references.toResolvedPropertySymbol
+import org.jetbrains.kotlin.fir.render
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.Companion.accesses
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.Companion.happensBefore
@@ -808,11 +809,9 @@ data class DependencyGraph(
             crossinline block: E.() -> Unit
         ) {
             visiting.push(this)
-            try {
-                block(this)
-            } finally {
-                visiting.pop()
-            }
+            println(render())
+            block(this)
+            visiting.pop()
         }
 
         private val scope: SubgraphScope? get() = scopes.topOrNull()

@@ -23,7 +23,6 @@ import androidx.compose.compiler.plugins.kotlin.FeatureFlags
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.common.ir.moveBodyTo
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.Modality
@@ -39,7 +38,6 @@ import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.util.*
@@ -546,7 +544,7 @@ class ComposerParamTransformer(
         return if (transformedFunctionSet.contains(this)) {
             this
         } else {
-            copyWithComposerParam()
+            mutateWithComposerParam()
         }
     }
 
@@ -676,7 +674,7 @@ class ComposerParamTransformer(
         }
     }
 
-    private fun IrSimpleFunction.copyWithComposerParam(): IrSimpleFunction {
+    private fun IrSimpleFunction.mutateWithComposerParam(): IrSimpleFunction {
         assert(parameters.lastOrNull()?.name != ComposeNames.ComposerParameter) {
             "Attempted to add composer param to $this, but it has already been added."
         }

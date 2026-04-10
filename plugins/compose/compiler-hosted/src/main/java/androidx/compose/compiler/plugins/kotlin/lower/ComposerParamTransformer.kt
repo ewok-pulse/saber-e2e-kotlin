@@ -246,7 +246,12 @@ class ComposerParamTransformer(
             symbol = fn.withComposerParamIfNeeded().symbol,
             typeArgumentsCount = expression.typeArguments.size,
             reflectionTarget = expression.reflectionTarget?.owner?.let {
-                if (it is IrSimpleFunction) it.withComposerParamIfNeeded().symbol else it.symbol
+                if (it is IrSimpleFunction) {
+                    val parentClass = it.parentClassOrNull
+                    if (parentClass != null && parentClass.defaultType.isSyntheticComposableFunction()) {
+                        parentClass.underlyingFunctionForComposable(context, it).symbol
+                    } else it.withComposerParamIfNeeded().symbol
+                } else it.symbol
             },
             origin = expression.origin,
         ).apply {

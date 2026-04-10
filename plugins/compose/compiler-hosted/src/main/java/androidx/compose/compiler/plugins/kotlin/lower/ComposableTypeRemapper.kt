@@ -191,7 +191,7 @@ internal open class ComposableTypeTransformer(
                             )
                     )
         ) {
-            val newFn = containingClass.underlyingFunctionForComposable(ownerFn)
+            val newFn = containingClass.underlyingFunctionForComposable(context, ownerFn)
             return super.visitCall(
                 IrCallImpl(
                     expression.startOffset,
@@ -306,7 +306,7 @@ internal open class ComposableTypeTransformer(
                     containingClass != null &&
                     containingClass.defaultType.isSyntheticComposableFunction()
             ) {
-                val newFn = containingClass.underlyingFunctionForComposable(ownerFn)
+                val newFn = containingClass.underlyingFunctionForComposable(context, ownerFn)
                 newFn.symbol
             } else if (ownerFn.needsComposableRemapping()) {
                 val newFn = visitExternalFunction(ownerFn)
@@ -323,16 +323,6 @@ internal open class ComposableTypeTransformer(
             visitExternalFunction(expression.overriddenFunctionSymbol.owner)
         }
         return super.visitRichFunctionReference(expression)
-    }
-
-    private fun IrClass.underlyingFunctionForComposable(invokeFn: IrSimpleFunction): IrSimpleFunction {
-        val realParams = typeParameters.size - /* return type */ 1
-        val newArgsSize = realParams + /* composer */ 1 + changedParamCount(realParams, 0)
-        val newFnClass = context.irBuiltIns.functionN(newArgsSize)
-
-        return newFnClass
-            .functions
-            .first { it.name == invokeFn.name }
     }
 
     protected fun IrType.remapType() = typeRemapper.remapType(this)

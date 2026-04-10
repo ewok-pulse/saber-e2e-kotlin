@@ -426,8 +426,8 @@ class ComposerParamTransformer(
                 val p = newFn.parameters[i]
                 p.kind == IrParameterKind.Regular
             }
-//            var argIndex = arguments.size
             var argIndex = if (newCall.isComposableLambdaInvoke()) {
+                // composable lambdas does not contain designated `$composer` parameter
                 arguments.size
             } else {
                 newFn.parameters.first { it.name == ComposeNames.ComposerParameter }.indexInParameters

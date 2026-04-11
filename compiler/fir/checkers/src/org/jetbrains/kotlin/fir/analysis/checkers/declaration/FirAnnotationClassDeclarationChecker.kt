@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.hasValOrVar
 import org.jetbrains.kotlin.diagnostics.hasVar
 import org.jetbrains.kotlin.diagnostics.reportOn
+import org.jetbrains.kotlin.fir.FirEvaluatorResult
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
@@ -22,7 +23,8 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.CYCLE_IN_ANNOTATION_PARAMETER_ERROR
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.primaryConstructorIfAny
-import org.jetbrains.kotlin.fir.expressions.canBeEvaluatedAtCompileTime
+import org.jetbrains.kotlin.fir.expressions.FirExpressionEvaluator
+import org.jetbrains.kotlin.fir.expressions.PrivateConstantEvaluatorAPI
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
 import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
@@ -73,13 +75,14 @@ object FirAnnotationClassDeclarationChecker : FirRegularClassChecker(MppCheckerK
                     } else if (source.hasVar()) {
                         reporter.reportOn(source, FirErrors.VAR_ANNOTATION_PARAMETER)
                     }
-                    if (parameter.hasDefaultValue && !canBeEvaluatedAtCompileTime(
-                            parameter.resolvedDefaultValue, context.session, allowErrors = true, calledOnCheckerStage = true
-                        )
-                    ) {
-                        reporter.reportOn(
-                            parameter.defaultValueSource, FirErrors.ANNOTATION_PARAMETER_DEFAULT_VALUE_MUST_BE_CONSTANT
-                        )
+                    if (parameter.hasDefaultValue && parameter.resolvedDefaultValue != null) {
+                        @OptIn(PrivateConstantEvaluatorAPI::class)
+                        val evaluationResult = FirExpressionEvaluator.evaluateExpression(parameter.resolvedDefaultValue!!, context.session)
+                        if (evaluationResult is FirEvaluatorResult.NotEvaluated && evaluationResult != FirEvaluatorResult.ResolutionError) {
+                            reporter.reportOn(
+                                parameter.defaultValueSource, FirErrors.ANNOTATION_PARAMETER_DEFAULT_VALUE_MUST_BE_CONSTANT
+                            )
+                        }
                     }
 
                     val typeRef = parameter.resolvedReturnTypeRef

@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.fir.analysis.web.common.checkers.expression
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.FirElement
+import org.jetbrains.kotlin.fir.FirEvaluatorResult
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.expression.FirFunctionCallChecker
@@ -44,8 +45,10 @@ object FirJsCodeConstantArgumentChecker : FirFunctionCallChecker(MppCheckerKind.
             override fun visitElement(element: FirElement) {
                 val lastReported = lastReportedElement
                 element.acceptChildren(this)
-                if (lastReported == lastReportedElement) {
-                    if (!canBeEvaluatedAtCompileTime(element as? FirExpression, context.session, allowErrors = true, calledOnCheckerStage = true)) {
+                if (lastReported == lastReportedElement && element is FirExpression) {
+                    @OptIn(PrivateConstantEvaluatorAPI::class)
+                    val evaluationResult = FirExpressionEvaluator.evaluateExpression(element, context.session)
+                    if (evaluationResult is FirEvaluatorResult.NotEvaluated && evaluationResult != FirEvaluatorResult.ResolutionError) {
                         lastReportedElement = element
                         val source = element.source ?: jsCodeExpression.source
                         reporter.reportOn(source, FirWebCommonErrors.JSCODE_ARGUMENT_NON_CONST_EXPRESSION)

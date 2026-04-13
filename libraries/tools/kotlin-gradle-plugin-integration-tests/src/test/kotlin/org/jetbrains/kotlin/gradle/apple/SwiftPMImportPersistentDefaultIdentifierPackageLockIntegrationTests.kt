@@ -622,4 +622,68 @@ class SwiftPMImportPersistentDefaultIdentifierPackageLockIntegrationTests : KGPB
             }
         }
     }
+
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    @GradleTest
+    fun `identifier synchronization ignores non-Apple consumer projects when generating umbrella lock without swiftPM import block`(
+        version: GradleVersion,
+    ) {
+        val defaultIdentifier = "default"
+        val sharedProjectName = "shared"
+
+        project("empty", version) {
+            withLockFileFixture{
+
+                initJvmSwiftPmProject(cacheDirFile){
+                    sourceSets.getByName("commonMain").dependencies {
+                        implementation(project(":$sharedProjectName"))
+                    }
+                }
+
+                val sharedProject = project("empty", version) {
+                    withLockFileFixture{
+                        initSwiftPmProject(cacheDirFile) {}
+                    }
+                }
+
+                include(sharedProject, sharedProjectName)
+
+
+                val expectedSharedGenerateUmbrellaPackageTaskName =
+                    GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(defaultIdentifier)
+
+                val expectedSharedFetchUmbrellaPackageTaskName =
+                    FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(defaultIdentifier)
+
+                val expectedRootGenerateUmbrellaPackageTaskName =
+                    GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(defaultIdentifier)
+
+                val expectedRootFetchUmbrellaPackageTaskName =
+                    FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(defaultIdentifier)
+
+
+                build(":$sharedProjectName:${FetchSyntheticImportProjectPackages.TASK_NAME}") {
+
+
+                    // umbrella generate should be picked by shared
+                    assertTasksSkipped(
+                        ":$sharedProjectName:$expectedSharedGenerateUmbrellaPackageTaskName"
+                    )
+
+
+                    // umbrella fetch should be picked by shared
+                    assertTasksSkipped(
+                        ":$sharedProjectName:$expectedSharedFetchUmbrellaPackageTaskName"
+                    )
+
+                    // root should not be part of umbrella generate neither fetch.
+                    assertTasksAreNotInTaskGraph(
+                        ":$expectedRootGenerateUmbrellaPackageTaskName",
+                        ":$expectedRootFetchUmbrellaPackageTaskName",
+                        ":${FetchSyntheticImportProjectPackages.TASK_NAME}"
+                    )
+                }
+            }
+        }
+    }
 }

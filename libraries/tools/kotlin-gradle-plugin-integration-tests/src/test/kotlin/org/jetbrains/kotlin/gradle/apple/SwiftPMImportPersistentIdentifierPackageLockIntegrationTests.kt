@@ -781,14 +781,10 @@ class SwiftPMImportPersistentIdentifierPackageLockIntegrationTests : KGPBaseTest
 
                     val manifestDescription = describeSwiftPackage(umbrellaSharedPackageManifest.parent)
 
-                    assertTrue(
-                        manifestDescription.dependencies.any { it.identity == "_$sharedProjectName" },
-                        "Apple SwiftPM project must be included in umbrella Package.swift"
-                    )
-
-                    assertTrue(
-                        manifestDescription.dependencies.none { it.identity == "_" },
-                        "Non-Apple consumer project must not be included in umbrella Package.swift"
+                    assertEquals(
+                        manifestDescription.dependencies.map { it.identity },
+                        listOf("_$sharedProjectName").sorted(),
+                        "Only Apple SwiftPM project must be included in umbrella Package.swift"
                     )
 
                     assertResolvedVersions(

@@ -43,7 +43,6 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.writeText
 import kotlin.io.readText
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @Suppress("INVISIBLE_REFERENCE")
 const val SYNTHETIC_IMPORT_TARGET_MAGIC_NAME = GenerateSyntheticLinkageImportProject.Companion.SYNTHETIC_IMPORT_TARGET_MAGIC_NAME
@@ -619,10 +618,6 @@ internal data class SwiftPmPinState(
     val branch: String? = null,
 )
 
-private object SwiftPmJsonHolder {
-    val json = Json { ignoreUnknownKeys = true }
-}
-
 
 internal fun SwiftPmPackageResolved.ignoreRevisions(): SwiftPmPackageResolved =
     copy(pins = pins.map { it.copy(state = it.state.copy(revision = "<ignored>")) })
@@ -630,7 +625,7 @@ internal fun SwiftPmPackageResolved.ignoreRevisions(): SwiftPmPackageResolved =
 internal fun SwiftPmPackageResolved.ignoreTopLevelVersion(): SwiftPmPackageResolved =
     copy(version = -1)
 
-internal fun parsePackageResolved(jsonString: String): SwiftPmPackageResolved = SwiftPmJsonHolder.json.decodeFromString(jsonString)
+internal fun parsePackageResolved(jsonString: String): SwiftPmPackageResolved = JsonHolder.json.decodeFromString(jsonString)
 
 // Package.resolved DTO
 
@@ -712,7 +707,7 @@ data class SwiftPackageTarget(
 
 // endregion
 
-private object AppleToolChainJsonHolder {
+private object JsonHolder {
     val json = Json {
         ignoreUnknownKeys = true
     }
@@ -731,7 +726,7 @@ private inline fun <reified T> runAppleToolCommand(
         "Failed to run command ${command.joinToString(" ")} at $workingDir: ${result.output}"
     }
     val jsonContent = outputFile?.readText() ?: result.output
-    return AppleToolChainJsonHolder.json.decodeFromString<T>(jsonContent)
+    return JsonHolder.json.decodeFromString<T>(jsonContent)
 }
 
 fun describeSwiftPackage(packagePath: Path): SwiftPackageDescription {
@@ -1036,7 +1031,7 @@ fun TestProject.assertApplicationRunsAndObjCRuntimeDoesntEmitInStderr(
 
 fun PublishedProject.assertSwiftPMMetadataVariantExistsInRootComponent() {
     val gradleMetadata = rootComponent.gradleMetadata.readText().let {
-        SwiftPmJsonHolder.json.decodeFromString<GradleMetadata>(it)
+        JsonHolder.json.decodeFromString<GradleMetadata>(it)
     }
 
     assertEquals(

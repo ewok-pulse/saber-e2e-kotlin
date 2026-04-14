@@ -73,7 +73,7 @@ internal open class ComposableTypeTransformer(
 
     private fun visitExternalFunction(function: IrFunction): IrFunction {
         if (
-            function.getPackageFragment() is IrExternalPackageFragment &&
+            function.isExternalFunction() &&
             function.needsComposableRemapping() &&
             externalTransformedDecls.add(function)
         ) {
@@ -94,7 +94,7 @@ internal open class ComposableTypeTransformer(
                 return@forEach
             }
             val overriddenFn = symbol.owner
-            if (overriddenFn.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB) {
+            if (overriddenFn.isExternalFunction()) {
                 // this is external function that is in a different compilation unit,
                 // so we potentially need to update composable types for it.
                 // if the function is in the current module, it should be updated eventually
@@ -217,11 +217,15 @@ internal open class ComposableTypeTransformer(
         // `getterFun.correspondingPropertySymbol.owner.getter == getterFun`. If we do not
         // maintain this relationship inline class getters will be incorrectly compiled.
         if (
-            ownerFn.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB &&
+            ownerFn.isExternalFunction() &&
             ownerFn.correspondingPropertySymbol != null
         ) {
             val property = ownerFn.correspondingPropertySymbol!!.owner
             property.transform(this, null)
+        }
+
+        if (ownerFn.needsComposableRemapping()) {
+            visitExternalFunction(ownerFn)
         }
 
         return super.visitCall(expression)

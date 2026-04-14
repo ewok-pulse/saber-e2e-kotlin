@@ -1735,7 +1735,7 @@ abstract class AbstractComposeLowering(
         )
     }
 
-    protected fun IrSimpleFunction.copyFunShape(): IrSimpleFunction {
+    protected fun IrSimpleFunction.copyWithoutBody(): IrSimpleFunction {
         return context.irFactory.createSimpleFunction(
             startOffset = startOffset,
             endOffset = endOffset,
@@ -1763,7 +1763,7 @@ abstract class AbstractComposeLowering(
 
     protected fun IrSimpleFunction.makeStub(): IrSimpleFunction {
         val source = this
-        val copy = source.copyFunShape()
+        val copy = source.copyWithoutBody()
         copy.isDefaultParamStub = true
         val newAnnotations = listOfNotNull(
             jvmSynthetic(),
@@ -1781,7 +1781,7 @@ abstract class AbstractComposeLowering(
 
     protected fun IrFunction.shouldBeRestartable(): Boolean {
         // Only insert observe scopes in non-empty composable function
-        if (this !is IrSimpleFunction || this.modality == Modality.ABSTRACT || getPackageFragment() is IrExternalPackageFragment)
+        if (this !is IrSimpleFunction || this.modality == Modality.ABSTRACT || isExternalFunction())
             return false
 
         if (isLocal && parentClassOrNull?.origin != JvmLoweredDeclarationOrigin.LAMBDA_IMPL) {
@@ -1916,3 +1916,6 @@ fun IrClass.underlyingFunctionForComposable(context: IrPluginContext, invokeFn: 
         .functions
         .first { it.name == invokeFn.name }
 }
+
+fun IrFunction.isExternalFunction(): Boolean =
+    origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB || origin == IrDeclarationOrigin.FAKE_OVERRIDE && getPackageFragment() is IrExternalPackageFragment

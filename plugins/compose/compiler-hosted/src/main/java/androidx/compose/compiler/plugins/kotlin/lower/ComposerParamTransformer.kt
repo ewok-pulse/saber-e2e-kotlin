@@ -541,11 +541,7 @@ class ComposerParamTransformer(
         // don't need to be transformed to have a composer parameter
         if (isExpect) return this
 
-        return if (transformedFunctionSet.contains(this)) {
-            this
-        } else {
-            mutateWithComposerParam()
-        }
+        return mutateWithComposerParam()
     }
 
     private fun IrSimpleFunction.lambdaInvokeWithComposerParam(): IrSimpleFunction {

@@ -17,7 +17,7 @@ internal fun collectForStructureElement(
     filter: DiagnosticCheckerFilter,
     createVisitor: (components: DiagnosticCollectorComponents) -> CheckerRunningDiagnosticCollectorVisitor,
 ): FileStructureElementDiagnosticList {
-    val reporter = LLFirDiagnosticReporter()
+    val reporter = LLFirDiagnosticReporter(ignoreSuppression = filter.ignoreSuppression)
     val collector = LLFirStructureElementDiagnosticsCollector(
         firDeclaration.moduleData.session,
         createVisitor,

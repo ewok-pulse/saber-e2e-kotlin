@@ -23,29 +23,49 @@ internal class FileStructureElementDiagnostics(private val retriever: FileStruct
         retriever.retrieve(DiagnosticCheckerFilter.ONLY_EXPERIMENTAL_CHECKERS)
     }
 
+    private val diagnosticByDefaultCheckersIgnoringSuppression: FileStructureElementDiagnosticList by lazy {
+        retriever.retrieve(DiagnosticCheckerFilter.ONLY_DEFAULT_CHECKERS.copy(ignoreSuppression = true))
+    }
+
+    private val diagnosticByExtraCheckersIgnoringSuppression: FileStructureElementDiagnosticList by lazy {
+        retriever.retrieve(DiagnosticCheckerFilter.ONLY_EXTRA_CHECKERS.copy(ignoreSuppression = true))
+    }
+
+    private val diagnosticByExperimentalCheckersIgnoringSuppression: FileStructureElementDiagnosticList by lazy {
+        retriever.retrieve(DiagnosticCheckerFilter.ONLY_EXPERIMENTAL_CHECKERS.copy(ignoreSuppression = true))
+    }
+
+    private fun defaultCheckersList(ignoreSuppression: Boolean) =
+        if (ignoreSuppression) diagnosticByDefaultCheckersIgnoringSuppression else diagnosticByDefaultCheckers
+
+    private fun extraCheckersList(ignoreSuppression: Boolean) =
+        if (ignoreSuppression) diagnosticByExtraCheckersIgnoringSuppression else diagnosticByExtraCheckers
+
+    private fun experimentalCheckersList(ignoreSuppression: Boolean) =
+        if (ignoreSuppression) diagnosticByExperimentalCheckersIgnoringSuppression else diagnosticByExperimentalCheckers
+
     fun diagnosticsFor(filter: DiagnosticCheckerFilter, element: PsiElement): List<KtPsiDiagnostic> =
         SmartList<KtPsiDiagnostic>().apply {
             if (filter.runDefaultCheckers) {
-                addAll(diagnosticByDefaultCheckers.diagnosticsFor(element))
+                addAll(defaultCheckersList(filter.ignoreSuppression).diagnosticsFor(element))
             }
             if (filter.runExtraCheckers) {
-                addAll(diagnosticByExtraCheckers.diagnosticsFor(element))
+                addAll(extraCheckersList(filter.ignoreSuppression).diagnosticsFor(element))
             }
             if (filter.runExperimentalCheckers) {
-                addAll(diagnosticByExperimentalCheckers.diagnosticsFor(element))
+                addAll(experimentalCheckersList(filter.ignoreSuppression).diagnosticsFor(element))
             }
         }
-
 
     inline fun forEach(filter: DiagnosticCheckerFilter, action: (List<KtPsiDiagnostic>) -> Unit) {
         if (filter.runDefaultCheckers) {
-            diagnosticByDefaultCheckers.forEach(action)
+            defaultCheckersList(filter.ignoreSuppression).forEach(action)
         }
         if (filter.runExtraCheckers) {
-            diagnosticByExtraCheckers.forEach(action)
+            extraCheckersList(filter.ignoreSuppression).forEach(action)
         }
         if (filter.runExperimentalCheckers) {
-            diagnosticByExperimentalCheckers.forEach(action)
+            experimentalCheckersList(filter.ignoreSuppression).forEach(action)
         }
     }
 }

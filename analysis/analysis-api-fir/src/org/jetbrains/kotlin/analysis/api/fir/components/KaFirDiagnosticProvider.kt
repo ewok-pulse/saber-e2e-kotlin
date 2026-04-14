@@ -34,19 +34,28 @@ internal class KaFirDiagnosticProvider(
 
     override fun KtFile.collectDiagnostics(
         filter: KaDiagnosticCheckerFilter,
+        ignoreSuppression: Boolean,
     ): Collection<KaDiagnosticWithPsi<*>> = withPsiValidityAssertion {
-        diagnostics(filter).toList()
+        diagnostics(filter, ignoreSuppression).toList()
     }
 
-    override fun KtFile.diagnostics(filter: KaDiagnosticCheckerFilter): Sequence<KaDiagnosticWithPsi<*>> = withPsiValidityAssertion {
-        diagnostics(resolutionFacade, filter.asLLFilter())
+    override fun KtFile.diagnostics(
+        filter: KaDiagnosticCheckerFilter,
+        ignoreSuppression: Boolean,
+    ): Sequence<KaDiagnosticWithPsi<*>> = withPsiValidityAssertion {
+        diagnostics(resolutionFacade, filter.asLLFilter(ignoreSuppression))
             .map { it.asKaDiagnostic() }
     }
 
-    private fun KaDiagnosticCheckerFilter.asLLFilter() = when (this) {
-        KaDiagnosticCheckerFilter.ONLY_COMMON_CHECKERS -> DiagnosticCheckerFilter.ONLY_DEFAULT_CHECKERS
-        KaDiagnosticCheckerFilter.ONLY_EXTENDED_CHECKERS -> DiagnosticCheckerFilter.ONLY_EXTRA_CHECKERS
-        KaDiagnosticCheckerFilter.ONLY_EXPERIMENTAL_CHECKERS -> DiagnosticCheckerFilter.ONLY_EXPERIMENTAL_CHECKERS
-        KaDiagnosticCheckerFilter.EXTENDED_AND_COMMON_CHECKERS -> DiagnosticCheckerFilter.ONLY_DEFAULT_CHECKERS + DiagnosticCheckerFilter.ONLY_EXTRA_CHECKERS
+    private fun KaDiagnosticCheckerFilter.asLLFilter(ignoreSuppression: Boolean = false) = when (this) {
+        KaDiagnosticCheckerFilter.ONLY_COMMON_CHECKERS ->
+            DiagnosticCheckerFilter.ONLY_DEFAULT_CHECKERS.copy(ignoreSuppression = ignoreSuppression)
+        KaDiagnosticCheckerFilter.ONLY_EXTENDED_CHECKERS ->
+            DiagnosticCheckerFilter.ONLY_EXTRA_CHECKERS.copy(ignoreSuppression = ignoreSuppression)
+        KaDiagnosticCheckerFilter.ONLY_EXPERIMENTAL_CHECKERS ->
+            DiagnosticCheckerFilter.ONLY_EXPERIMENTAL_CHECKERS.copy(ignoreSuppression = ignoreSuppression)
+        KaDiagnosticCheckerFilter.EXTENDED_AND_COMMON_CHECKERS ->
+            (DiagnosticCheckerFilter.ONLY_DEFAULT_CHECKERS + DiagnosticCheckerFilter.ONLY_EXTRA_CHECKERS)
+                .copy(ignoreSuppression = ignoreSuppression)
     }
 }

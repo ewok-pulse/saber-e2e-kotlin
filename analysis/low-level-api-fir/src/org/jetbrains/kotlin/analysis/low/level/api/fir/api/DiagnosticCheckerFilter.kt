@@ -9,6 +9,12 @@ data class DiagnosticCheckerFilter(
     val runDefaultCheckers: Boolean,
     val runExtraCheckers: Boolean,
     val runExperimentalCheckers: Boolean,
+    /**
+     * When `true`, diagnostics that would normally be suppressed by `@Suppress` annotations
+     * are still included in the result. This is useful for inspections that need to detect
+     * redundant suppression annotations.
+     */
+    val ignoreSuppression: Boolean = false,
 ) {
     companion object {
         val ONLY_DEFAULT_CHECKERS = DiagnosticCheckerFilter(
@@ -28,4 +34,5 @@ operator fun DiagnosticCheckerFilter.plus(other: DiagnosticCheckerFilter) =
         runDefaultCheckers || other.runDefaultCheckers,
         runExtraCheckers || other.runExtraCheckers,
         runExperimentalCheckers || other.runExperimentalCheckers,
+        ignoreSuppression || other.ignoreSuppression,
     )

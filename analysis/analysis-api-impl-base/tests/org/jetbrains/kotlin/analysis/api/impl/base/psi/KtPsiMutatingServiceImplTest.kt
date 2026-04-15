@@ -39,6 +39,7 @@ import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtDoubleColonExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunctionType
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtNonPublicApi
 import org.jetbrains.kotlin.psi.KtPrimaryConstructor
@@ -46,6 +47,9 @@ import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.KtSecondaryConstructor
+import org.jetbrains.kotlin.psi.psiUtil.addTypeArgument
+import org.jetbrains.kotlin.psi.psiUtil.getOrCreateParameterList
+import org.jetbrains.kotlin.psi.psiUtil.getOrCreateValueArgumentList
 import org.jetbrains.kotlin.psi.typeRefHelpers.setReceiverTypeReference
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -375,6 +379,20 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
+    fun lambdaParameterListCreationWorksThroughDeprecatedPsiUtilApi() {
+        val functionLiteral =
+            (((createKtFile("val lambda = { 42 }").declarations.single() as KtProperty).initializer) as KtLambdaExpression).functionLiteral
+
+        writeAction {
+            functionLiteral.getOrCreateParameterList()
+        }
+
+        assertNotNull(functionLiteral.valueParameterList)
+        assertTrue(functionLiteral.valueParameterList!!.parameters.isEmpty())
+        assertNotNull(functionLiteral.arrow)
+    }
+
+    @Test
     fun typeArgumentListMutationWorksThroughDeprecatedPsiApi() {
         val typeArgumentList = psiFactory.createTypeArguments("<String>")
 
@@ -384,6 +402,18 @@ class KtPsiMutatingServiceImplTest {
 
         assertEquals(listOf("String", "Int"), typeArgumentList.arguments.map { it.text })
         assertEquals("<String,Int>", typeArgumentList.text)
+    }
+
+    @Test
+    fun callTypeArgumentMutationWorksThroughDeprecatedPsiUtilApi() {
+        val call = ((createKtFile("val value = foo()").declarations.single() as KtProperty).initializer as KtCallExpression)
+
+        writeAction {
+            call.addTypeArgument(psiFactory.createTypeArgument("String"))
+        }
+
+        assertEquals("<String>", call.typeArgumentList!!.text)
+        assertEquals("foo<String>()", call.text)
     }
 
     @Test
@@ -401,6 +431,19 @@ class KtPsiMutatingServiceImplTest {
         }
 
         assertEquals(listOf("1", "3", "4"), argumentList.arguments.map { it.text })
+    }
+
+    @Test
+    fun callValueArgumentListCreationWorksThroughDeprecatedPsiUtilApi() {
+        val call = ((createKtFile("val value = foo<String> { 42 }").declarations.single() as KtProperty).initializer as KtCallExpression)
+
+        writeAction {
+            call.getOrCreateValueArgumentList()
+        }
+
+        assertNotNull(call.valueArgumentList)
+        assertTrue(call.valueArgumentList!!.arguments.isEmpty())
+        assertTrue(call.text.contains("foo<String>()"))
     }
 
     @Test

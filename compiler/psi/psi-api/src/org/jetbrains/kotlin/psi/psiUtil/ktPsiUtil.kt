@@ -639,20 +639,9 @@ fun KtParameter.isPropertyParameter() = ownerFunction is KtPrimaryConstructor &&
 fun isDoubleColonReceiver(expression: KtExpression) =
     expression.getParentOfTypeAndBranch<KtDoubleColonExpression> { this.receiverExpression } != null
 
-fun KtFunctionLiteral.getOrCreateParameterList(): KtParameterList {
-    valueParameterList?.let { return it }
-
-    val psiFactory = KtPsiFactory(project)
-
-    val anchor = lBrace
-    val newParameterList = addAfter(psiFactory.createLambdaParameterList("x"), anchor) as KtParameterList
-    newParameterList.removeParameter(0)
-    if (arrow == null) {
-        val whitespaceAndArrow = psiFactory.createWhitespaceAndArrow()
-        addRangeAfter(whitespaceAndArrow.first, whitespaceAndArrow.second, newParameterList)
-    }
-    return newParameterList
-}
+@OptIn(KtNonPublicApi::class)
+fun KtFunctionLiteral.getOrCreateParameterList(): KtParameterList =
+    KtPsiMutatingService.getInstance().getOrCreateParameterList(this)
 
 fun KtFunctionLiteral.findLabelAndCall(): Pair<Name?, KtCallExpression?> {
     val literalParent = (this.parent as KtLambdaExpression).parent
@@ -680,20 +669,13 @@ fun KtFunctionLiteral.findLabelAndCall(): Pair<Name?, KtCallExpression?> {
     }
 }
 
-fun KtCallExpression.getOrCreateValueArgumentList(): KtValueArgumentList {
-    valueArgumentList?.let { return it }
-    return addAfter(
-        KtPsiFactory(project).createCallArguments("()"),
-        typeArgumentList ?: calleeExpression,
-    ) as KtValueArgumentList
-}
+@OptIn(KtNonPublicApi::class)
+fun KtCallExpression.getOrCreateValueArgumentList(): KtValueArgumentList =
+    KtPsiMutatingService.getInstance().getOrCreateValueArgumentList(this)
 
+@OptIn(KtNonPublicApi::class)
 fun KtCallExpression.addTypeArgument(typeArgument: KtTypeProjection) {
-    if (typeArgumentList != null) {
-        typeArgumentList?.addArgument(typeArgument)
-    } else {
-        addAfter(KtPsiFactory(project).createTypeArguments("<${typeArgument.text}>"), calleeExpression)
-    }
+    KtPsiMutatingService.getInstance().addTypeArgument(this, typeArgument)
 }
 
 fun KtDeclaration.hasBody() = when (this) {

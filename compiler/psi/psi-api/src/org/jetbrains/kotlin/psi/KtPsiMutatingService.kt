@@ -184,6 +184,21 @@ interface KtPsiMutatingService {
      */
     fun removeParameter(parameterList: KtParameterList, index: Int)
 
+    /**
+     * Returns the existing value parameter list for [functionLiteral], or creates an empty one together with the arrow token.
+     */
+    fun getOrCreateParameterList(functionLiteral: KtFunctionLiteral): KtParameterList
+
+    /**
+     * Returns the existing value argument list for [callExpression], or creates an empty one.
+     */
+    fun getOrCreateValueArgumentList(callExpression: KtCallExpression): KtValueArgumentList
+
+    /**
+     * Adds [typeArgument] to [callExpression], creating the type argument list if needed.
+     */
+    fun addTypeArgument(callExpression: KtCallExpression, typeArgument: KtTypeProjection)
+
     @KtNonPublicApi
     companion object {
         /**

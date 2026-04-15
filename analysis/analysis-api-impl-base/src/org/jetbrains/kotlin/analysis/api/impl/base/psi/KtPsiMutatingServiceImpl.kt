@@ -350,6 +350,41 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         removeParameter(parameterList, parameterList.parameters[index])
     }
 
+    override fun getOrCreateParameterList(functionLiteral: KtFunctionLiteral): KtParameterList {
+        functionLiteral.valueParameterList?.let { return it }
+
+        val psiFactory = KtPsiFactory(functionLiteral.project)
+        val newParameterList =
+            functionLiteral.addAfter(psiFactory.createLambdaParameterList("x"), functionLiteral.lBrace) as KtParameterList
+        removeParameter(newParameterList, 0)
+        if (functionLiteral.arrow == null) {
+            val whitespaceAndArrow = psiFactory.createWhitespaceAndArrow()
+            functionLiteral.addRangeAfter(whitespaceAndArrow.first, whitespaceAndArrow.second, newParameterList)
+        }
+        return newParameterList
+    }
+
+    override fun getOrCreateValueArgumentList(callExpression: KtCallExpression): KtValueArgumentList {
+        callExpression.valueArgumentList?.let { return it }
+
+        return callExpression.addAfter(
+            KtPsiFactory(callExpression.project).createCallArguments("()"),
+            callExpression.typeArgumentList ?: callExpression.calleeExpression,
+        ) as KtValueArgumentList
+    }
+
+    override fun addTypeArgument(callExpression: KtCallExpression, typeArgument: KtTypeProjection) {
+        callExpression.typeArgumentList?.let {
+            addTypeArgument(it, typeArgument)
+            return
+        }
+
+        callExpression.addAfter(
+            KtPsiFactory(callExpression.project).createTypeArguments("<${typeArgument.text}>"),
+            callExpression.calleeExpression,
+        )
+    }
+
     private fun getOrCreateConstructorKeyword(constructor: KtPrimaryConstructor): PsiElement {
         return constructor.getConstructorKeyword()
             ?: constructor.addBefore(KtPsiFactory(constructor.project).createConstructorKeyword(), constructor.valueParameterList!!)

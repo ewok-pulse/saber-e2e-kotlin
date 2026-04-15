@@ -837,6 +837,8 @@ data class DependencyGraph(
             private inline fun <E : FirElement> E.visit(containingSymbol: FirBasedSymbol<*>? = null, crossinline block: E.() -> Unit) {
                 var popSymbol = false
                 if (this is FirDeclaration) {
+                    // Skip symbols that are not of the current module
+                    if (symbol.moduleData.name != moduleName) return
                     // If the declaration is contained in a file that has not been visited yet, i.e., has not been resolved yet, ...
                     session.firProvider.getContainingFile(containingSymbol ?: symbol)
                         ?.takeIf { it.symbol !in visitedFiles }
@@ -1688,6 +1690,8 @@ data class DependencyGraph(
         }
 
         private fun AccessEvaluationContext.collectAccessesFor(symbol: FirBasedSymbol<*>) {
+            // Skip symbols that are not of the current module
+            if (symbol.moduleData.name != moduleName) return
             // When the symbol has not been collected yet (possibly because its unresolved)
             if (symbol !in symbolReferences) {
                 symbol.fir.accept(symbolReferenceCollector)
@@ -1828,14 +1832,11 @@ data class DependencyGraph(
          */
 
         fun addDependencies(file: FirFile) {
-            println("Visiting file ${file.name} (node count: ${graph.nodes.size})")
-            // Skip already visited files
-            if (!visitedFiles.add(file.symbol)) return
+            // Skip files outside the current module and already visited files
+            if (file.moduleData.name != moduleName || !visitedFiles.add(file.symbol)) return
 
             // Process symbols of the file that are pending resolution
             pendingResolution[file.symbol]?.let { symbols ->
-                println("Found pending symbols for resolution for file ${file.name}")
-                println(symbols)
                 // Collect accesses for the newly resolved symbols
                 symbols.forEach { (symbol, contexts) ->
                     contexts.forEach { context ->
@@ -1867,11 +1868,7 @@ data class DependencyGraph(
                 buildEndInitializationNode(enclosingEntity) {}
             }
             // Condense the graph
-            println("Finished visiting file ${file.name}, new node count: ${graph.nodes.size}")
-            println(symbolReferences)
             condenseGraph()
-            println("Node count after condensation: ${graph.nodes.size}")
-            println(graph)
         }
 
         private fun FirRegularClass.buildEntity(outerEnclosingEntity: EnclosingEntity.Class? = null) {

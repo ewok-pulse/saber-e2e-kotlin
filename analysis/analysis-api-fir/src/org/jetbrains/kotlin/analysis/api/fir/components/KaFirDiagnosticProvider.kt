@@ -34,9 +34,21 @@ internal class KaFirDiagnosticProvider(
 
     override fun KtFile.collectDiagnostics(
         filter: KaDiagnosticCheckerFilter,
+    ): Collection<KaDiagnosticWithPsi<*>> = withPsiValidityAssertion {
+        collectDiagnostics(filter, ignoreSuppression = false)
+    }
+
+    override fun KtFile.collectDiagnostics(
+        filter: KaDiagnosticCheckerFilter,
         ignoreSuppression: Boolean,
     ): Collection<KaDiagnosticWithPsi<*>> = withPsiValidityAssertion {
         diagnostics(filter, ignoreSuppression).toList()
+    }
+
+    override fun KtFile.diagnostics(
+        filter: KaDiagnosticCheckerFilter,
+    ): Sequence<KaDiagnosticWithPsi<*>> = withPsiValidityAssertion {
+        diagnostics(filter, ignoreSuppression = false)
     }
 
     override fun KtFile.diagnostics(

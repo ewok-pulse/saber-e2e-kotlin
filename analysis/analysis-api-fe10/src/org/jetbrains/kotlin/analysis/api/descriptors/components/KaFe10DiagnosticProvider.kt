@@ -49,10 +49,29 @@ internal class KaFe10DiagnosticProvider(
         return diagnostics(filter).toList()
     }
 
+    override fun KtFile.collectDiagnostics(
+        filter: KaDiagnosticCheckerFilter,
+        ignoreSuppression: Boolean,
+    ): Collection<KaDiagnosticWithPsi<*>> = withPsiValidityAssertion {
+        diagnostics(filter, ignoreSuppression).toList()
+    }
+
     override fun KtFile.diagnostics(filter: KaDiagnosticCheckerFilter): Sequence<KaDiagnosticWithPsi<*>> = withPsiValidityAssertion {
+        diagnostics(filter, ignoreSuppression = false)
+    }
+
+    override fun KtFile.diagnostics(
+        filter: KaDiagnosticCheckerFilter,
+        ignoreSuppression: Boolean,
+    ): Sequence<KaDiagnosticWithPsi<*>> = withPsiValidityAssertion {
         sequence {
             val bindingContext = analysisContext.analyze(this@diagnostics)
-            for (diagnostic in bindingContext.diagnostics) {
+            val diagnostics = if (ignoreSuppression) {
+                bindingContext.diagnostics.noSuppression()
+            } else {
+                bindingContext.diagnostics
+            }
+            for (diagnostic in diagnostics) {
                 if (this@diagnostics == diagnostic.psiFile) {
                     this@sequence.yield(KaFe10Diagnostic(diagnostic, token))
                 }

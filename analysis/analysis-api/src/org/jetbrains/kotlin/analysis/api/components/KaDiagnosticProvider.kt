@@ -45,21 +45,22 @@ public interface KaDiagnosticProvider : KaSessionComponent {
      *
      * @see KtFile.diagnostics
      */
-    public fun KtFile.collectDiagnostics(
-        filter: KaDiagnosticCheckerFilter,
-        ignoreSuppression: Boolean = false,
-    ): Collection<KaDiagnosticWithPsi<*>>
+    public fun KtFile.collectDiagnostics(filter: KaDiagnosticCheckerFilter): Collection<KaDiagnosticWithPsi<*>>
 
     /**
-     * Collects all diagnostics for the given file, including those that would normally
-     * be suppressed by `@Suppress` annotations.
+     * Collects all diagnostics for the given file.
      *
-     * This is useful for inspections that need to detect redundant suppression annotations.
+     * @param filter Controls which kinds of diagnostics are included.
+     * @param ignoreSuppression When `true`, diagnostics that would normally be suppressed
+     *   by `@Suppress` annotations are still included in the result.
+     *
+     * @see KtFile.diagnostics
      */
     @KaExperimentalApi
-    public fun KtFile.collectDiagnosticsIncludingSuppressed(
+    public fun KtFile.collectDiagnostics(
         filter: KaDiagnosticCheckerFilter,
-    ): Collection<KaDiagnosticWithPsi<*>> = collectDiagnostics(filter, ignoreSuppression = true)
+        ignoreSuppression: Boolean,
+    ): Collection<KaDiagnosticWithPsi<*>>
 
     /**
      * Returns a [Sequence] of all diagnostics for the given file.
@@ -69,9 +70,21 @@ public interface KaDiagnosticProvider : KaSessionComponent {
      * @see collectDiagnostics
      */
     @KaExperimentalApi
+    public fun KtFile.diagnostics(filter: KaDiagnosticCheckerFilter): Sequence<KaDiagnosticWithPsi<*>>
+
+    /**
+     * Returns a [Sequence] of all diagnostics for the given file.
+     *
+     * @param filter Controls which kinds of diagnostics are included.
+     * @param ignoreSuppression When `true`, diagnostics that would normally be suppressed
+     *   by `@Suppress` annotations are still included in the result.
+     *
+     * @see collectDiagnostics
+     */
+    @KaExperimentalApi
     public fun KtFile.diagnostics(
         filter: KaDiagnosticCheckerFilter,
-        ignoreSuppression: Boolean = false,
+        ignoreSuppression: Boolean,
     ): Sequence<KaDiagnosticWithPsi<*>>
 }
 
@@ -121,7 +134,9 @@ context(session: KaSession)
 public fun KtElement.diagnostics(filter: KaDiagnosticCheckerFilter): Collection<KaDiagnosticWithPsi<*>> {
     @Suppress("DEPRECATION")
     return with(session) {
-        diagnostics(filter)
+        diagnostics(
+            filter = filter,
+        )
     }
 }
 
@@ -154,24 +169,38 @@ public fun KtElement.directDiagnostics(filter: KaDiagnosticCheckerFilter): Colle
 // Auto-generated bridge. DO NOT EDIT MANUALLY!
 @KaContextParameterApi
 context(session: KaSession)
-public fun KtFile.collectDiagnostics(
-    filter: KaDiagnosticCheckerFilter,
-    ignoreSuppression: Boolean = false,
-): Collection<KaDiagnosticWithPsi<*>> {
+public fun KtFile.collectDiagnostics(filter: KaDiagnosticCheckerFilter): Collection<KaDiagnosticWithPsi<*>> {
     return with(session) {
-        collectDiagnostics(filter, ignoreSuppression)
+        collectDiagnostics(
+            filter = filter,
+        )
     }
 }
 
 /**
- * Collects all diagnostics for the given file, including suppressed ones.
+ * Collects all diagnostics for the given file.
+ *
+ * @param filter Controls which kinds of diagnostics are included.
+ * @param ignoreSuppression When `true`, diagnostics that would normally be suppressed
+ *   by `@Suppress` annotations are still included in the result.
+ *
+ * @see KtFile.diagnostics
  */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
 @KaExperimentalApi
 @KaContextParameterApi
 context(session: KaSession)
-public fun KtFile.collectDiagnosticsIncludingSuppressed(
+public fun KtFile.collectDiagnostics(
     filter: KaDiagnosticCheckerFilter,
-): Collection<KaDiagnosticWithPsi<*>> = collectDiagnostics(filter, ignoreSuppression = true)
+    ignoreSuppression: Boolean,
+): Collection<KaDiagnosticWithPsi<*>> {
+    return with(session) {
+        collectDiagnostics(
+            filter = filter,
+            ignoreSuppression = ignoreSuppression,
+        )
+    }
+}
 
 /**
  * Returns a [Sequence] of all diagnostics for the given file.
@@ -184,11 +213,35 @@ public fun KtFile.collectDiagnosticsIncludingSuppressed(
 @KaExperimentalApi
 @KaContextParameterApi
 context(session: KaSession)
+public fun KtFile.diagnostics(filter: KaDiagnosticCheckerFilter): Sequence<KaDiagnosticWithPsi<*>> {
+    return with(session) {
+        diagnostics(
+            filter = filter,
+        )
+    }
+}
+
+/**
+ * Returns a [Sequence] of all diagnostics for the given file.
+ *
+ * @param filter Controls which kinds of diagnostics are included.
+ * @param ignoreSuppression When `true`, diagnostics that would normally be suppressed
+ *   by `@Suppress` annotations are still included in the result.
+ *
+ * @see collectDiagnostics
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
 public fun KtFile.diagnostics(
     filter: KaDiagnosticCheckerFilter,
-    ignoreSuppression: Boolean = false,
+    ignoreSuppression: Boolean,
 ): Sequence<KaDiagnosticWithPsi<*>> {
     return with(session) {
-        diagnostics(filter, ignoreSuppression)
+        diagnostics(
+            filter = filter,
+            ignoreSuppression = ignoreSuppression,
+        )
     }
 }

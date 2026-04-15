@@ -9,7 +9,9 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.kotlin.psi.KtNonPublicApi
 import org.jetbrains.kotlin.psi.KtPsiFactory
+import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.KtSuperTypeList
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.psi.KtUserType
@@ -28,6 +30,7 @@ fun LightElement.cannotModify(): Nothing {
     throw IncorrectOperationException("Modification not implemented.")
 }
 
+@OptIn(KtNonPublicApi::class)
 fun PsiReferenceList.addSuperTypeEntry(
     superTypeList: KtSuperTypeList,
     entry: KtSuperTypeListEntry,
@@ -40,7 +43,7 @@ fun PsiReferenceList.addSuperTypeEntry(
         } else entry
     // TODO: implement KtSuperListEntry qualification/shortening when inserting reference from another context
     if (entry.parent != superTypeList) {
-        superTypeList.addEntry(entryToAdd)
+        KtPsiMutatingService.getInstance().addSuperTypeListEntry(superTypeList, entryToAdd)
     } else {
         // Preserve original entry order
         entry.replace(entryToAdd)

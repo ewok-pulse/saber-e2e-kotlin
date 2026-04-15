@@ -12,7 +12,6 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement;
 import com.intellij.psi.util.PsiUtilCore;
-import com.intellij.util.IncorrectOperationException;
 import kotlin.annotations.jvm.ReadOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -90,12 +89,6 @@ public class KtBlockExpression extends LazyParseablePsiElement implements KtElem
     }
 
     @Override
-    public void delete() throws IncorrectOperationException {
-        KtElementUtilsKt.deleteSemicolon(this);
-        super.delete();
-    }
-
-    @Override
     @NotNull
     public PsiElement[] getChildren() {
         PsiElement psiChild = getFirstChild();
@@ -103,7 +96,7 @@ public class KtBlockExpression extends LazyParseablePsiElement implements KtElem
         List<PsiElement> result = null;
         while (psiChild != null) {
             if (psiChild.getNode() instanceof CompositeElement) {
-                if(result == null) result = new ArrayList<>();
+                if (result == null) result = new ArrayList<>();
                 result.add(psiChild);
             }
             psiChild = psiChild.getNextSibling();

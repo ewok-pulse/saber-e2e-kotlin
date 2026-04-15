@@ -12,7 +12,6 @@ import com.intellij.psi.*
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayFactory
-import com.intellij.util.FileContentUtilCore
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.kotlin.KtStubBasedElementTypes
 import org.jetbrains.kotlin.idea.KotlinFileType
@@ -78,14 +77,10 @@ open class KtCommonFile(viewProvider: FileViewProvider, val isCompiled: Boolean)
 
     var packageFqName: FqName
         get() = greenStub?.getPackageFqName() ?: packageDirective?.fqName ?: FqName.ROOT
+        @Deprecated("Use KtPsiMutatingService.getInstance().setCommonFilePackageFqName(this, value) instead")
+        @OptIn(KtNonPublicApi::class)
         set(value) {
-            val packageDirective = packageDirective
-            if (packageDirective != null) {
-                packageDirective.fqName = value
-            } else {
-                val newPackageDirective = KtPsiFactory(project).createPackageDirectiveIfNeeded(value) ?: return
-                addAfter(newPackageDirective, null)
-            }
+            KtPsiMutatingService.getInstance().setCommonFilePackageFqName(this, value)
         }
 
     @Deprecated("Use 'packageFqName' property instead", ReplaceWith("packageFqName"))
@@ -202,7 +197,7 @@ open class KtCommonFile(viewProvider: FileViewProvider, val isCompiled: Boolean)
 
     fun <S : StubElement<P>, P : KtElementImplStub<S>> findChildByTypeOrClass(
         elementType: KtStubElementType<out S, P>,
-        elementClass: Class<P>
+        elementClass: Class<P>,
     ): P? {
         val stub = greenStub
         if (stub != null) {
@@ -215,7 +210,7 @@ open class KtCommonFile(viewProvider: FileViewProvider, val isCompiled: Boolean)
 
     fun <T : KtElementImplStub<out StubElement<*>>> findChildrenByTypeOrClass(
         elementType: KtStubElementType<*, T>,
-        elementClass: Class<T>
+        elementClass: Class<T>,
     ): Array<out T> {
         val stub = greenStub
         if (stub != null) {
@@ -309,15 +304,13 @@ open class KtCommonFile(viewProvider: FileViewProvider, val isCompiled: Boolean)
     override fun getAnnotationEntries(): List<KtAnnotationEntry> =
         fileAnnotationList?.annotationEntries ?: emptyList()
 
+    @Deprecated(
+        "Use KtPsiMutatingService.getInstance().setCommonFileName(this, name) instead",
+        ReplaceWith("KtPsiMutatingService.getInstance().setCommonFileName(this, name)"),
+    )
+    @OptIn(KtNonPublicApi::class)
     @Throws(IncorrectOperationException::class)
-    override fun setName(name: String): PsiElement {
-        val result = super.setName(name)
-        val willBeScript = name.endsWith(KotlinFileType.SCRIPT_EXTENSION)
-        if (isScript() != willBeScript) {
-            FileContentUtilCore.reparseFiles(listOfNotNull(virtualFile))
-        }
-        return result
-    }
+    override fun setName(name: String): PsiElement = KtPsiMutatingService.getInstance().setCommonFileName(this, name)
 
     override fun getPsiOrParent(): KtElement = this
 

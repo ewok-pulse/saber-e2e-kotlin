@@ -154,10 +154,14 @@ public class KtProperty extends KtTypeParameterListOwnerStub<KotlinPropertyStub>
         return TypeRefHelpersKt.getTypeReference(this);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().setPropertyTypeReference(this, typeRef)} instead.
+     */
     @Override
     @Nullable
+    @Deprecated
     public KtTypeReference setTypeReference(@Nullable KtTypeReference typeRef) {
-        return TypeRefHelpersKt.setTypeReference(this, getNameIdentifier(), typeRef);
+        return KtPsiMutatingService.getInstance().setPropertyTypeReference(this, typeRef);
     }
 
     @Nullable
@@ -273,39 +277,13 @@ public class KtProperty extends KtTypeParameterListOwnerStub<KotlinPropertyStub>
         return hasDelegateExpression() || hasInitializer();
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().setPropertyInitializer(this, initializer)} instead.
+     */
     @Nullable
+    @Deprecated
     public KtExpression setInitializer(@Nullable KtExpression initializer) {
-        KtExpression oldInitializer = getInitializer();
-
-        if (oldInitializer != null) {
-            if (initializer != null) {
-                return (KtExpression) oldInitializer.replace(initializer);
-            }
-            else {
-                PsiElement nextSibling = oldInitializer.getNextSibling();
-                PsiElement last =
-                        nextSibling != null
-                        && nextSibling.getNode() != null
-                        && nextSibling.getNode().getElementType() == KtTokens.SEMICOLON
-                        ? nextSibling : oldInitializer;
-
-                deleteChildRange(findChildByType(EQ), last);
-                return null;
-            }
-        }
-        else {
-            if (initializer != null) {
-                PsiElement addAfter = getTypeReference();
-                if (addAfter == null) {
-                    addAfter = getNameIdentifier();
-                }
-                PsiElement eq = addAfter(new KtPsiFactory(getProject()).createEQ(), addAfter);
-                return (KtExpression) addAfter(initializer, eq);
-            }
-            else {
-                return null;
-            }
-        }
+        return KtPsiMutatingService.getInstance().setPropertyInitializer(this, initializer);
     }
 
     @Nullable

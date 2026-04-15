@@ -25,6 +25,8 @@ import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtNonPublicApi
+import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import java.lang.ref.Reference
 import java.lang.ref.SoftReference
 
@@ -105,9 +107,12 @@ open class FakeFileForLightClass(
 
     override fun isEquivalentTo(another: PsiElement?) = this == another
 
+    @OptIn(KtNonPublicApi::class)
     override fun setPackageName(packageName: String) {
         if (lightClass is KtLightClassForFacade) {
-            ktFile.packageDirective?.fqName = FqName(packageName)
+            ktFile.packageDirective?.let {
+                KtPsiMutatingService.getInstance().setPackageDirectiveFqName(it, FqName(packageName))
+            }
         } else {
             super.setPackageName(packageName)
         }

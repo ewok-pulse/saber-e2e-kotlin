@@ -59,27 +59,47 @@ public class KtParameterList extends KtElementImplStub<KotlinPlaceHolderStub<KtP
         return getStubOrPsiChildrenAsList(KtStubBasedElementTypes.VALUE_PARAMETER);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().addParameter(this, parameter)} instead.
+     */
     @NotNull
+    @Deprecated
     public KtParameter addParameter(@NotNull KtParameter parameter) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItem(this, getParameters(), parameter);
+        return KtPsiMutatingService.getInstance().addParameter(this, parameter);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().addParameterBefore(this, parameter, anchor)} instead.
+     */
     @NotNull
+    @Deprecated
     public KtParameter addParameterBefore(@NotNull KtParameter parameter, @Nullable KtParameter anchor) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItemBefore(this, getParameters(), parameter, anchor);
+        return KtPsiMutatingService.getInstance().addParameterBefore(this, parameter, anchor);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().addParameterAfter(this, parameter, anchor)} instead.
+     */
     @NotNull
+    @Deprecated
     public KtParameter addParameterAfter(@NotNull KtParameter parameter, @Nullable KtParameter anchor) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItemAfter(this, getParameters(), parameter, anchor);
+        return KtPsiMutatingService.getInstance().addParameterAfter(this, parameter, anchor);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().removeParameter(this, parameter)} instead.
+     */
+    @Deprecated
     public void removeParameter(@NotNull KtParameter parameter) {
-        EditCommaSeparatedListHelper.INSTANCE.removeItem(parameter);
+        KtPsiMutatingService.getInstance().removeParameter(this, parameter);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().removeParameter(this, index)} instead.
+     */
+    @Deprecated
     public void removeParameter(int index) {
-        removeParameter(getParameters().get(index));
+        KtPsiMutatingService.getInstance().removeParameter(this, index);
     }
 
     public KtDeclarationWithBody getOwnerFunction() {
@@ -108,7 +128,8 @@ public class KtParameterList extends KtElementImplStub<KotlinPlaceHolderStub<KtP
         PsiElement parentElement = getParent();
         if (parentElement instanceof KtFunctionLiteral) {
             return KtPsiUtilKt.getTrailingCommaByElementsList(this);
-        } else {
+        }
+        else {
             return KtPsiUtilKt.getTrailingCommaByClosingElement(getRightParenthesis());
         }
     }

@@ -16,7 +16,6 @@ import org.jetbrains.kotlin.psi.psiUtil.isKtFile
 import org.jetbrains.kotlin.psi.psiUtil.isLegacyContractPresentPsiCheck
 import org.jetbrains.kotlin.psi.stubs.KotlinFunctionStub
 import org.jetbrains.kotlin.psi.typeRefHelpers.getTypeReference
-import org.jetbrains.kotlin.psi.typeRefHelpers.setTypeReference
 
 /**
  * Represents a named function declaration.
@@ -141,8 +140,9 @@ open class KtNamedFunction : KtTypeParameterListOwnerStub<KotlinFunctionStub>, K
         return if (returnTypeIndex < typeReferences.size) typeReferences[returnTypeIndex] else null
     }
 
+    @OptIn(KtNonPublicApi::class)
     override fun setTypeReference(typeRef: KtTypeReference?): KtTypeReference? =
-        setTypeReference(declaration = this, addAfter = valueParameterList, typeRef = typeRef)
+        KtPsiMutatingService.getInstance().setFunctionTypeReference(this, typeRef)
 
     override fun getColon(): PsiElement? =
         findChildByType(KtTokens.COLON)

@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.KtNodeTypes;
 import org.jetbrains.kotlin.KtStubBasedElementTypes;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.stubs.KotlinParameterStub;
-import org.jetbrains.kotlin.psi.typeRefHelpers.TypeRefHelpersKt;
 
 import java.util.Collections;
 import java.util.List;
@@ -96,7 +95,7 @@ public class KtParameter extends KtNamedDeclarationStub<KotlinParameterStub> imp
     @Override
     @Nullable
     public KtTypeReference setTypeReference(@Nullable KtTypeReference typeRef) {
-        return TypeRefHelpersKt.setTypeReference(this, getNameIdentifier(), typeRef);
+        return KtPsiMutatingService.getInstance().setParameterTypeReference(this, typeRef);
     }
 
     @Nullable

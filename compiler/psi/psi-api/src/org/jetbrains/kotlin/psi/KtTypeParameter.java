@@ -53,23 +53,7 @@ public class KtTypeParameter extends KtNamedDeclarationStub<KotlinTypeParameterS
 
     @Nullable
     public KtTypeReference setExtendsBound(@Nullable KtTypeReference typeReference) {
-        KtTypeReference currentExtendsBound = getExtendsBound();
-        if (currentExtendsBound != null) {
-            if (typeReference == null) {
-                PsiElement colon = findChildByType(KtTokens.COLON);
-                if (colon != null) colon.delete();
-                currentExtendsBound.delete();
-                return null;
-            }
-            return (KtTypeReference) currentExtendsBound.replace(typeReference);
-        }
-
-        if (typeReference != null) {
-            PsiElement colon = addAfter(new KtPsiFactory(getProject()).createColon(), getNameIdentifier());
-            return (KtTypeReference) addAfter(typeReference, colon);
-        }
-
-        return null;
+        return KtPsiMutatingService.getInstance().setTypeParameterExtendsBound(this, typeReference);
     }
 
     @Nullable

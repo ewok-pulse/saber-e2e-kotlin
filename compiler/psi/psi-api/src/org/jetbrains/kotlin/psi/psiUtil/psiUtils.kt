@@ -543,27 +543,9 @@ fun PsiElement.getElementTextWithContext(): String = org.jetbrains.kotlin.utils.
 
 fun PsiElement.getTextWithLocation(): String = "'${this.text}' at ${PsiDiagnosticUtils.atLocation(this)}"
 
+@OptIn(KtNonPublicApi::class)
 fun replaceFileAnnotationList(file: KtFile, annotationList: KtFileAnnotationList): KtFileAnnotationList {
-    if (file.fileAnnotationList != null) {
-        return file.fileAnnotationList!!.replace(annotationList) as KtFileAnnotationList
-    }
-
-    val beforeAnchor: PsiElement? = when {
-        file.packageDirective?.packageKeyword != null -> file.packageDirective!!
-        file.importList != null -> file.importList!!
-        file.declarations.firstOrNull() != null -> file.declarations.first()
-        else -> null
-    }
-
-    if (beforeAnchor != null) {
-        return file.addBefore(annotationList, beforeAnchor) as KtFileAnnotationList
-    }
-
-    if (file.lastChild == null) {
-        return file.add(annotationList) as KtFileAnnotationList
-    }
-
-    return file.addAfter(annotationList, file.lastChild) as KtFileAnnotationList
+    return KtPsiMutatingService.getInstance().replaceFileAnnotationList(file, annotationList)
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------

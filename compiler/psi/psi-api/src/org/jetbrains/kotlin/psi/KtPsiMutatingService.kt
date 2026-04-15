@@ -1,0 +1,349 @@
+/*
+ * Copyright 2010-2026 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ */
+
+package org.jetbrains.kotlin.psi
+
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
+import org.jetbrains.kotlin.name.FqName
+
+/**
+ * Service responsible for Kotlin PSI mutation operations whose implementation is provided by the Kotlin plugin environment.
+ *
+ * The Kotlin PSI API keeps these entry points for compatibility, but the mutation logic itself is hosted outside the PSI module so that
+ * it can be tested and evolved together with IDE-side code.
+ */
+@KtNonPublicApi
+@SubclassOptInRequired(KtImplementationDetail::class)
+interface KtPsiMutatingService {
+    /**
+     * Adds [superTypeListEntry] to [declaration].
+     */
+    fun addSuperTypeListEntry(declaration: KtClassOrObject, superTypeListEntry: KtSuperTypeListEntry): KtSuperTypeListEntry
+
+    /**
+     * Adds [superTypeListEntry] to [superTypeList].
+     */
+    fun addSuperTypeListEntry(superTypeList: KtSuperTypeList, superTypeListEntry: KtSuperTypeListEntry): KtSuperTypeListEntry
+
+    /**
+     * Removes [superTypeListEntry] from [declaration].
+     */
+    fun removeSuperTypeListEntry(declaration: KtClassOrObject, superTypeListEntry: KtSuperTypeListEntry)
+
+    /**
+     * Removes [superTypeListEntry] from [superTypeList].
+     */
+    fun removeSuperTypeListEntry(superTypeList: KtSuperTypeList, superTypeListEntry: KtSuperTypeListEntry)
+
+    /**
+     * Deletes [superTypeList], removing the preceding colon when needed.
+     */
+    fun deleteSuperTypeList(superTypeList: KtSuperTypeList)
+
+    /**
+     * Performs smart deletion of [declaration].
+     */
+    fun deleteClassOrObject(declaration: KtClassOrObject)
+
+    /**
+     * Adds [declaration] to [classOrObject], creating a body when needed.
+     */
+    fun <T : KtDeclaration> addDeclaration(classOrObject: KtClassOrObject, declaration: T): T
+
+    /**
+     * Adds [declaration] after [anchor] in [classOrObject], or appends it when [anchor] is `null`.
+     */
+    fun <T : KtDeclaration> addDeclarationAfter(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T
+
+    /**
+     * Adds [declaration] before [anchor] in [classOrObject], or prepends it when [anchor] is `null`.
+     */
+    fun <T : KtDeclaration> addDeclarationBefore(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T
+
+    /**
+     * Returns the existing body for [classOrObject], or creates one if missing.
+     */
+    fun getOrCreateBody(classOrObject: KtClassOrObject): KtClassBody
+
+    /**
+     * Deletes a trailing semicolon belonging to [element] when it should disappear together with the element.
+     */
+    fun deleteSemicolon(element: KtElement)
+
+    /**
+     * Renames [declaration], including operator-specific modifier adjustments.
+     */
+    fun setNamedDeclarationStubName(declaration: KtNamedDeclarationStub<*>, name: String): PsiElement?
+
+    /**
+     * Renames [declaration] by replacing its name identifier directly.
+     */
+    fun setNamedDeclarationName(declaration: KtNamedDeclaration, name: String): PsiElement
+
+    /**
+     * Renames [expression] by replacing its target label.
+     */
+    fun setLabeledExpressionName(expression: KtLabeledExpression, name: String): PsiElement
+
+    /**
+     * Renames [importAlias].
+     */
+    fun setImportAliasName(importAlias: KtImportAlias, name: String): PsiElement
+
+    /**
+     * Renames [declaration], adding an explicit identifier when necessary.
+     */
+    fun setObjectDeclarationName(declaration: KtObjectDeclaration, name: String): PsiElement
+
+    /**
+     * Renames [file], reparsing it when the rename changes whether it should be treated as a script.
+     */
+    @Suppress("DEPRECATION")
+    fun setCommonFileName(file: KtCommonFile, name: String): PsiElement
+
+    /**
+     * Replaces the package name of [file], adding a package directive when needed.
+     */
+    @Suppress("DEPRECATION")
+    fun setCommonFilePackageFqName(file: KtCommonFile, fqName: FqName)
+
+    /**
+     * Returns the existing primary constructor for [klass], or creates one if missing.
+     */
+    fun getOrCreatePrimaryConstructor(klass: KtClass): KtPrimaryConstructor
+
+    /**
+     * Returns the existing primary constructor parameter list for [klass], or creates one if missing.
+     */
+    fun getOrCreatePrimaryConstructorParameterList(klass: KtClass): KtParameterList
+
+    /**
+     * Replaces the existing modifier list on [owner] with [newModifierList], or adds it if missing.
+     */
+    fun setModifierList(owner: KtModifierListOwner, newModifierList: KtModifierList)
+
+    /**
+     * Replaces the existing modifier list on [owner] with [modifierList], adds it if missing, or removes it when [modifierList] is `null`.
+     */
+    fun replaceModifierList(owner: KtModifierListOwner, modifierList: KtModifierList?): KtModifierList?
+
+    /**
+     * Replaces the type reference on [function] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setFunctionTypeReference(function: KtNamedFunction, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the type reference on [property] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setPropertyTypeReference(property: KtProperty, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the type reference on [parameter] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setParameterTypeReference(parameter: KtParameter, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the type reference on [entry] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setDestructuringDeclarationEntryTypeReference(entry: KtDestructuringDeclarationEntry, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the explicit return type on [declaration] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setCallableTypeReference(declaration: KtCallableDeclaration, addAfter: PsiElement?, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the receiver type on [declaration] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setCallableReceiverTypeReference(declaration: KtCallableDeclaration, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the receiver type on [functionType] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setFunctionTypeReceiverTypeReference(functionType: KtFunctionType, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the initializer on [property] with [initializer], adds it if missing, or removes it when [initializer] is `null`.
+     */
+    fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression?
+
+    /**
+     * Replaces the extends bound on [typeParameter] with [typeReference], adds it if missing, or removes it when [typeReference] is `null`.
+     */
+    fun setTypeParameterExtendsBound(typeParameter: KtTypeParameter, typeReference: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the package name of [packageDirective] with [fqName].
+     */
+    fun setPackageDirectiveFqName(packageDirective: KtPackageDirective, fqName: FqName)
+
+    /**
+     * Replaces [file]'s file annotation list with [annotationList], or adds it when missing.
+     */
+    fun replaceFileAnnotationList(file: KtFile, annotationList: KtFileAnnotationList): KtFileAnnotationList
+
+    /**
+     * Replaces the receiver expression on [expression] with [newReceiverExpression], or adds it if missing.
+     */
+    fun setDoubleColonReceiverExpression(expression: KtDoubleColonExpression, newReceiverExpression: KtExpression)
+
+    /**
+     * Deletes the qualifier of [userType], keeping the referenced name intact.
+     */
+    fun deleteQualifier(userType: KtUserType)
+
+    /**
+     * Adds [modifier] to [owner].
+     */
+    fun addModifier(owner: KtModifierListOwner, modifier: KtModifierKeywordToken)
+
+    /**
+     * Adds [modifier] to [constructor] using primary-constructor-specific behavior.
+     */
+    fun addConstructorModifier(constructor: KtPrimaryConstructor, modifier: KtModifierKeywordToken)
+
+    /**
+     * Removes [modifier] from [owner].
+     */
+    fun removeModifier(owner: KtModifierListOwner, modifier: KtModifierKeywordToken)
+
+    /**
+     * Removes [modifier] from [constructor] using primary-constructor-specific behavior.
+     */
+    fun removeConstructorModifier(constructor: KtPrimaryConstructor, modifier: KtModifierKeywordToken)
+
+    /**
+     * Adds [annotationEntry] to [owner].
+     */
+    fun addAnnotationEntry(owner: KtModifierListOwner, annotationEntry: KtAnnotationEntry): KtAnnotationEntry
+
+    /**
+     * Adds [annotationEntry] to [constructor] using primary-constructor-specific behavior.
+     */
+    fun addConstructorAnnotationEntry(constructor: KtPrimaryConstructor, annotationEntry: KtAnnotationEntry): KtAnnotationEntry
+
+    /**
+     * Removes [entry] from [annotation], deleting the annotation when it becomes empty.
+     */
+    fun removeAnnotationEntry(annotation: KtAnnotation, entry: KtAnnotationEntry)
+
+    /**
+     * Removes the redundant `constructor` keyword and the following whitespace from [constructor].
+     */
+    fun removeRedundantConstructorKeywordAndSpace(constructor: KtPrimaryConstructor)
+
+    /**
+     * Replaces the implicit delegation call in [constructor] with an explicit `this()` or `super()` call.
+     */
+    fun replaceImplicitDelegationCallWithExplicit(constructor: KtSecondaryConstructor, isThis: Boolean): KtConstructorDelegationCall
+
+    /**
+     * Adds [parameter] to [parameterList].
+     */
+    fun addParameter(parameterList: KtParameterList, parameter: KtParameter): KtParameter
+
+    /**
+     * Adds [parameter] to [parameterList] before [anchor].
+     */
+    fun addParameterBefore(parameterList: KtParameterList, parameter: KtParameter, anchor: KtParameter?): KtParameter
+
+    /**
+     * Adds [parameter] to [parameterList] after [anchor].
+     */
+    fun addParameterAfter(parameterList: KtParameterList, parameter: KtParameter, anchor: KtParameter?): KtParameter
+
+    /**
+     * Adds [typeParameter] to [typeParameterList].
+     */
+    fun addTypeParameter(typeParameterList: KtTypeParameterList, typeParameter: KtTypeParameter): KtTypeParameter
+
+    /**
+     * Adds [typeArgument] to [typeArgumentList].
+     */
+    fun addTypeArgument(typeArgumentList: KtTypeArgumentList, typeArgument: KtTypeProjection): KtTypeProjection
+
+    /**
+     * Adds [argument] to [argumentList].
+     */
+    fun addValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument): KtValueArgument
+
+    /**
+     * Adds [argument] to [argumentList] after [anchor].
+     */
+    fun addValueArgumentAfter(argumentList: KtValueArgumentList, argument: KtValueArgument, anchor: KtValueArgument?): KtValueArgument
+
+    /**
+     * Adds [argument] to [argumentList] before [anchor].
+     */
+    fun addValueArgumentBefore(argumentList: KtValueArgumentList, argument: KtValueArgument, anchor: KtValueArgument?): KtValueArgument
+
+    /**
+     * Removes [argument] from [argumentList].
+     */
+    fun removeValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument)
+
+    /**
+     * Removes an argument at [index] from [argumentList].
+     */
+    fun removeValueArgument(argumentList: KtValueArgumentList, index: Int)
+
+    /**
+     * Removes [parameter] from [parameterList].
+     */
+    fun removeParameter(parameterList: KtParameterList, parameter: KtParameter)
+
+    /**
+     * Removes a parameter at [index] from [parameterList].
+     */
+    fun removeParameter(parameterList: KtParameterList, index: Int)
+
+    /**
+     * Returns the existing value parameter list for [functionLiteral], or creates an empty one together with the arrow token.
+     */
+    fun getOrCreateParameterList(functionLiteral: KtFunctionLiteral): KtParameterList
+
+    /**
+     * Returns the existing value argument list for [callExpression], or creates an empty one.
+     */
+    fun getOrCreateValueArgumentList(callExpression: KtCallExpression): KtValueArgumentList
+
+    /**
+     * Adds [typeArgument] to [callExpression], creating the type argument list if needed.
+     */
+    fun addTypeArgument(callExpression: KtCallExpression, typeArgument: KtTypeProjection)
+
+    /**
+     * Replaces [element] with [newElement] on the AST level.
+     */
+    fun astReplace(element: PsiElement, newElement: PsiElement)
+
+    /**
+     * Replaces [expression] with [newElement], adding parentheses or string-template braces when needed.
+     */
+    fun replaceExpression(
+        expression: KtExpression,
+        newElement: PsiElement,
+        reformat: Boolean,
+        rawReplaceHandler: (PsiElement) -> PsiElement,
+    ): PsiElement
+
+    /**
+     * Adds a semicolon to [enumEntry], reusing an existing sibling semicolon when possible.
+     */
+    fun addSemicolon(enumEntry: KtEnumEntry): PsiElement
+
+    @KtNonPublicApi
+    companion object {
+        /**
+         * Returns the registered Kotlin PSI mutating service.
+         */
+        @JvmStatic
+        fun getInstance(): KtPsiMutatingService =
+            ApplicationManager.getApplication().getService(KtPsiMutatingService::class.java)
+                ?: throw IllegalStateException("Cannot mutate Kotlin PSI because KtPsiMutatingService is missing")
+    }
+}

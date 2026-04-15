@@ -157,7 +157,7 @@ public class KtProperty extends KtTypeParameterListOwnerStub<KotlinPropertyStub>
     @Override
     @Nullable
     public KtTypeReference setTypeReference(@Nullable KtTypeReference typeRef) {
-        return TypeRefHelpersKt.setTypeReference(this, getNameIdentifier(), typeRef);
+        return KtPsiMutatingService.getInstance().setPropertyTypeReference(this, typeRef);
     }
 
     @Nullable
@@ -275,37 +275,7 @@ public class KtProperty extends KtTypeParameterListOwnerStub<KotlinPropertyStub>
 
     @Nullable
     public KtExpression setInitializer(@Nullable KtExpression initializer) {
-        KtExpression oldInitializer = getInitializer();
-
-        if (oldInitializer != null) {
-            if (initializer != null) {
-                return (KtExpression) oldInitializer.replace(initializer);
-            }
-            else {
-                PsiElement nextSibling = oldInitializer.getNextSibling();
-                PsiElement last =
-                        nextSibling != null
-                        && nextSibling.getNode() != null
-                        && nextSibling.getNode().getElementType() == KtTokens.SEMICOLON
-                        ? nextSibling : oldInitializer;
-
-                deleteChildRange(findChildByType(EQ), last);
-                return null;
-            }
-        }
-        else {
-            if (initializer != null) {
-                PsiElement addAfter = getTypeReference();
-                if (addAfter == null) {
-                    addAfter = getNameIdentifier();
-                }
-                PsiElement eq = addAfter(new KtPsiFactory(getProject()).createEQ(), addAfter);
-                return (KtExpression) addAfter(initializer, eq);
-            }
-            else {
-                return null;
-            }
-        }
+        return KtPsiMutatingService.getInstance().setPropertyInitializer(this, initializer);
     }
 
     @Nullable

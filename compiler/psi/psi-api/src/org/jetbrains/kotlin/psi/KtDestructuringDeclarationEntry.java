@@ -49,7 +49,7 @@ public class KtDestructuringDeclarationEntry extends KtNamedDeclarationNotStubbe
     @Override
     @Nullable
     public KtTypeReference setTypeReference(@Nullable KtTypeReference typeRef) {
-        return TypeRefHelpersKt.setTypeReference(this, getNameIdentifier(), typeRef);
+        return KtPsiMutatingService.getInstance().setDestructuringDeclarationEntryTypeReference(this, typeRef);
     }
 
     @Nullable

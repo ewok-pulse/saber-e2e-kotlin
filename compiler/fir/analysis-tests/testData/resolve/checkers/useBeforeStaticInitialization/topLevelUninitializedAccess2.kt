@@ -3,7 +3,7 @@
 val a = 1
 <!UNINITIALIZED_PROPERTY!>val b = <!UNINITIALIZED_ACCESS!>A.b<!><!>
 
-object A {
+<!POSSIBLE_INITIALIZATION_DEADLOCK!>object A<!> {
     val b = a
     <!UNINITIALIZED_PROPERTY!>val x = <!UNINITIALIZED_ACCESS("val c: String")!>c<!><!>
 }

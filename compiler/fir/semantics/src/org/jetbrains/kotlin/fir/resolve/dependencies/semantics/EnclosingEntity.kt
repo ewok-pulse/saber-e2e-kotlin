@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.descriptors.isEnumClass
 import org.jetbrains.kotlin.descriptors.isObject
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.FirSessionComponent
-import org.jetbrains.kotlin.fir.SessionAndScopeSessionHolder
+import org.jetbrains.kotlin.fir.SessionHolder
 import org.jetbrains.kotlin.fir.declarations.FirDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirEnumEntry
 import org.jetbrains.kotlin.fir.declarations.FirFile
@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.fir.resolve.getContainingClassSymbol
 import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousObjectSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirClassLikeSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirEnumEntrySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirFileSymbol
@@ -99,18 +98,24 @@ sealed class EnclosingEntity<D : FirDeclaration> {
     }
 
     companion object {
-        fun FirRegularClassSymbol.asObjectEntity(outerClass: Class? = null): Object? =
-            when (classKind.isObject) {
-                true -> Object(
-                    this,
-                    when (isCompanion) {
-                        true if outerClass != null && getContainingClassSymbol() == outerClass.symbol -> outerClass
-                        true -> getContainingClassSymbol()?.fullyExpandedClass(moduleData.session)?.asClassEntity()
-                        false -> null
-                    }
-                )
-                false -> null
+        private fun FirRegularClassSymbol.assertValidOuterClassForObject(outerClass: Class?) {
+            require(classKind.isObject) { "Class symbol must be an object!" }
+            if (isCompanion && outerClass != null) {
+                require(getContainingClassSymbol()?.fullyExpandedClass(moduleData.session)?.resolvedCompanionObjectSymbol != outerClass.symbol) {
+                    "Companion object must be nested under the same class as the given outer class!"
+                }
+            } else if (!isCompanion) {
+                require(outerClass == null) { "Regular objects must not be provided with a class entity!" }
             }
+        }
+
+        fun FirRegularClassSymbol.asObjectEntity(outerClass: Class? = null): Object? = when (classKind.isObject) {
+            true -> {
+                assertValidOuterClassForObject(outerClass)
+                Object(this, outerClass ?: getContainingClassSymbol()?.fullyExpandedClass(moduleData.session)?.asClassEntity())
+            }
+            false -> null
+        }
 
         fun FirRegularClassSymbol.asClassEntity(): Class? =
             when (classKind.isEnumClass || resolvedCompanionObjectSymbol != null) {
@@ -120,10 +125,11 @@ sealed class EnclosingEntity<D : FirDeclaration> {
 
         fun FirAnonymousObjectSymbol.asEnumEntryEntity(): EnumEntry? = findCorrespondingEnumEntry()?.let(::EnumEntry)
 
-        fun FirClassLikeSymbol<*>.asEntity(): EnclosingEntity<*>? =
+        fun FirBasedSymbol<*>.asEntity(allowClass: Boolean = true): EnclosingEntity<*>? =
             when (this) {
-                is FirRegularClassSymbol -> asObjectEntity() ?: asClassEntity()
+                is FirRegularClassSymbol -> asObjectEntity() ?: if (allowClass) asClassEntity() else null
                 is FirAnonymousObjectSymbol -> asEnumEntryEntity()
+                is FirFileSymbol -> asFileEntity()
                 else -> null
             }
 
@@ -139,7 +145,7 @@ sealed class EnclosingEntity<D : FirDeclaration> {
 
         val FirSession.outermostEntityFinder: OutermostEnclosingEntityFinder by FirSession.sessionComponentAccessor()
 
-        context(holder: SessionAndScopeSessionHolder)
-        val EnclosingEntity<*>.outermostEntity: EnclosingEntity<*> get() = holder.session.outermostEntityFinder.find(this)
+        context(sessionHolder: SessionHolder)
+        val EnclosingEntity<*>.outermostEntity: EnclosingEntity<*> get() = sessionHolder.session.outermostEntityFinder.find(this)
     }
 }

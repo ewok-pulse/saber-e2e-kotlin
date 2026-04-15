@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.fir.declarations.FirAnonymousInitializer
 import org.jetbrains.kotlin.fir.declarations.utils.isEnumEntry
 import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.expressions.toResolvedCallableSymbol
-import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraph
+import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraphBuilder
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asEnumEntryEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asObjectEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.NodeIndex
@@ -30,7 +30,7 @@ object FirUninitializedAccessInStaticAnonymousInitializerChecker : FirAnonymousI
             is FirAnonymousObjectSymbol if containingSymbol.isEnumEntry -> containingSymbol.asEnumEntryEntity() ?: return
             else -> return
         }
-        val dependencyGraph = context.session.dependencyGraph
+        val dependencyGraph = declaration.moduleData.dependencyGraphBuilder.graph
         val index = NodeIndex.AnonymousInitializerIndex(enclosingEntity, declaration.symbol)
         if (dependencyGraph.isPoisoned(index)) {
             dependencyGraph.poisoningAccessesFor(index).forEach {

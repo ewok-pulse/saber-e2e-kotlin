@@ -7,11 +7,12 @@ package org.jetbrains.kotlin.fir.resolve.transformers.body.resolve
 
 import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.ScopeSessionHolder
 import org.jetbrains.kotlin.fir.declarations.FirFile
 import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
 import org.jetbrains.kotlin.fir.resolve.ResolutionMode
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
-import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph
+import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraphBuilder
 import org.jetbrains.kotlin.fir.resolve.transformers.AdapterForResolveProcessor
 import org.jetbrains.kotlin.fir.resolve.transformers.FirTransformerBasedResolveProcessor
 import org.jetbrains.kotlin.fir.visitors.FirTransformer
@@ -25,15 +26,13 @@ class FirBodyResolveProcessor(session: FirSession, scopeSession: ScopeSession) :
 }
 
 @AdapterForResolveProcessor
-class FirBodyResolveTransformerAdapter(session: FirSession, scopeSession: ScopeSession) : FirTransformer<Any?>() {
+class FirBodyResolveTransformerAdapter(session: FirSession, override val scopeSession: ScopeSession) : FirTransformer<Any?>(), ScopeSessionHolder {
     private val transformer = FirBodyResolveTransformer(
         session,
         phase = FirResolvePhase.BODY_RESOLVE,
         implicitTypeOnly = false,
         scopeSession = scopeSession
     )
-
-    private val dependencyGraphBuilder = DependencyGraph.Builder(session, scopeSession)
 
     override fun <E : FirElement> transformElement(element: E, data: Any?): E {
         return element
@@ -42,7 +41,7 @@ class FirBodyResolveTransformerAdapter(session: FirSession, scopeSession: ScopeS
     override fun transformFile(file: FirFile, data: Any?): FirFile {
         return withFileAnalysisExceptionWrapping(file) {
             file.transform<FirFile, ResolutionMode.ContextIndependent>(transformer, ResolutionMode.ContextIndependent)
-                .apply(dependencyGraphBuilder::visitFile)
+                .apply(file.moduleData.dependencyGraphBuilder::addDependencies)
         }
     }
 }

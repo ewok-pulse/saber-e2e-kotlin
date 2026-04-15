@@ -6,15 +6,15 @@
 package org.jetbrains.kotlin.fir.resolve.dependencies.semantics
 
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousInitializer
+import org.jetbrains.kotlin.fir.declarations.FirCallableDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirEnumEntry
 import org.jetbrains.kotlin.fir.declarations.FirFile
-import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousInitializerSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirFunctionSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 
 sealed interface NodeIndex<out D : FirDeclaration> {
@@ -45,9 +45,9 @@ sealed interface NodeIndex<out D : FirDeclaration> {
             "${if (enclosingEntity is EnclosingEntity.File) "" else "$enclosingEntity."}<init_block>"
     }
 
-    data class FunctionIndex<D : FirFunction>(
+    data class FunctionLikeIndex<D : FirCallableDeclaration>(
         override val enclosingEntity: EnclosingEntity<*>,
-        override val symbol: FirFunctionSymbol<D>
+        override val symbol: FirCallableSymbol<D>
     ) : DeclarationIndex<D> {
         override val canBePoisonedOnCyclicAccess: Boolean = false
         override fun toString(): String =

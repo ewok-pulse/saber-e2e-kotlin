@@ -48,14 +48,11 @@ public class KtSuperTypeList extends KtElementImplStub<KotlinPlaceHolderStub<KtS
 
     @NotNull
     public KtSuperTypeListEntry addEntry(@NotNull KtSuperTypeListEntry entry) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItem(this, getEntries(), entry);
+        return KtPsiMutatingService.getInstance().addSuperTypeListEntry(this, entry);
     }
 
     public void removeEntry(@NotNull KtSuperTypeListEntry entry) {
-        EditCommaSeparatedListHelper.INSTANCE.removeItem(entry);
-        if (getEntries().isEmpty()) {
-            delete();
-        }
+        KtPsiMutatingService.getInstance().removeSuperTypeListEntry(this, entry);
     }
 
     @Override

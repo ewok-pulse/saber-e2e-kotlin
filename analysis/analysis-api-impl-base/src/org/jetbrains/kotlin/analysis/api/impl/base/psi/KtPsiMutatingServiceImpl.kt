@@ -41,6 +41,13 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         return (declaration.addAfter(specifierListToAdd, colon) as KtSuperTypeList).entries.first()
     }
 
+    override fun addSuperTypeListEntry(
+        superTypeList: KtSuperTypeList,
+        superTypeListEntry: KtSuperTypeListEntry,
+    ): KtSuperTypeListEntry {
+        return EditCommaSeparatedListHelper.addItem(superTypeList, superTypeList.entries, superTypeListEntry)
+    }
+
     override fun removeSuperTypeListEntry(declaration: KtClassOrObject, superTypeListEntry: KtSuperTypeListEntry) {
         val specifierList = declaration.getSuperTypeList() ?: return
         assert(superTypeListEntry.parent === specifierList)
@@ -49,6 +56,13 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
             EditCommaSeparatedListHelper.removeItem<KtElement>(superTypeListEntry)
         } else {
             declaration.deleteChildRange(declaration.getColon() ?: specifierList, specifierList)
+        }
+    }
+
+    override fun removeSuperTypeListEntry(superTypeList: KtSuperTypeList, superTypeListEntry: KtSuperTypeListEntry) {
+        EditCommaSeparatedListHelper.removeItem<KtElement>(superTypeListEntry)
+        if (superTypeList.entries.isEmpty()) {
+            superTypeList.delete()
         }
     }
 
@@ -299,6 +313,10 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         return EditCommaSeparatedListHelper.addItem(typeParameterList, typeParameterList.parameters, typeParameter, LT)
     }
 
+    override fun addTypeArgument(typeArgumentList: KtTypeArgumentList, typeArgument: KtTypeProjection): KtTypeProjection {
+        return EditCommaSeparatedListHelper.addItem(typeArgumentList, typeArgumentList.arguments, typeArgument, LT)
+    }
+
     override fun addValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument): KtValueArgument {
         return EditCommaSeparatedListHelper.addItem(argumentList, argumentList.arguments, argument)
     }
@@ -322,6 +340,14 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
     override fun removeValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument) {
         assert(argument.parent == argumentList)
         EditCommaSeparatedListHelper.removeItem(argument)
+    }
+
+    override fun removeParameter(parameterList: KtParameterList, parameter: KtParameter) {
+        EditCommaSeparatedListHelper.removeItem<KtElement>(parameter)
+    }
+
+    override fun removeParameter(parameterList: KtParameterList, index: Int) {
+        removeParameter(parameterList, parameterList.parameters[index])
     }
 
     private fun getOrCreateConstructorKeyword(constructor: KtPrimaryConstructor): PsiElement {

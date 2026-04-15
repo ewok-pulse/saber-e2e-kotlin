@@ -46,7 +46,7 @@ public class KtTypeArgumentList extends KtElementImplStub<KotlinPlaceHolderStub<
 
     @NotNull
     public KtTypeProjection addArgument(@NotNull KtTypeProjection typeArgument) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItem(this, getArguments(), typeArgument, KtTokens.LT);
+        return KtPsiMutatingService.getInstance().addTypeArgument(this, typeArgument);
     }
 
     @Nullable

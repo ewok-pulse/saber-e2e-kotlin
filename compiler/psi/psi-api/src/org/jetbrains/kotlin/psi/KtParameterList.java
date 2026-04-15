@@ -75,11 +75,11 @@ public class KtParameterList extends KtElementImplStub<KotlinPlaceHolderStub<KtP
     }
 
     public void removeParameter(@NotNull KtParameter parameter) {
-        EditCommaSeparatedListHelper.INSTANCE.removeItem(parameter);
+        KtPsiMutatingService.getInstance().removeParameter(this, parameter);
     }
 
     public void removeParameter(int index) {
-        removeParameter(getParameters().get(index));
+        KtPsiMutatingService.getInstance().removeParameter(this, index);
     }
 
     public KtDeclarationWithBody getOwnerFunction() {

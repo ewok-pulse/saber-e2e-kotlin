@@ -142,6 +142,33 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
+    fun superTypeListMutationWorksThroughDeprecatedPsiApi() {
+        val ktClass = createSingleClass("class A : B")
+        val superTypeList = ktClass.getSuperTypeList()!!
+
+        writeAction {
+            superTypeList.addEntry(psiFactory.createSuperTypeEntry("C"))
+            superTypeList.removeEntry(superTypeList.entries.first())
+        }
+
+        assertEquals(listOf("C"), superTypeList.entries.map { it.text })
+        assertEquals("class A : C", ktClass.containingKtFile.text)
+    }
+
+    @Test
+    fun removingLastSuperTypeListEntryThroughDeprecatedPsiApiDeletesList() {
+        val ktClass = createSingleClass("class A : B")
+        val superTypeList = ktClass.getSuperTypeList()!!
+
+        writeAction {
+            superTypeList.removeEntry(superTypeList.entries.single())
+        }
+
+        assertNull(ktClass.getSuperTypeList())
+        assertEquals("class A ", ktClass.containingKtFile.text)
+    }
+
+    @Test
     fun genericModifierMutationWorksThroughDeprecatedPsiApi() {
         val function = createKtFile("fun foo() {}").declarations.single() as KtNamedFunction
 
@@ -332,6 +359,31 @@ class KtPsiMutatingServiceImplTest {
         }
 
         assertEquals(listOf("prefix: String", "x: Int", "suffix: Boolean"), parameterList.parameters.map { it.text })
+    }
+
+    @Test
+    fun parameterRemovalWorksThroughDeprecatedPsiApi() {
+        val function = createKtFile("fun foo(a: Int, b: String) {}").declarations.single() as KtNamedFunction
+        val parameterList = function.valueParameterList!!
+
+        writeAction {
+            parameterList.removeParameter(0)
+        }
+
+        assertEquals(listOf("b: String"), parameterList.parameters.map { it.text })
+        assertEquals("fun foo( b: String) {}", function.containingKtFile.text)
+    }
+
+    @Test
+    fun typeArgumentListMutationWorksThroughDeprecatedPsiApi() {
+        val typeArgumentList = psiFactory.createTypeArguments("<String>")
+
+        writeAction {
+            typeArgumentList.addArgument(psiFactory.createTypeArgument("Int"))
+        }
+
+        assertEquals(listOf("String", "Int"), typeArgumentList.arguments.map { it.text })
+        assertEquals("<String,Int>", typeArgumentList.text)
     }
 
     @Test

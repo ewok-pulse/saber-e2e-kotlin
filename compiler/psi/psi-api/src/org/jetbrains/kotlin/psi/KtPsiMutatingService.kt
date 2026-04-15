@@ -25,9 +25,19 @@ interface KtPsiMutatingService {
     fun addSuperTypeListEntry(declaration: KtClassOrObject, superTypeListEntry: KtSuperTypeListEntry): KtSuperTypeListEntry
 
     /**
+     * Adds [superTypeListEntry] to [superTypeList].
+     */
+    fun addSuperTypeListEntry(superTypeList: KtSuperTypeList, superTypeListEntry: KtSuperTypeListEntry): KtSuperTypeListEntry
+
+    /**
      * Removes [superTypeListEntry] from [declaration].
      */
     fun removeSuperTypeListEntry(declaration: KtClassOrObject, superTypeListEntry: KtSuperTypeListEntry)
+
+    /**
+     * Removes [superTypeListEntry] from [superTypeList].
+     */
+    fun removeSuperTypeListEntry(superTypeList: KtSuperTypeList, superTypeListEntry: KtSuperTypeListEntry)
 
     /**
      * Performs smart deletion of [declaration].
@@ -140,6 +150,11 @@ interface KtPsiMutatingService {
     fun addTypeParameter(typeParameterList: KtTypeParameterList, typeParameter: KtTypeParameter): KtTypeParameter
 
     /**
+     * Adds [typeArgument] to [typeArgumentList].
+     */
+    fun addTypeArgument(typeArgumentList: KtTypeArgumentList, typeArgument: KtTypeProjection): KtTypeProjection
+
+    /**
      * Adds [argument] to [argumentList].
      */
     fun addValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument): KtValueArgument
@@ -158,6 +173,16 @@ interface KtPsiMutatingService {
      * Removes [argument] from [argumentList].
      */
     fun removeValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument)
+
+    /**
+     * Removes [parameter] from [parameterList].
+     */
+    fun removeParameter(parameterList: KtParameterList, parameter: KtParameter)
+
+    /**
+     * Removes a parameter at [index] from [parameterList].
+     */
+    fun removeParameter(parameterList: KtParameterList, index: Int)
 
     @KtNonPublicApi
     companion object {

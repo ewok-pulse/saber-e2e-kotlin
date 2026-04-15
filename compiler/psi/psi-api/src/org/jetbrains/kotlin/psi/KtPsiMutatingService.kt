@@ -199,6 +199,11 @@ interface KtPsiMutatingService {
      */
     fun addTypeArgument(callExpression: KtCallExpression, typeArgument: KtTypeProjection)
 
+    /**
+     * Replaces [element] with [newElement] on the AST level.
+     */
+    fun astReplace(element: PsiElement, newElement: PsiElement)
+
     @KtNonPublicApi
     companion object {
         /**

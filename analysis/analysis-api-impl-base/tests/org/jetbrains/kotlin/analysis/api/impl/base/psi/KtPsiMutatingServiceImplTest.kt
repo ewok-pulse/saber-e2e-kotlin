@@ -47,6 +47,7 @@ import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.KtSecondaryConstructor
+import org.jetbrains.kotlin.psi.psiUtil.astReplace
 import org.jetbrains.kotlin.psi.psiUtil.addTypeArgument
 import org.jetbrains.kotlin.psi.psiUtil.getOrCreateParameterList
 import org.jetbrains.kotlin.psi.psiUtil.getOrCreateValueArgumentList
@@ -100,7 +101,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun addSuperTypeListEntryAddsFirstSupertype() {
+    fun testAddFirstSuperTypeListEntry() {
         val ktClass = createSingleClass("class A")
 
         writeAction {
@@ -111,7 +112,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun addSuperTypeListEntryReplacesPlaceholderEntry() {
+    fun testReplacePlaceholderSuperTypeListEntry() {
         val ktClass = createSingleClass("class A : ")
 
         writeAction {
@@ -122,7 +123,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun removeSuperTypeListEntryHandlesCommaSeparatedList() {
+    fun testRemoveSuperTypeListEntry() {
         val ktClass = createSingleClass("class A : B, C")
         val entryToRemove = ktClass.superTypeListEntries.first()
 
@@ -134,7 +135,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun removeSuperTypeListEntryRemovesColonForLastEntry() {
+    fun testRemoveLastSuperTypeListEntry() {
         val ktClass = createSingleClass("class A : B")
         val entryToRemove = ktClass.superTypeListEntries.single()
 
@@ -146,7 +147,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun superTypeListMutationWorksThroughDeprecatedPsiApi() {
+    fun testSuperTypeListMutation() {
         val ktClass = createSingleClass("class A : B")
         val superTypeList = ktClass.getSuperTypeList()!!
 
@@ -160,7 +161,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun removingLastSuperTypeListEntryThroughDeprecatedPsiApiDeletesList() {
+    fun testRemoveLastSuperTypeListEntryFromSuperTypeList() {
         val ktClass = createSingleClass("class A : B")
         val superTypeList = ktClass.getSuperTypeList()!!
 
@@ -173,7 +174,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun genericModifierMutationWorksThroughDeprecatedPsiApi() {
+    fun testGenericModifierMutation() {
         val function = createKtFile("fun foo() {}").declarations.single() as KtNamedFunction
 
         writeAction {
@@ -190,7 +191,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun primaryConstructorHelperKeepsPublicModifierBehavior() {
+    fun testPrimaryConstructorHelperPublicModifier() {
         val constructor = createPrimaryConstructor("class A constructor()")
 
         writeAction {
@@ -201,7 +202,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun primaryConstructorHelperKeepsConstructorKeywordOnModifierRemoval() {
+    fun testPrimaryConstructorHelperKeepsConstructorKeyword() {
         val constructor = createPrimaryConstructor("class A private constructor()")
 
         writeAction {
@@ -214,7 +215,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun primaryConstructorModifierRemovalCleansUpConstructorKeyword() {
+    fun testPrimaryConstructorModifierRemoval() {
         val constructor = createPrimaryConstructor("class A private constructor()")
 
         writeAction {
@@ -227,7 +228,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun primaryConstructorAnnotationCreationPreservesDedicatedBehavior() {
+    fun testPrimaryConstructorAnnotationCreation() {
         val constructor = createPrimaryConstructor("class A constructor()")
 
         writeAction {
@@ -239,7 +240,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun primaryConstructorHelperDoesNotRecreateConstructorKeywordForAnnotation() {
+    fun testPrimaryConstructorHelperAnnotation() {
         val constructor = createPrimaryConstructor("class A private constructor()")
 
         writeAction {
@@ -253,7 +254,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun secondaryConstructorImplicitThisDelegationCanBeMadeExplicit() {
+    fun testExplicitThisDelegation() {
         val constructor = createSecondaryConstructor("class A() { constructor(x: Int) }")
 
         writeAction {
@@ -264,7 +265,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun secondaryConstructorImplicitSuperDelegationCanBeMadeExplicit() {
+    fun testExplicitSuperDelegation() {
         val constructor = createSecondaryConstructor("open class B\nclass A : B { constructor(x: Int) }")
 
         writeAction {
@@ -275,7 +276,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun deletingClassFromMultiDeclarationFileKeepsFile() {
+    fun testDeleteClassFromMultiDeclarationFile() {
         val file = createKtFile("class A\nclass B")
         val declaration = file.declarations.first() as KtClass
 
@@ -289,7 +290,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun callableTypeReferenceHelpersMutateThroughDeprecatedPsiApi() {
+    fun testCallableTypeReferenceHelpers() {
         val function = createKtFile("fun foo() {}").declarations.single() as KtNamedFunction
 
         writeAction {
@@ -301,7 +302,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun functionTypeReceiverTypeHelperMutatesThroughDeprecatedPsiApi() {
+    fun testFunctionTypeReceiverTypeHelper() {
         val functionType = psiFactory.createType("() -> Unit").typeElement as KtFunctionType
 
         writeAction {
@@ -312,7 +313,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun propertyInitializerMutationWorksThroughDeprecatedPsiApi() {
+    fun testPropertyInitializerMutation() {
         val property = createKtFile("val value = 1").declarations.single() as KtProperty
 
         writeAction {
@@ -323,7 +324,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun typeParameterMutationsWorkThroughDeprecatedPsiApi() {
+    fun testTypeParameterMutations() {
         val ktClass = createSingleClass("class Box<T>")
         val typeParameter = ktClass.typeParameters.single()
 
@@ -336,7 +337,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun packageDirectiveAndDoubleColonMutationsWorkThroughDeprecatedPsiApi() {
+    fun testPackageDirectiveAndDoubleColonMutations() {
         val file = createKtFile("package foo\n\nval ref = ::bar\nfun bar() = 1")
         val packageDirective = file.packageDirective!!
         val reference = ((file.declarations.first() as KtProperty).initializer as KtDoubleColonExpression)
@@ -351,7 +352,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun parameterListMutationWorksThroughDeprecatedPsiApi() {
+    fun testParameterListMutation() {
         val function = createKtFile("fun foo() {}").declarations.single() as KtNamedFunction
         val parameterList = function.valueParameterList!!
 
@@ -366,7 +367,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun parameterRemovalWorksThroughDeprecatedPsiApi() {
+    fun testParameterRemoval() {
         val function = createKtFile("fun foo(a: Int, b: String) {}").declarations.single() as KtNamedFunction
         val parameterList = function.valueParameterList!!
 
@@ -379,7 +380,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun lambdaParameterListCreationWorksThroughDeprecatedPsiUtilApi() {
+    fun testLambdaParameterListCreation() {
         val functionLiteral =
             (((createKtFile("val lambda = { 42 }").declarations.single() as KtProperty).initializer) as KtLambdaExpression).functionLiteral
 
@@ -393,7 +394,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun typeArgumentListMutationWorksThroughDeprecatedPsiApi() {
+    fun testTypeArgumentListMutation() {
         val typeArgumentList = psiFactory.createTypeArguments("<String>")
 
         writeAction {
@@ -405,7 +406,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun callTypeArgumentMutationWorksThroughDeprecatedPsiUtilApi() {
+    fun testCallTypeArgumentMutation() {
         val call = ((createKtFile("val value = foo()").declarations.single() as KtProperty).initializer as KtCallExpression)
 
         writeAction {
@@ -417,7 +418,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun valueArgumentListMutationWorksThroughDeprecatedPsiApi() {
+    fun testValueArgumentListMutation() {
         val file = createKtFile("fun foo(a: Int, b: Int, c: Int) {}\nval value = foo(2)")
         val call = ((file.declarations.last() as KtProperty).initializer as KtCallExpression)
         val argumentList = call.valueArgumentList!!
@@ -434,7 +435,7 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun callValueArgumentListCreationWorksThroughDeprecatedPsiUtilApi() {
+    fun testCallValueArgumentListCreation() {
         val call = ((createKtFile("val value = foo<String> { 42 }").declarations.single() as KtProperty).initializer as KtCallExpression)
 
         writeAction {
@@ -447,7 +448,20 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
-    fun removingLastAnnotationEntryWorksThroughDeprecatedPsiApi() {
+    fun testAstReplace() {
+        val function = createKtFile("fun foo() {}").declarations.single() as KtNamedFunction
+        val identifier = function.nameIdentifier!!
+        val replacement = psiFactory.createSimpleName("bar")
+
+        writeAction {
+            identifier.astReplace(replacement)
+        }
+
+        assertEquals("fun bar() {}", function.containingKtFile.text)
+    }
+
+    @Test
+    fun testRemoveLastAnnotationEntry() {
         val file = createKtFile("@file:[A]\npackage p")
         val annotation = file.fileAnnotationList!!.annotations.single()
 

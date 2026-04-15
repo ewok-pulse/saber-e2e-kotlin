@@ -385,6 +385,10 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         )
     }
 
+    override fun astReplace(element: PsiElement, newElement: PsiElement) {
+        element.parent.node.replaceChild(element.node, newElement.node)
+    }
+
     private fun getOrCreateConstructorKeyword(constructor: KtPrimaryConstructor): PsiElement {
         return constructor.getConstructorKeyword()
             ?: constructor.addBefore(KtPsiFactory(constructor.project).createConstructorKeyword(), constructor.valueParameterList!!)

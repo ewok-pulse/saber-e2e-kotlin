@@ -292,6 +292,55 @@ class KtPsiMutatingServiceImplTest {
     }
 
     @Test
+    fun testDeleteProperty() {
+        val file = createKtFile("val a = 1; val b = 2")
+        val property = file.declarations.first() as KtProperty
+
+        writeAction {
+            property.delete()
+        }
+
+        assertEquals(" val b = 2", file.text)
+    }
+
+    @Test
+    fun testDeleteSuperTypeList() {
+        val ktClass = createSingleClass("class A : B")
+        val superTypeList = ktClass.getSuperTypeList()!!
+
+        writeAction {
+            superTypeList.delete()
+        }
+
+        assertNull(ktClass.getSuperTypeList())
+        assertEquals("class A ", ktClass.containingKtFile.text)
+    }
+
+    @Test
+    fun testDeleteEnumEntry() {
+        val ktClass = createSingleClass("enum class E { A, B; fun foo() {} }")
+        val enumEntry = ktClass.body!!.enumEntries.last()
+
+        writeAction {
+            enumEntry.delete()
+        }
+
+        assertEquals("enum class E { A;  fun foo() {} }", ktClass.containingKtFile.text)
+    }
+
+    @Test
+    fun testDeleteOnlyEnumEntry() {
+        val ktClass = createSingleClass("enum class E { A; fun foo() {} }")
+        val enumEntry = ktClass.body!!.enumEntries.single()
+
+        writeAction {
+            enumEntry.delete()
+        }
+
+        assertEquals("enum class E { ; fun foo() {} }", ktClass.containingKtFile.text)
+    }
+
+    @Test
     fun testCallableTypeReferenceHelpers() {
         val function = createKtFile("fun foo() {}").declarations.single() as KtNamedFunction
 

@@ -40,9 +40,19 @@ interface KtPsiMutatingService {
     fun removeSuperTypeListEntry(superTypeList: KtSuperTypeList, superTypeListEntry: KtSuperTypeListEntry)
 
     /**
+     * Deletes [superTypeList], removing the preceding colon when needed.
+     */
+    fun deleteSuperTypeList(superTypeList: KtSuperTypeList)
+
+    /**
      * Performs smart deletion of [declaration].
      */
     fun deleteClassOrObject(declaration: KtClassOrObject)
+
+    /**
+     * Deletes a trailing semicolon belonging to [element] when it should disappear together with the element.
+     */
+    fun deleteSemicolon(element: KtElement)
 
     /**
      * Replaces the existing modifier list on [owner] with [newModifierList], or adds it if missing.

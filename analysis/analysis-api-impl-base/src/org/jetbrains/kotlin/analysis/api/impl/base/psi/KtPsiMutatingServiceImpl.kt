@@ -66,7 +66,33 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         }
     }
 
+    override fun deleteSuperTypeList(superTypeList: KtSuperTypeList) {
+        var left = PsiTreeUtil.skipSiblingsBackward(superTypeList, PsiWhiteSpace::class.java, PsiComment::class.java)
+        if (left?.elementType != COLON) {
+            left = superTypeList
+        }
+        superTypeList.parent.deleteChildRange(left, superTypeList)
+    }
+
     override fun deleteClassOrObject(declaration: KtClassOrObject) {
+        if (declaration is KtEnumEntry) {
+            val semicolon = declaration.semicolon
+            if (semicolon != null) {
+                // Get previous KtEnumEntry, and move semicolon to it
+                val prevEntry = PsiTreeUtil.getPrevSiblingOfType(declaration, KtEnumEntry::class.java)
+
+                if (prevEntry == null) {
+                    // if there's no previous KtEnumEntry, we embed it into the parent (expected to be a KtClassBody)
+                    val parent = declaration.parent
+                    check(parent is KtClassBody) { "Enum entry should be a child of KtClassBody" }
+                    parent.addAfter(semicolon, declaration)
+                } else {
+                    // if there is, we move semicolon to it
+                    addSemicolon(prevEntry)
+                }
+            }
+        }
+
         CheckUtil.checkWritable(declaration)
 
         val file = declaration.containingKtFile
@@ -414,6 +440,16 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
             return it.replace(semicolon)
         }
         return enumEntry.addAfter(semicolon, enumEntry.lastChild)
+    }
+
+    override fun deleteSemicolon(element: KtElement) {
+        if (element is KtEnumEntry) return
+
+        val sibling = PsiTreeUtil.skipSiblingsForward(element, PsiWhiteSpace::class.java, PsiComment::class.java)
+        if (sibling?.elementType != SEMICOLON) return
+
+        val lastSiblingToDelete = PsiTreeUtil.skipSiblingsForward(sibling, PsiWhiteSpace::class.java)?.prevSibling ?: sibling
+        element.parent.deleteChildRange(element.nextSibling, lastSiblingToDelete)
     }
 
     private fun getOrCreateConstructorKeyword(constructor: KtPrimaryConstructor): PsiElement {

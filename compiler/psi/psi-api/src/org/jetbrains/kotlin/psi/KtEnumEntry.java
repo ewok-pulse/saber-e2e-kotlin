@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.psi;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.KtStubBasedElementTypes;
@@ -125,25 +124,6 @@ public class KtEnumEntry extends KtClass implements KtDeclarationWithReturnType 
 
     @Override
     public void delete() {
-        PsiElement semicolon = getSemicolon();
-        if (semicolon != null) {
-            // Get previous KtEnumEntry, and move semicolon to it
-            KtEnumEntry prevEntry = PsiTreeUtil.getPrevSiblingOfType(this, KtEnumEntry.class);
-
-            if (prevEntry == null) {
-                // if there's no previous KtEnumEntry, we embed it into the parent (expected to be a KtClassBody)
-                PsiElement parent = getParent();
-                if (!(parent instanceof KtClassBody)) {
-                    throw new IllegalStateException("Enum entry should be a child of KtClassBody");
-                }
-                parent.addAfter(semicolon, this);
-            }
-            else {
-                // if there is, we move semicolon to it
-                prevEntry.addSemicolon();
-            }
-        }
-
         KtPsiMutatingService.getInstance().deleteClassOrObject(this);
     }
 

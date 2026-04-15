@@ -93,8 +93,9 @@ abstract class KtConstructor<T : KtConstructor<T>> : KtDeclarationStub<KotlinCon
 
     override fun getIdentifyingElement(): PsiElement? = getConstructorKeyword()
 
+    @OptIn(KtNonPublicApi::class)
     @Throws(IncorrectOperationException::class)
-    override fun setName(name: String): PsiElement = throw IncorrectOperationException("setName to constructor")
+    override fun setName(name: String): PsiElement = KtPsiMutatingService.getInstance().setConstructorName(this, name)
 
     override fun getPresentation() = ItemPresentationProviders.getItemPresentation(this)
 

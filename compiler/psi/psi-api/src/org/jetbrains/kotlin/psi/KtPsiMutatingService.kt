@@ -55,6 +55,42 @@ interface KtPsiMutatingService {
     fun deleteSemicolon(element: KtElement)
 
     /**
+     * Renames [declaration], including operator-specific modifier adjustments.
+     */
+    fun setNamedDeclarationStubName(declaration: KtNamedDeclarationStub<*>, name: String): PsiElement?
+
+    /**
+     * Renames [declaration] by replacing its name identifier directly.
+     */
+    fun setNamedDeclarationName(declaration: KtNamedDeclaration, name: String): PsiElement
+
+    /**
+     * Renames [expression] by replacing its target label.
+     */
+    fun setLabeledExpressionName(expression: KtLabeledExpression, name: String): PsiElement
+
+    /**
+     * Renames [importAlias].
+     */
+    fun setImportAliasName(importAlias: KtImportAlias, name: String): PsiElement
+
+    /**
+     * Renames [declaration], adding an explicit identifier when necessary.
+     */
+    fun setObjectDeclarationName(declaration: KtObjectDeclaration, name: String): PsiElement
+
+    /**
+     * Renames [file], reparsing it when the rename changes whether it should be treated as a script.
+     */
+    @Suppress("DEPRECATION")
+    fun setCommonFileName(file: KtCommonFile, name: String): PsiElement
+
+    /**
+     * Fails because constructors cannot be renamed independently from their containing class.
+     */
+    fun setConstructorName(constructor: KtConstructor<*>, name: String): PsiElement
+
+    /**
      * Replaces the existing modifier list on [owner] with [newModifierList], or adds it if missing.
      */
     fun setModifierList(owner: KtModifierListOwner, newModifierList: KtModifierList)

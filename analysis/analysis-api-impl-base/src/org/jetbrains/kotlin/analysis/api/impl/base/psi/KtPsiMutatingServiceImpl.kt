@@ -9,16 +9,24 @@ import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.impl.file.PsiFileImplUtil
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
+import com.intellij.util.FileContentUtilCore
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
 import org.jetbrains.kotlin.lexer.KtTokens.*
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
+import org.jetbrains.kotlin.psi.psiUtil.quoteIfNeeded
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.psi.typeRefHelpers.getTypeReference
+import org.jetbrains.kotlin.psi.utils.OperatorTokens
+import org.jetbrains.kotlin.util.OperatorNameConventions
 
 @OptIn(KtNonPublicApi::class, KtImplementationDetail::class)
 class KtPsiMutatingServiceImpl : KtPsiMutatingService {
@@ -101,6 +109,67 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         } else {
             file.delete()
         }
+    }
+
+    override fun setNamedDeclarationStubName(declaration: KtNamedDeclarationStub<*>, name: String): PsiElement? {
+        val identifier = declaration.nameIdentifier ?: return null
+
+        val modifierList = declaration.modifierList
+        if (modifierList != null && modifierList.hasModifier(OPERATOR_KEYWORD)) {
+            if (shouldDropOperatorKeyword(declaration.name, name)) {
+                removeModifier(declaration, OPERATOR_KEYWORD)
+            }
+        }
+
+        val newIdentifier = KtPsiFactory(declaration.project).createNameIdentifierIfPossible(name.quoteIfNeeded())
+        if (newIdentifier != null) {
+            astReplace(identifier, newIdentifier)
+        } else {
+            identifier.delete()
+        }
+        return declaration
+    }
+
+    override fun setNamedDeclarationName(declaration: KtNamedDeclaration, name: String): PsiElement {
+        val identifier = declaration.nameIdentifier ?: throw IncorrectOperationException()
+        return identifier.replace(KtPsiFactory(declaration.project).createNameIdentifier(name))
+    }
+
+    override fun setLabeledExpressionName(expression: KtLabeledExpression, name: String): PsiElement {
+        expression.getTargetLabel()?.replace(KtPsiFactory(expression.project).createLabeledExpression(name).getTargetLabel()!!)
+        return expression
+    }
+
+    override fun setImportAliasName(importAlias: KtImportAlias, name: String): PsiElement {
+        importAlias.nameIdentifier?.replace(KtPsiFactory(importAlias.project).createNameIdentifier(name))
+        return importAlias
+    }
+
+    override fun setObjectDeclarationName(declaration: KtObjectDeclaration, name: String): PsiElement {
+        return if (declaration.nameIdentifier == null) {
+            val psiFactory = KtPsiFactory(declaration.project)
+            val result = declaration.addAfter(psiFactory.createIdentifier(name), declaration.getObjectKeyword()!!)
+            declaration.addAfter(psiFactory.createWhiteSpace(), declaration.getObjectKeyword()!!)
+
+            result
+        } else {
+            setNamedDeclarationStubName(declaration as KtNamedDeclarationStub<*>, name) ?: declaration
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    override fun setCommonFileName(file: KtCommonFile, name: String): PsiElement {
+        file.checkSetName(name)
+        val result = PsiFileImplUtil.setName(file, name)
+        val willBeScript = name.endsWith(KotlinFileType.SCRIPT_EXTENSION)
+        if (file.isScript() != willBeScript) {
+            FileContentUtilCore.reparseFiles(listOfNotNull(file.virtualFile))
+        }
+        return result
+    }
+
+    override fun setConstructorName(constructor: KtConstructor<*>, name: String): PsiElement {
+        throw IncorrectOperationException("setName to constructor")
     }
 
     override fun setModifierList(owner: KtModifierListOwner, newModifierList: KtModifierList) {
@@ -594,6 +663,11 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
     }
 
     private companion object {
+        val FUNCTIONLIKE_CONVENTIONS = setOf(
+            OperatorNameConventions.INVOKE.asString(),
+            OperatorNameConventions.GET.asString(),
+        )
+
         val MODIFIERS_TO_REPLACE = mapOf(
             OVERRIDE_KEYWORD to listOf(OPEN_KEYWORD),
             ABSTRACT_KEYWORD to listOf(OPEN_KEYWORD, FINAL_KEYWORD),
@@ -606,5 +680,10 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
             EXPECT_KEYWORD to listOf(ACTUAL_KEYWORD),
             ACTUAL_KEYWORD to listOf(EXPECT_KEYWORD),
         )
+    }
+
+    private fun shouldDropOperatorKeyword(oldName: String?, newName: String): Boolean {
+        return !OperatorTokens.isConventionName(Name.identifier(newName)) ||
+                FUNCTIONLIKE_CONVENTIONS.contains(oldName) != FUNCTIONLIKE_CONVENTIONS.contains(newName)
     }
 }

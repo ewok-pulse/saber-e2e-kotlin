@@ -27,6 +27,8 @@ import com.intellij.psi.PsiTreeChangeEvent
 import com.intellij.psi.PsiTreeChangeListener
 import com.intellij.psi.impl.source.codeStyle.IndentHelper
 import com.intellij.psi.impl.source.tree.TreeCopyHandler
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.kotlin.cli.create
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -36,11 +38,13 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtDestructuringDeclarationEntry
 import org.jetbrains.kotlin.psi.KtDoubleColonExpression
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtExperimentalApi
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunctionType
+import org.jetbrains.kotlin.psi.KtLabeledExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtNonPublicApi
@@ -65,6 +69,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import org.junit.jupiter.api.assertThrows
 
 @Execution(ExecutionMode.SAME_THREAD)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -338,6 +343,88 @@ class KtPsiMutatingServiceImplTest {
         }
 
         assertEquals("enum class E { ; fun foo() {} }", ktClass.containingKtFile.text)
+    }
+
+    @Test
+    fun testNamedDeclarationSetName() {
+        val function = createKtFile("operator fun get(i: Int) = 0").declarations.single() as KtNamedFunction
+
+        writeAction {
+            function.setName("foo")
+        }
+
+        assertEquals("foo", function.name)
+        assertFalse(function.hasModifier(KtTokens.OPERATOR_KEYWORD))
+        assertEquals("fun foo(i: Int) = 0", function.containingKtFile.text)
+    }
+
+    @Test
+    fun testNonStubbedNamedDeclarationSetName() {
+        val file = createKtFile("val (a, b) = pair")
+        val entry = PsiTreeUtil.findChildOfType(file, KtDestructuringDeclarationEntry::class.java)!!
+
+        writeAction {
+            entry.setName("x")
+        }
+
+        assertEquals("val (x, b) = pair", file.text)
+    }
+
+    @Test
+    fun testLabeledExpressionSetName() {
+        val file = createKtFile("fun test() { outer@ while (true) break }")
+        val labeledExpression = PsiTreeUtil.findChildOfType(file, KtLabeledExpression::class.java)!!
+
+        writeAction {
+            labeledExpression.setName("loop")
+        }
+
+        assertEquals("fun test() { loop@ while (true) break }", file.text)
+    }
+
+    @Test
+    fun testImportAliasSetName() {
+        val file = createKtFile("import kotlin.String as OldName")
+        val importAlias = file.importDirectives.single().alias!!
+
+        writeAction {
+            importAlias.setName("NewName")
+        }
+
+        assertEquals("import kotlin.String as NewName", file.text.trim())
+    }
+
+    @Test
+    fun testObjectDeclarationSetName() {
+        val companionObject = createSingleClass("class A { companion object {} }").companionObjects.single()
+
+        writeAction {
+            companionObject.setName("Named")
+        }
+
+        assertEquals("class A { companion object Named {} }", companionObject.containingKtFile.text)
+    }
+
+    @Test
+    fun testFileSetName() {
+        val file = createKtFile("val value = 1", fileName = "test.kt")
+
+        writeAction {
+            file.setName("test.kts")
+        }
+
+        assertEquals("test.kts", file.name)
+    }
+
+    @Test
+    fun testConstructorSetName() {
+        val constructor = createPrimaryConstructor("class A constructor()")
+
+        assertThrows<IncorrectOperationException> {
+            writeAction {
+                constructor.setName("B")
+            }
+        }
     }
 
     @Test

@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousInitializer
 import org.jetbrains.kotlin.fir.declarations.utils.isEnumEntry
+import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.expressions.toResolvedCallableSymbol
 import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraphBuilder
@@ -34,12 +35,13 @@ object FirUninitializedAccessInStaticAnonymousInitializerChecker : FirAnonymousI
         val index = NodeIndex.AnonymousInitializerIndex(enclosingEntity, declaration.symbol)
         if (dependencyGraph.isPoisoned(index)) {
             dependencyGraph.poisoningAccessesFor(index).forEach {
-                when (it) {
-                    is FirResolvedQualifier -> it.symbol?.let { symbol ->
-                        reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, symbol)
+                when (val expr = it.get()) {
+                    is FirResolvedQualifier -> expr.symbol?.let { symbol ->
+                        reporter.reportOn(expr.source, FirErrors.UNINITIALIZED_ACCESS, symbol)
                     }
-                    else -> it.toResolvedCallableSymbol(context.session)
-                        ?.let { symbol -> reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, symbol) }
+                    is FirExpression -> expr.toResolvedCallableSymbol(context.session)?.let { symbol ->
+                        reporter.reportOn(expr.source, FirErrors.UNINITIALIZED_ACCESS, symbol)
+                    }
                 }
             }
         }

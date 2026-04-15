@@ -26,3 +26,7 @@ context(holder: ScopeSessionHolder)
 val FirModuleData.dependencyGraphBuilder: DependencyGraph.Builder
     get() = session.dependencyGraphStorage.builderCache.getValue(name, holder.scopeSession)
 
+context(scopeSession: ScopeSession)
+val FirModuleData.dependencyGraphBuilder: DependencyGraph.Builder
+    get() = session.dependencyGraphStorage.builderCache.getValue(name, scopeSession)
+

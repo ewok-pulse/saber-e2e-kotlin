@@ -43,7 +43,6 @@ import org.jetbrains.kotlin.fir.resolve.calls.FirSyntheticNamesProvider
 import org.jetbrains.kotlin.fir.resolve.calls.jvm.JvmCallConflictResolverFactory
 import org.jetbrains.kotlin.fir.resolve.calls.overloads.FirDeclarationOverloadabilityHelperImpl
 import org.jetbrains.kotlin.fir.resolve.dependencies.FirDependencyGraphStorage
-import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.OutermostEnclosingEntityFinder
 import org.jetbrains.kotlin.fir.resolve.inference.InferenceComponents
 import org.jetbrains.kotlin.fir.resolve.providers.impl.FirQualifierResolverImpl
 import org.jetbrains.kotlin.fir.resolve.providers.impl.FirTypeResolverImpl
@@ -107,7 +106,6 @@ fun FirSession.registerCommonComponents(languageVersionSettings: LanguageVersion
     register(FirInlineCheckerPlatformSpecificComponent::class, FirInlineCheckerPlatformSpecificComponent.NonJvmDefault)
     register(FirExpectActualMappingStorage::class, FirExpectActualMappingStorage(this))
     register(FirInlineConstTrackerComponent::class, FirInlineConstTrackerComponent.Default)
-    register(OutermostEnclosingEntityFinder::class, OutermostEnclosingEntityFinder)
     register(FirDependencyGraphStorage::class, FirDependencyGraphStorage(this))
 }
 

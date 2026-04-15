@@ -1877,6 +1877,14 @@ private fun KaDiagnosticConverterBuilder.addConversions37() {
 }
 
 private fun KaDiagnosticConverterBuilder.addConversions38() {
+    add(FirErrors.MISSING_DEPENDENCY_SUPERCLASS_IN_TYPE_ARGUMENT) { firDiagnostic ->
+        MissingDependencySuperclassInTypeArgumentImpl(
+            firSymbolBuilder.typeBuilder.buildKtType(firDiagnostic.a),
+            firSymbolBuilder.typeBuilder.buildKtType(firDiagnostic.b),
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
     add(FirErrors.NOT_A_CLASS) { firDiagnostic ->
         NotAClassImpl(
             firDiagnostic as KtPsiDiagnostic,

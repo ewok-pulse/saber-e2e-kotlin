@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.fir.declarations.FirConstructor
 import org.jetbrains.kotlin.fir.declarations.getConstructedClass
 import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.expressions.toResolvedCallableSymbol
-import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraph
+import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraphBuilder
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asObjectEntity
 
 object FirUninitializedAccessInObjectConstructorChecker : FirConstructorChecker(MppCheckerKind.Common) {
@@ -23,8 +23,7 @@ object FirUninitializedAccessInObjectConstructorChecker : FirConstructorChecker(
         if (!declaration.isPrimary) return
         declaration.symbol.getConstructedClass(context.session)?.let { constructedClass ->
             constructedClass.asObjectEntity()?.let { enclosingEntity ->
-                val dependencyGraph = context.session.dependencyGraph
-//                println(dependencyGraph)
+                val dependencyGraph = declaration.moduleData.dependencyGraphBuilder.graph
                 val index = enclosingEntity.beginSubgraphIndex
                 if (dependencyGraph.isPoisoned(index)) {
                     dependencyGraph.poisoningAccessesFor(index).forEach {

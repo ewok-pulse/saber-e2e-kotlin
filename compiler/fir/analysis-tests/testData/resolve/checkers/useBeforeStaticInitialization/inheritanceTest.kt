@@ -1,6 +1,14 @@
 // RUN_PIPELINE_TILL: FRONTEND
 // FIR_IDENTICAL
 
+// FILE: main.kt
+
+object A : C(1, 2) {
+    override val y: String = x.toString()
+}
+
+// FILE: super.kt
+
 interface I {
     val z: Int
 
@@ -18,8 +26,4 @@ open class C(open val x: Int, override val z: Int) : I1 {
 
 open class C1(override val y: String, x: Int) : C(1, x) {
     val w = 3
-}
-
-object A : C(1, 2) {
-    override val y: String = x.toString()
 }

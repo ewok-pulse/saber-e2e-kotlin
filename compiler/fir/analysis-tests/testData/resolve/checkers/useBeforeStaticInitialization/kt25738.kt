@@ -3,7 +3,7 @@
 <!POSSIBLE_INITIALIZATION_DEADLOCK!>sealed class S {
     <!POSSIBLE_INITIALIZATION_DEADLOCK!>object O<!> : S()
 
-    companion <!POSSIBLE_INITIALIZATION_DEADLOCK!>object<!> {
+    companion object {
         <!UNINITIALIZED_PROPERTY!>val x = foo(<!UNINITIALIZED_ACCESS!>O<!>)<!>
     }
 }<!>

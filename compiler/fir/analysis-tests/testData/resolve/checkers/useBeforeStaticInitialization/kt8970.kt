@@ -7,9 +7,9 @@ abstract class A(val x : Any?)
 abstract class Base(val x: Any?)
 
 <!POSSIBLE_INITIALIZATION_DEADLOCK!>class C1 {
-    companion <!POSSIBLE_INITIALIZATION_DEADLOCK!>object<!> : Base(<!UNINITIALIZED_ACCESS!>C2<!>)
+    companion object : Base(<!UNINITIALIZED_ACCESS!>C2<!>)
 }<!>
 
 <!POSSIBLE_INITIALIZATION_DEADLOCK!>class C2 {
-    companion <!POSSIBLE_INITIALIZATION_DEADLOCK!>object<!> : Base(<!UNINITIALIZED_ACCESS!>C1<!>)
+    companion object : Base(<!UNINITIALIZED_ACCESS!>C1<!>)
 }<!>

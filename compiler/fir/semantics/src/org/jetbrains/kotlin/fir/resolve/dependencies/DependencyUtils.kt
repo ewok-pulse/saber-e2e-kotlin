@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.fir.resolve.dependencies
 
+import org.jetbrains.kotlin.descriptors.isInterface
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
@@ -22,6 +23,7 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirEnumEntrySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirFileSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertyAccessorSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 
@@ -100,24 +102,17 @@ fun FirAnonymousObjectSymbol.findCorrespondingEnumEntry(): FirEnumEntrySymbol? =
 
 val FirCallableSymbol<*>.containingFileSymbol: FirFileSymbol? get() = getContainingSymbol(moduleData.session)?.let { it as? FirFileSymbol }
 
-fun FirPropertyAccessorSymbol.hasImplementation(): Boolean = !isDefault && hasBody
+val FirClassSymbol<*>.isInitializedByItsSupertypes: Boolean
+    get() = !classKind.isInterface || classKind.isInterface && declarationSymbols.any {
+        it is FirPropertySymbol && it.hasAnyImplementation || it is FirFunctionSymbol<*> && it.hasBody
+    }
 
-fun FirPropertySymbol.hasAnyImplementation(): Boolean =
-    (getterSymbol?.hasImplementation() ?: false) || (setterSymbol?.hasImplementation() ?: false)
+val FirPropertyAccessorSymbol.hasImplementation: Boolean get() = !isDefault && hasBody
+
+val FirPropertySymbol.hasAnyImplementation: Boolean
+    get() = (getterSymbol?.hasImplementation ?: false) || (setterSymbol?.hasImplementation ?: false)
 
 val FirBasedSymbol<*>.isLibraryDeclaration: Boolean
     get() = origin == FirDeclarationOrigin.Library
             || origin == FirDeclarationOrigin.Java.Library
             || moduleData.session.kind == FirSession.Kind.Library
-
-inline fun <T> Sequence<T>.countUntil(count: Int, crossinline predicate: (T) -> Boolean): Boolean {
-    var current = 0
-    for (element in this) {
-        if (predicate(element)) {
-            if (++current < 0) throw ArithmeticException("Count overflow has happened.")
-            // Short-circuit if count is exceeded
-            if (current > count) break
-        }
-    }
-    return current == count
-}

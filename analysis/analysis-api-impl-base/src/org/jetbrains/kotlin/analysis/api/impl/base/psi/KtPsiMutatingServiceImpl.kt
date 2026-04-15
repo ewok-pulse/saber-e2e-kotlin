@@ -111,6 +111,70 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : KtDeclaration> addDeclaration(classOrObject: KtClassOrObject, declaration: T): T {
+        ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(classOrObject, declaration)
+        val body = getOrCreateBody(classOrObject)
+        val anchor = PsiTreeUtil.skipSiblingsBackward(body.rBrace ?: body.lastChild!!, PsiWhiteSpace::class.java)
+        return if (anchor?.nextSibling is PsiErrorElement) {
+            body.addBefore(declaration, anchor)
+        } else {
+            body.addAfter(declaration, anchor)
+        } as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : KtDeclaration> addDeclarationAfter(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T {
+        val anchorBefore = anchor ?: classOrObject.declarations.lastOrNull() ?: return addDeclaration(classOrObject, declaration)
+        ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(classOrObject, declaration)
+        return getOrCreateBody(classOrObject).addAfter(declaration, anchorBefore) as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : KtDeclaration> addDeclarationBefore(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T {
+        val anchorAfter = anchor ?: classOrObject.declarations.firstOrNull() ?: return addDeclaration(classOrObject, declaration)
+        ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(classOrObject, declaration)
+        return getOrCreateBody(classOrObject).addBefore(declaration, anchorAfter) as T
+    }
+
+    override fun getOrCreateBody(classOrObject: KtClassOrObject): KtClassBody {
+        classOrObject.getBody()?.let { return it }
+
+        val newBody = KtPsiFactory(classOrObject.project).createEmptyClassBody()
+        return if (classOrObject is KtEnumEntry) {
+            classOrObject.addAfter(newBody, classOrObject.initializerList ?: classOrObject.nameIdentifier) as KtClassBody
+        } else {
+            classOrObject.add(newBody) as KtClassBody
+        }
+    }
+
+    private fun ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(
+        classOrObject: KtClassOrObject,
+        declaration: KtDeclaration,
+    ) {
+        if (declaration is KtEnumEntry) return
+        if (classOrObject !is KtClass || !classOrObject.isEnum()) return
+
+        val body = getOrCreateBody(classOrObject)
+        val lastEnumEntry = body.children.filterIsInstance<KtEnumEntry>().lastOrNull()
+
+        if (lastEnumEntry != null) {
+            @OptIn(KtExperimentalApi::class)
+            lastEnumEntry.addSemicolon()
+        } else {
+            val anchor = PsiTreeUtil.skipSiblingsBackward(body.rBrace ?: body.lastChild!!, PsiWhiteSpace::class.java)
+            if (anchor != null && anchor.elementType == SEMICOLON) {
+                // there's already a semicolon
+                return
+            }
+            val psiFactory = KtPsiFactory(classOrObject.project)
+            val semicolon = body.addAfter(psiFactory.createSemicolon(), anchor)
+            if (anchor == body.lBrace) {
+                body.addBefore(psiFactory.createNewLine(), semicolon)
+            }
+        }
+    }
+
     override fun setNamedDeclarationStubName(declaration: KtNamedDeclarationStub<*>, name: String): PsiElement? {
         val identifier = declaration.nameIdentifier ?: return null
 

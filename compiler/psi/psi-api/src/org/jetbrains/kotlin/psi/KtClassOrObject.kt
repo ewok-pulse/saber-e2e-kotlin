@@ -11,12 +11,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.navigation.ItemPresentationProviders
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiErrorElement
-import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.stubs.IStubElementType
 import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.elementType
 import org.jetbrains.kotlin.KtStubBasedElementTypes
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.ClassId
@@ -52,30 +48,16 @@ abstract class KtClassOrObject :
         getStubOrPsiChild(KtStubBasedElementTypes.CLASS_BODY)
 
     @OptIn(KtImplementationDetail::class)
-    inline fun <reified T : KtDeclaration> addDeclaration(declaration: T): T {
-        ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(declaration)
-        val body = getOrCreateBody()
-        val anchor = PsiTreeUtil.skipSiblingsBackward(body.rBrace ?: body.lastChild!!, PsiWhiteSpace::class.java)
-        return if (anchor?.nextSibling is PsiErrorElement) {
-            body.addBefore(declaration, anchor)
-        } else {
-            body.addAfter(declaration, anchor)
-        } as T
-    }
+    inline fun <reified T : KtDeclaration> addDeclaration(declaration: T): T =
+        KtPsiMutatingService.getInstance().addDeclaration(this, declaration)
 
     @OptIn(KtImplementationDetail::class)
-    inline fun <reified T : KtDeclaration> addDeclarationAfter(declaration: T, anchor: PsiElement?): T {
-        val anchorBefore = anchor ?: declarations.lastOrNull() ?: return addDeclaration(declaration)
-        ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(declaration)
-        return getOrCreateBody().addAfter(declaration, anchorBefore) as T
-    }
+    inline fun <reified T : KtDeclaration> addDeclarationAfter(declaration: T, anchor: PsiElement?): T =
+        KtPsiMutatingService.getInstance().addDeclarationAfter(this, declaration, anchor)
 
     @OptIn(KtImplementationDetail::class)
-    inline fun <reified T : KtDeclaration> addDeclarationBefore(declaration: T, anchor: PsiElement?): T {
-        val anchorAfter = anchor ?: declarations.firstOrNull() ?: return addDeclaration(declaration)
-        ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(declaration)
-        return getOrCreateBody().addBefore(declaration, anchorAfter) as T
-    }
+    inline fun <reified T : KtDeclaration> addDeclarationBefore(declaration: T, anchor: PsiElement?): T =
+        KtPsiMutatingService.getInstance().addDeclarationBefore(this, declaration, anchor)
 
     fun isTopLevel(): Boolean = greenStub?.isTopLevel ?: isKtFile(parent)
 
@@ -159,44 +141,9 @@ abstract class KtClassOrObject :
 
     override fun getContextReceivers(): List<KtContextReceiver> =
         modifierList?.contextParameterList?.contextReceivers().orEmpty()
-
-    /**
-     * Ensures that a semicolon is present after the last enum entry in the class body, if this is an enum class.
-     */
-    @KtImplementationDetail
-    fun ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(declaration: KtDeclaration) {
-        if (declaration is KtEnumEntry) return
-        if (!(this is KtClass && isEnum())) return
-
-        val body = getOrCreateBody()
-        val lastEnumEntry = body.children.filterIsInstance<KtEnumEntry>().lastOrNull()
-
-        if (lastEnumEntry != null) {
-            @OptIn(KtExperimentalApi::class)
-            lastEnumEntry.addSemicolon()
-        } else {
-            val anchor = PsiTreeUtil.skipSiblingsBackward(body.rBrace ?: body.lastChild!!, PsiWhiteSpace::class.java)
-            if (anchor != null && anchor.elementType == KtTokens.SEMICOLON) {
-                // there's already a semicolon
-                return
-            }
-            val psiFactory = KtPsiFactory(project)
-            val semicolon = body.addAfter(psiFactory.createSemicolon(), anchor)
-            if (anchor == body.lBrace) {
-                body.addBefore(psiFactory.createNewLine(), semicolon)
-            }
-        }
-    }
 }
 
-
-fun KtClassOrObject.getOrCreateBody(): KtClassBody {
-    getBody()?.let { return it }
-
-    val newBody = KtPsiFactory(project).createEmptyClassBody()
-    if (this is KtEnumEntry) return addAfter(newBody, initializerList ?: nameIdentifier) as KtClassBody
-    return add(newBody) as KtClassBody
-}
+fun KtClassOrObject.getOrCreateBody(): KtClassBody = KtPsiMutatingService.getInstance().getOrCreateBody(this)
 
 val KtClassOrObject.allConstructors
     get() = listOfNotNull(primaryConstructor) + secondaryConstructors

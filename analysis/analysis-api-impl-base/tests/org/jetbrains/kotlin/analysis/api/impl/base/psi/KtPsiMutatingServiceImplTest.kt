@@ -53,6 +53,7 @@ import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.KtSecondaryConstructor
+import org.jetbrains.kotlin.psi.getOrCreateBody
 import org.jetbrains.kotlin.psi.psiUtil.astReplace
 import org.jetbrains.kotlin.psi.psiUtil.addTypeArgument
 import org.jetbrains.kotlin.psi.psiUtil.getOrCreateParameterList
@@ -343,6 +344,67 @@ class KtPsiMutatingServiceImplTest {
         }
 
         assertEquals("enum class E { ; fun foo() {} }", ktClass.containingKtFile.text)
+    }
+
+    @Test
+    fun testAddDeclarationCreatesBody() {
+        val ktClass = createSingleClass("class A")
+
+        writeAction {
+            ktClass.addDeclaration(psiFactory.createFunction("fun foo() {}"))
+        }
+
+        assertNotNull(ktClass.body)
+        assertEquals(listOf("fun foo() {}"), ktClass.declarations.map { it.text })
+    }
+
+    @Test
+    fun testAddDeclarationAfter() {
+        val ktClass = createSingleClass("class A { fun first() {} fun third() {} }")
+        val anchor = ktClass.declarations.first()
+
+        writeAction {
+            ktClass.addDeclarationAfter(psiFactory.createFunction("fun second() {}"), anchor)
+        }
+
+        assertEquals(listOf("fun first() {}", "fun second() {}", "fun third() {}"), ktClass.declarations.map { it.text })
+    }
+
+    @Test
+    fun testAddDeclarationBefore() {
+        val ktClass = createSingleClass("class A { fun second() {} fun third() {} }")
+        val anchor = ktClass.declarations.first()
+
+        writeAction {
+            ktClass.addDeclarationBefore(psiFactory.createFunction("fun first() {}"), anchor)
+        }
+
+        assertEquals(listOf("fun first() {}", "fun second() {}", "fun third() {}"), ktClass.declarations.map { it.text })
+    }
+
+    @Test
+    fun testAddDeclarationToEnumClassAddsSemicolon() {
+        val ktClass = createSingleClass("enum class E { A }")
+
+        writeAction {
+            ktClass.addDeclaration(psiFactory.createFunction("fun foo() {}"))
+        }
+
+        assertNotNull(ktClass.body!!.enumEntries.single().semicolon)
+        assertEquals(listOf("A;", "fun foo() {}"), ktClass.declarations.map { it.text })
+    }
+
+    @Test
+    fun testGetOrCreateBody() {
+        val ktClass = createSingleClass("class A")
+
+        val body = writeAction {
+            ktClass.getOrCreateBody()
+        }
+
+        assertNotNull(ktClass.body)
+        assertTrue(body === ktClass.body)
+        assertEquals(emptyList<String>(), ktClass.declarations.map { it.text })
     }
 
     @Test

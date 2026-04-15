@@ -50,6 +50,26 @@ interface KtPsiMutatingService {
     fun deleteClassOrObject(declaration: KtClassOrObject)
 
     /**
+     * Adds [declaration] to [classOrObject], creating a body when needed.
+     */
+    fun <T : KtDeclaration> addDeclaration(classOrObject: KtClassOrObject, declaration: T): T
+
+    /**
+     * Adds [declaration] after [anchor] in [classOrObject], or appends it when [anchor] is `null`.
+     */
+    fun <T : KtDeclaration> addDeclarationAfter(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T
+
+    /**
+     * Adds [declaration] before [anchor] in [classOrObject], or prepends it when [anchor] is `null`.
+     */
+    fun <T : KtDeclaration> addDeclarationBefore(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T
+
+    /**
+     * Returns the existing body for [classOrObject], or creates one if missing.
+     */
+    fun getOrCreateBody(classOrObject: KtClassOrObject): KtClassBody
+
+    /**
      * Deletes a trailing semicolon belonging to [element] when it should disappear together with the element.
      */
     fun deleteSemicolon(element: KtElement)

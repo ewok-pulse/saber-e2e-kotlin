@@ -389,6 +389,33 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         element.parent.node.replaceChild(element.node, newElement.node)
     }
 
+    override fun addSemicolon(enumEntry: KtEnumEntry): PsiElement {
+        enumEntry.semicolon?.let {
+            return it
+        }
+
+        // when adding a declaration to an enum class body, there's a chance the next
+        // non-whitespace sibling is a semicolon; we should embed it into ourselves
+        val tailStart = enumEntry.nextSibling
+        val tailEnd = PsiTreeUtil.skipSiblingsForward(enumEntry, PsiWhiteSpace::class.java, PsiComment::class.java)
+        if (tailEnd?.elementType == SEMICOLON) {
+            var element = enumEntry.addRangeAfter(tailStart, tailEnd, enumEntry.lastChild)
+            enumEntry.parent.deleteChildRange(tailStart, tailEnd)
+
+            while (element.nextSibling != null) {
+                element = element.nextSibling
+            }
+
+            return element
+        }
+
+        val semicolon = KtPsiFactory(enumEntry.project).createSemicolon()
+        enumEntry.comma?.let {
+            return it.replace(semicolon)
+        }
+        return enumEntry.addAfter(semicolon, enumEntry.lastChild)
+    }
+
     private fun getOrCreateConstructorKeyword(constructor: KtPrimaryConstructor): PsiElement {
         return constructor.getConstructorKeyword()
             ?: constructor.addBefore(KtPsiFactory(constructor.project).createConstructorKeyword(), constructor.valueParameterList!!)

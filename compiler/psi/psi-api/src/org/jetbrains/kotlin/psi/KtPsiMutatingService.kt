@@ -204,6 +204,11 @@ interface KtPsiMutatingService {
      */
     fun astReplace(element: PsiElement, newElement: PsiElement)
 
+    /**
+     * Adds a semicolon to [enumEntry], reusing an existing sibling semicolon when possible.
+     */
+    fun addSemicolon(enumEntry: KtEnumEntry): PsiElement
+
     @KtNonPublicApi
     companion object {
         /**

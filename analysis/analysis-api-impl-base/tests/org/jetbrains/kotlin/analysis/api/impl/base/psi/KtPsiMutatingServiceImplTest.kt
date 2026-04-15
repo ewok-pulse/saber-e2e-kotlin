@@ -37,6 +37,8 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtDoubleColonExpression
+import org.jetbrains.kotlin.psi.KtEnumEntry
+import org.jetbrains.kotlin.psi.KtExperimentalApi
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunctionType
 import org.jetbrains.kotlin.psi.KtLambdaExpression
@@ -66,7 +68,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode
 
 @Execution(ExecutionMode.SAME_THREAD)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@OptIn(K1Deprecation::class, KtNonPublicApi::class)
+@OptIn(K1Deprecation::class, KtExperimentalApi::class, KtNonPublicApi::class)
 class KtPsiMutatingServiceImplTest {
     private lateinit var rootDisposable: Disposable
     private lateinit var environment: KotlinCoreEnvironment
@@ -458,6 +460,33 @@ class KtPsiMutatingServiceImplTest {
         }
 
         assertEquals("fun bar() {}", function.containingKtFile.text)
+    }
+
+    @Test
+    fun testEnumEntryAddSemicolon() {
+        val enumEntry = createSingleClass("enum class E { A, B }").declarations.filterIsInstance<KtEnumEntry>().last()
+
+        writeAction {
+            enumEntry.addSemicolon()
+        }
+
+        assertEquals("B;", enumEntry.text)
+        assertEquals("enum class E { A, B; }", enumEntry.containingKtFile.text)
+    }
+
+    @Test
+    fun testEnumEntryAddSemicolonFromBody() {
+        val body = createSingleClass("enum class E { A; fun foo() {} }").body!!
+        val enumEntry = body.enumEntries.single()
+
+        writeAction {
+            body.addAfter(psiFactory.createSemicolon(), enumEntry)
+            enumEntry.semicolon!!.delete()
+            enumEntry.addSemicolon()
+        }
+
+        assertEquals("A;", enumEntry.text)
+        assertFalse(body.children.any { it.text == ";" && it.parent == body })
     }
 
     @Test

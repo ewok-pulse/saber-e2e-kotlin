@@ -7,14 +7,18 @@ package org.jetbrains.kotlin.analysis.api.impl.base.psi
 
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
 import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
 import org.jetbrains.kotlin.lexer.KtTokens.*
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.psi.psiUtil.siblings
+import org.jetbrains.kotlin.psi.typeRefHelpers.getTypeReference
 
 @OptIn(KtNonPublicApi::class, KtImplementationDetail::class)
 class KtPsiMutatingServiceImpl : KtPsiMutatingService {
@@ -66,6 +70,132 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         } else {
             owner.addModifierList(newModifierList)
         }
+    }
+
+    override fun setCallableTypeReference(
+        declaration: KtCallableDeclaration,
+        addAfter: PsiElement?,
+        typeRef: KtTypeReference?,
+    ): KtTypeReference? {
+        val oldTypeRef = getTypeReference(declaration)
+        if (typeRef != null) {
+            return if (oldTypeRef != null) {
+                oldTypeRef.replace(typeRef) as KtTypeReference
+            } else {
+                val anchor = addAfter
+                    ?: declaration.nameIdentifier?.siblings(forward = true)?.firstOrNull { it is PsiErrorElement }
+                    ?: (declaration as? KtParameter)?.destructuringDeclaration
+                val newTypeRef = declaration.addAfter(typeRef, anchor) as KtTypeReference
+                declaration.addAfter(KtPsiFactory(declaration.project).createColon(), anchor)
+                newTypeRef
+            }
+        }
+
+        if (oldTypeRef != null) {
+            val colon = declaration.colon!!
+            val removeFrom = colon.prevSibling as? PsiWhiteSpace ?: colon
+            declaration.deleteChildRange(removeFrom, oldTypeRef)
+        }
+        return null
+    }
+
+    override fun setCallableReceiverTypeReference(declaration: KtCallableDeclaration, typeRef: KtTypeReference?): KtTypeReference? {
+        return declaration.doSetReceiverTypeReference(
+            typeRef,
+            { receiverTypeReference },
+            { addBefore(it, nameIdentifier ?: valueParameterList) as KtTypeReference }
+        )
+    }
+
+    override fun setFunctionTypeReceiverTypeReference(functionType: KtFunctionType, typeRef: KtTypeReference?): KtTypeReference? {
+        return functionType.doSetReceiverTypeReference(
+            typeRef,
+            { receiverTypeReference },
+            {
+                (addBefore(
+                    KtPsiFactory(project).createFunctionTypeReceiver(it),
+                    parameterList ?: firstChild
+                ) as KtFunctionTypeReceiver).typeReference
+            }
+        )
+    }
+
+    override fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression? {
+        val oldInitializer = property.initializer
+
+        if (oldInitializer != null) {
+            return if (initializer != null) {
+                oldInitializer.replace(initializer) as KtExpression
+            } else {
+                val nextSibling = oldInitializer.nextSibling
+                val last = if (nextSibling?.node?.elementType == SEMICOLON) nextSibling else oldInitializer
+                property.deleteChildRange(property.equalsToken, last)
+                null
+            }
+        }
+
+        return if (initializer != null) {
+            val addAfter = property.typeReference ?: property.nameIdentifier
+            val eq = property.addAfter(KtPsiFactory(property.project).createEQ(), addAfter)
+            property.addAfter(initializer, eq) as KtExpression
+        } else {
+            null
+        }
+    }
+
+    override fun setTypeParameterExtendsBound(
+        typeParameter: KtTypeParameter,
+        typeReference: KtTypeReference?,
+    ): KtTypeReference? {
+        val currentExtendsBound = typeParameter.extendsBound
+        if (currentExtendsBound != null) {
+            return if (typeReference == null) {
+                typeParameter.node.findChildByType(COLON)?.psi?.delete()
+                currentExtendsBound.delete()
+                null
+            } else {
+                currentExtendsBound.replace(typeReference) as KtTypeReference
+            }
+        }
+
+        return if (typeReference != null) {
+            val colon = typeParameter.addAfter(KtPsiFactory(typeParameter.project).createColon(), typeParameter.nameIdentifier)
+            typeParameter.addAfter(typeReference, colon) as KtTypeReference
+        } else {
+            null
+        }
+    }
+
+    override fun setPackageDirectiveFqName(packageDirective: KtPackageDirective, fqName: FqName) {
+        if (fqName.isRoot) {
+            if (!packageDirective.fqName.isRoot) {
+                packageDirective.replace(KtPsiFactory(packageDirective.project).createFile("").packageDirective!!)
+            }
+            return
+        }
+
+        val psiFactory = KtPsiFactory(packageDirective.project)
+        val newExpression = psiFactory.createExpression(fqName.asString())
+        val currentExpression = packageDirective.packageNameExpression
+        if (currentExpression != null) {
+            currentExpression.replace(newExpression)
+            return
+        }
+
+        val keyword = packageDirective.packageKeyword
+        if (keyword != null) {
+            packageDirective.addAfter(newExpression, keyword)
+            packageDirective.addAfter(psiFactory.createWhiteSpace(), keyword)
+            return
+        }
+
+        packageDirective.replace(psiFactory.createPackageDirective(fqName))
+    }
+
+    override fun setDoubleColonReceiverExpression(expression: KtDoubleColonExpression, newReceiverExpression: KtExpression) {
+        val oldReceiverExpression = expression.receiverExpression
+        oldReceiverExpression?.replace(newReceiverExpression)
+            ?: expression.addBefore(newReceiverExpression, expression.doubleColonTokenReference)
     }
 
     override fun addModifier(owner: KtModifierListOwner, modifier: KtModifierKeywordToken) {
@@ -122,6 +252,14 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         }
     }
 
+    override fun removeAnnotationEntry(annotation: KtAnnotation, entry: KtAnnotationEntry) {
+        if (annotation.entries.size > 1) {
+            entry.delete()
+        } else {
+            annotation.delete()
+        }
+    }
+
     override fun removeRedundantConstructorKeywordAndSpace(constructor: KtPrimaryConstructor) {
         constructor.getConstructorKeyword()?.delete()
         if (constructor.prevSibling is PsiWhiteSpace) {
@@ -145,9 +283,81 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         addAfter(psiFactory.creareDelegatedSuperTypeEntry("$delegationName()"), colon) as KtConstructorDelegationCall
     }
 
+    override fun addParameter(parameterList: KtParameterList, parameter: KtParameter): KtParameter {
+        return EditCommaSeparatedListHelper.addItem(parameterList, parameterList.parameters, parameter)
+    }
+
+    override fun addParameterBefore(parameterList: KtParameterList, parameter: KtParameter, anchor: KtParameter?): KtParameter {
+        return EditCommaSeparatedListHelper.addItemBefore(parameterList, parameterList.parameters, parameter, anchor)
+    }
+
+    override fun addParameterAfter(parameterList: KtParameterList, parameter: KtParameter, anchor: KtParameter?): KtParameter {
+        return EditCommaSeparatedListHelper.addItemAfter(parameterList, parameterList.parameters, parameter, anchor)
+    }
+
+    override fun addTypeParameter(typeParameterList: KtTypeParameterList, typeParameter: KtTypeParameter): KtTypeParameter {
+        return EditCommaSeparatedListHelper.addItem(typeParameterList, typeParameterList.parameters, typeParameter, LT)
+    }
+
+    override fun addValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument): KtValueArgument {
+        return EditCommaSeparatedListHelper.addItem(argumentList, argumentList.arguments, argument)
+    }
+
+    override fun addValueArgumentAfter(
+        argumentList: KtValueArgumentList,
+        argument: KtValueArgument,
+        anchor: KtValueArgument?,
+    ): KtValueArgument {
+        return EditCommaSeparatedListHelper.addItemAfter(argumentList, argumentList.arguments, argument, anchor)
+    }
+
+    override fun addValueArgumentBefore(
+        argumentList: KtValueArgumentList,
+        argument: KtValueArgument,
+        anchor: KtValueArgument?,
+    ): KtValueArgument {
+        return EditCommaSeparatedListHelper.addItemBefore(argumentList, argumentList.arguments, argument, anchor)
+    }
+
+    override fun removeValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument) {
+        assert(argument.parent == argumentList)
+        EditCommaSeparatedListHelper.removeItem(argument)
+    }
+
     private fun getOrCreateConstructorKeyword(constructor: KtPrimaryConstructor): PsiElement {
         return constructor.getConstructorKeyword()
             ?: constructor.addBefore(KtPsiFactory(constructor.project).createConstructorKeyword(), constructor.valueParameterList!!)
+    }
+
+    private inline fun <T : KtElement> T.doSetReceiverTypeReference(
+        typeRef: KtTypeReference?,
+        getReceiverTypeReference: T.() -> KtTypeReference?,
+        addReceiverTypeReference: T.(typeRef: KtTypeReference) -> KtTypeReference,
+    ): KtTypeReference? {
+        val needParentheses = typeRef != null && typeRef.typeElement is KtFunctionType && !typeRef.hasParentheses()
+        val oldTypeRef = getReceiverTypeReference()
+        if (typeRef != null) {
+            val newTypeRef = if (oldTypeRef != null) {
+                oldTypeRef.replace(typeRef) as KtTypeReference
+            } else {
+                val newTypeRef = addReceiverTypeReference(typeRef)
+                addAfter(KtPsiFactory(project).createDot(), newTypeRef.parentsWithSelf.first { it.parent == this })
+                newTypeRef
+            }
+            if (needParentheses) {
+                val argList = KtPsiFactory(project).createCallArguments("()")
+                newTypeRef.addBefore(argList.leftParenthesis!!, newTypeRef.firstChild)
+                newTypeRef.add(argList.rightParenthesis!!)
+            }
+            return newTypeRef
+        }
+
+        if (oldTypeRef != null) {
+            val dotSibling = oldTypeRef.parent as? KtFunctionTypeReceiver ?: oldTypeRef
+            val dot = dotSibling.siblings(forward = true).firstOrNull { it.node.elementType == DOT }
+            deleteChildRange(dotSibling, dot ?: dotSibling)
+        }
+        return null
     }
 
     private fun KtModifierListOwner.addModifierList(newModifierList: KtModifierList): KtModifierList {

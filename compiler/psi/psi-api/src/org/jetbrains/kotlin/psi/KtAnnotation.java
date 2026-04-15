@@ -61,11 +61,6 @@ public class KtAnnotation extends KtElementImplStub<KotlinPlaceHolderStub<KtAnno
     }
 
     public void removeEntry(@NotNull KtAnnotationEntry entry) {
-        if (getEntries().size() > 1) {
-            entry.delete();
-        }
-        else {
-            delete();
-        }
+        KtPsiMutatingService.getInstance().removeAnnotationEntry(this, entry);
     }
 }

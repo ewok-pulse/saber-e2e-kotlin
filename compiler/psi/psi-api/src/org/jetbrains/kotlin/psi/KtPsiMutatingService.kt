@@ -6,7 +6,9 @@
 package org.jetbrains.kotlin.psi
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
+import org.jetbrains.kotlin.name.FqName
 
 /**
  * Service responsible for Kotlin PSI mutation operations whose implementation is provided by the Kotlin plugin environment.
@@ -36,6 +38,41 @@ interface KtPsiMutatingService {
      * Replaces the existing modifier list on [owner] with [newModifierList], or adds it if missing.
      */
     fun setModifierList(owner: KtModifierListOwner, newModifierList: KtModifierList)
+
+    /**
+     * Replaces the explicit return type on [declaration] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setCallableTypeReference(declaration: KtCallableDeclaration, addAfter: PsiElement?, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the receiver type on [declaration] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setCallableReceiverTypeReference(declaration: KtCallableDeclaration, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the receiver type on [functionType] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setFunctionTypeReceiverTypeReference(functionType: KtFunctionType, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the initializer on [property] with [initializer], adds it if missing, or removes it when [initializer] is `null`.
+     */
+    fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression?
+
+    /**
+     * Replaces the extends bound on [typeParameter] with [typeReference], adds it if missing, or removes it when [typeReference] is `null`.
+     */
+    fun setTypeParameterExtendsBound(typeParameter: KtTypeParameter, typeReference: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the package name of [packageDirective] with [fqName].
+     */
+    fun setPackageDirectiveFqName(packageDirective: KtPackageDirective, fqName: FqName)
+
+    /**
+     * Replaces the receiver expression on [expression] with [newReceiverExpression], or adds it if missing.
+     */
+    fun setDoubleColonReceiverExpression(expression: KtDoubleColonExpression, newReceiverExpression: KtExpression)
 
     /**
      * Adds [modifier] to [owner].
@@ -68,6 +105,11 @@ interface KtPsiMutatingService {
     fun addConstructorAnnotationEntry(constructor: KtPrimaryConstructor, annotationEntry: KtAnnotationEntry): KtAnnotationEntry
 
     /**
+     * Removes [entry] from [annotation], deleting the annotation when it becomes empty.
+     */
+    fun removeAnnotationEntry(annotation: KtAnnotation, entry: KtAnnotationEntry)
+
+    /**
      * Removes the redundant `constructor` keyword and the following whitespace from [constructor].
      */
     fun removeRedundantConstructorKeywordAndSpace(constructor: KtPrimaryConstructor)
@@ -76,6 +118,46 @@ interface KtPsiMutatingService {
      * Replaces the implicit delegation call in [constructor] with an explicit `this()` or `super()` call.
      */
     fun replaceImplicitDelegationCallWithExplicit(constructor: KtSecondaryConstructor, isThis: Boolean): KtConstructorDelegationCall
+
+    /**
+     * Adds [parameter] to [parameterList].
+     */
+    fun addParameter(parameterList: KtParameterList, parameter: KtParameter): KtParameter
+
+    /**
+     * Adds [parameter] to [parameterList] before [anchor].
+     */
+    fun addParameterBefore(parameterList: KtParameterList, parameter: KtParameter, anchor: KtParameter?): KtParameter
+
+    /**
+     * Adds [parameter] to [parameterList] after [anchor].
+     */
+    fun addParameterAfter(parameterList: KtParameterList, parameter: KtParameter, anchor: KtParameter?): KtParameter
+
+    /**
+     * Adds [typeParameter] to [typeParameterList].
+     */
+    fun addTypeParameter(typeParameterList: KtTypeParameterList, typeParameter: KtTypeParameter): KtTypeParameter
+
+    /**
+     * Adds [argument] to [argumentList].
+     */
+    fun addValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument): KtValueArgument
+
+    /**
+     * Adds [argument] to [argumentList] after [anchor].
+     */
+    fun addValueArgumentAfter(argumentList: KtValueArgumentList, argument: KtValueArgument, anchor: KtValueArgument?): KtValueArgument
+
+    /**
+     * Adds [argument] to [argumentList] before [anchor].
+     */
+    fun addValueArgumentBefore(argumentList: KtValueArgumentList, argument: KtValueArgument, anchor: KtValueArgument?): KtValueArgument
+
+    /**
+     * Removes [argument] from [argumentList].
+     */
+    fun removeValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument)
 
     @KtNonPublicApi
     companion object {

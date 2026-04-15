@@ -61,17 +61,17 @@ public class KtParameterList extends KtElementImplStub<KotlinPlaceHolderStub<KtP
 
     @NotNull
     public KtParameter addParameter(@NotNull KtParameter parameter) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItem(this, getParameters(), parameter);
+        return KtPsiMutatingService.getInstance().addParameter(this, parameter);
     }
 
     @NotNull
     public KtParameter addParameterBefore(@NotNull KtParameter parameter, @Nullable KtParameter anchor) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItemBefore(this, getParameters(), parameter, anchor);
+        return KtPsiMutatingService.getInstance().addParameterBefore(this, parameter, anchor);
     }
 
     @NotNull
     public KtParameter addParameterAfter(@NotNull KtParameter parameter, @Nullable KtParameter anchor) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItemAfter(this, getParameters(), parameter, anchor);
+        return KtPsiMutatingService.getInstance().addParameterAfter(this, parameter, anchor);
     }
 
     public void removeParameter(@NotNull KtParameter parameter) {
@@ -108,7 +108,8 @@ public class KtParameterList extends KtElementImplStub<KotlinPlaceHolderStub<KtP
         PsiElement parentElement = getParent();
         if (parentElement instanceof KtFunctionLiteral) {
             return KtPsiUtilKt.getTrailingCommaByElementsList(this);
-        } else {
+        }
+        else {
             return KtPsiUtilKt.getTrailingCommaByClosingElement(getRightParenthesis());
         }
     }

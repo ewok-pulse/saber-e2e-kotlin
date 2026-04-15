@@ -33,14 +33,20 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.K1Deprecation
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtDoubleColonExpression
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtFunctionType
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtNonPublicApi
 import org.jetbrains.kotlin.psi.KtPrimaryConstructor
+import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.KtSecondaryConstructor
+import org.jetbrains.kotlin.psi.typeRefHelpers.setReceiverTypeReference
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -249,6 +255,113 @@ class KtPsiMutatingServiceImplTest {
         assertTrue(file.isValid)
         assertEquals(listOf("B"), file.declarations.map { (it as KtClass).name })
         assertEquals("class B", file.text.trim())
+    }
+
+    @Test
+    fun callableTypeReferenceHelpersMutateThroughDeprecatedPsiApi() {
+        val function = createKtFile("fun foo() {}").declarations.single() as KtNamedFunction
+
+        writeAction {
+            function.setTypeReference(psiFactory.createType("Int"))
+            function.setReceiverTypeReference(psiFactory.createType("String"))
+        }
+
+        assertEquals("fun String.foo():Int {}", function.containingKtFile.text)
+    }
+
+    @Test
+    fun functionTypeReceiverTypeHelperMutatesThroughDeprecatedPsiApi() {
+        val functionType = psiFactory.createType("() -> Unit").typeElement as KtFunctionType
+
+        writeAction {
+            functionType.setReceiverTypeReference(psiFactory.createType("String"))
+        }
+
+        assertEquals("String.() -> Unit", functionType.text)
+    }
+
+    @Test
+    fun propertyInitializerMutationWorksThroughDeprecatedPsiApi() {
+        val property = createKtFile("val value = 1").declarations.single() as KtProperty
+
+        writeAction {
+            property.setInitializer(psiFactory.createExpression("2"))
+        }
+
+        assertEquals("val value = 2", property.containingKtFile.text)
+    }
+
+    @Test
+    fun typeParameterMutationsWorkThroughDeprecatedPsiApi() {
+        val ktClass = createSingleClass("class Box<T>")
+        val typeParameter = ktClass.typeParameters.single()
+
+        writeAction {
+            typeParameter.extendsBound = psiFactory.createType("CharSequence")
+            ktClass.typeParameterList!!.addParameter(psiFactory.createTypeParameter("U"))
+        }
+
+        assertEquals(listOf("T:CharSequence", "U"), ktClass.typeParameterList!!.parameters.map { it.text })
+    }
+
+    @Test
+    fun packageDirectiveAndDoubleColonMutationsWorkThroughDeprecatedPsiApi() {
+        val file = createKtFile("package foo\n\nval ref = ::bar\nfun bar() = 1")
+        val packageDirective = file.packageDirective!!
+        val reference = ((file.declarations.first() as KtProperty).initializer as KtDoubleColonExpression)
+
+        writeAction {
+            packageDirective.fqName = FqName("foo.bar")
+            reference.setReceiverExpression(psiFactory.createExpression("baz"))
+        }
+
+        assertEquals("foo.bar", packageDirective.fqName.asString())
+        assertEquals("baz::bar", reference.text)
+    }
+
+    @Test
+    fun parameterListMutationWorksThroughDeprecatedPsiApi() {
+        val function = createKtFile("fun foo() {}").declarations.single() as KtNamedFunction
+        val parameterList = function.valueParameterList!!
+
+        writeAction {
+            parameterList.addParameter(psiFactory.createParameter("x: Int"))
+            val anchor = parameterList.parameters.single()
+            parameterList.addParameterBefore(psiFactory.createParameter("prefix: String"), anchor)
+            parameterList.addParameterAfter(psiFactory.createParameter("suffix: Boolean"), anchor)
+        }
+
+        assertEquals(listOf("prefix: String", "x: Int", "suffix: Boolean"), parameterList.parameters.map { it.text })
+    }
+
+    @Test
+    fun valueArgumentListMutationWorksThroughDeprecatedPsiApi() {
+        val file = createKtFile("fun foo(a: Int, b: Int, c: Int) {}\nval value = foo(2)")
+        val call = ((file.declarations.last() as KtProperty).initializer as KtCallExpression)
+        val argumentList = call.valueArgumentList!!
+        val anchor = argumentList.arguments.single()
+
+        writeAction {
+            argumentList.addArgumentBefore(psiFactory.createArgument("1"), anchor)
+            argumentList.addArgumentAfter(psiFactory.createArgument("3"), anchor)
+            argumentList.removeArgument(anchor)
+            argumentList.addArgument(psiFactory.createArgument("4"))
+        }
+
+        assertEquals(listOf("1", "3", "4"), argumentList.arguments.map { it.text })
+    }
+
+    @Test
+    fun removingLastAnnotationEntryWorksThroughDeprecatedPsiApi() {
+        val file = createKtFile("@file:[A]\npackage p")
+        val annotation = file.fileAnnotationList!!.annotations.single()
+
+        writeAction {
+            annotation.removeEntry(annotation.entries.single())
+        }
+
+        assertTrue(file.fileAnnotationList?.annotationEntries.orEmpty().isEmpty())
+        assertEquals("package p", file.text.trim())
     }
 
     @Suppress("UnstableApiUsage")

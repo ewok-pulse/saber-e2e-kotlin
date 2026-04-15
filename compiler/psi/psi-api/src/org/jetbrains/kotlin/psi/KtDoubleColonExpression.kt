@@ -43,9 +43,9 @@ interface KtDoubleColonExpression : KtExpression {
     val lhs: PsiElement?
         get() = doubleColonTokenReference.prevSibling
 
+    @OptIn(KtNonPublicApi::class)
     fun setReceiverExpression(newReceiverExpression: KtExpression) {
-        val oldReceiverExpression = this.receiverExpression
-        oldReceiverExpression?.replace(newReceiverExpression) ?: addBefore(newReceiverExpression, doubleColonTokenReference)
+        KtPsiMutatingService.getInstance().setDoubleColonReceiverExpression(this, newReceiverExpression)
     }
 
     val isEmptyLHS: Boolean

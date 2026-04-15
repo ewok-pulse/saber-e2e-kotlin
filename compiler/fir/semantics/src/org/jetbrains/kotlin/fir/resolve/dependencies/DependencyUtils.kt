@@ -73,6 +73,8 @@ open class PathCompressingFinder<T>(private val directParentSupplier: (T) -> T) 
         parents[element] = find(parents.getValue(element))
         return parents.getValue(element)
     }
+
+    fun clear(): Unit = parents.clear()
 }
 
 fun <E> MutableSet<E>.join(other: Iterable<E>): MutableSet<E> = apply {

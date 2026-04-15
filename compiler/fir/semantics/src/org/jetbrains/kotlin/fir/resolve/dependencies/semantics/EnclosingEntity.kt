@@ -7,9 +7,6 @@ package org.jetbrains.kotlin.fir.resolve.dependencies.semantics
 
 import org.jetbrains.kotlin.descriptors.isEnumClass
 import org.jetbrains.kotlin.descriptors.isObject
-import org.jetbrains.kotlin.fir.FirSession
-import org.jetbrains.kotlin.fir.FirSessionComponent
-import org.jetbrains.kotlin.fir.SessionHolder
 import org.jetbrains.kotlin.fir.declarations.FirDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirEnumEntry
 import org.jetbrains.kotlin.fir.declarations.FirFile
@@ -17,7 +14,6 @@ import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.fullyExpandedClass
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
-import org.jetbrains.kotlin.fir.resolve.dependencies.PathCompressingFinder
 import org.jetbrains.kotlin.fir.resolve.dependencies.findCorrespondingEnumEntry
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
 import org.jetbrains.kotlin.fir.resolve.getContainingClassSymbol
@@ -139,13 +135,5 @@ sealed class EnclosingEntity<D : FirDeclaration> {
 
         fun FirPropertySymbol.asInstancedPropertyEntity(outerEnclosingEntity: EnclosingEntity<*>): InstancedProperty =
             InstancedProperty(this, outerEnclosingEntity)
-
-        object OutermostEnclosingEntityFinder : PathCompressingFinder<EnclosingEntity<*>>({ it.parentEnclosingEntity ?: it }),
-            FirSessionComponent
-
-        val FirSession.outermostEntityFinder: OutermostEnclosingEntityFinder by FirSession.sessionComponentAccessor()
-
-        context(sessionHolder: SessionHolder)
-        val EnclosingEntity<*>.outermostEntity: EnclosingEntity<*> get() = sessionHolder.session.outermostEntityFinder.find(this)
     }
 }

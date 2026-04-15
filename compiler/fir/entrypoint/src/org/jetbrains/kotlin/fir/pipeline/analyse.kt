@@ -16,7 +16,9 @@ import org.jetbrains.kotlin.fir.analysis.collectors.components.DiagnosticCompone
 import org.jetbrains.kotlin.fir.analysis.collectors.components.LossDiagnosticCollectorComponent
 import org.jetbrains.kotlin.fir.analysis.collectors.components.ReportCommitterDiagnosticComponent
 import org.jetbrains.kotlin.fir.declarations.FirFile
+import org.jetbrains.kotlin.fir.moduleData
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
+import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraphBuilder
 import org.jetbrains.kotlin.fir.resolve.transformers.FirTotalResolveProcessor
 import org.jetbrains.kotlin.fir.withFileAnalysisExceptionWrapping
 
@@ -40,6 +42,11 @@ fun FirSession.runCheckers(
         }
     }
     collector.collectDiagnosticsInSettings(diagnosticsReporter)
+    context(scopeSession) {
+        if (mppCheckerKind == MppCheckerKind.Common) {
+            moduleData.dependencyGraphBuilder.clear()
+        }
+    }
     return firFiles.associateWith {
         val sourceFile = it.sourceFile ?: return@associateWith emptyList()
         diagnosticsCollector.diagnosticsByFile[sourceFile] ?: emptyList()

@@ -28,7 +28,6 @@ import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.extensions.AnalysisHandlerExtension
 import org.jetbrains.kotlin.test.CompilerTestUtil
 import org.jetbrains.kotlin.test.TestCaseWithTmpdir
-import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.reflect.KClass
@@ -40,8 +39,6 @@ private data class TestKtFile(
 )
 
 private val simple = TestKtFile("Simple.kt", "class Simple")
-private val classNotFound = TestKtFile("C.kt", "class C : ClassNotFound")
-private val repeatedAnalysis = TestKtFile("D.kt", "class D : Generated")
 
 class AnalysisHandlerExtensionTest : TestCaseWithTmpdir() {
 
@@ -88,38 +85,6 @@ class AnalysisHandlerExtensionTest : TestCaseWithTmpdir() {
             K2JVMCompiler(), simple, ErrorAnalysisComponentRegistrar::class, ExitCode.COMPILATION_ERROR,
             listOf("-Xopt-in=Unresolved")
         )
-    }
-}
-
-class CustomComponentRegistrar : ComponentRegistrar {
-    override fun registerProjectComponents(project: MockProject, configuration: CompilerConfiguration) {
-        AnalysisHandlerExtension.registerExtension(project, CustomAnalysisHandler())
-    }
-}
-
-// Assume that the directory of input files is writeable!
-private class CustomAnalysisHandler : AnalysisHandlerExtension {
-    override fun doAnalysis(
-        project: Project,
-        module: ModuleDescriptor,
-        projectContext: ProjectContext,
-        files: Collection<KtFile>,
-        bindingTrace: BindingTrace,
-        componentProvider: ComponentProvider
-    ): AnalysisResult? {
-        val filenames = files.map { it.name }
-        if (repeatedAnalysis.name in filenames) {
-            if ("Generated.kt" in filenames) {
-                return null
-            } else {
-                val outDir = File(files.single { it.name == repeatedAnalysis.name }.virtualFilePath).parentFile
-                outDir.resolve("Generated.kt").apply {
-                    writeText("interface Generated")
-                }
-                return AnalysisResult.RetryWithAdditionalRoots(BindingContext.EMPTY, module, emptyList(), listOf(outDir))
-            }
-        }
-        return AnalysisResult.success(BindingContext.EMPTY, module, false)
     }
 }
 

@@ -23,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.KtStubBasedElementTypes;
 import org.jetbrains.kotlin.lexer.KtModifierKeywordToken;
-import org.jetbrains.kotlin.psi.addRemoveModifier.AddRemoveModifierKt;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,18 +51,18 @@ public class KtModifierListOwnerStub<T extends StubElement<?>> extends KtElement
 
     @Override
     public void addModifier(@NotNull KtModifierKeywordToken modifier) {
-        AddRemoveModifierKt.addModifier(this, modifier);
+        KtPsiMutatingService.getInstance().addModifier(this, modifier);
     }
 
     @Override
     public void removeModifier(@NotNull KtModifierKeywordToken modifier) {
-        AddRemoveModifierKt.removeModifier(this, modifier);
+        KtPsiMutatingService.getInstance().removeModifier(this, modifier);
     }
 
     @NotNull
     @Override
     public KtAnnotationEntry addAnnotationEntry(@NotNull KtAnnotationEntry annotationEntry) {
-        return AddRemoveModifierKt.addAnnotationEntry(this, annotationEntry);
+        return KtPsiMutatingService.getInstance().addAnnotationEntry(this, annotationEntry);
     }
 
     @Override

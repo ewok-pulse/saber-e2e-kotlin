@@ -3,6 +3,8 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
+@file:OptIn(KtNonPublicApi::class)
+
 package org.jetbrains.kotlin.psi
 
 import com.intellij.lang.ASTNode
@@ -11,7 +13,6 @@ import com.intellij.navigation.ItemPresentationProviders
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.PsiWhiteSpace
-import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.stubs.IStubElementType
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
@@ -37,30 +38,11 @@ abstract class KtClassOrObject :
 
     override fun getSuperTypeListEntries(): List<KtSuperTypeListEntry> = getSuperTypeList()?.entries.orEmpty()
 
-    fun addSuperTypeListEntry(superTypeListEntry: KtSuperTypeListEntry): KtSuperTypeListEntry {
-        getSuperTypeList()?.let {
-            val single = it.entries.singleOrNull()
-            if (single != null && single.typeReference?.typeElement == null) {
-                return single.replace(superTypeListEntry) as KtSuperTypeListEntry
-            }
-            return EditCommaSeparatedListHelper.addItem(it, superTypeListEntries, superTypeListEntry)
-        }
-
-        val psiFactory = KtPsiFactory(project)
-        val specifierListToAdd = psiFactory.createSuperTypeCallEntry("A()").replace(superTypeListEntry).parent
-        val colon = addBefore(psiFactory.createColon(), getBody())
-        return (addAfter(specifierListToAdd, colon) as KtSuperTypeList).entries.first()
-    }
+    fun addSuperTypeListEntry(superTypeListEntry: KtSuperTypeListEntry): KtSuperTypeListEntry =
+        KtPsiMutatingService.getInstance().addSuperTypeListEntry(this, superTypeListEntry)
 
     fun removeSuperTypeListEntry(superTypeListEntry: KtSuperTypeListEntry) {
-        val specifierList = getSuperTypeList() ?: return
-        assert(superTypeListEntry.parent === specifierList)
-
-        if (specifierList.entries.size > 1) {
-            EditCommaSeparatedListHelper.removeItem<KtElement>(superTypeListEntry)
-        } else {
-            deleteChildRange(getColon() ?: specifierList, specifierList)
-        }
+        KtPsiMutatingService.getInstance().removeSuperTypeListEntry(this, superTypeListEntry)
     }
 
     fun getAnonymousInitializers(): List<KtAnonymousInitializer> = getBody()?.anonymousInitializers.orEmpty()
@@ -158,14 +140,7 @@ abstract class KtClassOrObject :
     )
 
     override fun delete() {
-        CheckUtil.checkWritable(this)
-
-        val file = containingKtFile
-        if (!isTopLevel() || file.declarations.size > 1) {
-            super.delete()
-        } else {
-            file.delete()
-        }
+        KtPsiMutatingService.getInstance().deleteClassOrObject(this)
     }
 
     override fun subtreeChanged() {

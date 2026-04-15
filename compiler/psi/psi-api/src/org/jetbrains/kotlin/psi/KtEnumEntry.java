@@ -171,7 +171,7 @@ public class KtEnumEntry extends KtClass implements KtDeclarationWithReturnType 
             }
         }
 
-        super.delete();
+        KtPsiMutatingService.getInstance().deleteClassOrObject(this);
     }
 
     @Override

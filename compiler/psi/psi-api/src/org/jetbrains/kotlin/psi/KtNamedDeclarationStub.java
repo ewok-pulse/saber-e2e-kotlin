@@ -93,7 +93,7 @@ public abstract class KtNamedDeclarationStub<T extends KotlinStubWithFqName<?>> 
         KtModifierList modifierList = getModifierList();
         if (modifierList != null && modifierList.hasModifier(KtTokens.OPERATOR_KEYWORD)) {
             if (shouldDropOperatorKeyword(getName(), name)) {
-                removeModifier(KtTokens.OPERATOR_KEYWORD);
+                KtPsiMutatingService.getInstance().removeModifier(this, KtTokens.OPERATOR_KEYWORD);
             }
         }
 

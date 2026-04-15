@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     kotlin("jvm")
     id("java-test-fixtures")
+    id("project-tests-convention")
+    id("test-inputs-check")
 }
 
 dependencies {
@@ -17,6 +19,12 @@ dependencies {
     api(intellijCore())
     implementation(project(":analysis:analysis-internal-utils"))
     implementation(libs.caffeine)
+
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(project(":compiler:cli-base"))
 
     testFixturesApi(platform(libs.junit.bom))
     testFixturesImplementation(libs.junit.jupiter.api)
@@ -40,6 +48,10 @@ sourceSets {
     "main" { projectDefault() }
     "test" { projectDefault() }
     "testFixtures" { projectDefault() }
+}
+
+projectTests {
+    testTask(jUnitMode = JUnitMode.JUnit5)
 }
 
 tasks.withType<KotlinJvmCompile>().configureEach {

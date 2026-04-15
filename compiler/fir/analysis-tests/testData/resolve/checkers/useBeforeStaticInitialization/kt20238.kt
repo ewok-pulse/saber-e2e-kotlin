@@ -8,7 +8,7 @@
 }<!>
 
 <!POSSIBLE_INITIALIZATION_DEADLOCK!>interface EnumTest {
-    companion <!POSSIBLE_INITIALIZATION_DEADLOCK!>object<!> {
+    companion object {
         val x = "OK"
         <!UNINITIALIZED_PROPERTY!>val z = <!UNINITIALIZED_ACCESS!>Enum.ENTRY.y<!><!>
     }
@@ -18,10 +18,10 @@ class Class {
     val y = <!UNINITIALIZED_ACCESS!>ClassTest.y<!>
 }
 
-interface ClassTest {
-    companion <!POSSIBLE_INITIALIZATION_DEADLOCK!>object<!> {
+<!POSSIBLE_INITIALIZATION_DEADLOCK!>interface ClassTest {
+    companion object {
         val x = "OK"
         <!UNINITIALIZED_PROPERTY!>val z = Class().y<!>
         val y = "yay"
     }
-}
+}<!>

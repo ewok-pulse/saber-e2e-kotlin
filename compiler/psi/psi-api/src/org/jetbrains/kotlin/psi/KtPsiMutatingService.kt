@@ -236,6 +236,11 @@ interface KtPsiMutatingService {
      */
     fun deleteQualifier(userType: KtUserType)
 
+    /**
+     * Replaces the initializer on [property] with [initializer], adds it if missing, or removes it when [initializer] is `null`.
+     */
+    fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression?
+
     @KtNonPublicApi
     companion object {
         /**

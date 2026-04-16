@@ -197,6 +197,11 @@ interface KtPsiMutatingService {
      */
     fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression?
 
+    /**
+     * Replaces the implicit delegation call in [constructor] with an explicit `this()` or `super()` call.
+     */
+    fun replaceImplicitDelegationCallWithExplicit(constructor: KtSecondaryConstructor, isThis: Boolean): KtConstructorDelegationCall
+
     @KtNonPublicApi
     companion object {
         /**

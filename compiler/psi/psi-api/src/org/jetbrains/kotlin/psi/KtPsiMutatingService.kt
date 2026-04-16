@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.psi
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.name.FqName
 
 /**
  * Service responsible for Kotlin PSI mutation operations whose implementation is provided by the Kotlin plugin environment.
@@ -108,6 +109,28 @@ interface KtPsiMutatingService {
      * Renames [declaration], adding an explicit identifier when necessary.
      */
     fun setObjectDeclarationName(declaration: KtObjectDeclaration, name: String): PsiElement
+
+    /**
+     * Renames [file], reparsing it when the rename changes whether it should be treated as a script.
+     */
+    @Suppress("DEPRECATION")
+    fun setCommonFileName(file: KtCommonFile, name: String): PsiElement
+
+    /**
+     * Replaces the package name of [file], adding a package directive when needed.
+     */
+    @Suppress("DEPRECATION")
+    fun setCommonFilePackageFqName(file: KtCommonFile, fqName: FqName)
+
+    /**
+     * Replaces the package name of [packageDirective] with [fqName].
+     */
+    fun setPackageDirectiveFqName(packageDirective: KtPackageDirective, fqName: FqName)
+
+    /**
+     * Replaces [file]'s file annotation list with [annotationList], or adds it when missing.
+     */
+    fun replaceFileAnnotationList(file: KtFile, annotationList: KtFileAnnotationList): KtFileAnnotationList
 
     @KtNonPublicApi
     companion object {

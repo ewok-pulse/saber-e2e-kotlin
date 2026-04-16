@@ -128,7 +128,8 @@ public class KtParameterList extends KtElementImplStub<KotlinPlaceHolderStub<KtP
         PsiElement parentElement = getParent();
         if (parentElement instanceof KtFunctionLiteral) {
             return KtPsiUtilKt.getTrailingCommaByElementsList(this);
-        } else {
+        }
+        else {
             return KtPsiUtilKt.getTrailingCommaByClosingElement(getRightParenthesis());
         }
     }

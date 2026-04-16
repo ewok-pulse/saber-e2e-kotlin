@@ -197,7 +197,7 @@ open class KtCommonFile(viewProvider: FileViewProvider, val isCompiled: Boolean)
 
     fun <S : StubElement<P>, P : KtElementImplStub<S>> findChildByTypeOrClass(
         elementType: KtStubElementType<out S, P>,
-        elementClass: Class<P>
+        elementClass: Class<P>,
     ): P? {
         val stub = greenStub
         if (stub != null) {
@@ -210,7 +210,7 @@ open class KtCommonFile(viewProvider: FileViewProvider, val isCompiled: Boolean)
 
     fun <T : KtElementImplStub<out StubElement<*>>> findChildrenByTypeOrClass(
         elementType: KtStubElementType<*, T>,
-        elementClass: Class<T>
+        elementClass: Class<T>,
     ): Array<out T> {
         val stub = greenStub
         if (stub != null) {

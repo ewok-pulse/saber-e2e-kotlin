@@ -721,7 +721,14 @@ fun KtExpression.getLabeledParent(labelName: String): KtLabeledExpression? {
     return null
 }
 
-fun PsiElement.astReplace(newElement: PsiElement) = parent.node.replaceChild(node, newElement.node)
+@Deprecated(
+    "Use KtPsiMutatingService.getInstance().astReplace(this, newElement) instead",
+    ReplaceWith("KtPsiMutatingService.getInstance().astReplace(this, newElement)"),
+)
+@OptIn(KtNonPublicApi::class)
+fun PsiElement.astReplace(newElement: PsiElement) {
+    KtPsiMutatingService.getInstance().astReplace(this, newElement)
+}
 
 @Deprecated("The API is deprecated and is preserved only for compatibility with K1")
 var KtElement.parentSubstitute: PsiElement? by UserDataProperty(Key.create("PARENT_SUBSTITUTE"))

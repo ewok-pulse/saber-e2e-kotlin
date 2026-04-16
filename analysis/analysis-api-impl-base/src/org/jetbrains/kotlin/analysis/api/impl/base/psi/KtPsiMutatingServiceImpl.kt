@@ -5,29 +5,22 @@
 
 package org.jetbrains.kotlin.analysis.api.impl.base.psi
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiComment
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.PsiWhiteSpace
-import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.file.PsiFileImplUtil
+import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
 import com.intellij.util.FileContentUtilCore
-import org.jetbrains.kotlin.lexer.KtTokens.SEMICOLON
-import org.jetbrains.kotlin.lexer.KtTokens.OPERATOR_KEYWORD
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
 import org.jetbrains.kotlin.lexer.KtTokens.*
-import org.jetbrains.kotlin.psi.KtImplementationDetail
-import org.jetbrains.kotlin.psi.KtNonPublicApi
-import org.jetbrains.kotlin.psi.KtPsiMutatingService
-import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.lexer.KtTokens.COLON
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.psi.psiUtil.astReplace
+import org.jetbrains.kotlin.idea.KotlinFileType
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.psi.psiUtil.quoteIfNeeded
 import org.jetbrains.kotlin.psi.psiUtil.siblings
@@ -181,58 +174,6 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         }
     }
 
-    override fun addSemicolon(enumEntry: KtEnumEntry): PsiElement {
-        enumEntry.semicolon?.let {
-            return it
-        }
-
-        // when adding a declaration to an enum class body, there's a chance the next
-        // non-whitespace sibling is a semicolon; we should embed it into ourselves
-        val tailStart = enumEntry.nextSibling
-        val tailEnd = PsiTreeUtil.skipSiblingsForward(enumEntry, PsiWhiteSpace::class.java, PsiComment::class.java)
-        if (tailEnd?.elementType == SEMICOLON) {
-            var element = enumEntry.addRangeAfter(tailStart, tailEnd, enumEntry.lastChild)
-            enumEntry.parent.deleteChildRange(tailStart, tailEnd)
-
-            while (element.nextSibling != null) {
-                element = element.nextSibling
-            }
-
-            return element
-        }
-
-        val semicolon = KtPsiFactory(enumEntry.project).createSemicolon()
-        enumEntry.comma?.let {
-            return it.replace(semicolon)
-        }
-        return enumEntry.addAfter(semicolon, enumEntry.lastChild)
-    }
-
-    override fun deleteSemicolon(element: KtElement) {
-        if (element is KtEnumEntry) return
-
-        val sibling = PsiTreeUtil.skipSiblingsForward(element, PsiWhiteSpace::class.java, PsiComment::class.java)
-        if (sibling?.elementType != SEMICOLON) return
-
-        val lastSiblingToDelete = PsiTreeUtil.skipSiblingsForward(sibling, PsiWhiteSpace::class.java)?.prevSibling ?: sibling
-        element.parent.deleteChildRange(element.nextSibling, lastSiblingToDelete)
-    }
-
-    override fun getOrCreatePrimaryConstructor(klass: KtClass): KtPrimaryConstructor {
-        klass.primaryConstructor?.let { return it }
-
-        var anchor: PsiElement? = klass.typeParameterList
-        if (anchor == null) anchor = klass.nameIdentifier
-        if (anchor == null) anchor = klass.lastChild
-        return klass.addAfter(KtPsiFactory(klass.project).createPrimaryConstructor(), anchor) as KtPrimaryConstructor
-    }
-
-    override fun getOrCreatePrimaryConstructorParameterList(klass: KtClass): KtParameterList {
-        val constructor = getOrCreatePrimaryConstructor(klass)
-        constructor.valueParameterList?.let { return it }
-        return constructor.add(KtPsiFactory(klass.project).createParameterList("()")) as KtParameterList
-    }
-
     override fun setNamedDeclarationStubName(declaration: KtNamedDeclarationStub<*>, name: String): PsiElement? {
         val identifier = declaration.nameIdentifier ?: return null
 
@@ -245,7 +186,7 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
 
         val newIdentifier = KtPsiFactory(declaration.project).createNameIdentifierIfPossible(name.quoteIfNeeded())
         if (newIdentifier != null) {
-            identifier.astReplace(newIdentifier)
+            astReplace(identifier, newIdentifier)
         } else {
             identifier.delete()
         }
@@ -302,53 +243,19 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         file.addAfter(newPackageDirective, null)
     }
 
-    override fun setPackageDirectiveFqName(packageDirective: KtPackageDirective, fqName: FqName) {
-        if (fqName.isRoot) {
-            if (!packageDirective.fqName.isRoot) {
-                packageDirective.replace(KtPsiFactory(packageDirective.project).createFile("").packageDirective!!)
-            }
-            return
-        }
+    override fun getOrCreatePrimaryConstructor(klass: KtClass): KtPrimaryConstructor {
+        klass.primaryConstructor?.let { return it }
 
-        val psiFactory = KtPsiFactory(packageDirective.project)
-        val newExpression = psiFactory.createExpression(fqName.asString())
-        val currentExpression = packageDirective.packageNameExpression
-        if (currentExpression != null) {
-            currentExpression.replace(newExpression)
-            return
-        }
-
-        val keyword = packageDirective.packageKeyword
-        if (keyword != null) {
-            packageDirective.addAfter(newExpression, keyword)
-            packageDirective.addAfter(psiFactory.createWhiteSpace(), keyword)
-            return
-        }
-
-        packageDirective.replace(psiFactory.createPackageDirective(fqName))
+        var anchor: PsiElement? = klass.typeParameterList
+        if (anchor == null) anchor = klass.nameIdentifier
+        if (anchor == null) anchor = klass.lastChild
+        return klass.addAfter(KtPsiFactory(klass.project).createPrimaryConstructor(), anchor) as KtPrimaryConstructor
     }
 
-    override fun replaceFileAnnotationList(file: KtFile, annotationList: KtFileAnnotationList): KtFileAnnotationList {
-        file.fileAnnotationList?.let {
-            return it.replace(annotationList) as KtFileAnnotationList
-        }
-
-        val beforeAnchor: PsiElement? = when {
-            file.packageDirective?.packageKeyword != null -> file.packageDirective
-            file.importList != null -> file.importList
-            file.declarations.firstOrNull() != null -> file.declarations.first()
-            else -> null
-        }
-
-        if (beforeAnchor != null) {
-            return file.addBefore(annotationList, beforeAnchor) as KtFileAnnotationList
-        }
-
-        if (file.lastChild == null) {
-            return file.add(annotationList) as KtFileAnnotationList
-        }
-
-        return file.addAfter(annotationList, file.lastChild) as KtFileAnnotationList
+    override fun getOrCreatePrimaryConstructorParameterList(klass: KtClass): KtParameterList {
+        val constructor = getOrCreatePrimaryConstructor(klass)
+        constructor.valueParameterList?.let { return it }
+        return constructor.add(KtPsiFactory(klass.project).createParameterList("()")) as KtParameterList
     }
 
     override fun setModifierList(owner: KtModifierListOwner, newModifierList: KtModifierList) {
@@ -372,75 +279,6 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
             } else {
                 oldModifierList.replace(modifierList) as KtModifierList
             }
-        }
-    }
-
-    override fun addModifier(owner: KtModifierListOwner, modifier: KtModifierKeywordToken) {
-        val modifierList = owner.modifierList
-        if (modifierList == null) {
-            createModifierList(modifier.value, owner)
-        } else {
-            addModifier(modifierList, modifier)
-        }
-    }
-
-    override fun addConstructorModifier(constructor: KtPrimaryConstructor, modifier: KtModifierKeywordToken) {
-        val modifierList = constructor.modifierList
-        if (modifierList != null) {
-            addModifier(modifierList, modifier)
-            if (constructor.modifierList == null) {
-                constructor.getConstructorKeyword()?.delete()
-            }
-        } else {
-            if (modifier == PUBLIC_KEYWORD) return
-            val newModifierList = KtPsiFactory(constructor.project).createModifierList(modifier)
-            constructor.addBefore(newModifierList, getOrCreateConstructorKeyword(constructor))
-        }
-    }
-
-    override fun removeModifier(owner: KtModifierListOwner, modifier: KtModifierKeywordToken) {
-        doRemoveModifier(owner, modifier)
-    }
-
-    override fun removeConstructorModifier(constructor: KtPrimaryConstructor, modifier: KtModifierKeywordToken) {
-        doRemoveModifier(constructor, modifier)
-        if (constructor.modifierList == null) {
-            removeRedundantConstructorKeywordAndSpace(constructor)
-        }
-    }
-
-    override fun addAnnotationEntry(owner: KtModifierListOwner, annotationEntry: KtAnnotationEntry): KtAnnotationEntry {
-        val modifierList = owner.modifierList
-        return if (modifierList == null) {
-            createModifierList(annotationEntry.text, owner).annotationEntries.first()
-        } else {
-            modifierList.addBefore(annotationEntry, modifierList.firstChild) as KtAnnotationEntry
-        }
-    }
-
-    override fun addConstructorAnnotationEntry(constructor: KtPrimaryConstructor, annotationEntry: KtAnnotationEntry): KtAnnotationEntry {
-        val modifierList = constructor.modifierList
-        return if (modifierList != null) {
-            modifierList.addBefore(annotationEntry, modifierList.firstChild) as KtAnnotationEntry
-        } else {
-            val newModifierList = KtPsiFactory(constructor.project).createModifierList(annotationEntry.text)
-            val addedModifierList = constructor.addBefore(newModifierList, getOrCreateConstructorKeyword(constructor)) as KtModifierList
-            addedModifierList.annotationEntries.first()
-        }
-    }
-
-    override fun removeAnnotationEntry(annotation: KtAnnotation, entry: KtAnnotationEntry) {
-        if (annotation.entries.size > 1) {
-            entry.delete()
-        } else {
-            annotation.delete()
-        }
-    }
-
-    override fun removeRedundantConstructorKeywordAndSpace(constructor: KtPrimaryConstructor) {
-        constructor.getConstructorKeyword()?.delete()
-        if (constructor.prevSibling is PsiWhiteSpace) {
-            constructor.prevSibling.delete()
         }
     }
 
@@ -511,6 +349,29 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         )
     }
 
+    override fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression? {
+        val oldInitializer = property.initializer
+
+        if (oldInitializer != null) {
+            return if (initializer != null) {
+                oldInitializer.replace(initializer) as KtExpression
+            } else {
+                val nextSibling = oldInitializer.nextSibling
+                val last = if (nextSibling?.node?.elementType == SEMICOLON) nextSibling else oldInitializer
+                property.deleteChildRange(property.equalsToken, last)
+                null
+            }
+        }
+
+        return if (initializer != null) {
+            val addAfter = property.typeReference ?: property.nameIdentifier
+            val eq = property.addAfter(KtPsiFactory(property.project).createEQ(), addAfter)
+            property.addAfter(initializer, eq) as KtExpression
+        } else {
+            null
+        }
+    }
+
     override fun setTypeParameterExtendsBound(
         typeParameter: KtTypeParameter,
         typeReference: KtTypeReference?,
@@ -534,6 +395,55 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         }
     }
 
+    override fun setPackageDirectiveFqName(packageDirective: KtPackageDirective, fqName: FqName) {
+        if (fqName.isRoot) {
+            if (!packageDirective.fqName.isRoot) {
+                packageDirective.replace(KtPsiFactory(packageDirective.project).createFile("").packageDirective!!)
+            }
+            return
+        }
+
+        val psiFactory = KtPsiFactory(packageDirective.project)
+        val newExpression = psiFactory.createExpression(fqName.asString())
+        val currentExpression = packageDirective.packageNameExpression
+        if (currentExpression != null) {
+            currentExpression.replace(newExpression)
+            return
+        }
+
+        val keyword = packageDirective.packageKeyword
+        if (keyword != null) {
+            packageDirective.addAfter(newExpression, keyword)
+            packageDirective.addAfter(psiFactory.createWhiteSpace(), keyword)
+            return
+        }
+
+        packageDirective.replace(psiFactory.createPackageDirective(fqName))
+    }
+
+    override fun replaceFileAnnotationList(file: KtFile, annotationList: KtFileAnnotationList): KtFileAnnotationList {
+        file.fileAnnotationList?.let {
+            return it.replace(annotationList) as KtFileAnnotationList
+        }
+
+        val beforeAnchor: PsiElement? = when {
+            file.packageDirective?.packageKeyword != null -> file.packageDirective
+            file.importList != null -> file.importList
+            file.declarations.firstOrNull() != null -> file.declarations.first()
+            else -> null
+        }
+
+        if (beforeAnchor != null) {
+            return file.addBefore(annotationList, beforeAnchor) as KtFileAnnotationList
+        }
+
+        if (file.lastChild == null) {
+            return file.add(annotationList) as KtFileAnnotationList
+        }
+
+        return file.addAfter(annotationList, file.lastChild) as KtFileAnnotationList
+    }
+
     override fun setDoubleColonReceiverExpression(expression: KtDoubleColonExpression, newReceiverExpression: KtExpression) {
         val oldReceiverExpression = expression.receiverExpression
         oldReceiverExpression?.replace(newReceiverExpression)
@@ -549,26 +459,72 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         dot!!.delete()
     }
 
-    override fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression? {
-        val oldInitializer = property.initializer
-
-        if (oldInitializer != null) {
-            return if (initializer != null) {
-                oldInitializer.replace(initializer) as KtExpression
-            } else {
-                val nextSibling = oldInitializer.nextSibling
-                val last = if (nextSibling?.node?.elementType == SEMICOLON) nextSibling else oldInitializer
-                property.deleteChildRange(property.equalsToken, last)
-                null
-            }
-        }
-
-        return if (initializer != null) {
-            val addAfter = property.typeReference ?: property.nameIdentifier
-            val eq = property.addAfter(KtPsiFactory(property.project).createEQ(), addAfter)
-            property.addAfter(initializer, eq) as KtExpression
+    override fun addModifier(owner: KtModifierListOwner, modifier: KtModifierKeywordToken) {
+        val modifierList = owner.modifierList
+        if (modifierList == null) {
+            createModifierList(modifier.value, owner)
         } else {
-            null
+            addModifier(modifierList, modifier)
+        }
+    }
+
+    override fun addConstructorModifier(constructor: KtPrimaryConstructor, modifier: KtModifierKeywordToken) {
+        val modifierList = constructor.modifierList
+        if (modifierList != null) {
+            addModifier(modifierList, modifier)
+            if (constructor.modifierList == null) {
+                constructor.getConstructorKeyword()?.delete()
+            }
+        } else {
+            if (modifier == PUBLIC_KEYWORD) return
+            val newModifierList = KtPsiFactory(constructor.project).createModifierList(modifier)
+            constructor.addBefore(newModifierList, getOrCreateConstructorKeyword(constructor))
+        }
+    }
+
+    override fun removeModifier(owner: KtModifierListOwner, modifier: KtModifierKeywordToken) {
+        doRemoveModifier(owner, modifier)
+    }
+
+    override fun removeConstructorModifier(constructor: KtPrimaryConstructor, modifier: KtModifierKeywordToken) {
+        doRemoveModifier(constructor, modifier)
+        if (constructor.modifierList == null) {
+            removeRedundantConstructorKeywordAndSpace(constructor)
+        }
+    }
+
+    override fun addAnnotationEntry(owner: KtModifierListOwner, annotationEntry: KtAnnotationEntry): KtAnnotationEntry {
+        val modifierList = owner.modifierList
+        return if (modifierList == null) {
+            createModifierList(annotationEntry.text, owner).annotationEntries.first()
+        } else {
+            modifierList.addBefore(annotationEntry, modifierList.firstChild) as KtAnnotationEntry
+        }
+    }
+
+    override fun addConstructorAnnotationEntry(constructor: KtPrimaryConstructor, annotationEntry: KtAnnotationEntry): KtAnnotationEntry {
+        val modifierList = constructor.modifierList
+        return if (modifierList != null) {
+            modifierList.addBefore(annotationEntry, modifierList.firstChild) as KtAnnotationEntry
+        } else {
+            val newModifierList = KtPsiFactory(constructor.project).createModifierList(annotationEntry.text)
+            val addedModifierList = constructor.addBefore(newModifierList, getOrCreateConstructorKeyword(constructor)) as KtModifierList
+            addedModifierList.annotationEntries.first()
+        }
+    }
+
+    override fun removeAnnotationEntry(annotation: KtAnnotation, entry: KtAnnotationEntry) {
+        if (annotation.entries.size > 1) {
+            entry.delete()
+        } else {
+            annotation.delete()
+        }
+    }
+
+    override fun removeRedundantConstructorKeywordAndSpace(constructor: KtPrimaryConstructor) {
+        constructor.getConstructorKeyword()?.delete()
+        if (constructor.prevSibling is PsiWhiteSpace) {
+            constructor.prevSibling.delete()
         }
     }
 
@@ -680,16 +636,74 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         )
     }
 
-    private fun deleteAsPlainKtElement(element: KtElement) {
-        if (element is KtEnumEntry) return element.parent.deleteChildRange(element, element)
+    override fun astReplace(element: PsiElement, newElement: PsiElement) {
+        element.parent.node.replaceChild(element.node, newElement.node)
+    }
 
-        val sibling = PsiTreeUtil.skipSiblingsForward(element, PsiWhiteSpace::class.java, PsiComment::class.java)
-        if (sibling != null && sibling.elementType == SEMICOLON) {
-            val lastSiblingToDelete = PsiTreeUtil.skipSiblingsForward(sibling, PsiWhiteSpace::class.java)?.prevSibling ?: sibling
-            element.parent.deleteChildRange(element.nextSibling, lastSiblingToDelete)
+    override fun replaceExpression(
+        expression: KtExpression,
+        newElement: PsiElement,
+        reformat: Boolean,
+        rawReplaceHandler: (PsiElement) -> PsiElement,
+    ): PsiElement {
+        val parent = expression.parent
+
+        if (newElement is KtExpression) {
+            when (parent) {
+                is KtExpression, is KtValueArgument -> {
+                    if (KtPsiUtil.areParenthesesNecessary(newElement, expression, parent)) {
+                        val factory = KtPsiFactory(expression.project)
+                        return rawReplaceHandler(factory.createExpressionByPattern("($0)", newElement, reformat = reformat))
+                    }
+                }
+                is KtSimpleNameStringTemplateEntry -> {
+                    if (newElement !is KtSimpleNameExpression && !newElement.isThisWithoutLabel()) {
+                        val factory = KtPsiFactory(expression.project)
+                        val newEntry = parent.replace(factory.createBlockStringTemplateEntry(newElement)) as KtBlockStringTemplateEntry
+                        return newEntry.expression!!
+                    }
+                }
+            }
         }
 
-        element.parent.deleteChildRange(element, element)
+        return rawReplaceHandler(newElement)
+    }
+
+    override fun addSemicolon(enumEntry: KtEnumEntry): PsiElement {
+        enumEntry.semicolon?.let {
+            return it
+        }
+
+        // when adding a declaration to an enum class body, there's a chance the next
+        // non-whitespace sibling is a semicolon; we should embed it into ourselves
+        val tailStart = enumEntry.nextSibling
+        val tailEnd = PsiTreeUtil.skipSiblingsForward(enumEntry, PsiWhiteSpace::class.java, PsiComment::class.java)
+        if (tailEnd?.elementType == SEMICOLON) {
+            var element = enumEntry.addRangeAfter(tailStart, tailEnd, enumEntry.lastChild)
+            enumEntry.parent.deleteChildRange(tailStart, tailEnd)
+
+            while (element.nextSibling != null) {
+                element = element.nextSibling
+            }
+
+            return element
+        }
+
+        val semicolon = KtPsiFactory(enumEntry.project).createSemicolon()
+        enumEntry.comma?.let {
+            return it.replace(semicolon)
+        }
+        return enumEntry.addAfter(semicolon, enumEntry.lastChild)
+    }
+
+    override fun deleteSemicolon(element: KtElement) {
+        if (element is KtEnumEntry) return
+
+        val sibling = PsiTreeUtil.skipSiblingsForward(element, PsiWhiteSpace::class.java, PsiComment::class.java)
+        if (sibling?.elementType != SEMICOLON) return
+
+        val lastSiblingToDelete = PsiTreeUtil.skipSiblingsForward(sibling, PsiWhiteSpace::class.java)?.prevSibling ?: sibling
+        element.parent.deleteChildRange(element.nextSibling, lastSiblingToDelete)
     }
 
     private fun getOrCreateConstructorKeyword(constructor: KtPrimaryConstructor): PsiElement {
@@ -820,6 +834,20 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
             modifierList.addAfter(KtPsiFactory(owner.project).createNewLine(), lastChild)
         }
     }
+
+    private fun deleteAsPlainKtElement(element: KtElement) {
+        if (element is KtEnumEntry) return element.parent.deleteChildRange(element, element)
+
+        val sibling = PsiTreeUtil.skipSiblingsForward(element, PsiWhiteSpace::class.java, PsiComment::class.java)
+        if (sibling != null && sibling.elementType == SEMICOLON) {
+            val lastSiblingToDelete = PsiTreeUtil.skipSiblingsForward(sibling, PsiWhiteSpace::class.java)?.prevSibling ?: sibling
+            element.parent.deleteChildRange(element.nextSibling, lastSiblingToDelete)
+        }
+
+        element.parent.deleteChildRange(element, element)
+    }
+
+    private fun PsiElement.isThisWithoutLabel(): Boolean = this is KtThisExpression && getLabelName() == null
 
     private companion object {
         val FUNCTIONLIKE_CONVENTIONS = setOf(

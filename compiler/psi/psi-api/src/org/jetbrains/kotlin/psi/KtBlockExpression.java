@@ -96,7 +96,7 @@ public class KtBlockExpression extends LazyParseablePsiElement implements KtElem
         List<PsiElement> result = null;
         while (psiChild != null) {
             if (psiChild.getNode() instanceof CompositeElement) {
-                if(result == null) result = new ArrayList<>();
+                if (result == null) result = new ArrayList<>();
                 result.add(psiChild);
             }
             psiChild = psiChild.getNextSibling();

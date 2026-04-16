@@ -34,7 +34,7 @@ fun LightElement.cannotModify(): Nothing {
 fun PsiReferenceList.addSuperTypeEntry(
     superTypeList: KtSuperTypeList,
     entry: KtSuperTypeListEntry,
-    reference: PsiJavaCodeReferenceElement,
+    reference: PsiJavaCodeReferenceElement
 ) {
     // Only classes may be mentioned in 'extends' list, thus create super call instead simple type reference
     val entryToAdd =

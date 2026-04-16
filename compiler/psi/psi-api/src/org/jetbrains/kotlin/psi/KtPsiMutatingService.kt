@@ -72,21 +72,6 @@ interface KtPsiMutatingService {
     fun deleteSemicolon(element: KtElement)
 
     /**
-     * Adds a semicolon to [enumEntry], reusing an existing sibling semicolon when possible.
-     */
-    fun addSemicolon(enumEntry: KtEnumEntry): PsiElement
-
-    /**
-     * Returns the existing primary constructor for [klass], or creates one if missing.
-     */
-    fun getOrCreatePrimaryConstructor(klass: KtClass): KtPrimaryConstructor
-
-    /**
-     * Returns the existing primary constructor parameter list for [klass], or creates one if missing.
-     */
-    fun getOrCreatePrimaryConstructorParameterList(klass: KtClass): KtParameterList
-
-    /**
      * Renames [declaration], including operator-specific modifier adjustments.
      */
     fun setNamedDeclarationStubName(declaration: KtNamedDeclarationStub<*>, name: String): PsiElement?
@@ -124,14 +109,14 @@ interface KtPsiMutatingService {
     fun setCommonFilePackageFqName(file: KtCommonFile, fqName: FqName)
 
     /**
-     * Replaces the package name of [packageDirective] with [fqName].
+     * Returns the existing primary constructor for [klass], or creates one if missing.
      */
-    fun setPackageDirectiveFqName(packageDirective: KtPackageDirective, fqName: FqName)
+    fun getOrCreatePrimaryConstructor(klass: KtClass): KtPrimaryConstructor
 
     /**
-     * Replaces [file]'s file annotation list with [annotationList], or adds it when missing.
+     * Returns the existing primary constructor parameter list for [klass], or creates one if missing.
      */
-    fun replaceFileAnnotationList(file: KtFile, annotationList: KtFileAnnotationList): KtFileAnnotationList
+    fun getOrCreatePrimaryConstructorParameterList(klass: KtClass): KtParameterList
 
     /**
      * Replaces the existing modifier list on [owner] with [newModifierList], or adds it if missing.
@@ -142,6 +127,71 @@ interface KtPsiMutatingService {
      * Replaces the existing modifier list on [owner] with [modifierList], adds it if missing, or removes it when [modifierList] is `null`.
      */
     fun replaceModifierList(owner: KtModifierListOwner, modifierList: KtModifierList?): KtModifierList?
+
+    /**
+     * Replaces the type reference on [function] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setFunctionTypeReference(function: KtNamedFunction, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the type reference on [property] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setPropertyTypeReference(property: KtProperty, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the type reference on [parameter] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setParameterTypeReference(parameter: KtParameter, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the type reference on [entry] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setDestructuringDeclarationEntryTypeReference(entry: KtDestructuringDeclarationEntry, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the explicit return type on [declaration] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setCallableTypeReference(declaration: KtCallableDeclaration, addAfter: PsiElement?, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the receiver type on [declaration] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setCallableReceiverTypeReference(declaration: KtCallableDeclaration, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the receiver type on [functionType] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
+     */
+    fun setFunctionTypeReceiverTypeReference(functionType: KtFunctionType, typeRef: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the initializer on [property] with [initializer], adds it if missing, or removes it when [initializer] is `null`.
+     */
+    fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression?
+
+    /**
+     * Replaces the extends bound on [typeParameter] with [typeReference], adds it if missing, or removes it when [typeReference] is `null`.
+     */
+    fun setTypeParameterExtendsBound(typeParameter: KtTypeParameter, typeReference: KtTypeReference?): KtTypeReference?
+
+    /**
+     * Replaces the package name of [packageDirective] with [fqName].
+     */
+    fun setPackageDirectiveFqName(packageDirective: KtPackageDirective, fqName: FqName)
+
+    /**
+     * Replaces [file]'s file annotation list with [annotationList], or adds it when missing.
+     */
+    fun replaceFileAnnotationList(file: KtFile, annotationList: KtFileAnnotationList): KtFileAnnotationList
+
+    /**
+     * Replaces the receiver expression on [expression] with [newReceiverExpression], or adds it if missing.
+     */
+    fun setDoubleColonReceiverExpression(expression: KtDoubleColonExpression, newReceiverExpression: KtExpression)
+
+    /**
+     * Deletes the qualifier of [userType], keeping the referenced name intact.
+     */
+    fun deleteQualifier(userType: KtUserType)
 
     /**
      * Adds [modifier] to [owner].
@@ -182,61 +232,6 @@ interface KtPsiMutatingService {
      * Removes the redundant `constructor` keyword and the following whitespace from [constructor].
      */
     fun removeRedundantConstructorKeywordAndSpace(constructor: KtPrimaryConstructor)
-
-    /**
-     * Replaces the type reference on [function] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
-     */
-    fun setFunctionTypeReference(function: KtNamedFunction, typeRef: KtTypeReference?): KtTypeReference?
-
-    /**
-     * Replaces the type reference on [property] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
-     */
-    fun setPropertyTypeReference(property: KtProperty, typeRef: KtTypeReference?): KtTypeReference?
-
-    /**
-     * Replaces the type reference on [parameter] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
-     */
-    fun setParameterTypeReference(parameter: KtParameter, typeRef: KtTypeReference?): KtTypeReference?
-
-    /**
-     * Replaces the type reference on [entry] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
-     */
-    fun setDestructuringDeclarationEntryTypeReference(entry: KtDestructuringDeclarationEntry, typeRef: KtTypeReference?): KtTypeReference?
-
-    /**
-     * Replaces the explicit return type on [declaration] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
-     */
-    fun setCallableTypeReference(declaration: KtCallableDeclaration, addAfter: PsiElement?, typeRef: KtTypeReference?): KtTypeReference?
-
-    /**
-     * Replaces the receiver type on [declaration] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
-     */
-    fun setCallableReceiverTypeReference(declaration: KtCallableDeclaration, typeRef: KtTypeReference?): KtTypeReference?
-
-    /**
-     * Replaces the receiver type on [functionType] with [typeRef], adds it if missing, or removes it when [typeRef] is `null`.
-     */
-    fun setFunctionTypeReceiverTypeReference(functionType: KtFunctionType, typeRef: KtTypeReference?): KtTypeReference?
-
-    /**
-     * Replaces the extends bound on [typeParameter] with [typeReference], adds it if missing, or removes it when [typeReference] is `null`.
-     */
-    fun setTypeParameterExtendsBound(typeParameter: KtTypeParameter, typeReference: KtTypeReference?): KtTypeReference?
-
-    /**
-     * Replaces the receiver expression on [expression] with [newReceiverExpression], or adds it if missing.
-     */
-    fun setDoubleColonReceiverExpression(expression: KtDoubleColonExpression, newReceiverExpression: KtExpression)
-
-    /**
-     * Deletes the qualifier of [userType], keeping the referenced name intact.
-     */
-    fun deleteQualifier(userType: KtUserType)
-
-    /**
-     * Replaces the initializer on [property] with [initializer], adds it if missing, or removes it when [initializer] is `null`.
-     */
-    fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression?
 
     /**
      * Replaces the implicit delegation call in [constructor] with an explicit `this()` or `super()` call.
@@ -317,6 +312,26 @@ interface KtPsiMutatingService {
      * Adds [typeArgument] to [callExpression], creating the type argument list if needed.
      */
     fun addTypeArgument(callExpression: KtCallExpression, typeArgument: KtTypeProjection)
+
+    /**
+     * Replaces [element] with [newElement] on the AST level.
+     */
+    fun astReplace(element: PsiElement, newElement: PsiElement)
+
+    /**
+     * Replaces [expression] with [newElement], adding parentheses or string-template braces when needed.
+     */
+    fun replaceExpression(
+        expression: KtExpression,
+        newElement: PsiElement,
+        reformat: Boolean,
+        rawReplaceHandler: (PsiElement) -> PsiElement,
+    ): PsiElement
+
+    /**
+     * Adds a semicolon to [enumEntry], reusing an existing sibling semicolon when possible.
+     */
+    fun addSemicolon(enumEntry: KtEnumEntry): PsiElement
 
     @KtNonPublicApi
     companion object {

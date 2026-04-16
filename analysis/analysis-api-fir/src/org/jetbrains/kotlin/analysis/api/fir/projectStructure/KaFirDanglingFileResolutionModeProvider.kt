@@ -159,7 +159,6 @@ internal class KaFirDanglingFileResolutionModeProvider : KaDanglingFileResolutio
      * Performs an AST based diff between [originalPsi] and [copyPsi] and returns the resulting [KaDanglingFileResolutionMode].
      * Done by reusing [LLFirDeclarationModificationService] which handles PSI tree change events in the IDE.
      */
-    @OptIn(LLFirInternals::class)
     private fun calculateModePsiBased(originalPsi: KtElement, copyPsi: KtElement): KaDanglingFileResolutionMode {
         val originalNode = ASTStructure(originalPsi.node)
         val copyNode = ASTStructure(copyPsi.node)

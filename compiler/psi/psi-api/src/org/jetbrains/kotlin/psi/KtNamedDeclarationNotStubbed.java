@@ -60,12 +60,13 @@ abstract class KtNamedDeclarationNotStubbed extends KtDeclarationImpl implements
         return findChildByType(KtTokens.IDENTIFIER);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().setNamedDeclarationName(this, name)} instead.
+     */
     @Override
+    @Deprecated
     public PsiElement setName(@NonNls @NotNull String name) throws IncorrectOperationException {
-        PsiElement identifier = getNameIdentifier();
-        if (identifier == null) throw new IncorrectOperationException();
-
-        return identifier.replace(new KtPsiFactory(getProject()).createNameIdentifier(name));
+        return KtPsiMutatingService.getInstance().setNamedDeclarationName(this, name);
     }
 
     @Override

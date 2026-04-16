@@ -26,7 +26,9 @@ import org.jetbrains.kotlin.load.kotlin.TypeMappingMode
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFunction
+import org.jetbrains.kotlin.psi.KtNonPublicApi
 import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.psiUtil.isPrivate
 import org.jetbrains.kotlin.resolve.indexOrMinusOne
 import org.jetbrains.kotlin.types.KotlinType
@@ -187,8 +189,9 @@ internal class KtUltraLightParameterForSource(
 
     override fun isVarArgs(): Boolean = kotlinOrigin.isVarArg && method.parameterList.parameters.last() == this
 
+    @OptIn(KtNonPublicApi::class)
     override fun setName(@NonNls name: String): PsiElement {
-        kotlinOrigin.setName(name)
+        KtPsiMutatingService.getInstance().setNamedDeclarationStubName(kotlinOrigin, name)
         return this
     }
 

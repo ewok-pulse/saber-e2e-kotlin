@@ -570,6 +570,22 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         }
     }
 
+    override fun replaceImplicitDelegationCallWithExplicit(
+        constructor: KtSecondaryConstructor,
+        isThis: Boolean,
+    ): KtConstructorDelegationCall = with(constructor) {
+        val psiFactory = KtPsiFactory(project)
+        val current = getDelegationCall()
+
+        assert(current.isImplicit) { "Method should not be called with explicit delegation call: $text" }
+        current.delete()
+
+        val colon = addAfter(psiFactory.createColon(), valueParameterList)
+        val delegationName = if (isThis) "this" else "super"
+
+        addAfter(psiFactory.creareDelegatedSuperTypeEntry("$delegationName()"), colon) as KtConstructorDelegationCall
+    }
+
     private fun deleteAsPlainKtElement(element: KtElement) {
         if (element is KtEnumEntry) return element.parent.deleteChildRange(element, element)
 

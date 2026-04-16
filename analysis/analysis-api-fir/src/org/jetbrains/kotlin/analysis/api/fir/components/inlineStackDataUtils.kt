@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtElement
 
-class InlineStackData(
+internal class InlineStackData(
     val capturedReifiedTypeParameterMapping: Map<FirTypeParameterSymbol, ConeKotlinType>,
     val inlineLambdaParameterMapping: Map<FirValueParameterSymbol, InlineLambdaArgument>,
     val firstNonInlineNonLocalFunInStack: KtDeclaration?,

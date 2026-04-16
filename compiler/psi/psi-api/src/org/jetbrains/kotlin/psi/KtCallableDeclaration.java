@@ -72,7 +72,11 @@ public interface KtCallableDeclaration extends KtNamedDeclaration, KtDeclaration
     @Nullable
     KtTypeReference getTypeReference();
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().setCallableTypeReference(this, null, typeRef)} instead.
+     */
     @SuppressWarnings("unused") // used in Kotlin IDE plugin
+    @Deprecated
     @Nullable
     KtTypeReference setTypeReference(@Nullable KtTypeReference typeRef);
 

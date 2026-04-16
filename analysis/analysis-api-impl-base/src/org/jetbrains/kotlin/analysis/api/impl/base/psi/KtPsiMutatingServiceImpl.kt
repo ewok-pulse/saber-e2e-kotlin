@@ -220,4 +220,19 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         val lastSiblingToDelete = PsiTreeUtil.skipSiblingsForward(sibling, PsiWhiteSpace::class.java)?.prevSibling ?: sibling
         element.parent.deleteChildRange(element.nextSibling, lastSiblingToDelete)
     }
+
+    override fun getOrCreatePrimaryConstructor(klass: KtClass): KtPrimaryConstructor {
+        klass.primaryConstructor?.let { return it }
+
+        var anchor: PsiElement? = klass.typeParameterList
+        if (anchor == null) anchor = klass.nameIdentifier
+        if (anchor == null) anchor = klass.lastChild
+        return klass.addAfter(KtPsiFactory(klass.project).createPrimaryConstructor(), anchor) as KtPrimaryConstructor
+    }
+
+    override fun getOrCreatePrimaryConstructorParameterList(klass: KtClass): KtParameterList {
+        val constructor = getOrCreatePrimaryConstructor(klass)
+        constructor.valueParameterList?.let { return it }
+        return constructor.add(KtPsiFactory(klass.project).createParameterList("()")) as KtParameterList
+    }
 }

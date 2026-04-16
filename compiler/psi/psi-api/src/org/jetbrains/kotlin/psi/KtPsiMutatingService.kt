@@ -84,6 +84,16 @@ interface KtPsiMutatingService {
      */
     fun addSemicolon(enumEntry: KtEnumEntry): PsiElement
 
+    /**
+     * Returns the existing primary constructor for [klass], or creates one if missing.
+     */
+    fun getOrCreatePrimaryConstructor(klass: KtClass): KtPrimaryConstructor
+
+    /**
+     * Returns the existing primary constructor parameter list for [klass], or creates one if missing.
+     */
+    fun getOrCreatePrimaryConstructorParameterList(klass: KtClass): KtParameterList
+
     @KtNonPublicApi
     companion object {
         /**

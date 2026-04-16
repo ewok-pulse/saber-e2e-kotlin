@@ -686,4 +686,165 @@ class SwiftPMImportPersistentDefaultIdentifierPackageLockIntegrationTests : KGPB
             }
         }
     }
+
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    @GradleTest
+    fun `compile task in unrelated project without direct or transitive SwiftPM deps does not materialize SwiftPM import tasks`(
+        version: GradleVersion,
+    ) {
+        val identifier = "default"
+        val leftProjectName = "left"
+        val rightProjectName = "right"
+
+        project("empty", version) {
+            withLockFileFixture {
+                initSwiftPmProject(cacheDirFile) {}
+
+                val leftProject = project("empty", version) {
+                    initSwiftPmProject(cacheDirFile) {}
+                }
+
+                val rightProject = project("empty", version) {
+                    initSwiftPmProject(cacheDirFile) {}
+                }
+
+                include(leftProject, leftProjectName)
+                include(rightProject, rightProjectName)
+
+                val rootGenerateUmbrellaTask =
+                    ":${GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(identifier)}"
+                val rootFetchUmbrellaTask =
+                    ":${FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(identifier)}"
+
+                val leftGenerateUmbrellaTask =
+                    ":$leftProjectName:${GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(identifier)}"
+                val leftFetchUmbrellaTask =
+                    ":$leftProjectName:${FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(identifier)}"
+
+                val rightGenerateUmbrellaTask =
+                    ":$rightProjectName:${GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(identifier)}"
+                val rightFetchUmbrellaTask =
+                    ":$rightProjectName:${FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(identifier)}"
+
+                val rightGenerateSyntheticTask =
+                    ":$rightProjectName:${GenerateSyntheticLinkageImportProject.syntheticImportProjectGenerationTaskName}"
+                val rightFetchSyntheticTask =
+                    ":$rightProjectName:${FetchSyntheticImportProjectPackages.TASK_NAME}"
+
+                build(":$rightProjectName:compileKotlinIosSimulatorArm64") {
+                    assertTasksAreNotInTaskGraph(
+                        rootGenerateUmbrellaTask,
+                        rootFetchUmbrellaTask,
+                        leftGenerateUmbrellaTask,
+                        leftFetchUmbrellaTask,
+                        rightGenerateUmbrellaTask,
+                        rightFetchUmbrellaTask,
+                        rightGenerateSyntheticTask,
+                        rightFetchSyntheticTask,
+                    )
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    @GradleTest
+    fun `link task in project without direct or transitive SwiftPM deps skips all SwiftPM import tasks when sibling has default identifier alignment enabled`(
+        version: GradleVersion,
+    ) {
+        val identifier = "default"
+        val leftProjectName = "left"
+        val rightProjectName = "right"
+        val repoName = "TestPackage"
+
+        project("empty", version) {
+            withLockFileFixture {
+                val repo = repoRef(repoName).also { createRepo(it.name, listOf("1.0.0")) }
+
+                initSwiftPmProject(cacheDirFile) {
+                    swiftPMDependencies {
+                        packageResolvedSynchronization = PackageResolvedSynchronization.Identifier(identifier)
+                    }
+                }
+
+                val leftProject = project("empty", version) {
+                    initSwiftPmProject(cacheDirFile) {
+                        swiftPMDependencies {
+                            swiftPackage(
+                                url = url(repo.url),
+                                version = from("1.0.0"),
+                                products = listOf(product(repo.name)),
+                            )
+                        }
+                    }
+                }
+
+                val rightProject = project("empty", version) {
+                    initSwiftPmProject(cacheDirFile) {
+                        swiftPMDependencies {
+                            packageResolvedSynchronization = PackageResolvedSynchronization.None
+                        }
+                    }
+                }
+
+                include(leftProject, leftProjectName)
+                include(rightProject, rightProjectName)
+
+                val rightGenerateUmbrellaTask =
+                    ":$rightProjectName:${GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(identifier)}"
+                val rightFetchUmbrellaTask =
+                    ":$rightProjectName:${FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(identifier)}"
+                val rightGenerateSyntheticTask =
+                    ":$rightProjectName:${GenerateSyntheticLinkageImportProject.syntheticImportProjectGenerationTaskName}"
+                val rightFetchSyntheticTask =
+                    ":$rightProjectName:${FetchSyntheticImportProjectPackages.TASK_NAME}"
+
+                val leftGenerateUmbrellaTask =
+                    ":$leftProjectName:${GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(identifier)}"
+                val leftFetchUmbrellaTask =
+                    ":$leftProjectName:${FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(identifier)}"
+                val leftGenerateSyntheticTask =
+                    ":$leftProjectName:${GenerateSyntheticLinkageImportProject.syntheticImportProjectGenerationTaskName}"
+                val leftFetchSyntheticTask =
+                    ":$leftProjectName:${FetchSyntheticImportProjectPackages.TASK_NAME}"
+
+
+                val rootGenerateUmbrellaTask =
+                    ":${GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(identifier)}"
+                val rootFetchUmbrellaTask =
+                    ":${FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(identifier)}"
+
+                build(":$rightProjectName:linkDebugTestIosSimulatorArm64") {
+                    assertTasksSkipped(
+                        rightGenerateSyntheticTask,
+                        rightFetchSyntheticTask,
+                    )
+
+                    assertTasksAreNotInTaskGraph(
+                        rightGenerateUmbrellaTask,
+                        rightFetchUmbrellaTask,
+                        leftGenerateUmbrellaTask,
+                        leftFetchUmbrellaTask,
+                    )
+                }
+
+                build(":$leftProjectName:linkDebugTestIosSimulatorArm64") {
+
+                    assertTasksExecuted(
+                        rootGenerateUmbrellaTask,
+                        rootFetchUmbrellaTask,
+                        leftGenerateSyntheticTask,
+                        leftFetchSyntheticTask,
+                    )
+
+                    assertTasksAreNotInTaskGraph(
+                        rightGenerateUmbrellaTask,
+                        rightFetchUmbrellaTask,
+                        rightGenerateSyntheticTask,
+                        rightFetchSyntheticTask,
+                    )
+                }
+            }
+        }
+    }
 }

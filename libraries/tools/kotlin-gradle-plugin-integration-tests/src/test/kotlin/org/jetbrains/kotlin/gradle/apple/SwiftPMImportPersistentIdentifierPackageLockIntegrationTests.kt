@@ -828,4 +828,96 @@ class SwiftPMImportPersistentIdentifierPackageLockIntegrationTests : KGPBaseTest
             }
         }
     }
+
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    @GradleTest
+    fun `link task skips all SwiftPM import tasks in unrelated project without direct or transitive SwiftPM deps when sibling uses explicit identifier alignment`(
+        version: GradleVersion,
+    ) {
+        val alignedIdentifier = "sharedLock"
+        val emptyIdentifier = "emptyLock"
+        val projectWithDepsName = "projectWithDeps"
+        val projectWithoutDepsName = "projectWithoutDeps"
+        val repoName = "TestPackage"
+
+        project("empty", version) {
+            withLockFileFixture(
+                packageResolvedSynchronization = PackageResolvedSynchronization.Identifier("rootLock")
+            ) {
+                val repo = repoRef(repoName).also { createRepo(it.name, listOf("1.0.0")) }
+
+                initSwiftPmProject(cacheDirFile) {
+                    swiftPMDependencies {
+                        packageResolvedSynchronization = PackageResolvedSynchronization.Identifier("rootLock")
+                    }
+                }
+
+                val projectWithDeps = project("empty", version) {
+                    initSwiftPmProject(cacheDirFile) {
+                        swiftPMDependencies {
+                            packageResolvedSynchronization = PackageResolvedSynchronization.Identifier(alignedIdentifier)
+                            swiftPackage(
+                                url = url(repo.url),
+                                version = from("1.0.0"),
+                                products = listOf(product(repo.name)),
+                            )
+                        }
+                    }
+                }
+
+                val projectWithoutDeps = project("empty", version) {
+                    initSwiftPmProject(cacheDirFile) {
+                        swiftPMDependencies {
+                            packageResolvedSynchronization = PackageResolvedSynchronization.Identifier(emptyIdentifier)
+                        }
+                    }
+                }
+
+                include(projectWithDeps, projectWithDepsName)
+                include(projectWithoutDeps, projectWithoutDepsName)
+
+                val emptyGenerateUmbrellaTask =
+                    ":$projectWithoutDepsName:${GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(emptyIdentifier)}"
+                val emptyFetchUmbrellaTask =
+                    ":$projectWithoutDepsName:${FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(emptyIdentifier)}"
+                val emptyGenerateSyntheticTask =
+                    ":$projectWithoutDepsName:${GenerateSyntheticLinkageImportProject.syntheticImportProjectGenerationTaskName}"
+                val emptyFetchSyntheticTask =
+                    ":$projectWithoutDepsName:${FetchSyntheticImportProjectPackages.TASK_NAME}"
+
+                val depsGenerateUmbrellaTask =
+                    ":$projectWithDepsName:${GenerateSyntheticLinkageImportProject.syntheticUmbrellaPackageGenerationTaskName(alignedIdentifier)}"
+                val depsFetchUmbrellaTask =
+                    ":$projectWithDepsName:${FetchSyntheticImportProjectPackages.fetchUmbrellaPackageTaskName(alignedIdentifier)}"
+
+                build(":$projectWithoutDepsName:linkDebugTestIosSimulatorArm64") {
+                    assertTasksSkipped(
+                        emptyGenerateUmbrellaTask,
+                        emptyFetchUmbrellaTask,
+                        emptyGenerateSyntheticTask,
+                        emptyFetchSyntheticTask,
+                    )
+
+                    assertTasksAreNotInTaskGraph(
+                        depsGenerateUmbrellaTask,
+                        depsFetchUmbrellaTask,
+                    )
+                }
+
+                build(":$projectWithDepsName:linkDebugTestIosSimulatorArm64") {
+                    assertTasksExecuted(
+                        depsGenerateUmbrellaTask,
+                        depsFetchUmbrellaTask,
+                    )
+
+                    assertTasksAreNotInTaskGraph(
+                        emptyGenerateUmbrellaTask,
+                        emptyFetchUmbrellaTask,
+                        emptyGenerateSyntheticTask,
+                        emptyFetchSyntheticTask,
+                    )
+                }
+            }
+        }
+    }
 }

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.analysis.low.level.api.fir.util
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.analysis.api.KaImplementationDetail
 import org.jetbrains.kotlin.analysis.api.impl.base.util.withPsiEntry
 import org.jetbrains.kotlin.analysis.api.platform.projectStructure.KotlinProjectStructureProvider
 import org.jetbrains.kotlin.fir.FirElement
@@ -18,6 +19,7 @@ import org.jetbrains.kotlin.utils.exceptions.requireWithAttachment
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+@KaImplementationDetail
 fun errorWithFirSpecificEntries(
     message: String,
     cause: Exception? = null,
@@ -29,7 +31,7 @@ fun errorWithFirSpecificEntries(
     throw buildErrorWithFirSpecificEntries(message, cause, fir, coneType, psi, additionalInfos)
 }
 
-fun buildErrorWithFirSpecificEntries(
+internal fun buildErrorWithFirSpecificEntries(
     message: String,
     cause: Exception? = null,
     fir: FirElement? = null,
@@ -53,7 +55,7 @@ fun buildErrorWithFirSpecificEntries(
     }
 
 @OptIn(ExperimentalContracts::class)
-inline fun <reified R> Any.requireTypeIntersectionWith() {
+internal inline fun <reified R> Any.requireTypeIntersectionWith() {
     contract { returns() implies (this@requireTypeIntersectionWith is R) }
 
     requireWithAttachment(

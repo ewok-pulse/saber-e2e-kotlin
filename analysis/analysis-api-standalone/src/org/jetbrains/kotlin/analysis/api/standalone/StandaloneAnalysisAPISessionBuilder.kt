@@ -54,7 +54,6 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreApplicationEnvironmentMod
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreProjectEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.setupIdeaStandaloneExecution
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.extensions.ProjectExtensionDescriptor
 import org.jetbrains.kotlin.load.kotlin.PackagePartProvider
 import org.jetbrains.kotlin.psi.KtFile
 import kotlin.contracts.ExperimentalContracts
@@ -260,6 +259,7 @@ internal object StandaloneSessionServiceRegistrar : AnalysisApiSimpleServiceRegi
         }
     }
 
+    @OptIn(KaImplementationDetail::class)
     override fun registerProjectServices(project: MockProject) {
         project.apply {
             registerService(KotlinLifetimeTokenFactory::class.java, KotlinAlwaysAccessibleLifetimeTokenFactory::class.java)

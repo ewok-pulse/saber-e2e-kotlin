@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.analysis.api.standalone.base.services
 
 import com.intellij.psi.util.parentsOfType
+import org.jetbrains.kotlin.analysis.api.KaImplementationDetail
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.services.LLFirElementByPsiElementChooser
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.cache.createEmptySession
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.errorWithFirSpecificEntries
@@ -35,6 +36,7 @@ import org.jetbrains.kotlin.utils.addIfNotNull
  *
  * TODO: We might be able to remove this service if KT-65836 is viable (using stub-based deserialized symbol providers in Standalone mode).
  */
+@OptIn(KaImplementationDetail::class)
 class LLStandaloneFirElementByPsiElementChooser : LLFirElementByPsiElementChooser() {
     override fun isMatchingValueParameter(psi: KtParameter, fir: FirValueParameter): Boolean {
         if (fir.realPsi != null) return fir.realPsi === psi

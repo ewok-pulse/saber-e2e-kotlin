@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.analysis.low.level.api.fir.resolver
 
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.psi.util.parentsOfType
+import org.jetbrains.kotlin.analysis.api.KaImplementationDetail
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.LLResolutionFacade
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.getOrBuildFirFile
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.resolveToFirSymbol
@@ -43,6 +44,7 @@ import org.jetbrains.kotlin.util.PrivateForInline
 import org.jetbrains.kotlin.utils.exceptions.logErrorWithAttachment
 import org.jetbrains.kotlin.utils.exceptions.withPsiEntry
 
+@KaImplementationDetail
 class AllCandidatesResolver(private val firSession: FirSession) {
     private val scopeSession = ScopeSession()
 

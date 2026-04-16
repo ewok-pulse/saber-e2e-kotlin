@@ -77,6 +77,7 @@ class FirCallableSignature private constructor(
         return result
     }
 
+    @KaImplementationDetail
     companion object {
         fun createSignature(callableSymbol: FirCallableSymbol<*>): FirCallableSignature = createSignature(callableSymbol.fir)
 

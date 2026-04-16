@@ -191,6 +191,7 @@ class LLSubstitutionScopeKeyFactory(private val session: LLFirSession) : Substit
      * The position is the path of type-argument indices from the top-level substituted type argument down to the annotated type
      * (e.g., path `[1, 0]` means the first nested type argument of the second top-level type argument).
      */
+    @LLFirInternals
     interface TypeArgumentAnnotation {
         val lookupTag: ConeClassLikeLookupTag?
     }

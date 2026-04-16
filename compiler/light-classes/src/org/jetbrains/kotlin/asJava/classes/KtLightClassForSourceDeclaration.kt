@@ -18,6 +18,8 @@ import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.jetbrains.kotlin.load.java.structure.LightClassOriginKind
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtNonPublicApi
+import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.debugText.getDebugText
 import org.jetbrains.kotlin.psi.stubs.KotlinClassOrObjectStub
 
@@ -104,9 +106,10 @@ abstract class KtLightClassForSourceDeclaration(
 
     abstract override fun isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean
 
+    @OptIn(KtNonPublicApi::class)
     @Throws(IncorrectOperationException::class)
     override fun setName(@NonNls name: String): PsiElement {
-        kotlinOrigin.setName(name)
+        KtPsiMutatingService.getInstance().setNamedDeclarationStubName(kotlinOrigin, name)
         return this
     }
 

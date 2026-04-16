@@ -214,14 +214,16 @@ abstract class AbstractComposeLowering(
         return hasAnnotation(ComposeFqNames.Composable)
     }
 
+    fun IrFunction.isInvoke(): Boolean =
+        name == OperatorNameConventions.INVOKE &&
+                parentClassOrNull?.defaultType?.let {
+                    it.isFunction() || it.isSyntheticComposableFunction()
+                } ?: false
+
     fun IrCall.isInvoke(): Boolean {
         if (origin == IrStatementOrigin.INVOKE)
             return true
-        val function = symbol.owner
-        return function.name == OperatorNameConventions.INVOKE &&
-                function.parentClassOrNull?.defaultType?.let {
-                    it.isFunction() || it.isSyntheticComposableFunction()
-                } ?: false
+        return symbol.owner.isInvoke()
     }
 
     fun IrCall.isComposableCall(): Boolean {
@@ -1907,7 +1909,7 @@ val IrFunction.namedParameters
 val IrValueParameter.isReceiver
     get() = kind == IrParameterKind.ExtensionReceiver || kind == IrParameterKind.DispatchReceiver
 
-fun IrClass.underlyingFunctionForComposable(context: IrPluginContext, invokeFn: IrSimpleFunction): IrSimpleFunction {
+fun IrClass.underlyingFunctionForComposable(context: IrPluginContext, invokeFn: IrSimpleFunction): IrSimpleFunction { //todo unify with lambdaInvokeWithComposerParam
     val realParams = typeParameters.size - /* return type */ 1
     val newArgsSize = realParams + /* composer */ 1 + changedParamCount(realParams, 0)
     val newFnClass = context.irBuiltIns.functionN(newArgsSize)

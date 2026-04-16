@@ -919,7 +919,6 @@ public class org/jetbrains/kotlin/psi/KtBlockExpression : com/intellij/psi/impl/
 	public final fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Lorg/jetbrains/kotlin/psi/KtVisitor;Ljava/lang/Object;)Ljava/lang/Object;
 	public fun acceptChildren (Lorg/jetbrains/kotlin/psi/KtVisitor;Ljava/lang/Object;)V
-	public fun delete ()V
 	public fun getChildren ()[Lcom/intellij/psi/PsiElement;
 	public fun getContainingKtFile ()Lorg/jetbrains/kotlin/psi/KtFile;
 	public fun getFirstStatement ()Lorg/jetbrains/kotlin/psi/KtExpression;

@@ -759,23 +759,14 @@ public class KtPsiUtil {
         return element;
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().replaceModifierList(owner, modifierList)} instead.
+     */
     @Nullable
     @Contract("_, !null -> !null")
+    @Deprecated
     public static KtModifierList replaceModifierList(@NotNull KtModifierListOwner owner, @Nullable KtModifierList modifierList) {
-        KtModifierList oldModifierList = owner.getModifierList();
-        if (modifierList == null) {
-            if (oldModifierList != null) oldModifierList.delete();
-            return null;
-        }
-        else {
-            if (oldModifierList == null) {
-                PsiElement firstChild = owner.getFirstChild();
-                return (KtModifierList) owner.addBefore(modifierList, firstChild);
-            }
-            else {
-                return (KtModifierList) oldModifierList.replace(modifierList);
-            }
-        }
+        return KtPsiMutatingService.getInstance().replaceModifierList(owner, modifierList);
     }
 
     @Nullable

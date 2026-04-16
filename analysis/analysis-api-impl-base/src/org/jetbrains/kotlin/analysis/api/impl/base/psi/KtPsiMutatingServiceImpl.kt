@@ -549,6 +549,29 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         dot!!.delete()
     }
 
+    override fun setPropertyInitializer(property: KtProperty, initializer: KtExpression?): KtExpression? {
+        val oldInitializer = property.initializer
+
+        if (oldInitializer != null) {
+            return if (initializer != null) {
+                oldInitializer.replace(initializer) as KtExpression
+            } else {
+                val nextSibling = oldInitializer.nextSibling
+                val last = if (nextSibling?.node?.elementType == SEMICOLON) nextSibling else oldInitializer
+                property.deleteChildRange(property.equalsToken, last)
+                null
+            }
+        }
+
+        return if (initializer != null) {
+            val addAfter = property.typeReference ?: property.nameIdentifier
+            val eq = property.addAfter(KtPsiFactory(property.project).createEQ(), addAfter)
+            property.addAfter(initializer, eq) as KtExpression
+        } else {
+            null
+        }
+    }
+
     private fun deleteAsPlainKtElement(element: KtElement) {
         if (element is KtEnumEntry) return element.parent.deleteChildRange(element, element)
 

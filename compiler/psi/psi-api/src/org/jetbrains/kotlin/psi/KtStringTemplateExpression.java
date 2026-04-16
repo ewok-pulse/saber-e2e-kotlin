@@ -38,7 +38,7 @@ public class KtStringTemplateExpression extends KtElementImplStub<KotlinPlaceHol
 
     @Override
     public PsiElement replace(@NotNull PsiElement newElement) throws IncorrectOperationException {
-        return KtExpressionImpl.Companion.replaceExpression(this, newElement, true, super::replace);
+        return KtPsiMutatingService.getInstance().replaceExpression(this, newElement, true, super::replace);
     }
 
     @Override

@@ -46,7 +46,7 @@ public class KtElementImpl extends ASTWrapperPsiElement implements KtElement {
     @Override
     public KtFile getContainingKtFile() {
         PsiFile file = getContainingFile();
-        if(!(file instanceof KtFile))  {
+        if (!(file instanceof KtFile)) {
             String fileString = (file != null && file.isValid()) ? (" " + file.getText()) : "";
             throw new IllegalStateException("KtElement not inside KtFile: " + file + fileString +
                                             " for element " + this + " of type " + this.getClass() + " node = " + getNode());
@@ -74,8 +74,12 @@ public class KtElementImpl extends ASTWrapperPsiElement implements KtElement {
     @SuppressWarnings("deprecation")
     public PsiReference getReference() {
         PsiReference[] references = getReferences();
-        if (references.length == 1) return references[0];
-        else return null;
+        if (references.length == 1) {
+            return references[0];
+        }
+        else {
+            return null;
+        }
     }
 
     @NotNull

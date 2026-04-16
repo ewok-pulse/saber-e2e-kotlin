@@ -16,6 +16,31 @@ import com.intellij.openapi.application.ApplicationManager
 @KtNonPublicApi
 @SubclassOptInRequired(KtImplementationDetail::class)
 interface KtPsiMutatingService {
+    /**
+     * Adds [superTypeListEntry] to [declaration].
+     */
+    fun addSuperTypeListEntry(declaration: KtClassOrObject, superTypeListEntry: KtSuperTypeListEntry): KtSuperTypeListEntry
+
+    /**
+     * Adds [superTypeListEntry] to [superTypeList].
+     */
+    fun addSuperTypeListEntry(superTypeList: KtSuperTypeList, superTypeListEntry: KtSuperTypeListEntry): KtSuperTypeListEntry
+
+    /**
+     * Removes [superTypeListEntry] from [declaration].
+     */
+    fun removeSuperTypeListEntry(declaration: KtClassOrObject, superTypeListEntry: KtSuperTypeListEntry)
+
+    /**
+     * Removes [superTypeListEntry] from [superTypeList].
+     */
+    fun removeSuperTypeListEntry(superTypeList: KtSuperTypeList, superTypeListEntry: KtSuperTypeListEntry)
+
+    /**
+     * Deletes [superTypeList], removing the preceding colon when needed.
+     */
+    fun deleteSuperTypeList(superTypeList: KtSuperTypeList)
+
     @KtNonPublicApi
     companion object {
         /**

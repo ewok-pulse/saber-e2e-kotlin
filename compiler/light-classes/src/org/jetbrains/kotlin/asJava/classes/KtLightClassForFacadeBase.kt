@@ -24,7 +24,9 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.JvmStandardClassIds.JVM_NAME_SHORT
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtNonPublicApi
 import org.jetbrains.kotlin.psi.KtPsiFactory
+import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
@@ -128,6 +130,7 @@ abstract class KtLightClassForFacadeBase(
 
     override fun getName() = super<KtLightClassForFacade>.getName()
 
+    @OptIn(KtNonPublicApi::class)
     override fun setName(name: String): PsiElement? {
         for (file in files) {
             val jvmNameEntry = JvmFileClassUtil.findAnnotationEntryOnFileNoResolve(file, JVM_NAME_SHORT)
@@ -141,7 +144,7 @@ abstract class KtLightClassForFacadeBase(
                 val newFileName = PackagePartClassUtils.getFileNameByFacadeName(name)
                 val facadeDir = file.parent
                 if (newFileName != null && facadeDir != null && facadeDir.findFile(newFileName) == null) {
-                    file.name = newFileName
+                    KtPsiMutatingService.getInstance().setCommonFileName(file, newFileName)
                     continue
                 }
 

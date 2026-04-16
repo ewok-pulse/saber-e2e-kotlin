@@ -10,16 +10,20 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.CheckUtil
+import com.intellij.psi.impl.file.PsiFileImplUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
-import org.jetbrains.kotlin.lexer.KtTokens.COLON
+import com.intellij.util.FileContentUtilCore
 import org.jetbrains.kotlin.lexer.KtTokens.SEMICOLON
 import org.jetbrains.kotlin.lexer.KtTokens.OPERATOR_KEYWORD
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtImplementationDetail
 import org.jetbrains.kotlin.psi.KtNonPublicApi
 import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.lexer.KtTokens.COLON
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.addRemoveModifier.removeModifier as removeModifierFromPsi
 import org.jetbrains.kotlin.psi.psiUtil.astReplace
@@ -288,6 +292,78 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         } else {
             setNamedDeclarationStubName(declaration as KtNamedDeclarationStub<*>, name) ?: declaration
         }
+    }
+
+    @Suppress("DEPRECATION")
+    override fun setCommonFileName(file: KtCommonFile, name: String): PsiElement {
+        file.checkSetName(name)
+        val result = PsiFileImplUtil.setName(file, name)
+        val willBeScript = name.endsWith(KotlinFileType.SCRIPT_EXTENSION)
+        if (file.isScript() != willBeScript) {
+            FileContentUtilCore.reparseFiles(listOfNotNull(file.virtualFile))
+        }
+        return result
+    }
+
+    @Suppress("DEPRECATION")
+    override fun setCommonFilePackageFqName(file: KtCommonFile, fqName: FqName) {
+        val packageDirective = file.packageDirective
+        if (packageDirective != null) {
+            setPackageDirectiveFqName(packageDirective, fqName)
+            return
+        }
+
+        val newPackageDirective = KtPsiFactory(file.project).createPackageDirectiveIfNeeded(fqName) ?: return
+        file.addAfter(newPackageDirective, null)
+    }
+
+    override fun setPackageDirectiveFqName(packageDirective: KtPackageDirective, fqName: FqName) {
+        if (fqName.isRoot) {
+            if (!packageDirective.fqName.isRoot) {
+                packageDirective.replace(KtPsiFactory(packageDirective.project).createFile("").packageDirective!!)
+            }
+            return
+        }
+
+        val psiFactory = KtPsiFactory(packageDirective.project)
+        val newExpression = psiFactory.createExpression(fqName.asString())
+        val currentExpression = packageDirective.packageNameExpression
+        if (currentExpression != null) {
+            currentExpression.replace(newExpression)
+            return
+        }
+
+        val keyword = packageDirective.packageKeyword
+        if (keyword != null) {
+            packageDirective.addAfter(newExpression, keyword)
+            packageDirective.addAfter(psiFactory.createWhiteSpace(), keyword)
+            return
+        }
+
+        packageDirective.replace(psiFactory.createPackageDirective(fqName))
+    }
+
+    override fun replaceFileAnnotationList(file: KtFile, annotationList: KtFileAnnotationList): KtFileAnnotationList {
+        file.fileAnnotationList?.let {
+            return it.replace(annotationList) as KtFileAnnotationList
+        }
+
+        val beforeAnchor: PsiElement? = when {
+            file.packageDirective?.packageKeyword != null -> file.packageDirective
+            file.importList != null -> file.importList
+            file.declarations.firstOrNull() != null -> file.declarations.first()
+            else -> null
+        }
+
+        if (beforeAnchor != null) {
+            return file.addBefore(annotationList, beforeAnchor) as KtFileAnnotationList
+        }
+
+        if (file.lastChild == null) {
+            return file.add(annotationList) as KtFileAnnotationList
+        }
+
+        return file.addAfter(annotationList, file.lastChild) as KtFileAnnotationList
     }
 
     private companion object {

@@ -44,17 +44,12 @@ class KtObjectDeclaration : KtClassOrObject {
         return null
     }
 
-    override fun setName(@NonNls name: String): PsiElement {
-        return if (nameIdentifier == null) {
-            val psiFactory = KtPsiFactory(project)
-            val result = addAfter(psiFactory.createIdentifier(name), getObjectKeyword()!!)
-            addAfter(psiFactory.createWhiteSpace(), getObjectKeyword()!!)
-
-            result
-        } else {
-            super.setName(name)
-        }
-    }
+    @Deprecated(
+        "Use KtPsiMutatingService.getInstance().setObjectDeclarationName(this, name) instead",
+        ReplaceWith("KtPsiMutatingService.getInstance().setObjectDeclarationName(this, name)"),
+    )
+    @OptIn(KtNonPublicApi::class)
+    override fun setName(@NonNls name: String): PsiElement = KtPsiMutatingService.getInstance().setObjectDeclarationName(this, name)
 
     fun isCompanion(): Boolean = hasModifier(KtTokens.COMPANION_KEYWORD)
 

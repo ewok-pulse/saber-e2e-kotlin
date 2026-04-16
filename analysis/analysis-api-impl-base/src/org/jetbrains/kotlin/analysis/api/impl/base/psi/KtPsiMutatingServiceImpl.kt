@@ -13,11 +13,19 @@ import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
 import org.jetbrains.kotlin.lexer.KtTokens.SEMICOLON
+import org.jetbrains.kotlin.lexer.KtTokens.OPERATOR_KEYWORD
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.kotlin.psi.KtImplementationDetail
 import org.jetbrains.kotlin.psi.KtNonPublicApi
 import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.lexer.KtTokens.COLON
+import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.psi.addRemoveModifier.removeModifier as removeModifierFromPsi
+import org.jetbrains.kotlin.psi.psiUtil.astReplace
+import org.jetbrains.kotlin.psi.psiUtil.quoteIfNeeded
+import org.jetbrains.kotlin.psi.utils.OperatorTokens
+import org.jetbrains.kotlin.util.OperatorNameConventions
 
 @OptIn(KtNonPublicApi::class, KtImplementationDetail::class)
 class KtPsiMutatingServiceImpl : KtPsiMutatingService {
@@ -217,6 +225,52 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         return constructor.add(KtPsiFactory(klass.project).createParameterList("()")) as KtParameterList
     }
 
+    override fun setNamedDeclarationStubName(declaration: KtNamedDeclarationStub<*>, name: String): PsiElement? {
+        val identifier = declaration.nameIdentifier ?: return null
+
+        val modifierList = declaration.modifierList
+        if (modifierList != null && modifierList.hasModifier(OPERATOR_KEYWORD)) {
+            if (shouldDropOperatorKeyword(declaration.name, name)) {
+                removeModifierFromPsi(declaration, OPERATOR_KEYWORD)
+            }
+        }
+
+        val newIdentifier = KtPsiFactory(declaration.project).createNameIdentifierIfPossible(name.quoteIfNeeded())
+        if (newIdentifier != null) {
+            identifier.astReplace(newIdentifier)
+        } else {
+            identifier.delete()
+        }
+        return declaration
+    }
+
+    override fun setNamedDeclarationName(declaration: KtNamedDeclaration, name: String): PsiElement {
+        val identifier = declaration.nameIdentifier ?: throw IncorrectOperationException()
+        return identifier.replace(KtPsiFactory(declaration.project).createNameIdentifier(name))
+    }
+
+    override fun setLabeledExpressionName(expression: KtLabeledExpression, name: String): PsiElement {
+        expression.getTargetLabel()?.replace(KtPsiFactory(expression.project).createLabeledExpression(name).getTargetLabel()!!)
+        return expression
+    }
+
+    override fun setImportAliasName(importAlias: KtImportAlias, name: String): PsiElement {
+        importAlias.nameIdentifier?.replace(KtPsiFactory(importAlias.project).createNameIdentifier(name))
+        return importAlias
+    }
+
+    override fun setObjectDeclarationName(declaration: KtObjectDeclaration, name: String): PsiElement {
+        return if (declaration.nameIdentifier == null) {
+            val psiFactory = KtPsiFactory(declaration.project)
+            val result = declaration.addAfter(psiFactory.createIdentifier(name), declaration.getObjectKeyword()!!)
+            declaration.addAfter(psiFactory.createWhiteSpace(), declaration.getObjectKeyword()!!)
+
+            result
+        } else {
+            setNamedDeclarationStubName(declaration as KtNamedDeclarationStub<*>, name) ?: declaration
+        }
+    }
+
     private fun deleteAsPlainKtElement(element: KtElement) {
         if (element is KtEnumEntry) return element.parent.deleteChildRange(element, element)
 
@@ -227,5 +281,17 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         }
 
         element.parent.deleteChildRange(element, element)
+    }
+
+    private companion object {
+        val FUNCTIONLIKE_CONVENTIONS = setOf(
+            OperatorNameConventions.INVOKE.asString(),
+            OperatorNameConventions.GET.asString(),
+        )
+    }
+
+    private fun shouldDropOperatorKeyword(oldName: String?, newName: String): Boolean {
+        return !OperatorTokens.isConventionName(Name.identifier(newName)) ||
+                FUNCTIONLIKE_CONVENTIONS.contains(oldName) != FUNCTIONLIKE_CONVENTIONS.contains(newName)
     }
 }

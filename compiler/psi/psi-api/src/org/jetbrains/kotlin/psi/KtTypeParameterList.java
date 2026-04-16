@@ -39,9 +39,13 @@ public class KtTypeParameterList extends KtElementImplStub<KotlinPlaceHolderStub
         return getStubOrPsiChildrenAsList(KtStubBasedElementTypes.TYPE_PARAMETER);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().addTypeParameter(this, typeParameter)} instead.
+     */
     @NotNull
+    @Deprecated
     public KtTypeParameter addParameter(@NotNull KtTypeParameter typeParameter) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItem(this, getParameters(), typeParameter, KtTokens.LT);
+        return KtPsiMutatingService.getInstance().addTypeParameter(this, typeParameter);
     }
 
     @Override

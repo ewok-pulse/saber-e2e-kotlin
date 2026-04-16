@@ -586,6 +586,98 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
         addAfter(psiFactory.creareDelegatedSuperTypeEntry("$delegationName()"), colon) as KtConstructorDelegationCall
     }
 
+    override fun addParameter(parameterList: KtParameterList, parameter: KtParameter): KtParameter {
+        return EditCommaSeparatedListHelper.addItem(parameterList, parameterList.parameters, parameter)
+    }
+
+    override fun addParameterBefore(parameterList: KtParameterList, parameter: KtParameter, anchor: KtParameter?): KtParameter {
+        return EditCommaSeparatedListHelper.addItemBefore(parameterList, parameterList.parameters, parameter, anchor)
+    }
+
+    override fun addParameterAfter(parameterList: KtParameterList, parameter: KtParameter, anchor: KtParameter?): KtParameter {
+        return EditCommaSeparatedListHelper.addItemAfter(parameterList, parameterList.parameters, parameter, anchor)
+    }
+
+    override fun addTypeParameter(typeParameterList: KtTypeParameterList, typeParameter: KtTypeParameter): KtTypeParameter {
+        return EditCommaSeparatedListHelper.addItem(typeParameterList, typeParameterList.parameters, typeParameter, LT)
+    }
+
+    override fun addTypeArgument(typeArgumentList: KtTypeArgumentList, typeArgument: KtTypeProjection): KtTypeProjection {
+        return EditCommaSeparatedListHelper.addItem(typeArgumentList, typeArgumentList.arguments, typeArgument, LT)
+    }
+
+    override fun addValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument): KtValueArgument {
+        return EditCommaSeparatedListHelper.addItem(argumentList, argumentList.arguments, argument)
+    }
+
+    override fun addValueArgumentAfter(
+        argumentList: KtValueArgumentList,
+        argument: KtValueArgument,
+        anchor: KtValueArgument?,
+    ): KtValueArgument {
+        return EditCommaSeparatedListHelper.addItemAfter(argumentList, argumentList.arguments, argument, anchor)
+    }
+
+    override fun addValueArgumentBefore(
+        argumentList: KtValueArgumentList,
+        argument: KtValueArgument,
+        anchor: KtValueArgument?,
+    ): KtValueArgument {
+        return EditCommaSeparatedListHelper.addItemBefore(argumentList, argumentList.arguments, argument, anchor)
+    }
+
+    override fun removeValueArgument(argumentList: KtValueArgumentList, argument: KtValueArgument) {
+        assert(argument.parent == argumentList)
+        EditCommaSeparatedListHelper.removeItem(argument)
+    }
+
+    override fun removeValueArgument(argumentList: KtValueArgumentList, index: Int) {
+        removeValueArgument(argumentList, argumentList.arguments[index])
+    }
+
+    override fun removeParameter(parameterList: KtParameterList, parameter: KtParameter) {
+        EditCommaSeparatedListHelper.removeItem<KtElement>(parameter)
+    }
+
+    override fun removeParameter(parameterList: KtParameterList, index: Int) {
+        removeParameter(parameterList, parameterList.parameters[index])
+    }
+
+    override fun getOrCreateParameterList(functionLiteral: KtFunctionLiteral): KtParameterList {
+        functionLiteral.valueParameterList?.let { return it }
+
+        val psiFactory = KtPsiFactory(functionLiteral.project)
+        val newParameterList =
+            functionLiteral.addAfter(psiFactory.createLambdaParameterList("x"), functionLiteral.lBrace) as KtParameterList
+        removeParameter(newParameterList, 0)
+        if (functionLiteral.arrow == null) {
+            val whitespaceAndArrow = psiFactory.createWhitespaceAndArrow()
+            functionLiteral.addRangeAfter(whitespaceAndArrow.first, whitespaceAndArrow.second, newParameterList)
+        }
+        return newParameterList
+    }
+
+    override fun getOrCreateValueArgumentList(callExpression: KtCallExpression): KtValueArgumentList {
+        callExpression.valueArgumentList?.let { return it }
+
+        return callExpression.addAfter(
+            KtPsiFactory(callExpression.project).createCallArguments("()"),
+            callExpression.typeArgumentList ?: callExpression.calleeExpression,
+        ) as KtValueArgumentList
+    }
+
+    override fun addTypeArgument(callExpression: KtCallExpression, typeArgument: KtTypeProjection) {
+        callExpression.typeArgumentList?.let {
+            addTypeArgument(it, typeArgument)
+            return
+        }
+
+        callExpression.addAfter(
+            KtPsiFactory(callExpression.project).createTypeArguments("<${typeArgument.text}>"),
+            callExpression.calleeExpression,
+        )
+    }
+
     private fun deleteAsPlainKtElement(element: KtElement) {
         if (element is KtEnumEntry) return element.parent.deleteChildRange(element, element)
 

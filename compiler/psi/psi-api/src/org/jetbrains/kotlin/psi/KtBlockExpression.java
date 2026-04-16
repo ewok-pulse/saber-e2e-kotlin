@@ -12,7 +12,6 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement;
 import com.intellij.psi.util.PsiUtilCore;
-import com.intellij.util.IncorrectOperationException;
 import kotlin.annotations.jvm.ReadOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -87,12 +86,6 @@ public class KtBlockExpression extends LazyParseablePsiElement implements KtElem
         else {
             visitor.visitElement(this);
         }
-    }
-
-    @Override
-    public void delete() throws IncorrectOperationException {
-        KtElementUtilsKt.deleteSemicolon(this);
-        super.delete();
     }
 
     @Override

@@ -46,10 +46,14 @@ public class KtDestructuringDeclarationEntry extends KtNamedDeclarationNotStubbe
         return TypeRefHelpersKt.getTypeReference(this);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().setDestructuringDeclarationEntryTypeReference(this, typeRef)} instead.
+     */
     @Override
     @Nullable
+    @Deprecated
     public KtTypeReference setTypeReference(@Nullable KtTypeReference typeRef) {
-        return TypeRefHelpersKt.setTypeReference(this, getNameIdentifier(), typeRef);
+        return KtPsiMutatingService.getInstance().setDestructuringDeclarationEntryTypeReference(this, typeRef);
     }
 
     @Nullable

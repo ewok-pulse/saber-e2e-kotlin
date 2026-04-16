@@ -122,7 +122,6 @@ object PluginCliParser {
     }
 
     class RegisteredPluginInfo(
-        @Suppress("DEPRECATION_ERROR") val componentRegistrar: ComponentRegistrar?,
         val compilerPluginRegistrar: CompilerPluginRegistrar?,
         val commandLineProcessor: CommandLineProcessor?,
         val pluginOptions: List<CliOptionValue>,
@@ -138,7 +137,6 @@ object PluginCliParser {
 
         val pluginInfos = pluginConfigurations.map { pluginConfiguration ->
             val classLoader = createClassLoader(pluginConfiguration.classpath, parentDisposable)
-            val componentRegistrars = ServiceLoaderLite.loadImplementations(ComponentRegistrar::class.java, classLoader)
             val compilerPluginRegistrars = ServiceLoaderLite.loadImplementations(CompilerPluginRegistrar::class.java, classLoader)
 
             fun multiplePluginsErrorMessage(pluginObjects: List<Any>): String {
@@ -150,10 +148,10 @@ object PluginCliParser {
                 }
             }
 
-            when (componentRegistrars.size + compilerPluginRegistrars.size) {
+            when (compilerPluginRegistrars.size) {
                 0 -> throw PluginProcessingException("No plugins found in given classpath: ${pluginConfiguration.classpath.joinToString(",")}")
                 1 -> {}
-                else -> throw PluginProcessingException(multiplePluginsErrorMessage(componentRegistrars + compilerPluginRegistrars))
+                else -> throw PluginProcessingException(multiplePluginsErrorMessage(compilerPluginRegistrars))
             }
 
             val commandLineProcessors = ServiceLoaderLite.loadImplementations(CommandLineProcessor::class.java, classLoader)
@@ -172,7 +170,6 @@ object PluginCliParser {
             }
 
             RegisteredPluginInfo(
-                componentRegistrars.firstOrNull(),
                 compilerPluginRegistrar,
                 commandLineProcessor,
                 pluginConfiguration.options
@@ -209,10 +206,6 @@ object PluginCliParser {
     ) {
         val pluginInfos = loadRegisteredPluginsInfo(rawPluginConfigurations, orderConstraints, parentDisposable)
         for (pluginInfo in pluginInfos) {
-            pluginInfo.componentRegistrar?.let {
-                @Suppress("DEPRECATION_ERROR")
-                configuration.add(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS, it)
-            }
             pluginInfo.compilerPluginRegistrar?.let { configuration.add(CompilerPluginRegistrar.COMPILER_PLUGIN_REGISTRARS, it) }
 
             if (pluginInfo.pluginOptions.isEmpty()) continue
@@ -231,9 +224,6 @@ object PluginCliParser {
         parentDisposable: Disposable,
     ) {
         val classLoader = createClassLoader(pluginClasspaths ?: emptyList(), parentDisposable)
-        val componentRegistrars = ServiceLoaderLite.loadImplementations(ComponentRegistrar::class.java, classLoader)
-        configuration.addAll(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS, componentRegistrars)
-
         val compilerPluginRegistrars = ServiceLoaderLite.loadImplementations(CompilerPluginRegistrar::class.java, classLoader)
 
         val registrarsById = compilerPluginRegistrars

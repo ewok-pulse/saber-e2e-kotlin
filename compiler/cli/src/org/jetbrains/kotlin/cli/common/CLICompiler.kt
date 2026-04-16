@@ -38,7 +38,6 @@ import org.jetbrains.kotlin.cli.plugins.processCompilerPluginsOptions
 import org.jetbrains.kotlin.cli.report
 import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
-import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.metadata.deserialization.BinaryVersion
 import org.jetbrains.kotlin.platform.TargetPlatform
@@ -210,10 +209,10 @@ abstract class CLICompiler<A : CommonCompilerArguments> {
         configuration: CompilerConfiguration,
         parentDisposable: Disposable,
     ): ExitCode {
-        val pluginClasspaths = arguments.pluginClasspaths.orEmpty().toMutableList()
-        val pluginOptions = arguments.pluginOptions.orEmpty().toMutableList()
-        val pluginConfigurations = arguments.pluginConfigurations?.asList().orEmpty()
-        val pluginOrderConstraints = arguments.pluginOrderConstraints?.asList().orEmpty()
+        val pluginClasspaths = arguments.pluginClasspaths.toMutableList()
+        val pluginOptions = arguments.pluginOptions.toMutableList()
+        val pluginConfigurations = arguments.pluginConfigurations.asList()
+        val pluginOrderConstraints = arguments.pluginOrderConstraints.asList()
 
         val useK2 = configuration.get(CommonConfigurationKeys.USE_FIR) == true
 
@@ -269,17 +268,13 @@ abstract class CLICompiler<A : CommonCompilerArguments> {
         useK2: Boolean
     ): Boolean =
         try {
-            val pluginRegistrarClass = PluginCliParser::class.java.classLoader.loadClass(SCRIPT_PLUGIN_REGISTRAR_NAME)
-            val pluginRegistrar = (pluginRegistrarClass.getDeclaredConstructor().newInstance() as? ComponentRegistrar)?.also {
-                configuration.add(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS, it)
-            }
             val pluginK2Registrar = if (useK2) {
                 val pluginK2RegistrarClass = PluginCliParser::class.java.classLoader.loadClass(SCRIPT_PLUGIN_K2_REGISTRAR_NAME)
                 (pluginK2RegistrarClass.getDeclaredConstructor().newInstance() as? CompilerPluginRegistrar)?.also {
                     configuration.add(CompilerPluginRegistrar.COMPILER_PLUGIN_REGISTRARS, it)
                 }
             } else null
-            if (pluginRegistrar != null || pluginK2Registrar != null) {
+            if (pluginK2Registrar != null) {
                 processScriptPluginCliOptions(pluginOptions, configuration)
                 true
             } else false

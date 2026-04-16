@@ -190,12 +190,6 @@ class ScriptingPluginEnvironmentConfigurator(testServices: TestServices) : Envir
         val pluginClasspath = testServices.standardLibrariesPathProvider.scriptingPluginFilesForTests()
         val pluginClassLoader = URLClassLoader(pluginClasspath.map { it.toURI().toURL() }.toTypedArray(), this::class.java.classLoader)
 
-        val pluginRegistrarClass = pluginClassLoader.loadClass(CLICompiler.SCRIPT_PLUGIN_REGISTRAR_NAME)
-        @Suppress("DEPRECATION_ERROR")
-        (pluginRegistrarClass.getDeclaredConstructor().newInstance() as? ComponentRegistrar)?.also {
-            configuration.add(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS, it)
-        }
-
         val pluginK2RegistrarClass = pluginClassLoader.loadClass(CLICompiler.SCRIPT_PLUGIN_K2_REGISTRAR_NAME)
         (pluginK2RegistrarClass.getDeclaredConstructor().newInstance() as? CompilerPluginRegistrar)?.also {
             configuration.add(CompilerPluginRegistrar.COMPILER_PLUGIN_REGISTRARS, it)

@@ -54,28 +54,47 @@ public class KtValueArgumentList extends KtElementImplStub<KotlinPlaceHolderStub
         return findChildByType(KtTokens.LPAR);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().addValueArgument(this, argument)} instead.
+     */
     @NotNull
+    @Deprecated
     public KtValueArgument addArgument(@NotNull KtValueArgument argument) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItem(this, getArguments(), argument);
+        return KtPsiMutatingService.getInstance().addValueArgument(this, argument);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().addValueArgumentAfter(this, argument, anchor)} instead.
+     */
     @NotNull
+    @Deprecated
     public KtValueArgument addArgumentAfter(@NotNull KtValueArgument argument, @Nullable KtValueArgument anchor) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItemAfter(this, getArguments(), argument, anchor);
+        return KtPsiMutatingService.getInstance().addValueArgumentAfter(this, argument, anchor);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().addValueArgumentBefore(this, argument, anchor)} instead.
+     */
     @NotNull
+    @Deprecated
     public KtValueArgument addArgumentBefore(@NotNull KtValueArgument argument, @Nullable KtValueArgument anchor) {
-        return EditCommaSeparatedListHelper.INSTANCE.addItemBefore(this, getArguments(), argument, anchor);
+        return KtPsiMutatingService.getInstance().addValueArgumentBefore(this, argument, anchor);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().removeValueArgument(this, argument)} instead.
+     */
+    @Deprecated
     public void removeArgument(@NotNull KtValueArgument argument) {
-        assert argument.getParent() == this;
-        EditCommaSeparatedListHelper.INSTANCE.removeItem(argument);
+        KtPsiMutatingService.getInstance().removeValueArgument(this, argument);
     }
 
+    /**
+     * @deprecated Use {@code KtPsiMutatingService.getInstance().removeValueArgument(this, index)} instead.
+     */
+    @Deprecated
     public void removeArgument(int index) {
-        removeArgument(getArguments().get(index));
+        KtPsiMutatingService.getInstance().removeValueArgument(this, index);
     }
 
     public PsiElement getTrailingComma() {

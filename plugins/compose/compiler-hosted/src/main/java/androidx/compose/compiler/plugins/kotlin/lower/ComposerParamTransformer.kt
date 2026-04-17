@@ -375,18 +375,10 @@ class ComposerParamTransformer(
 
     fun IrCall.withComposerParamIfNeeded(composerParam: IrValueParameter) {
         val newFn = when {
-            symbol.owner.isComposableDelegatedAccessor() -> {
-////                if (!symbol.owner.hasComposableAnnotation()) {
-////                    error("absent annotation") //todo deal with it (restore deleted and check if it would suffice without that part)/ local/non-local
-////                    symbol.owner.annotations += createComposableAnnotation()
-////                }
-                symbol.owner.withComposerParamIfNeeded()
-            }
             isComposableLambdaInvoke() ->
-                symbol.owner.lambdaInvokeWithComposerParam() //TODO remove? because withComposerParamIfNeeded already checks that
-            symbol.owner.hasComposableAnnotation() ->
+                symbol.owner.lambdaInvokeWithComposerParam()
+            symbol.owner.isComposableDelegatedAccessor() || symbol.owner.hasComposableAnnotation() ->
                 symbol.owner.withComposerParamIfNeeded()
-            // Not a composable call
             else -> return
         }
 
@@ -524,7 +516,7 @@ class ComposerParamTransformer(
             return this
         }
 
-        if (isInvoke()) {
+        if (isInvoke()) { // it might be function reference over invoke TODO probably transform it on reference side?
             return lambdaInvokeWithComposerParam()
         }
 
@@ -532,7 +524,8 @@ class ComposerParamTransformer(
         // don't need to be transformed to have a composer parameter
         if (isExpect) return this
 
-        return this.also { mutateWithComposerParam() }
+        mutateWithComposerParam()
+        return this
     }
 
     private fun IrSimpleFunction.lambdaInvokeWithComposerParam(): IrSimpleFunction { //todo unify with underlyingFunctionForComposable

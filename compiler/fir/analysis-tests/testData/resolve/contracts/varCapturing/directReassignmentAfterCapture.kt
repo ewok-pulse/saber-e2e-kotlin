@@ -40,7 +40,7 @@ private fun testReassignmentAfterNestedCapture(){
     barRegular {
         barRegular {
             if (<!CV_DIAGNOSTIC!>first<!>) {
-                <!CV_DIAGNOSTIC!>first<!> = false
+                first = false
             }
         }
     }

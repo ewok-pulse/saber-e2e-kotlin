@@ -81,10 +81,6 @@ private class CapturedVariableVisitor(
         reportIfNeeded(receiverExitNode, receiver)
     }
 
-    override fun visitVariableAssignmentNode(node: VariableAssignmentNode) {
-        reportIfNeeded(node, node.fir.lValue as? FirQualifiedAccessExpression ?: return)
-    }
-
     private fun reportIfNeeded(
         accessNode: CFGNode<*>,
         expression: FirQualifiedAccessExpression,

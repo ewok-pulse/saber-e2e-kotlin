@@ -7,18 +7,18 @@ fun baz(s: String) {}
 private fun testReassignmentAcrossMultipleLambdas() {
     var r = 1
 
-    barRegular { <!CV_DIAGNOSTIC!>r<!> = 3 }
-    barRegular { <!CV_DIAGNOSTIC!>r<!> = 4 }
+    barRegular { r = 3 }
+    barRegular { r = 4 }
 }
 
 fun testReturnAnonymousFunction(): (String) -> Unit {
     var isScheduled = false
     return { t ->
         if (!<!CV_DIAGNOSTIC!>isScheduled<!>) {
-            <!CV_DIAGNOSTIC!>isScheduled<!> = true
+            isScheduled = true
             barRegular {
                 baz(t)
-                <!CV_DIAGNOSTIC!>isScheduled<!> = false
+                isScheduled = false
             }
         }
     }

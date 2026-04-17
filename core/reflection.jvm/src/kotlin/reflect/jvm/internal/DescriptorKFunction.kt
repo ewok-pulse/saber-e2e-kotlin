@@ -193,8 +193,9 @@ internal class DescriptorKFunction private constructor(
     // boundReceiver is unboxed receiver when the receiver is inline class.
     // However, when the expected dispatch receiver type is an interface,
     // the member belongs to the interface/DefaultImpls, so the receiver should not be unboxed.
-    private fun useBoxedBoundReceiver(member: Method) =
-        descriptor.dispatchReceiverParameter?.type?.isInlineClassType() == true && member.parameterTypes.firstOrNull()?.isInterface == true
+    private fun useBoxedBoundReceiver(member: Method): Boolean =
+        descriptor.correctDispatchReceiverParameter?.type?.isInlineClassType() == true &&
+                member.parameterTypes.firstOrNull()?.isInterface == true
 
     private fun createStaticMethodCaller(member: Method, isCallByToValueClassMangledMethod: Boolean): Caller<*> =
         if (isBound)

@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.load.java.JvmAnnotationNames
 import org.jetbrains.kotlin.load.kotlin.KotlinJvmBinarySourceElement
 import org.jetbrains.kotlin.metadata.ProtoBuf
 import org.jetbrains.kotlin.metadata.deserialization.BinaryVersion
+import org.jetbrains.kotlin.metadata.deserialization.Flags
 import org.jetbrains.kotlin.metadata.deserialization.NameResolver
 import org.jetbrains.kotlin.metadata.deserialization.TypeTable
 import org.jetbrains.kotlin.metadata.deserialization.VersionRequirementTable
@@ -45,11 +46,13 @@ import org.jetbrains.kotlin.protobuf.MessageLite
 import org.jetbrains.kotlin.resolve.constants.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.classId
+import org.jetbrains.kotlin.resolve.descriptorUtil.propertyIfAccessor
 import org.jetbrains.kotlin.serialization.deserialization.DeserializationContext
 import org.jetbrains.kotlin.serialization.deserialization.IncompatibleVersionErrorData
 import org.jetbrains.kotlin.serialization.deserialization.MemberDeserializer
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerAbiStability
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedMemberDescriptor
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.PreReleaseInfo
 import java.lang.annotation.Inherited
 import java.lang.reflect.Field
@@ -312,13 +315,28 @@ internal fun Any?.asReflectCallable(): ReflectKCallable<*>? = when (this) {
 }
 
 internal val DescriptorKCallable<*>.instanceReceiverParameter: ReceiverParameterDescriptor?
+    get() = when {
+        overriddenStorage.isFakeOverride && isStatic -> null
+        overriddenStorage.isFakeOverride && !isStatic -> (this.container as? KClassImpl<*>)?.descriptor?.thisAsReceiverParameter
+        else -> descriptor.correctDispatchReceiverParameter
+    }
+
+/**
+ * Same as `dispatchReceiverParameter`, except that it returns null for companion block members, and containing class for fake overrides.
+ */
+internal val CallableMemberDescriptor.correctDispatchReceiverParameter: ReceiverParameterDescriptor?
     get() {
-        val descriptor = descriptor
+        val descriptor = propertyIfAccessor
+        if (descriptor is DeserializedMemberDescriptor) {
+            val proto = descriptor.proto
+            if (proto is ProtoBuf.Function && Flags.IS_STATIC_FUNCTION.get(proto.flags) ||
+                proto is ProtoBuf.Property && Flags.IS_STATIC_PROPERTY.get(proto.flags)
+            ) return null
+        }
+
         return when {
-            overriddenStorage.isFakeOverride && isStatic -> null
-            overriddenStorage.isFakeOverride && !isStatic -> (this.container as? KClassImpl<*>)?.descriptor?.thisAsReceiverParameter
-            descriptor is ConstructorDescriptor -> descriptor.dispatchReceiverParameter
-            descriptor.dispatchReceiverParameter != null -> (descriptor.containingDeclaration as ClassDescriptor).thisAsReceiverParameter
+            this is ConstructorDescriptor -> dispatchReceiverParameter
+            dispatchReceiverParameter != null -> (containingDeclaration as ClassDescriptor).thisAsReceiverParameter
             else -> null
         }
     }
@@ -380,7 +398,7 @@ internal open class CreateKCallableVisitor(private val container: KDeclarationCo
             if (descriptor.contextReceiverParameters.isNotEmpty())
                 -1
             else
-                (descriptor.dispatchReceiverParameter?.let { 1 } ?: 0) + (descriptor.extensionReceiverParameter?.let { 1 } ?: 0)
+                (descriptor.correctDispatchReceiverParameter?.let { 1 } ?: 0) + (descriptor.extensionReceiverParameter?.let { 1 } ?: 0)
 
         when {
             descriptor.isVar -> when (receiverCount) {

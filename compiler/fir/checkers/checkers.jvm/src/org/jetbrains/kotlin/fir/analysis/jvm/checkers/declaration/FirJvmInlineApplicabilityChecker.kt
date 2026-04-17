@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.fir.declarations.getAnnotationByClassId
 import org.jetbrains.kotlin.fir.declarations.utils.SuspiciousValueClassCheck
 import org.jetbrains.kotlin.fir.declarations.utils.isExpect
 import org.jetbrains.kotlin.fir.declarations.utils.isValue
+import org.jetbrains.kotlin.fir.isEnabled
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.resolve.JVM_INLINE_ANNOTATION_CLASS_ID
 
@@ -28,7 +29,7 @@ object FirJvmInlineApplicabilityChecker : FirRegularClassChecker(MppCheckerKind.
     @OptIn(SuspiciousValueClassCheck::class)
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirRegularClass) {
-        val isExtendedValueClassSupportEnabled = context.languageVersionSettings.supportsFeature(LanguageFeature.ValueClasses)
+        val isExtendedValueClassSupportEnabled = LanguageFeature.ValueClasses.isEnabled()
         val annotation = declaration.getAnnotationByClassId(JVM_INLINE_ANNOTATION_CLASS_ID, context.session)
         if (annotation != null && !declaration.isValue) {
             // only report if value keyword does not exist, this includes the deprecated inline class syntax

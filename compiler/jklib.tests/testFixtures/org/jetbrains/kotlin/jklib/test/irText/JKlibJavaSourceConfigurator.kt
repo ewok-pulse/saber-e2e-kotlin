@@ -18,8 +18,9 @@ import org.jetbrains.kotlin.test.model.TestModule
 import org.jetbrains.kotlin.test.services.EnvironmentConfigurator
 import org.jetbrains.kotlin.test.services.TestServices
 import org.jetbrains.kotlin.test.services.assertions
-import org.jetbrains.kotlin.test.services.configuration.JvmEnvironmentConfigurator
+import org.jetbrains.kotlin.test.services.javaFiles
 import org.jetbrains.kotlin.test.services.sourceFileProvider
+import org.jetbrains.kotlin.test.services.configuration.JvmEnvironmentConfigurator
 import org.jetbrains.kotlin.test.util.KtTestUtil
 import java.io.File
 
@@ -50,13 +51,17 @@ class JKlibJavaSourceConfigurator(testServices: TestServices) : EnvironmentConfi
 
         configuration.configureJdkClasspathRoots()
 
-        val javaFiles = module.files.filter { it.name.endsWith(".java") }
+        val javaFiles = module.javaFiles
         if (javaFiles.isEmpty()) return
 
         javaFiles.forEach { testServices.sourceFileProvider.getOrCreateRealFileForSourceFile(it) }
 
         val javaDir = testServices.sourceFileProvider.getJavaSourceDirectoryForModule(module)
-        val jvmClasspathRoots = configuration.jvmClasspathRoots.map { it.absolutePath }
+        
+        val annotationsJar = KtTestUtil.getAnnotationsJar()
+        configuration.addJvmClasspathRoot(annotationsJar)
+        
+        val jvmClasspathRoots = configuration.jvmClasspathRoots.map { it.absolutePath }.toMutableList()
 
         try {
             val compiledJar = MockLibraryUtil.compileJavaFilesLibraryToJar(

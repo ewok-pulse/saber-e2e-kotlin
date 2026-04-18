@@ -24,6 +24,7 @@ projectTests {
 
     withJvmStdlibAndReflect()
     withMockJdkRuntime()
+    withMockJdkAnnotationsJar()
 
     testTask(
         jUnitMode = JUnitMode.JUnit5,

@@ -159,8 +159,44 @@ class ComposerParamTransformer(
             return super.visitFunctionReference(expression)
         }
 
-        val fn = (expression.symbol.owner as? IrSimpleFunction)?.withComposerParamIfNeeded()
-            ?: return super.visitFunctionReference(expression)
+
+        val origFn = expression.symbol.owner
+
+        val (fn, adapterFn) = when {
+            origFn is IrSimpleFunction && origFn.isInvoke() -> {
+                val fn = origFn.lambdaInvokeWithComposerParam()
+                val adapterFn = context.irFactory.buildFun {
+//                    origin = if (useAdaptedOrigin) IrDeclarationOrigin.ADAPTER_FOR_CALLABLE_REFERENCE else origin //TODO
+                    name = origFn.name
+                    visibility = DescriptorVisibilities.LOCAL
+                    modality = Modality.FINAL
+                    returnType = origFn.returnType
+                }.let {
+                    it.copyAnnotationsFrom(origFn)
+                    it.copyParametersFrom(origFn, copyDefaultValues = false)
+                    it.createComposableAnnotationIfAbsent()
+                    it.parent = currentParent!!
+                    it.withComposerParamIfNeeded()
+                }
+                Pair(fn, adapterFn)
+            }
+            origFn is IrSimpleFunction -> {
+                val fn = origFn.withComposerParamIfNeeded()
+                val adapterFn = context.irFactory.buildFun {
+//                    origin = if (useAdaptedOrigin) IrDeclarationOrigin.ADAPTER_FOR_CALLABLE_REFERENCE else origin //TODO
+                    name = fn.name
+                    visibility = DescriptorVisibilities.LOCAL
+                    modality = Modality.FINAL
+                    returnType = fn.returnType
+                }
+                adapterFn.copyAnnotationsFrom(fn)
+                adapterFn.copyParametersFrom(fn, copyDefaultValues = false)
+                adapterFn.parent = currentParent!!
+                Pair(fn, adapterFn)
+            }
+            else -> return super.visitFunctionReference(expression)
+        }
+
 
         if (!fn.isComposableReferenceAdapter &&
             fn.origin != IrDeclarationOrigin.ADAPTER_FOR_CALLABLE_REFERENCE &&
@@ -173,14 +209,15 @@ class ComposerParamTransformer(
             // This might mess with the reflection that tries to find a containing class, but the name
             // will be preserved. This is fine, since AdaptedFunctionReference does not support reflection
             // either.
-            return adaptComposableReference(expression, fn, useAdaptedOrigin = false)
+            return adaptComposableReference(expression, fn, adapterFn, useAdaptedOrigin = false)
         } else if (!fn.isComposableReferenceAdapter && fn.requiresDefaultParameter()) {
             // Composable functions with default parameters add a $default mask parameter that is not expected
             // by the lambda side.
             // We need to create an adapter function that will call the original function with correct parameters.
-            return adaptComposableReference(expression, fn, useAdaptedOrigin = true)
+            return adaptComposableReference(expression, fn, adapterFn, useAdaptedOrigin = true)
         } else {
-            return transformComposableFunctionReference(expression, fn)
+//            return transformComposableFunctionReference(expression, fn)
+            return expression
         }
     }
 
@@ -272,22 +309,26 @@ class ComposerParamTransformer(
     private fun adaptComposableReference(
         expression: IrFunctionReference,
         fn: IrSimpleFunction,
+        adapterFn: IrSimpleFunction,
         useAdaptedOrigin: Boolean
     ): IrExpression {
+        if (useAdaptedOrigin) {
+            adapterFn.origin = IrDeclarationOrigin.ADAPTER_FOR_CALLABLE_REFERENCE
+        }
+
         val adapter = irBlock(
             type = expression.type,
             origin = if (useAdaptedOrigin) IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE else null,
             statements = buildList {
-                val localParent = currentParent ?: error("No parent found for ${expression.dump()}")
-                val adapterFn = context.irFactory.buildFun {
-                    origin = if (useAdaptedOrigin) IrDeclarationOrigin.ADAPTER_FOR_CALLABLE_REFERENCE else origin
-                    name = fn.name
-                    visibility = DescriptorVisibilities.LOCAL
-                    modality = Modality.FINAL
-                    returnType = fn.returnType
-                }
-                adapterFn.copyAnnotationsFrom(fn)
-                adapterFn.copyParametersFrom(fn, copyDefaultValues = false)
+//                val adapterFn = context.irFactory.buildFun {
+//                    origin = if (useAdaptedOrigin) IrDeclarationOrigin.ADAPTER_FOR_CALLABLE_REFERENCE else origin
+//                    name = fn.name
+//                    visibility = DescriptorVisibilities.LOCAL
+//                    modality = Modality.FINAL
+//                    returnType = fn.returnType
+//                }
+//                adapterFn.copyAnnotationsFrom(fn)
+//                adapterFn.copyParametersFrom(fn, copyDefaultValues = false)
                 require(
                     adapterFn.parameters.count {
                         it.kind == IrParameterKind.ExtensionReceiver ||
@@ -328,8 +369,7 @@ class ComposerParamTransformer(
                                         IrParameterKind.Regular -> {
                                             when {
                                                 param.isDefaultBitmask() -> irConst(0)
-                                                else -> adapterFn.parameters.find { adapterParam -> adapterParam.name == param.name }
-                                                    ?.let(::irGet)
+                                                else -> irGet(adapterFn.parameters[param.indexInParameters])
                                             }
                                         }
                                     }
@@ -338,7 +378,6 @@ class ComposerParamTransformer(
                         )
                     )
                 }
-                adapterFn.parent = localParent
                 add(adapterFn)
 
                 add(

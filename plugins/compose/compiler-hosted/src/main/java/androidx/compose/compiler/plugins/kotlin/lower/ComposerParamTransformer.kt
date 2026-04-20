@@ -98,7 +98,8 @@ class ComposerParamTransformer(
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         val fn = declaration.withComposerParamIfNeeded()
-        if (fn.hasComposableAnnotation()) {
+        if (fn.hasComposableAnnotation() &&
+            !fn.isBodyProcessedDefaultParamStub) { //those stubs have already processed `IrCall`s to original function. so we shouldnt process them again
             fn.transformComposableBodyCalls()
         }
         return super.visitSimpleFunction(fn)
@@ -877,6 +878,7 @@ class ComposerParamTransformer(
 
         val source = this
         return makeStub().also { copy ->
+            copy.isBodyProcessedDefaultParamStub = true
             transformedFunctionSet += copy
 
             copy.body = context.irFactory.createBlockBody(UNDEFINED_OFFSET, UNDEFINED_OFFSET) {
@@ -939,6 +941,7 @@ class ComposerParamTransformer(
         val source = this
 
         return makeStub().also { copy ->
+            copy.isBodyProcessedDefaultParamStub = true
             transformedFunctionSet += copy
 
             // update parameter types so they are ready to accept the default values

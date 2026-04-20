@@ -145,6 +145,7 @@ class ComposerParamTransformer(
 
             if (!originalFn.shouldBeRestartable()) {
                 fn.isComposableReferenceAdapter = true
+                // erase `ADAPTER_FOR_CALLABLE_REFERENCE` for ComposableFunctionBodyTransformer
                 fn.origin = IrDeclarationOrigin.DEFINED
 
                 // this is required to avoid function location to be written in `calculateSourceInfo`
@@ -159,7 +160,6 @@ class ComposerParamTransformer(
         if (!expression.type.isKComposableFunction() && !expression.type.isSyntheticComposableFunction()) {
             return super.visitFunctionReference(expression)
         }
-
 
         val origFn = expression.symbol.owner as? IrSimpleFunction ?: return super.visitFunctionReference(expression)
 
@@ -299,7 +299,7 @@ class ComposerParamTransformer(
                                         IrParameterKind.Regular -> {
                                             when {
                                                 param.isDefaultBitmask() -> irConst(0)
-                                                else -> irGet(adapterFn.parameters[param.indexInParameters])
+                                                else -> adapterFn.parameters.getOrNull(param.indexInParameters)?.let(::irGet)
                                             }
                                         }
                                     }
@@ -513,7 +513,7 @@ class ComposerParamTransformer(
         return this
     }
 
-    private fun IrSimpleFunction.lambdaInvokeWithComposerParam(): IrSimpleFunction { //todo unify with underlyingFunctionForComposable
+    private fun IrSimpleFunction.lambdaInvokeWithComposerParam(): IrSimpleFunction {
         val argCount = parameters.size
         val extraParams = composeSyntheticParamCount(argCount)
         val newFnClass = context.irBuiltIns.functionN(argCount + extraParams - /* dispatch receiver */ 1)

@@ -1909,7 +1909,7 @@ val IrFunction.namedParameters
 val IrValueParameter.isReceiver
     get() = kind == IrParameterKind.ExtensionReceiver || kind == IrParameterKind.DispatchReceiver
 
-fun IrClass.underlyingFunctionForComposable(context: IrPluginContext, invokeFn: IrSimpleFunction): IrSimpleFunction { //todo unify with lambdaInvokeWithComposerParam
+fun IrClass.underlyingFunctionForComposable(context: IrPluginContext, invokeFn: IrSimpleFunction): IrSimpleFunction {
     val realParams = typeParameters.size - /* return type */ 1
     val newArgsSize = realParams + /* composer */ 1 + changedParamCount(realParams, 0)
     val newFnClass = context.irBuiltIns.functionN(newArgsSize)

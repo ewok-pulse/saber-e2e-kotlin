@@ -348,6 +348,18 @@ class ComposerParamTransformer(
         return adapter
     }
 
+    override fun visitLocalDelegatedProperty(declaration: IrLocalDelegatedProperty): IrStatement {
+        if (declaration.getter.isComposableDelegatedAccessor()) {
+            declaration.getter.createComposableAnnotationIfAbsent()
+        }
+
+        if (declaration.setter?.isComposableDelegatedAccessor() == true) {
+            declaration.setter!!.createComposableAnnotationIfAbsent()
+        }
+
+        return super.visitLocalDelegatedProperty(declaration)
+    }
+
     private fun IrFunction.createComposableAnnotationIfAbsent() {
         if (!hasComposableAnnotation()) {
             annotations += IrAnnotationImpl(

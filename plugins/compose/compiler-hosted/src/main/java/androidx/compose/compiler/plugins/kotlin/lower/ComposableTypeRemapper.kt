@@ -190,7 +190,7 @@ internal open class ComposableTypeTransformer(
                             )
                     )
         ) {
-            val newFn = containingClass.underlyingFunctionForComposable(context, ownerFn)
+            val newFn = containingClass.invokeFunctionNForComposable(context, ownerFn)
             return super.visitCall(
                 IrCallImpl(
                     expression.startOffset,
@@ -309,7 +309,7 @@ internal open class ComposableTypeTransformer(
                     containingClass != null &&
                     containingClass.defaultType.isSyntheticComposableFunction()
             ) {
-                val newFn = containingClass.underlyingFunctionForComposable(context, ownerFn)
+                val newFn = containingClass.invokeFunctionNForComposable(context, ownerFn)
                 newFn.symbol
             } else if (ownerFn.needsComposableRemapping()) {
                 val newFn = visitPossiblyExternalFunction(ownerFn)

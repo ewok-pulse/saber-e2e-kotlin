@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
 import org.jetbrains.kotlin.serialization.deserialization.getName
 import org.jetbrains.kotlin.utils.mapToSetOrEmpty
 import java.nio.file.Path
+import kotlin.io.path.isRegularFile
 
 class PackagePartsCacheData(
     val proto: ProtoBuf.Package,
@@ -72,20 +73,69 @@ abstract class LibraryPathFilter {
     }
 
     class LibraryList(libs: Set<Path>) : LibraryPathFilter() {
-        val libs: Set<Path> = libs.mapTo(mutableSetOf()) { it.normalize() }
+        private class PathTrie {
+            private class TrieNode {
+                val children = HashMap<String, TrieNode>()
+                var isTerminal = false
+            }
 
-        override fun accepts(path: Path?): Boolean {
-            if (path == null) return false
-            val isPathAbsolute = path.isAbsolute
-            val absolutePath by lazy(LazyThreadSafetyMode.NONE) { path.toAbsolutePath().normalize() }
-            return libs.any {
-                when {
-                    it.isAbsolute && !isPathAbsolute -> absolutePath.startsWith(it.normalize())
-                    !it.isAbsolute && isPathAbsolute -> absolutePath.startsWith(it.toAbsolutePath().normalize())
-                    else -> path.startsWith(it)
+            private val root = TrieNode()
+
+            fun add(path: Path) {
+                var node = root
+                path.root?.let { node = node.children.getOrPut(it.toString()) { TrieNode() } }
+                for (component in path) {
+                    node = node.children.getOrPut(component.toString()) { TrieNode() }
+                }
+                node.isTerminal = true
+            }
+
+            fun contains(path: Path): Boolean {
+                var node = root
+                path.root?.let {
+                    if (node.isTerminal) return true
+                    node = node.children[it.toString()] ?: return false
+                }
+                for (component in path) {
+                    if (node.isTerminal) return true
+                    node = node.children[component.toString()] ?: return false
+                }
+                return node.isTerminal
+            }
+        }
+
+        /**
+         * Handles directories with .class files and JS directories
+         */
+        private val directoryLibraryPaths: PathTrie = PathTrie()
+
+        /**
+         * Handles .jar, .klib libraries
+         */
+        private val fileLibraryPaths: Set<Path> = buildSet {
+            for (lib in libs) {
+                lib.absoluteNormalized().let {
+                    if (it.isRegularFile()) {
+                        add(it)
+                    } else {
+                        directoryLibraryPaths.add(it)
+                    }
                 }
             }
         }
+
+        // TODO: Migrate to Set and Trie only use by K2ScriptingCompilerEnviroment
+        val libs: Set<Path> by lazy { libs.mapTo(mutableSetOf()) { it.normalize() } }
+
+        override fun accepts(path: Path?): Boolean {
+            if (path == null) return false
+
+            return path.absoluteNormalized().let {
+                fileLibraryPaths.contains(it) || directoryLibraryPaths.contains(it)
+            }
+        }
+
+        private fun Path.absoluteNormalized(): Path = toAbsolutePath().normalize()
     }
 }
 

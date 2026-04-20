@@ -65,7 +65,7 @@ class JKlibJavaSourceConfigurator(testServices: TestServices) : EnvironmentConfi
                 extraClasspath = jvmClasspathRoots,
                 assertions = testServices.assertions,
                 useJava11 = true, // Requires jdk.11.home to be set in build.gradle.kts
-                extraOptions = listOf("-parameters")
+                extraOptions = listOf("-parameters") // Preserve parameter names during Java compilation so IR tests match
             )
             configuration.addJvmClasspathRoot(compiledJar)
         } catch (e: Throwable) {

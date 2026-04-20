@@ -105,10 +105,14 @@ sealed class EnclosingEntity<D : FirDeclaration> {
             }
         }
 
-        fun FirRegularClassSymbol.asObjectEntity(outerClass: Class? = null): Object? = when (classKind.isObject) {
+        fun FirRegularClassSymbol.asObjectEntity(
+            outerClass: Class? = if (isCompanion) {
+                getContainingClassSymbol()?.fullyExpandedClass(moduleData.session)?.asClassEntity()
+            } else null
+        ): Object? = when (classKind.isObject) {
             true -> {
                 assertValidOuterClassForObject(outerClass)
-                Object(this, outerClass ?: getContainingClassSymbol()?.fullyExpandedClass(moduleData.session)?.asClassEntity())
+                Object(this, outerClass)
             }
             false -> null
         }

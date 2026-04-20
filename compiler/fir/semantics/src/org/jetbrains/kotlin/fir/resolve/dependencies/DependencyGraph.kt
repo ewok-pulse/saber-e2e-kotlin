@@ -88,9 +88,11 @@ import org.jetbrains.kotlin.fir.references.toResolvedPropertySymbol
 import org.jetbrains.kotlin.fir.resolve.ExplicitlyPassedSession
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.Companion.accesses
+import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.Companion.alwaysHappenDescendants
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.Companion.happensBefore
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.Companion.mayHappenBefore
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.Companion.stronglyConnectedComponents
+import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.CompositeNode.Companion.innerHappensBeforeDescendants
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.DependencyNode.CondensedNode.Companion.condense
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.Dependency
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity
@@ -141,7 +143,6 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.utils.Printer
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import org.jetbrains.kotlin.utils.mapToIndex
-import java.lang.ref.WeakReference
 import java.util.LinkedList
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -155,8 +156,6 @@ data class DependencyGraph(
 ) : FirSessionComponent, Set<DependencyGraph.DependencyNode<*>> {
 
     private val outermostEntityFinder = PathCompressingFinder<EnclosingEntity<*>> { it.parentEnclosingEntity ?: it }
-
-    private val EnclosingEntity<*>.outermostEntity: EnclosingEntity<*> get() = outermostEntityFinder.find(this)
 
     private val poisonedNodes = mutableSetOf<NodeIndex<*>>()
 
@@ -181,21 +180,25 @@ data class DependencyGraph(
 
     operator fun contains(enclosingEntity: EnclosingEntity<*>): Boolean = enclosingEntity in enclosingEntities
 
-    fun poisoningAccessesFor(index: NodeIndex<*>, visited: MutableSet<NodeIndex<*>> = mutableSetOf()): Set<WeakReference<FirExpression>> {
-        require(index in poisonedNodes)
+    fun poisoningAccessesFor(
+        index: NodeIndex.SingletonIndex<*>,
+        visited: MutableSet<NodeIndex<*>> = mutableSetOf()
+    ): Set<FirExpression> {
+        require(index in poisonedNodes) { "Index $index must be poisoned to find poisoning accesses!" }
         return this[index]?.let { node ->
             when (node) {
-                is DependencyNode.CompositeNode -> mutableSetOf<WeakReference<FirExpression>>().apply {
+                is DependencyNode.CompositeNode -> mutableSetOf<FirExpression>().apply {
                     node.accessesFor(index).forEach { (from, exprs) ->
-                        if (index.canBePoisonedOnCyclicAccess && from in node
+                        if (node.causesPoisoningAccess(from, index)
                             || from.isInPossiblyUninitializedEntity(node)
+                            || node.isAccessingOutOfOrderDeclaration(from, index)
                             || isPoisoned(from, visited)
                         ) {
                             addAll(exprs)
                         }
                     }
                 }
-                is DependencyNode.SingletonNode -> mutableSetOf<WeakReference<FirExpression>>().apply {
+                is DependencyNode.SingletonNode -> mutableSetOf<FirExpression>().apply {
                     node.accesses.forEach { (from, exprs) ->
                         if (isPoisoned(from, visited)) {
                             addAll(exprs)
@@ -206,8 +209,12 @@ data class DependencyGraph(
         } ?: emptySet()
     }
 
-    fun isPoisoned(index: NodeIndex<*>, visited: MutableSet<NodeIndex<*>> = mutableSetOf()): Boolean {
-        if (index !in this) return false
+    fun isPoisoned(index: NodeIndex.SingletonIndex<*>, visited: MutableSet<NodeIndex<*>> = mutableSetOf()): Boolean {
+//        println("Checking if $index is poisoned")
+        if (index !in this) {
+            println("Index $index is not in the graph (file: ${index.enclosingEntity.symbol.moduleData.session.firProvider.getContainingFile(index.enclosingEntity.symbol)?.name})")
+            return false
+        }
         if (index in poisonedNodes) return true
         if (index in visited) {
             poisonedNodes += index
@@ -219,29 +226,43 @@ data class DependencyGraph(
             when (node) {
                 // If it belongs to a composite node, ...
                 is DependencyNode.CompositeNode -> {
+//                    println("Checking accesses for composite node: $index")
                     val accesses = node.accessesFor(index)
-                    var hasInCycleAccess = false
+//                    println("Accesses: $accesses")
+                    // Short-circuit on the first bad access if possible
+                    var hasPoisoningInCycleAccess = false
                     var hasAccessCausingExceptionInInitializer = false
-                    val uncheckedIndices = mutableSetOf<NodeIndex<*>>()
+                    var hasOutOfOrderAccess = false
+                    val uncheckedIndices = mutableSetOf<NodeIndex.SingletonIndex<*>>()
                     for ((from, _) in accesses) {
-                        if (index.canBePoisonedOnCyclicAccess && from in node) {
-                            hasInCycleAccess = true
+//                        println("Checking base cases for: $from -> $index")
+                        if (node.causesPoisoningAccess(from, index)) {
+                            hasPoisoningInCycleAccess = true
+//                            println("Cyclic poisoning access: $from -> $index")
                             break
                         }
                         if (from.isInPossiblyUninitializedEntity(node)) {
                             hasAccessCausingExceptionInInitializer = true
+//                            println("Access in uninitialized nested entity: $from -> $index")
                             break
                         }
+                        if (node.isAccessingOutOfOrderDeclaration(from, index)) {
+                            hasOutOfOrderAccess = true
+//                            println("Out-of-order of declaration access: $from -> $index")
+                            break
+                        }
+//                        println("Non-trivial access: $from -> $index")
+                        // Check for transitive poisoning
                         uncheckedIndices.add(from)
                     }
                     // Base case: if any information flowing to the node is from a node in its own strong component (time loop)
                     // or there is an access to a possibly-uninitialized entity
-                    if (hasInCycleAccess || hasAccessCausingExceptionInInitializer) {
+                    if (hasPoisoningInCycleAccess || hasAccessCausingExceptionInInitializer || hasOutOfOrderAccess) {
                         poisonedNodes += index
                         return@let true
                     }
                     // Inductive step: if any information flowing to the node is from a node that is bad (elsewhere)
-                    if (uncheckedIndices.any { isPoisoned(it, visited) }) {
+                    if (uncheckedIndices.any { isPoisoned(it, visited.toMutableSet()) }) {
                         poisonedNodes += index
                         return@let true
                     }
@@ -250,7 +271,7 @@ data class DependencyGraph(
                 // If it belongs to a singleton node, ...
                 is DependencyNode.SingletonNode<*> -> {
                     // Inductive step: if any information flowing to the node is from a node that is bad (elsewhere)
-                    if (node.accesses.any { (from, _) -> isPoisoned(from, visited) }) {
+                    if (node.accesses.any { (from, _) -> isPoisoned(from, visited.toMutableSet()) }) {
                         poisonedNodes += index
                         return@let true
                     }
@@ -264,8 +285,8 @@ data class DependencyGraph(
         this[enclosingEntity].mapNotNull(::get)
             .filterIsInstance<DependencyNode.CondensedNode>()
             .flatMap { it.enclosingEntities }
-            .map { if (it is EnclosingEntity.InstancedProperty) it.outermostEntity else it }
-            .filter { it != enclosingEntity }
+            .map { it.outermostEntity }
+            .filter { it != enclosingEntity.outermostEntity }
             .distinct()
 
     fun clear() {
@@ -325,6 +346,47 @@ data class DependencyGraph(
     }
 
     companion object {
+
+        context(graph: DependencyGraph)
+        val EnclosingEntity<*>.outermostEntity: EnclosingEntity<*> get() = graph.outermostEntityFinder.find(this)
+
+        context(graph: DependencyGraph)
+        private infix fun NodeIndex<*>.happensBefore(other: NodeIndex<*>): Boolean =
+            graph[this]?.alwaysHappenDescendants()?.any { it == other } ?: false
+
+        // Accessing something that poisons the declaration: any access for function-likes or access to a different entity in this cycle
+        context(graph: DependencyGraph)
+        private fun DependencyNode.CompositeNode.causesPoisoningAccess(
+            from: NodeIndex.SingletonIndex<*>,
+            to: NodeIndex.SingletonIndex<*>
+        ): Boolean {
+//            println("Poisoning access check: $from -> $to")
+//            println(from in this)
+//            println(to is NodeIndex.FunctionLikeIndex || !from.belongsToEntity(to.enclosingEntity))
+//            println(from.poisonsOnCyclicAccess)
+            return from in this && (to is NodeIndex.FunctionLikeIndex || !from.belongsToEntity(to.enclosingEntity)) && from.poisonsOnCyclicAccess
+        }
+
+        // Accessing something in a possibly-uninitialized entity in this cycle
+        private fun NodeIndex.SingletonIndex<*>.isInPossiblyUninitializedEntity(cycle: DependencyNode.CompositeNode): Boolean =
+            // Only consider accessible nodes
+            enclosingEntity.isAccessedPossiblyUninitialized(cycle)
+
+        // Accessing something in the same entity but out of order of declaration (excluding function-likes)
+        context(graph: DependencyGraph)
+        private fun DependencyNode.CompositeNode.isAccessingOutOfOrderDeclaration(
+            from: NodeIndex.SingletonIndex<*>,
+            to: NodeIndex.SingletonIndex<*>
+        ): Boolean =
+            if (from.belongsToEntity(to.enclosingEntity) && from !is NodeIndex.FunctionLikeIndex<*>) {
+                // Case 1: the `from` node is outside of the loop, i.e., it must have a happens-before path to `index`
+                if (from !in this && from happensBefore index) return true
+                // Case 2: the `from` node is inside the loop, i.e., it must have an inner happens-before path to `index` inside
+                // the condensed node
+                if (from in this && innerHappensBeforeDescendants(from).any { it == index }) return true
+                return false
+            } else false
+
         // Accessing an entity in a cycle which can be possibly uninitialized happens iff its outermost entity is a class and:
         // - the outermost class entity is an interface (KT-20238)
         // - OR the class' begin node is in the cycle as well
@@ -335,14 +397,6 @@ data class DependencyGraph(
                 this in cycle && outer is EnclosingEntity.Class && (outer.symbol.isInterface || outer.beginSubgraphIndex in cycle)
                         || outer.isAccessedPossiblyUninitialized(cycle)
             } ?: false
-
-        private fun NodeIndex<*>.isInPossiblyUninitializedEntity(cycle: DependencyNode.CompositeNode): Boolean =
-            // Only consider accessible nodes
-            when (this) {
-                is NodeIndex.DeclarationIndex -> enclosingEntity.isAccessedPossiblyUninitialized(cycle)
-                is NodeIndex.BeginSubgraphIndex -> enclosingEntity.isAccessedPossiblyUninitialized(cycle)
-                else -> false
-            }
     }
 
     sealed class DependencyNode<out D : FirDeclaration> {
@@ -363,9 +417,8 @@ data class DependencyGraph(
 
         abstract val possiblyHappenAfter: Sequence<NodeIndex<*>>
 
-        abstract fun accessesTo(from: NodeIndex<*>): Set<WeakReference<FirExpression>>
-
-        protected abstract fun addIncomingAccess(access: Dependency.Access, at: Set<WeakReference<FirExpression>>): Boolean
+        abstract fun accessesTo(from: NodeIndex.SingletonIndex<*>): Set<FirExpression>
+          protected abstract fun addIncomingAccess(access: Dependency.Access, at: Set<FirExpression>): Boolean
 
         protected abstract fun addOutgoingAccess(access: Dependency.Access): Boolean
 
@@ -380,10 +433,11 @@ data class DependencyGraph(
         fun renderAsString(): String = index.toString()
 
         sealed class SingletonNode<out D : FirDeclaration> : DependencyNode<D>() {
+            abstract override val index: NodeIndex.SingletonIndex<out D>
             abstract val enclosingEntity: EnclosingEntity<*>
             override val isComposite: Boolean = false
 
-            private val _incomingInfoFlow = linkedMapOf<Dependency.Access, MutableSet<WeakReference<FirExpression>>>()
+            private val _incomingInfoFlow = linkedMapOf<Dependency.Access, MutableSet<FirExpression>>()
             private val _incomingTimeFlow = linkedSetOf<Dependency.TimeDependency>()
             override val incoming: Sequence<Dependency>
                 get() = sequence {
@@ -419,13 +473,13 @@ data class DependencyGraph(
                     .filter(Dependency.TimeDependency::possiblyHappens)
                     .map(Dependency::to)
 
-            override fun accessesTo(from: NodeIndex<*>): Set<WeakReference<FirExpression>> =
+            override fun accessesTo(from: NodeIndex.SingletonIndex<*>): Set<FirExpression> =
                 _incomingInfoFlow[Dependency.Access(from, index)] ?: emptySet()
 
-            val accesses: Sequence<Pair<NodeIndex<*>, Set<WeakReference<FirExpression>>>>
+            val accesses: Sequence<Pair<NodeIndex.SingletonIndex<*>, Set<FirExpression>>>
                 get() = _incomingInfoFlow.asSequence().map { (access, accesses) -> access.from to accesses }
 
-            override fun addIncomingAccess(access: Dependency.Access, at: Set<WeakReference<FirExpression>>): Boolean {
+            override fun addIncomingAccess(access: Dependency.Access, at: Set<FirExpression>): Boolean {
                 if (access.to != index) return false
                 return _incomingInfoFlow.getOrPut(access) { mutableSetOf() }.addAll(at)
             }
@@ -460,8 +514,8 @@ data class DependencyGraph(
             abstract override val index: NodeIndex.CompositeIndex
             override val isComposite: Boolean = true
 
-            private val _incomingAccesses = linkedMapOf<Dependency.Access, MutableSet<WeakReference<FirExpression>>>()
-            private val _incomingInfoFlow = linkedMapOf<NodeIndex<*>, MutableSet<Dependency.Access>>()
+            private val _incomingAccesses = linkedMapOf<Dependency.Access, MutableSet<FirExpression>>()
+            private val _incomingInfoFlow = linkedMapOf<NodeIndex.SingletonIndex<*>, MutableSet<Dependency.Access>>()
             private val _incomingTimeFlow = linkedSetOf<Dependency.TimeDependency>()
             override val incoming: Sequence<Dependency>
                 get() = sequence {
@@ -501,22 +555,23 @@ data class DependencyGraph(
                     .filter(Dependency.TimeDependency::possiblyHappens)
                     .map(Dependency::to)
 
-            override fun accessesTo(from: NodeIndex<*>): Set<WeakReference<FirExpression>> =
-                fold(linkedSetOf()) { acc, index ->
+            override fun accessesTo(from: NodeIndex.SingletonIndex<*>): Set<FirExpression> =
+                filterIsInstance<NodeIndex.SingletonIndex<*>>().fold(linkedSetOf()) { acc, index ->
                     _incomingAccesses[Dependency.Access(from, index)]?.apply(acc::addAll)
                     acc
                 }
 
-            fun accessesFor(index: NodeIndex<*>): Sequence<Pair<NodeIndex<*>, Set<WeakReference<FirExpression>>>> =
+            fun accessesFor(index: NodeIndex.SingletonIndex<*>): Sequence<Pair<NodeIndex.SingletonIndex<*>, Set<FirExpression>>> =
                 _incomingInfoFlow[index]?.asSequence()?.mapNotNull { access ->
                     _incomingAccesses[access]?.let { exprs -> access.from to exprs }
                 } ?: emptySequence()
 
             abstract val enclosingEntities: Set<EnclosingEntity<*>>
+            abstract fun innerHappensBeforeFor(index: NodeIndex<*>): Sequence<NodeIndex<*>>
             abstract fun get(enclosingEntity: EnclosingEntity<*>): Sequence<NodeIndex<*>>
             operator fun contains(enclosingEntity: EnclosingEntity<*>): Boolean = enclosingEntity in enclosingEntities
 
-            override fun addIncomingAccess(access: Dependency.Access, at: Set<WeakReference<FirExpression>>): Boolean {
+            override fun addIncomingAccess(access: Dependency.Access, at: Set<FirExpression>): Boolean {
                 if (access.to !in this@CompositeNode) return false
                 val addedFlow = _incomingInfoFlow.getOrPut(access.to) { linkedSetOf() }.add(access)
                 val addedAt = _incomingAccesses.getOrPut(access) { linkedSetOf() }.addAll(at)
@@ -547,6 +602,21 @@ data class DependencyGraph(
                 if (timeDependency.from != index) return false
                 return _outgoingTimeFlow.remove(timeDependency)
             }
+
+            companion object {
+
+                inline fun CompositeNode.innerHappensBeforeDescendants(
+                    index: NodeIndex<*>,
+                    traversalOrder: TraversalOrder = TraversalOrder.PreOrder,
+                    visited: MutableSet<NodeIndex<*>> = mutableSetOf(),
+                    crossinline predicate: (NodeIndex<*>) -> Boolean = { true }
+                ): Sequence<NodeIndex<*>> = traversalOrder.traverse(
+                    start = index,
+                    visited = visited,
+                    predicate = predicate,
+                    neighbours = { innerHappensBeforeFor(it) }
+                )
+            }
         }
 
         data class DeclarationNode<D : FirDeclaration>(override val index: NodeIndex.DeclarationIndex<D>) : SingletonNode<D>() {
@@ -563,10 +633,14 @@ data class DependencyGraph(
 
         data class CondensedNode(
             private val indices: Set<NodeIndex<*>>,
-            private val entities: MutableMap<EnclosingEntity<*>, MutableSet<NodeIndex<*>>>
+            private val entities: MutableMap<EnclosingEntity<*>, MutableSet<NodeIndex<*>>>,
+            private val innerHappensBeforeFlow: MutableMap<NodeIndex<*>, Set<NodeIndex<*>>>
         ) : CompositeNode(), Set<NodeIndex<*>> by indices {
             override val index: NodeIndex.CompositeIndex = NodeIndex.CompositeIndex(indices)
             override val enclosingEntities: Set<EnclosingEntity<*>> get() = entities.keys
+            override fun innerHappensBeforeFor(index: NodeIndex<*>): Sequence<NodeIndex<*>> =
+                innerHappensBeforeFlow[index]?.asSequence() ?: emptySequence()
+
             override operator fun get(enclosingEntity: EnclosingEntity<*>): Sequence<NodeIndex<*>> =
                 entities[enclosingEntity]?.asSequence() ?: emptySequence()
 
@@ -582,6 +656,12 @@ data class DependencyGraph(
                                 is SingletonNode<*> -> entities.getOrPut(node.enclosingEntity) { linkedSetOf() }.add(node.index)
                                 is CondensedNode -> entities.putAll(node.entities)
                             }
+                        }
+                    },
+                    innerHappensBeforeFlow = mutableMapOf<NodeIndex<*>, Set<NodeIndex<*>>>().also { flow ->
+                        this.forEach { node ->
+                            flow[node.index] = node.outgoing.filterIsInstance<Dependency.HappensBefore>()
+                                .mapTo(mutableSetOf()) { it.to }
                         }
                     }
                 ).apply {
@@ -662,7 +742,7 @@ data class DependencyGraph(
         companion object {
 
             context(graph: DependencyGraph)
-            infix fun NodeIndex<*>?.accesses(access: Pair<NodeIndex<*>, Set<WeakReference<FirExpression>>>): Boolean {
+            infix fun NodeIndex.SingletonIndex<*>?.accesses(access: Pair<NodeIndex.SingletonIndex<*>, Set<FirExpression>>): Boolean {
                 val (other, at) = access
                 // Disallow self-loops
                 if (this != null && this != other && this in graph && other in graph) {
@@ -713,6 +793,19 @@ data class DependencyGraph(
                     visited = visited,
                     predicate = predicate,
                     neighbours = { it.possiblyHappenBefore.mapNotNull(graph::get) }
+                )
+
+            context(graph: DependencyGraph)
+            inline fun DependencyNode<*>.alwaysHappenDescendants(
+                visited: MutableSet<DependencyNode<*>> = mutableSetOf(),
+                traversalOrder: TraversalOrder = TraversalOrder.PreOrder,
+                crossinline predicate: (DependencyNode<*>) -> Boolean = { true }
+            ): Sequence<DependencyNode<*>> =
+                traversalOrder.traverse(
+                    start = this@alwaysHappenDescendants,
+                    visited = visited,
+                    predicate = predicate,
+                    neighbours = { it.happenAfter.mapNotNull(graph::get) }
                 )
 
             context(graph: DependencyGraph)
@@ -810,7 +903,7 @@ data class DependencyGraph(
          * Cache static accesses for (dynamic) member declarations to avoid visiting the declaration multiple times when encountered
          */
         private val symbolReferences =
-            mutableMapOf<FirBasedSymbol<*>, MutableMap<SymbolReference<*>, MutableSet<WeakReference<FirExpression>>>>()
+            mutableMapOf<FirBasedSymbol<*>, MutableMap<SymbolReference<*>, MutableSet<FirExpression>>>()
 
         private data class AccessEvaluationContext(
             val enclosingEntity: EnclosingEntity<*>,
@@ -877,7 +970,7 @@ data class DependencyGraph(
                 symbolStack.topOrNull()?.let { currentSymbol ->
                     symbolReferences.getValue(currentSymbol)
                         .getOrPut(reference) { mutableSetOf() }
-                        .add(WeakReference(at))
+                        .add(at)
                 }
 
             private fun FirElement.collect(): Unit = accept(this@SymbolReferenceCollector)
@@ -1293,7 +1386,10 @@ data class DependencyGraph(
 
         private val lastConstructedNode: NodeIndex<*>? get() = context?.lastConstructedNode
 
-        private fun NodeIndex<*>?.accesses(other: NodeIndex<*>, at: Set<WeakReference<FirExpression>>): Boolean =
+        private fun NodeIndex.SingletonIndex<*>?.accesses(
+            other: NodeIndex.SingletonIndex<*>,
+            at: Set<FirExpression>
+        ): Boolean =
             context(graph) {
                 (this accesses (other to at)).ifTrue {
                     this?.let { dirtyNodes.add(it) }
@@ -1341,6 +1437,11 @@ data class DependencyGraph(
                 contexts.pop()
                 // If the context is nested directly under the parent's context, connect the begin node to the last constructed node,
                 // and continue construction from the end node
+//                println("============")
+//                println(context?.enclosingEntity)
+//                println(newContext.enclosingEntity)
+//                println(newContext.enclosingEntity.parentEnclosingEntity)
+//                println("============")
                 if (success && context?.enclosingEntity?.let { it == newContext.enclosingEntity.parentEnclosingEntity } ?: false) {
                     context?.let {
                         it.lastConstructedNode.happensBefore(enclosingEntity.beginSubgraphIndex)
@@ -1388,13 +1489,13 @@ data class DependencyGraph(
         }
 
         private inline fun <D : FirDeclaration, T : DependencyNode<D>> lazyAccessNode(
-            index: NodeIndex<D>,
+            index: NodeIndex.SingletonIndex<D>,
             enclosingEntity: EnclosingEntity<*>,
-            at: Set<WeakReference<FirExpression>>,
+            at: Set<FirExpression>,
             crossinline new: () -> T,
         ): DependencyNode<*> = getOrCreateNode(index, enclosingEntity, new).apply {
             // Maintain the information flow outgoing from the constructed node
-            lastConstructedNode.accesses(index, at)
+            (lastConstructedNode as? NodeIndex.SingletonIndex<*>).accesses(index, at)
         }
 
         private inline fun <D : FirDeclaration> buildBeginInitializationNode(
@@ -1417,7 +1518,7 @@ data class DependencyGraph(
 
         private fun <D : FirDeclaration> lazyAccessBeginInitializationNode(
             enclosingEntity: EnclosingEntity<D>,
-            at: Set<WeakReference<FirExpression>>
+            at: Set<FirExpression>
         ): DependencyNode<*> = lazyAccessNode(
             index = enclosingEntity.beginSubgraphIndex,
             enclosingEntity = enclosingEntity,
@@ -1465,7 +1566,7 @@ data class DependencyGraph(
 
         private fun <D : FirDeclaration> lazyAccessDeclarationNode(
             index: NodeIndex.DeclarationIndex<D>,
-            at: Set<WeakReference<FirExpression>>
+            at: Set<FirExpression>
         ): DependencyNode<*> = lazyAccessNode(
             index = index,
             enclosingEntity = index.enclosingEntity,
@@ -1872,7 +1973,6 @@ data class DependencyGraph(
                 }
                 buildEndInitializationNode(enclosingEntity) {}
             }
-//            println(graph)
             // Condense the graph
             condenseGraph()
         }
@@ -1892,7 +1992,13 @@ data class DependencyGraph(
                             when (it) {
                                 is FirProperty -> it.buildProperty(enclosingEntity)
                                 is FirAnonymousInitializer -> it.buildAnonymousInitializer(enclosingEntity)
-                                is FirRegularClass -> it.buildEntity()
+                                else -> {}
+                            }
+                        }
+                        // Find entities declared inside it
+                        processAllDeclarations(session) { symbol ->
+                            when (val declaration = symbol.fir) {
+                                is FirRegularClass -> declaration.buildEntity()
                                 else -> {}
                             }
                         }
@@ -1926,16 +2032,28 @@ data class DependencyGraph(
                     }
                 }
             }
+            // If the class is not an entity, ...
+            else {
+                // At least find the entities declared inside it
+                processAllDeclarations(session) { symbol ->
+                    when (val declaration = symbol.fir) {
+                        is FirRegularClass -> declaration.buildEntity()
+                        else -> {}
+                    }
+                }
+            }
         }
 
         private fun FirProperty.buildProperty(outerEnclosingEntity: EnclosingEntity<*>) {
             if (!isLocal && isVal && initializer != null) {
+//                println("Property $symbol is val and has initializer, but is not a local property!")
                 returnTypeRef.coneTypeOrNull?.let { type ->
                     // Case 1: A property of primitive type (possibly nullable)
                     if (type.isPrimitiveOrNullablePrimitive || type.isUnit || type.isNothing) {
                         buildDeclarationNode(NodeIndex.PrimitivePropertyIndex(outerEnclosingEntity, symbol)) {
                             AccessEvaluationContext(outerEnclosingEntity, it.index).collectAccessesFor(symbol)
                         }
+//                        println("Built primitive!")
                     }
                     // Case 2: A property of a class type (with a subgraph)
                     else {
@@ -1960,7 +2078,7 @@ data class DependencyGraph(
                                 // Don't build the body yet, as it should be unwrapped lazily on access
                                 buildEndInitializationNode(enclosingEntity)
                             }
-                        }
+                        } // ?: println("Property $symbol has non-class type ${returnTypeRef.coneType}!")
                     }
                 }
             }
@@ -1971,14 +2089,15 @@ data class DependencyGraph(
             require(enclosingEntity.parentEnclosingEntity == outerEnclosingEntity) {
                 "The provided outer entity must match the enum entry's parent!"
             }
-            symbol.initializerObjectSymbol?.let { symbol ->
-                buildSubgraph(enclosingEntity) {
-                    buildBeginInitializationNode(enclosingEntity) {
-                        symbol.connectSubgraphToDirectlyInitializedSupertypes()
+            buildSubgraph(enclosingEntity) {
+                buildBeginInitializationNode(enclosingEntity) {
+                    symbol.initializerObjectSymbol?.let { symbol ->
                         symbol.primaryConstructorIfAny(session)?.let { constructor ->
                             AccessEvaluationContext(enclosingEntity, it.index).collectAccessesFor(constructor)
                         }
                     }
+                }
+                (symbol.initializerObjectSymbol ?: enclosingEntity.parentEnclosingEntity.symbol).let { symbol ->
                     symbol.getAllOrderedDeclarations().forEach {
                         when (it) {
                             is FirProperty -> it.buildProperty(enclosingEntity)
@@ -1989,8 +2108,8 @@ data class DependencyGraph(
                             else -> {}
                         }
                     }
-                    buildEndInitializationNode(enclosingEntity)
                 }
+                buildEndInitializationNode(enclosingEntity)
             }
         }
 

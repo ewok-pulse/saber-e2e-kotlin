@@ -18,10 +18,10 @@ class Class {
     val y = <!UNINITIALIZED_ACCESS!>ClassTest.y<!>
 }
 
-<!POSSIBLE_INITIALIZATION_DEADLOCK!>interface ClassTest {
+interface ClassTest {
     companion object {
         val x = "OK"
         <!UNINITIALIZED_PROPERTY!>val z = Class().y<!>
         val y = "yay"
     }
-}<!>
+}

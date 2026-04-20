@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.utils.isEnumEntry
-import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.expressions.toResolvedCallableSymbol
 import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraphBuilder
@@ -34,6 +33,7 @@ object FirUninitializedStaticPropertyChecker : FirPropertyChecker(MppCheckerKind
 
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirProperty) {
+        if (declaration.isVar) return
         declaration.symbol.getContainingSymbol(context.session)?.let { containingSymbol ->
             val enclosingEntity = when (containingSymbol) {
                 is FirRegularClassSymbol if containingSymbol.classKind.isObject -> containingSymbol.asObjectEntity() ?: return
@@ -49,19 +49,17 @@ object FirUninitializedStaticPropertyChecker : FirPropertyChecker(MppCheckerKind
                         declaration.symbol.asInstancedPropertyEntity(enclosingEntity).beginSubgraphIndex
                     }
                 }
-            } else NodeIndex.FunctionLikeIndex(enclosingEntity, declaration.symbol)
+            } else return
             val dependencyGraph = declaration.moduleData.dependencyGraphBuilder.graph
+//            println(dependencyGraph)
             if (dependencyGraph.isPoisoned(index)) {
                 reporter.reportOn(declaration.source, FirErrors.UNINITIALIZED_PROPERTY)
                 dependencyGraph.poisoningAccessesFor(index).forEach {
-                    when (val expr = it.get()) {
-                        is FirResolvedQualifier -> expr.symbol?.let { symbol ->
-                            reporter.reportOn(expr.source, FirErrors.UNINITIALIZED_ACCESS, symbol)
-                        }
-                        is FirExpression -> expr.toResolvedCallableSymbol(context.session)?.let { symbol ->
-                            reporter.reportOn(expr.source, FirErrors.UNINITIALIZED_ACCESS, symbol)
-                        }
-                        null -> println("expr is null")
+                    when (it) {
+                        is FirResolvedQualifier ->
+                            reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, it.symbol!!)
+                        else ->
+                            reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, it.toResolvedCallableSymbol(context.session)!!)
                     }
                 }
             }

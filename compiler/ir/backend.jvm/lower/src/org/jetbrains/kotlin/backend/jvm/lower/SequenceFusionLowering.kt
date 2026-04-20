@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.ir.builders.irTemporary
 import org.jetbrains.kotlin.ir.builders.irUnit
 import org.jetbrains.kotlin.ir.builders.irWhen
 import org.jetbrains.kotlin.ir.builders.irWhile
+import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationParent
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrVariable
@@ -42,37 +43,38 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.ir.expressions.IrRichFunctionReference
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrWhileLoop
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationBase
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueDeclaration
 import org.jetbrains.kotlin.ir.expressions.IrBranch
 import org.jetbrains.kotlin.ir.expressions.IrBreakContinue
 import org.jetbrains.kotlin.ir.expressions.IrComposite
-import org.jetbrains.kotlin.ir.expressions.IrErrorExpression
+import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrLoop
+import org.jetbrains.kotlin.ir.expressions.IrSetField
+import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.expressions.IrSpreadElement
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrVararg
-import org.jetbrains.kotlin.ir.expressions.impl.IrErrorExpressionImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.irAttribute
 import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.classifierOrFail
 import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.types.getClass
+import org.jetbrains.kotlin.ir.types.isPrimitiveType
+import org.jetbrains.kotlin.ir.types.isString
 import org.jetbrains.kotlin.ir.types.makeNotNull
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.types.typeWith
+import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.functions
-import org.jetbrains.kotlin.ir.util.isImmutable
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 import org.jetbrains.kotlin.name.Name
+import kotlin.collections.get
 
 private const val ITERATOR = "iterator"
 private const val HAS_NEXT = "hasNext"
@@ -120,7 +122,6 @@ class SequenceFusionLowering(val context: JvmBackendContext) : FileLoweringPass 
         val reuseMarker = ReusedSequenceMarker(context)
         irFile.acceptChildrenVoid(reuseMarker)
         val gatherer = SequenceDataGatherer(context)
-        // appends sequence data to the appropriate IrElements
         irFile.acceptChildrenVoid(gatherer)
         val transformer = SequenceFusionTransformer(context)
         irFile.transformChildrenVoid(transformer)
@@ -238,10 +239,45 @@ private class SequenceData(
 
     private fun createNewTakeVariable(builder: IrBuilderWithScope): IrVariable {
         return builder.scope.createTemporaryVariable(
-            builder.irInt(1),
+            builder.irInt(0),
             isMutable = true,
             nameHint = "takeVar"
         )
+    }
+
+    private fun createTakeReplacement(
+        builderWithParent: IrBuilderWithParent,
+        valueGenerator: IrExpression,
+        expressionDependentOnValue: (IrExpression) -> IrExpression,
+        getOrCreateTakeVariable: (IrBuilderWithScope) -> IrVariable,
+        loop: IrLoop,
+        takeArgument: IrExpression,
+    ): IrExpression {
+        val (builder, parent) = builderWithParent
+        val takeVariable = getOrCreateTakeVariable(builder)
+        val classifier = takeVariable.type.classifierOrNull
+        val lessThanSymbol = builder.context.irBuiltIns.lessFunByOperandType[classifier]
+            ?: error("No lessThan function found for type ${takeVariable.type}")
+        return builder.irBlock {
+            val tmp = irTemporary(mapReplacement(builder to parent, valueGenerator))
+
+            // takeVariable++
+            +irSet(takeVariable, irCall(context.irBuiltIns.intPlusSymbol).apply {
+                dispatchReceiver = irGet(takeVariable)
+                arguments[1] = irInt(1)
+            })
+
+            // if (takeVariable > takeArgument) break
+            +irIfThen(
+                irUnit().type,
+                irCall(lessThanSymbol).apply {
+                    arguments[0] = takeArgument.deepCopyWithSymbols(parent)
+                    arguments[1] = irGet(takeVariable)
+                },
+                irBreak(loop)
+            )
+            +expressionDependentOnValue(irGet(tmp))
+        }
     }
 
     fun applyTake(
@@ -251,41 +287,22 @@ private class SequenceData(
             var value: IrVariable? = null
         }
         val getOrCreateTakeVariable = { builder: IrBuilderWithScope ->
-            if (takeVariableCell.value == null) {
-                takeVariableCell.value = createNewTakeVariable(builder)
-                takeVariableCell.value!!
-            } else {
-                takeVariableCell.value!!
+            takeVariableCell.value ?: createNewTakeVariable(builder).also {
+                takeVariableCell.value = it
             }
         }
 
         val newFilterReplacement = composeFilterReplacements(
             this.filterReplacement
-        ) { (builder, parent), loop, valueGenerator, expressionDependentOnValue ->
-            val takeVariable = getOrCreateTakeVariable(builder)
-            val classifier = takeVariable.type.classifierOrNull
-            val lessThanSymbol = builder.context.irBuiltIns.lessFunByOperandType[classifier]
-                ?: error("No lessThan function found for type ${takeVariable.type}")
-            builder.irBlock {
-                val tmp = irTemporary(mapReplacement(builder to parent, valueGenerator))
-
-                // if (takeVariable > takeArgument) break
-                +irIfThen(
-                    irUnit().type,
-                    irCall(lessThanSymbol).apply {
-                        arguments[0] = takeArgument.deepCopyWithSymbols(parent)
-                        arguments[1] = irGet(takeVariable)
-                    },
-                    irBreak(loop)
-                )
-                +expressionDependentOnValue(irGet(tmp))
-
-                // takeVariable++
-                +irSet(takeVariable, irCall(context.irBuiltIns.intPlusSymbol).apply {
-                    dispatchReceiver = irGet(takeVariable)
-                    arguments[1] = irInt(1)
-                })
-            }
+        ) { builderWithParent, loop, valueGenerator, expressionDependentOnValue ->
+            createTakeReplacement(
+                builderWithParent,
+                valueGenerator,
+                expressionDependentOnValue,
+                getOrCreateTakeVariable,
+                loop,
+                takeArgument,
+            )
         }
 
         val newTakeVariableDeclarations = { builder: IrBuilderWithScope ->
@@ -415,42 +432,66 @@ private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitorVo
             )
     }
 
-    private fun hasLambdaCapturedVariables(function: IrFunction): Boolean {
-        val localSymbols = hashSetOf<IrValueSymbol>()
-        var hasCaptured = false
-
-        function.parameters.forEach { localSymbols += it.symbol }
-
-        function.body?.acceptChildrenVoid(object : IrVisitorVoid() {
+    private fun IrExpression.isSafeToMove(): Boolean {
+        var safe = true
+        this.acceptVoid(object : IrVisitorVoid() {
             override fun visitElement(element: IrElement) {
-                if (!hasCaptured) {
-                    element.acceptChildrenVoid(this)
-                }
+                if (safe) element.acceptChildrenVoid(this)
             }
 
-            override fun visitFunction(declaration: IrFunction) {} // skip nested functions
-
-            override fun visitDeclaration(declaration: IrDeclarationBase) {
-                if (declaration is IrValueDeclaration) {
-                    localSymbols += declaration.symbol
+            override fun visitCall(expression: IrCall) {
+                if (!expression.isPrimitiveIntrinsic()) {
+                    safe = false
                 }
-                super.visitDeclaration(declaration)
+                super.visitCall(expression)
+            }
+
+            override fun visitSetValue(expression: IrSetValue) {
+                safe = false
+                super.visitSetValue(expression)
+            }
+
+            override fun visitSetField(expression: IrSetField) {
+                safe = false
+                super.visitSetField(expression)
             }
 
             override fun visitGetValue(expression: IrGetValue) {
-                if (expression.symbol !in localSymbols) {
-                    hasCaptured = true
-                }
+                val owner = expression.symbol.owner
+                if (owner is IrVariable && owner.isVar) safe = false
             }
-        })
 
-        return hasCaptured
+            override fun visitConst(expression: IrConst) {}
+        })
+        return safe
+    }
+
+    private fun IrCall.isPrimitiveIntrinsic(): Boolean {
+        val owner = symbol.owner
+
+        val parentClass = owner.parent as? IrClass ?: return false
+        return parentClass.defaultType.isPrimitiveType() || parentClass.defaultType.isString()
     }
 
     private fun isSafeToLower(reference: IrRichFunctionReference): Boolean {
         if (reference.boundValues.isNotEmpty()) return false
         if (reference.invokeFunction.dispatchReceiverParameter != null) return false
-        if (hasLambdaCapturedVariables(reference.invokeFunction)) return false
+        return true
+    }
+
+    private fun isSafeToLower(expression: IrExpression): Boolean {
+        if (containsMutable(expression)) return false
+        when (expression) {
+            is IrRichFunctionReference -> {
+                return isSafeToLower(expression)
+            }
+        }
+        return true
+    }
+
+    private fun isSafeToLowerFromSequenceOf(expression: IrExpression): Boolean {
+        if (containsMutable(expression)) return false
+        if (!expression.isSafeToMove()) return false // skip lowering if an expression contains something that has to be evaluated only once
         return true
     }
 
@@ -516,7 +557,7 @@ private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitorVo
                     else -> {
                         // generateSequence(T?, (T) -> T?)
                         if (initialValueOrFunction == null) return
-                        if (containsMutable(initialValueOrFunction)) return
+                        if (!isSafeToLower(initialValueOrFunction)) return
                         GenerateSequenceInitialValue.InitialValue(initialValueOrFunction) to func
                     }
                 }
@@ -555,11 +596,11 @@ private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitorVo
             // sequenceOf(vararg arguments)
             if (argument.elements.any { it is IrSpreadElement }) return // skip lowering sequenceOf with spread arguments
             if (argument.elements.any { it !is IrExpression }) return
-            if (argument.elements.filterIsInstance<IrGetValue>().any { !it.symbol.owner.isImmutable }) return
+            if (argument.elements.any { !isSafeToLowerFromSequenceOf(it as IrExpression) }) return
             sequenceOfArguments = argument.elements.map { it as IrExpression }
         } else {
             // sequenceOf(argument)
-            if (argument is IrGetValue && !argument.symbol.owner.isImmutable) return
+            if (!isSafeToLowerFromSequenceOf(argument)) return
             sequenceOfArguments = listOf(argument)
         }
         expression.sequenceDataOfExpression = SequenceData(
@@ -574,8 +615,8 @@ private class SequenceDataGatherer(val context: JvmBackendContext) : IrVisitorVo
         val innerMostReceiver = getInnerMostReceiver(expression) ?: return
         val receiver = expression.arguments.getOrNull(0) ?: return
         if (innerMostReceiver is IrGetValue) {
-            val receiverVariable = innerMostReceiver.symbol.owner
-            if (!receiverVariable.isImmutable || !receiverVariable.type.isSubtypeOfClass(context.irBuiltIns.iterableClass)) return
+            if (!isSafeToLower(innerMostReceiver)) return
+            if (!innerMostReceiver.type.isSubtypeOfClass(context.irBuiltIns.iterableClass)) return
         }
         expression.sequenceDataOfExpression = SequenceData(
             sequenceSource = SequenceSource.AsSequence(receiver),
@@ -704,7 +745,7 @@ private sealed class LoweringStrategy {
         initialValue: IrExpression,
         newBodyOrigin: IrStatementOrigin?,
         loop: IrLoop,
-        loopVariableName: Name,
+        loopVariableName: Name?,
     ): IrExpression {
         return sequenceData.filterReplacement(
             builderWithParent,
@@ -717,8 +758,8 @@ private sealed class LoweringStrategy {
                 val newLoopVariable = scope.createTemporaryVariable(
                     mappedValue,
                     origin = IrDeclarationOrigin.FOR_LOOP_VARIABLE,
-                    nameHint = loopVariableName.asString(),
-                    inventUniqueName = false,
+                    nameHint = loopVariableName?.asString(),
+                    inventUniqueName = loopVariableName == null,
                 )
                 +newLoopVariable
                 +bodyRewriter(newLoopVariable)
@@ -758,7 +799,7 @@ private sealed class LoweringStrategy {
                 irGet(loopVariable),
                 IrStatementOrigin.FOR_LOOP_INNER_WHILE,
                 copiedLoopData.loop,
-                loopVariable.name,
+                null,
             )
         }
         return addTakeVariableDeclarations(copiedLoopData.loopBlock, sequenceData, builder)
@@ -803,7 +844,12 @@ private sealed class LoweringStrategy {
             val loopVariable = lookupForLoopVariable(newBody) ?: return null
             newBody.statements.remove(loopVariable)
             val result = builder.irBlock(origin = IrStatementOrigin.FOR_LOOP) {
-                iteratorVariable = irTemporary(value = irInt(0), isMutable = true, origin = IrDeclarationOrigin.FOR_LOOP_ITERATOR, nameHint = "sequenceOfIterator")
+                iteratorVariable = irTemporary(
+                    value = irInt(0),
+                    isMutable = true,
+                    origin = IrDeclarationOrigin.FOR_LOOP_ITERATOR,
+                    nameHint = "sequenceOfIterator"
+                )
                 val loopCondition = irCall(context.irBuiltIns.lessFunByOperandType[context.irBuiltIns.intClass]!!).apply {
                     arguments[0] = irGet(iteratorVariable)
                     arguments[1] = irInt(source.elements.size)

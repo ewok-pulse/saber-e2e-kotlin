@@ -254,8 +254,6 @@ message Class {
   optional Type inline_class_underlying_type = 18;
   optional int32 inline_class_underlying_type_id = 19 [(type_id_in_table) = true];
 
-  optional ExtendedValueClassRepresentation extended_value_class_representation = 22;
-
   repeated Annotation annotation = 25;
 
   optional TypeTable type_table = 30;

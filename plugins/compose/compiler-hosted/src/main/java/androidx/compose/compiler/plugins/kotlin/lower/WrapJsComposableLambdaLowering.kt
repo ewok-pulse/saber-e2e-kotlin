@@ -107,7 +107,7 @@ class WrapJsComposableLambdaLowering(
             .map {
                 // make sure all remember functions are remapped with $composer and other artificial parameters
                 val fn = it.owner
-                if (fn.parameters.any { it.name != ComposeNames.ComposerParameter })
+                if (fn.parameters.any { p -> p.name == ComposeNames.ComposerParameter })
                     it.owner
                 else
                     composerParamTransformer.visitSimpleFunction(it.owner) as IrSimpleFunction

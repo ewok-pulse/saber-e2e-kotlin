@@ -300,14 +300,7 @@ class FirElementSerializer private constructor(
                 }
             }
             is JvmInlineMultiFieldValueClassRepresentation -> {}
-            is ExtendedValueClassRepresentation -> {
-                val reprBuilder = ProtoBuf.ExtendedValueClassRepresentation.newBuilder()
-                representation.underlyingPropertyNamesToTypes?.forEach { (name, type) ->
-                    reprBuilder.addPropertyName(getSimpleNameIndex(name))
-                    reprBuilder.addPropertyTypeId(typeId(type))
-                }
-                builder.extendedValueClassRepresentation = reprBuilder.build()
-            }
+            is ExtendedValueClassRepresentation -> {}
             null -> {}
         }
 

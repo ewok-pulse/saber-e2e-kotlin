@@ -511,6 +511,7 @@ abstract class AbstractKotlinWasmGradlePluginIT : KGPBaseTest() {
             }
 
             build("assemble") {
+                printBuildOutput()
                 assertTasksExecuted(":compileProductionExecutableKotlinWasmJs")
                 assertTasksExecuted(":compileProductionExecutableKotlinWasmJsOptimize")
                 assertTasksExecuted(":wasmJsBrowserDistribution")

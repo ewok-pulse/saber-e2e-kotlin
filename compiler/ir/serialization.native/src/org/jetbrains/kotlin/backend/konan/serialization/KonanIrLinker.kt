@@ -17,7 +17,6 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.objcinterop.isObjCClass
 import org.jetbrains.kotlin.ir.overrides.IrExternalOverridabilityCondition
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContextImpl
-import org.jetbrains.kotlin.ir.util.DeclarationStubGenerator
 import org.jetbrains.kotlin.ir.util.SymbolTable
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.library.KotlinLibrary
@@ -35,7 +34,6 @@ class KonanIrLinker(
     symbolTable: SymbolTable,
     friendModules: Map<String, Collection<String>>,
     private val forwardModuleDescriptor: ModuleDescriptor?,
-    private val stubGenerator: DeclarationStubGenerator,
     private val cInteropModuleDeserializerFactory: CInteropModuleDeserializerFactory,
     exportedDependencies: List<ModuleDescriptor>,
     override val partialLinkageSupport: PartialLinkageSupportForLinker,
@@ -49,7 +47,7 @@ class KonanIrLinker(
     }
 
     private val forwardDeclarationDeserializer = forwardModuleDescriptor?.let {
-        KonanForwardDeclarationModuleDeserializer(it, this, stubGenerator)
+        KonanForwardDeclarationModuleDeserializerK2(it, this)
     }
 
     override val fakeOverrideBuilder = IrLinkerFakeOverrideProvider(
@@ -104,11 +102,6 @@ class KonanIrLinker(
                 klibToModuleDeserializerMap[klib] = it
             }
         }
-    }
-
-    override fun postProcess(inOrAfterLinkageStep: Boolean) {
-        stubGenerator.unboundSymbolGeneration = true
-        super.postProcess(inOrAfterLinkageStep)
     }
 
     private val String.isForwardDeclarationModuleName: Boolean get() = this == KlibResolvedModuleDescriptorsFactoryImpl.Companion.FORWARD_DECLARATIONS_MODULE_NAME.asString()

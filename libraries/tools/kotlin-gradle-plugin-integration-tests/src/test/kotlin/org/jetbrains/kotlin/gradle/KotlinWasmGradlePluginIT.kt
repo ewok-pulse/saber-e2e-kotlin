@@ -510,7 +510,7 @@ abstract class AbstractKotlinWasmGradlePluginIT : KGPBaseTest() {
                 it.replace("<JsEngine>", "browser")
             }
 
-            build("assemble") {
+            build("assemble", "--refresh-dependencies") {
                 printBuildOutput()
                 assertTasksExecuted(":compileProductionExecutableKotlinWasmJs")
                 assertTasksExecuted(":compileProductionExecutableKotlinWasmJsOptimize")

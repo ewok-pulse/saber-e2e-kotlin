@@ -190,7 +190,7 @@ internal class WasmArgumentsImpl(
   }
 
   override fun toArgumentStrings(): List<String> {
-    val arguments = toCompilerArguments().compilerToArgumentStrings()
+    val arguments = toCompilerArguments().compilerToArgumentStrings(allowArgFileInValues = false)
     return arguments
   }
 

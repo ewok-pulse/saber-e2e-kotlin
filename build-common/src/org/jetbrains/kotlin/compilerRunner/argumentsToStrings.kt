@@ -7,21 +7,44 @@
 
 package org.jetbrains.kotlin.compilerRunner
 
-import org.jetbrains.kotlin.cli.common.arguments.Argument
-import org.jetbrains.kotlin.cli.common.arguments.CommonToolArguments
-import org.jetbrains.kotlin.cli.common.arguments.isAdvanced
-import org.jetbrains.kotlin.cli.common.arguments.resolvedDelimiter
+import org.jetbrains.kotlin.cli.common.arguments.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaField
 
 @Suppress("UNCHECKED_CAST")
 @JvmOverloads
-fun CommonToolArguments.toArgumentStrings(shortArgumentKeys: Boolean = false, compactArgumentValues: Boolean = true): List<String> {
+fun CommonToolArguments.toArgumentStrings(
+    shortArgumentKeys: Boolean = false,
+    compactArgumentValues: Boolean = true,
+): List<String> {
     return toArgumentStrings(
         this, this::class as KClass<CommonToolArguments>,
         shortArgumentKeys = shortArgumentKeys,
-        compactArgumentValues = compactArgumentValues
+        compactArgumentValues = compactArgumentValues,
+        allowArgFileInValues = true,
+    )
+}
+
+/**
+ * @param allowArgFileInValues when true, allows argument files in argument values. This is the default behavior to preserve previous behavior.
+ *                              However, it might result in loss of information or unexpected behavior when converting back from argument
+ *                              strings to an argument object using [parseCommandLineArguments].
+ *                              when false, argument values other than `freeArgs` that start with "@" are treated as literal strings,
+ *                              and are encoded as "key=value" instead of "key value" to prevent treating them as argument files when
+ *                              converting back using [parseCommandLineArguments].
+ */
+fun CommonToolArguments.toArgumentStrings(
+    shortArgumentKeys: Boolean = false,
+    compactArgumentValues: Boolean = true,
+    allowArgFileInValues: Boolean = true,
+): List<String> {
+    @Suppress("UNCHECKED_CAST")
+    return toArgumentStrings(
+        this, this::class as KClass<CommonToolArguments>,
+        shortArgumentKeys = shortArgumentKeys,
+        compactArgumentValues = compactArgumentValues,
+        allowArgFileInValues = allowArgFileInValues,
     )
 }
 
@@ -29,7 +52,8 @@ fun CommonToolArguments.toArgumentStrings(shortArgumentKeys: Boolean = false, co
 internal fun <T : CommonToolArguments> toArgumentStrings(
     thisArguments: T, type: KClass<T>,
     shortArgumentKeys: Boolean,
-    compactArgumentValues: Boolean
+    compactArgumentValues: Boolean,
+    allowArgFileInValues: Boolean = true,
 ): List<String> = ArrayList<String>().apply {
     val defaultArguments = type.newArgumentsInstance()
     type.memberProperties.forEach { property ->
@@ -45,11 +69,17 @@ internal fun <T : CommonToolArguments> toArgumentStrings(
         val argumentStringValues = when {
             property.returnType.classifier == Boolean::class -> listOf(rawPropertyValue?.toString() ?: false.toString())
 
-            (property.returnType.classifier as? KClass<*>)?.java?.isArray == true ->
-                getArgumentStringValue(argumentAnnotation, rawPropertyValue as Array<*>?, compactArgumentValues)
+            (property.returnType.classifier as? KClass<*>)?.java?.isArray == true -> getArgumentStringValue(
+                argumentAnnotation,
+                rawPropertyValue as Array<*>?,
+                compactArgumentValues
+            )
 
-            property.returnType.classifier == List::class ->
-                getArgumentStringValue(argumentAnnotation, (rawPropertyValue as List<*>?)?.toTypedArray(), compactArgumentValues)
+            property.returnType.classifier == List::class -> getArgumentStringValue(
+                argumentAnnotation,
+                (rawPropertyValue as List<*>?)?.toTypedArray(),
+                compactArgumentValues
+            )
 
             else -> listOf(rawPropertyValue.toString())
         }
@@ -69,6 +99,9 @@ internal fun <T : CommonToolArguments> toArgumentStrings(
                     add("$argumentName:$argumentStringValue")
                 }
 
+                shouldHandleArgFileInValues(argumentStringValue, allowArgFileInValues) -> {
+                    add("${argumentAnnotation.value}=$argumentStringValue")
+                }
                 /* Advanced (e.g. -X arguments) or boolean properties need to be passed using the '=' */
                 argumentAnnotation.isAdvanced || property.returnType.classifier == Boolean::class -> {
                     add("$argumentName=$argumentStringValue")
@@ -83,6 +116,10 @@ internal fun <T : CommonToolArguments> toArgumentStrings(
 
     addAll(thisArguments.freeArgs)
     addAll(thisArguments.internalArguments.map { it.stringRepresentation })
+}
+
+private fun shouldHandleArgFileInValues(argumentValue: String, expandArgFileInValues: Boolean): Boolean {
+    return !expandArgFileInValues && argumentValue.startsWith(ARGFILE_ARGUMENT)
 }
 
 private fun getArgumentStringValue(argumentAnnotation: Argument, values: Array<*>?, compactArgumentValues: Boolean): List<String> {

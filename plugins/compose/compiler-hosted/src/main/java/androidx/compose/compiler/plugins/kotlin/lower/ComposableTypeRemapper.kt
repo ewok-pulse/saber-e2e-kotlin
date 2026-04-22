@@ -70,7 +70,7 @@ internal open class ComposableTypeTransformer(
 ) : IrElementTransformerVoid() {
     private val externalTransformedDecls = mutableSetOf<IrDeclaration>()
 
-    private fun visitPossiblyExternalFunction(function: IrFunction): IrFunction {
+    private fun visitFunctionIfExternal(function: IrFunction): IrFunction {
         if (
             function.isExternalFunction() &&
             function.needsComposableRemapping() &&
@@ -93,15 +93,7 @@ internal open class ComposableTypeTransformer(
                 return@forEach
             }
             val overriddenFn = symbol.owner
-            if (overriddenFn.isExternalFunction()) {
-                // this is external function that is in a different compilation unit,
-                // so we potentially need to update composable types for it.
-                // if the function is in the current module, it should be updated eventually
-                // by this deep copy pass.
-                if (overriddenFn.needsComposableRemapping()) {
-                    visitPossiblyExternalFunction(overriddenFn)
-                }
-            }
+            visitFunctionIfExternal(overriddenFn)
             // traverse recursively to ensure that base function is transformed correctly
             overriddenFn.remapOverriddenFunctionTypes()
         }
@@ -119,7 +111,7 @@ internal open class ComposableTypeTransformer(
         // as well, since if it they are @Composable it will have its unmodified signature. These
         // types won't be traversed by default by the DeepCopyIrTreeWithSymbols so we have to
         // do it ourself here.
-        visitPossiblyExternalFunction(ownerFn)
+        visitFunctionIfExternal(ownerFn)
         return super.visitConstructorCall(expression)
     }
 
@@ -149,9 +141,7 @@ internal open class ComposableTypeTransformer(
             clsSymbol.owner.isFun
         ) {
             clsSymbol.functions.forEach {
-                if (it.owner.needsComposableRemapping()) {
-                    visitPossiblyExternalFunction(it.owner)
-                }
+                visitFunctionIfExternal(it.owner)
             }
         }
 
@@ -166,7 +156,7 @@ internal open class ComposableTypeTransformer(
         // as well, since if they are @Composable it will have its unmodified signature. These
         // types won't be traversed by default by the DeepCopyIrTreeWithSymbols so we have to
         // do it ourselves here.
-        visitPossiblyExternalFunction(owner)
+        visitFunctionIfExternal(owner)
         return super.visitDelegatingConstructorCall(expression)
     }
 
@@ -223,9 +213,7 @@ internal open class ComposableTypeTransformer(
             property.transform(this, null)
         }
 
-        if (ownerFn.needsComposableRemapping()) {
-            visitPossiblyExternalFunction(ownerFn)
-        }
+        visitFunctionIfExternal(ownerFn)
 
         return super.visitCall(expression)
     }
@@ -284,7 +272,7 @@ internal open class ComposableTypeTransformer(
 
         val owner = expression.symbol.owner
         if (owner is IrFunction) {
-            visitPossiblyExternalFunction(owner)
+            visitFunctionIfExternal(owner)
         }
 
         return super.visitMemberAccess(expression)
@@ -312,7 +300,7 @@ internal open class ComposableTypeTransformer(
                 val newFn = containingClass.invokeFunctionNForComposable(context, ownerFn)
                 newFn.symbol
             } else if (ownerFn.needsComposableRemapping()) {
-                val newFn = visitPossiblyExternalFunction(ownerFn)
+                val newFn = visitFunctionIfExternal(ownerFn)
                 newFn.symbol
             } else {
                 targetSymbol
@@ -322,9 +310,7 @@ internal open class ComposableTypeTransformer(
     }
 
     override fun visitRichFunctionReference(expression: IrRichFunctionReference): IrExpression {
-        if (expression.overriddenFunctionSymbol.owner.needsComposableRemapping()) {
-            visitPossiblyExternalFunction(expression.overriddenFunctionSymbol.owner)
-        }
+        visitFunctionIfExternal(expression.overriddenFunctionSymbol.owner)
         return super.visitRichFunctionReference(expression)
     }
 

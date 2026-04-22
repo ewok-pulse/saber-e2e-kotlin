@@ -1486,9 +1486,7 @@ open class IrFileSerializer(
             is JvmInlineMultiFieldValueClassRepresentation ->
                 proto.multiFieldValueClassRepresentation = serializeJvmInlineMultiFieldValueClassRepresentation(representation)
             is InlineClassRepresentation -> proto.inlineClassRepresentation = serializeInlineClassRepresentation(representation)
-            is ExtendedValueClassRepresentation ->
-                proto.extendedValueClassRepresentation = serializeExtendedValueClassRepresentation(representation)
-            null -> Unit
+            is ExtendedValueClassRepresentation, null -> Unit
         }
 
         clazz.declarations.forEach {

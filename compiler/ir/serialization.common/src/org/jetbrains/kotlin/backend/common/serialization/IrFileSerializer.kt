@@ -81,7 +81,6 @@ import org.jetbrains.kotlin.backend.common.serialization.proto.IrLocalDelegatedP
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrLocalDelegatedPropertyReference as ProtoLocalDelegatedPropertyReference
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrMissingExpression as ProtoMissingExpression
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrMultiFieldValueClassRepresentation as ProtoIrMultiFieldValueClassRepresentation
-import org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation as ProtoIrExtendedValueClassRepresentation
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrOperationPre_2_4_0 as ProtoOperationPre_2_4_0
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrProperty as ProtoProperty
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrPropertyReference as ProtoPropertyReference
@@ -1486,9 +1485,7 @@ open class IrFileSerializer(
             is JvmInlineMultiFieldValueClassRepresentation ->
                 proto.multiFieldValueClassRepresentation = serializeJvmInlineMultiFieldValueClassRepresentation(representation)
             is InlineClassRepresentation -> proto.inlineClassRepresentation = serializeInlineClassRepresentation(representation)
-            is ExtendedValueClassRepresentation ->
-                proto.extendedValueClassRepresentation = serializeExtendedValueClassRepresentation(representation)
-            null -> Unit
+            is ExtendedValueClassRepresentation, null -> Unit
         }
 
         clazz.declarations.forEach {
@@ -1523,14 +1520,6 @@ open class IrFileSerializer(
         ProtoIrMultiFieldValueClassRepresentation.newBuilder().apply {
             addAllUnderlyingPropertyName(representation.underlyingPropertyNamesToTypes.map { (name, _) -> serializeName(name) })
             addAllUnderlyingPropertyType(representation.underlyingPropertyNamesToTypes.map { (_, irType) -> serializeIrType(irType) })
-        }.build()
-
-    private fun serializeExtendedValueClassRepresentation(representation: ExtendedValueClassRepresentation<IrSimpleType>): ProtoIrExtendedValueClassRepresentation =
-        ProtoIrExtendedValueClassRepresentation.newBuilder().apply {
-            representation.underlyingPropertyNamesToTypes?.let { props ->
-                addAllUnderlyingPropertyName(props.map { (name, _) -> serializeName(name) })
-                addAllUnderlyingPropertyType(props.map { (_, irType) -> serializeIrType(irType) })
-            }
         }.build()
 
     private fun serializeIrTypeAlias(typeAlias: IrTypeAlias, parent: IrElement?): ProtoTypeAlias {

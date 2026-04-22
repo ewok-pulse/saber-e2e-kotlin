@@ -52,7 +52,6 @@ import org.jetbrains.kotlin.backend.common.serialization.proto.IrFunctionBase as
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrInlineClassRepresentation as ProtoIrInlineClassRepresentation
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrLocalDelegatedProperty as ProtoLocalDelegatedProperty
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrMultiFieldValueClassRepresentation as ProtoIrMultiFieldValueClassRepresentation
-import org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation as ProtoIrExtendedValueClassRepresentation
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrProperty as ProtoProperty
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrSimpleType as ProtoSimpleType
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrSimpleTypeLegacy as ProtoSimpleTypeLegacy
@@ -393,18 +392,13 @@ class IrDeclarationDeserializer(
 
                 valueClassRepresentation = when {
                     !flags.isValue -> null
-                    proto.hasExtendedValueClassRepresentation() && proto.hasMultiFieldValueClassRepresentation() ->
-                        error("Class cannot be both extended value and basic multi-field value: $name")
-                    proto.hasExtendedValueClassRepresentation() && proto.hasInlineClassRepresentation() ->
-                        error("Class cannot be both extended value and basic single-field value: $name")
                     proto.hasMultiFieldValueClassRepresentation() && proto.hasInlineClassRepresentation() ->
                         error("Class cannot be both inline and multi-field value: $name")
-                    proto.hasExtendedValueClassRepresentation() ->
-                        deserializeExtendedValueClassRepresentation(proto.extendedValueClassRepresentation, modality)
                     proto.hasInlineClassRepresentation() -> deserializeInlineClassRepresentation(proto.inlineClassRepresentation)
                     proto.hasMultiFieldValueClassRepresentation() ->
                         deserializeMultiFieldValueClassRepresentation(proto.multiFieldValueClassRepresentation)
-                    else -> computeMissingInlineClassRepresentationForCompatibility(this)
+                    // Inline classes with KLib version <= 1.5.20 are no longer supported
+                    else -> computeExtendedValueClassRepresentation(this)
                 }
 
                 // It has been decided not to deserialize the list of sealed subclasses because of KT-54028
@@ -426,25 +420,10 @@ class IrDeclarationDeserializer(
         return JvmInlineMultiFieldValueClassRepresentation(names memoryOptimizedZip types)
     }
 
-    private fun deserializeExtendedValueClassRepresentation(
-        proto: ProtoIrExtendedValueClassRepresentation,
-        modality: Modality,
-    ): ExtendedValueClassRepresentation<IrSimpleType> {
-        val isAbstractOrSealed = modality == Modality.ABSTRACT || modality == Modality.SEALED
-        if (isAbstractOrSealed) return ExtendedValueClassRepresentation(null)
-        val names = proto.underlyingPropertyNameList.memoryOptimizedMap { deserializeName(it) }
-        val types = proto.underlyingPropertyTypeList.memoryOptimizedMap { deserializeIrType(it) as IrSimpleType }
-        return ExtendedValueClassRepresentation(names memoryOptimizedZip types)
-    }
-
-    private fun computeMissingInlineClassRepresentationForCompatibility(irClass: IrClass): InlineClassRepresentation<IrSimpleType> {
-        // For inline classes compiled with 1.5.20 or earlier, try to reconstruct inline class representation from the single parameter of
-        // the primary constructor. Something similar is happening in `DeserializedClassDescriptor.computeInlineClassRepresentation`.
-        // This code will be unnecessary as soon as klibs compiled with Kotlin 1.5.20 are no longer supported.
-        val ctor = irClass.primaryConstructor ?: error("Inline class has no primary constructor: ${irClass.render()}")
-        val parameter =
-            ctor.parameters.singleOrNull() ?: error("Failed to get single parameter of inline class constructor: ${ctor.render()}")
-        return InlineClassRepresentation(parameter.name, parameter.type as IrSimpleType)
+    private fun computeExtendedValueClassRepresentation(irClass: IrClass): ExtendedValueClassRepresentation<IrSimpleType> {
+        if (irClass.modality == Modality.ABSTRACT || irClass.modality == Modality.SEALED) return ExtendedValueClassRepresentation(null)
+        val ctor = irClass.primaryConstructor ?: error("Extended value class has no primary constructor: ${irClass.render()}")
+        return ExtendedValueClassRepresentation(ctor.parameters.map { it.name to it.type as IrSimpleType })
     }
 
     private fun deserializeIrTypeAlias(proto: ProtoTypeAlias, parentStart: Int?, setParent: Boolean = true): IrTypeAlias =

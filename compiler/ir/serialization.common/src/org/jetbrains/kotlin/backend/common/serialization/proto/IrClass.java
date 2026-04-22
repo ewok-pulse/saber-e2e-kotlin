@@ -135,9 +135,9 @@ public final class IrClass extends
             break;
           }
           case 64: {
-            if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+            if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
               sealedSubclass_ = new java.util.ArrayList<java.lang.Long>();
-              mutable_bitField0_ |= 0x00000200;
+              mutable_bitField0_ |= 0x00000100;
             }
             sealedSubclass_.add(input.readInt64());
             break;
@@ -145,9 +145,9 @@ public final class IrClass extends
           case 66: {
             int length = input.readRawVarint32();
             int limit = input.pushLimit(length);
-            if (!((mutable_bitField0_ & 0x00000200) == 0x00000200) && input.getBytesUntilLimit() > 0) {
+            if (!((mutable_bitField0_ & 0x00000100) == 0x00000100) && input.getBytesUntilLimit() > 0) {
               sealedSubclass_ = new java.util.ArrayList<java.lang.Long>();
-              mutable_bitField0_ |= 0x00000200;
+              mutable_bitField0_ |= 0x00000100;
             }
             while (input.getBytesUntilLimit() > 0) {
               sealedSubclass_.add(input.readInt64());
@@ -168,19 +168,6 @@ public final class IrClass extends
             bitField0_ |= 0x00000010;
             break;
           }
-          case 82: {
-            org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation.Builder subBuilder = null;
-            if (((bitField0_ & 0x00000020) == 0x00000020)) {
-              subBuilder = extendedValueClassRepresentation_.toBuilder();
-            }
-            extendedValueClassRepresentation_ = input.readMessage(org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation.PARSER, extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom(extendedValueClassRepresentation_);
-              extendedValueClassRepresentation_ = subBuilder.buildPartial();
-            }
-            bitField0_ |= 0x00000020;
-            break;
-          }
         }
       }
     } catch (org.jetbrains.kotlin.protobuf.InvalidProtocolBufferException e) {
@@ -198,7 +185,7 @@ public final class IrClass extends
       if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
         superType_ = java.util.Collections.unmodifiableList(superType_);
       }
-      if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
         sealedSubclass_ = java.util.Collections.unmodifiableList(sealedSubclass_);
       }
       try {
@@ -395,21 +382,6 @@ public final class IrClass extends
     return multiFieldValueClassRepresentation_;
   }
 
-  public static final int EXTENDED_VALUE_CLASS_REPRESENTATION_FIELD_NUMBER = 10;
-  private org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extendedValueClassRepresentation_;
-  /**
-   * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
-   */
-  public boolean hasExtendedValueClassRepresentation() {
-    return ((bitField0_ & 0x00000020) == 0x00000020);
-  }
-  /**
-   * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
-   */
-  public org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation getExtendedValueClassRepresentation() {
-    return extendedValueClassRepresentation_;
-  }
-
   public static final int SEALED_SUBCLASS_FIELD_NUMBER = 8;
   private java.util.List<java.lang.Long> sealedSubclass_;
   /**
@@ -442,7 +414,6 @@ public final class IrClass extends
     superType_ = java.util.Collections.emptyList();
     inlineClassRepresentation_ = org.jetbrains.kotlin.backend.common.serialization.proto.IrInlineClassRepresentation.getDefaultInstance();
     multiFieldValueClassRepresentation_ = org.jetbrains.kotlin.backend.common.serialization.proto.IrMultiFieldValueClassRepresentation.getDefaultInstance();
-    extendedValueClassRepresentation_ = org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation.getDefaultInstance();
     sealedSubclass_ = java.util.Collections.emptyList();
   }
   private byte memoizedIsInitialized = -1;
@@ -529,9 +500,6 @@ public final class IrClass extends
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
       output.writeMessage(9, multiFieldValueClassRepresentation_);
     }
-    if (((bitField0_ & 0x00000020) == 0x00000020)) {
-      output.writeMessage(10, extendedValueClassRepresentation_);
-    }
     output.writeRawBytes(unknownFields);
   }
 
@@ -596,10 +564,6 @@ public final class IrClass extends
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
       size += org.jetbrains.kotlin.protobuf.CodedOutputStream
         .computeMessageSize(9, multiFieldValueClassRepresentation_);
-    }
-    if (((bitField0_ & 0x00000020) == 0x00000020)) {
-      size += org.jetbrains.kotlin.protobuf.CodedOutputStream
-        .computeMessageSize(10, extendedValueClassRepresentation_);
     }
     size += unknownFields.size();
     memoizedSerializedSize = size;
@@ -711,10 +675,8 @@ public final class IrClass extends
       bitField0_ = (bitField0_ & ~0x00000040);
       multiFieldValueClassRepresentation_ = org.jetbrains.kotlin.backend.common.serialization.proto.IrMultiFieldValueClassRepresentation.getDefaultInstance();
       bitField0_ = (bitField0_ & ~0x00000080);
-      extendedValueClassRepresentation_ = org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation.getDefaultInstance();
-      bitField0_ = (bitField0_ & ~0x00000100);
       sealedSubclass_ = java.util.Collections.emptyList();
-      bitField0_ = (bitField0_ & ~0x00000200);
+      bitField0_ = (bitField0_ & ~0x00000100);
       return this;
     }
 
@@ -773,13 +735,9 @@ public final class IrClass extends
         to_bitField0_ |= 0x00000010;
       }
       result.multiFieldValueClassRepresentation_ = multiFieldValueClassRepresentation_;
-      if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
-        to_bitField0_ |= 0x00000020;
-      }
-      result.extendedValueClassRepresentation_ = extendedValueClassRepresentation_;
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
         sealedSubclass_ = java.util.Collections.unmodifiableList(sealedSubclass_);
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000100);
       }
       result.sealedSubclass_ = sealedSubclass_;
       result.bitField0_ = to_bitField0_;
@@ -833,13 +791,10 @@ public final class IrClass extends
       if (other.hasMultiFieldValueClassRepresentation()) {
         mergeMultiFieldValueClassRepresentation(other.getMultiFieldValueClassRepresentation());
       }
-      if (other.hasExtendedValueClassRepresentation()) {
-        mergeExtendedValueClassRepresentation(other.getExtendedValueClassRepresentation());
-      }
       if (!other.sealedSubclass_.isEmpty()) {
         if (sealedSubclass_.isEmpty()) {
           sealedSubclass_ = other.sealedSubclass_;
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000100);
         } else {
           ensureSealedSubclassIsMutable();
           sealedSubclass_.addAll(other.sealedSubclass_);
@@ -1498,71 +1453,11 @@ public final class IrClass extends
       return this;
     }
 
-    private org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extendedValueClassRepresentation_ = org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation.getDefaultInstance();
-    /**
-     * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
-     */
-    public boolean hasExtendedValueClassRepresentation() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
-    }
-    /**
-     * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
-     */
-    public org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation getExtendedValueClassRepresentation() {
-      return extendedValueClassRepresentation_;
-    }
-    /**
-     * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
-     */
-    public Builder setExtendedValueClassRepresentation(org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      extendedValueClassRepresentation_ = value;
-
-      bitField0_ |= 0x00000100;
-      return this;
-    }
-    /**
-     * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
-     */
-    public Builder setExtendedValueClassRepresentation(
-        org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation.Builder builderForValue) {
-      extendedValueClassRepresentation_ = builderForValue.build();
-
-      bitField0_ |= 0x00000100;
-      return this;
-    }
-    /**
-     * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
-     */
-    public Builder mergeExtendedValueClassRepresentation(org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation value) {
-      if (((bitField0_ & 0x00000100) == 0x00000100) &&
-          extendedValueClassRepresentation_ != org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation.getDefaultInstance()) {
-        extendedValueClassRepresentation_ =
-          org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation.newBuilder(extendedValueClassRepresentation_).mergeFrom(value).buildPartial();
-      } else {
-        extendedValueClassRepresentation_ = value;
-      }
-
-      bitField0_ |= 0x00000100;
-      return this;
-    }
-    /**
-     * <code>optional .org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation extended_value_class_representation = 10;</code>
-     */
-    public Builder clearExtendedValueClassRepresentation() {
-      extendedValueClassRepresentation_ = org.jetbrains.kotlin.backend.common.serialization.proto.IrExtendedValueClassRepresentation.getDefaultInstance();
-
-      bitField0_ = (bitField0_ & ~0x00000100);
-      return this;
-    }
-
     private java.util.List<java.lang.Long> sealedSubclass_ = java.util.Collections.emptyList();
     private void ensureSealedSubclassIsMutable() {
-      if (!((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (!((bitField0_ & 0x00000100) == 0x00000100)) {
         sealedSubclass_ = new java.util.ArrayList<java.lang.Long>(sealedSubclass_);
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
        }
     }
     /**
@@ -1619,7 +1514,7 @@ public final class IrClass extends
      */
     public Builder clearSealedSubclass() {
       sealedSubclass_ = java.util.Collections.emptyList();
-      bitField0_ = (bitField0_ & ~0x00000200);
+      bitField0_ = (bitField0_ & ~0x00000100);
       
       return this;
     }

@@ -31,7 +31,7 @@ private fun testUnstableNotCaptured() {
         barRegular {
             isEmpty = false
         }
-        if (<!CV_DIAGNOSTIC!>isEmpty<!>) {
+        if (isEmpty) {
             println("Empty")
         }
     }

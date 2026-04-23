@@ -89,5 +89,15 @@ private fun testNestedEscapingLambdas() = barRegular {
     another = "hi"
 }
 
+fun testNestedNotCapturedRead() = barRegular {
+    var computeCount = 0
+
+    barRegular {
+        computeCount++
+    }
+
+    println(computeCount)
+}
+
 /* GENERATED_FIR_TAGS: assignment, functionDeclaration, functionalType, integerLiteral, lambdaLiteral, localProperty,
 propertyDeclaration, tryExpression, whileLoop */

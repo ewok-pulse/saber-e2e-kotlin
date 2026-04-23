@@ -40,11 +40,23 @@ object FirCapturedVariableStabilityFunctionChecker : AbstractFirPropertyInitiali
         val visibleWrites =
             data.graph.traverseToFixedPoint(FindVisibleWrites(capturedWrites, trackedProperties, excludeLocalInPlaceWrites = true))
 
+        val propertyDeclarationGraphs = mutableMapOf<FirPropertySymbol, ControlFlowGraph>()
+        data.graph.traverse(object : ControlFlowGraphVisitorVoid() {
+            override fun visitNode(node: CFGNode<*>) {}
+            override fun visitVariableDeclarationExitNode(node: VariableDeclarationExitNode) {
+                val symbol = node.fir.symbol
+                if (symbol in trackedProperties) {
+                    propertyDeclarationGraphs[symbol] = node.owner.nearestNonInPlaceGraph()
+                }
+            }
+        })
+
         val escapingProperties = mutableSetOf<Pair<FirPropertySymbol, FirQualifiedAccessExpression>>()
         data.graph.traverse(
             CapturedVariableVisitor(
                 trackedProperties,
                 visibleWrites,
+                propertyDeclarationGraphs,
                 escapingProperties,
             )
         )
@@ -63,6 +75,7 @@ object FirCapturedVariableStabilityFunctionChecker : AbstractFirPropertyInitiali
 private class CapturedVariableVisitor(
     private val trackedProperties: Set<FirPropertySymbol>,
     private val visibleWrites: Map<CFGNode<*>, PathAwareControlFlowInfo<PropertyAccessType, VariableWriteData>>,
+    private val propertyDeclarationGraphs: Map<FirPropertySymbol, ControlFlowGraph>,
     private val escapingProperties: MutableSet<Pair<FirPropertySymbol, FirQualifiedAccessExpression>>,
 ) : ControlFlowGraphVisitorVoid() {
     override fun visitNode(node: CFGNode<*>) {}
@@ -90,6 +103,13 @@ private class CapturedVariableVisitor(
         if (currentGraph.declaration !is FirAnonymousFunction) return
         val symbol = expression.calleeReference.toResolvedVariableSymbol() as? FirPropertySymbol ?: return
         if (symbol !in trackedProperties) return
+
+        // Only report if the variable is captured
+        val declarationGraph = propertyDeclarationGraphs[symbol]
+        if (declarationGraph == currentGraph) {
+            return
+        }
+
         val hasCapturedWrites = visibleWrites[accessNode]
             ?.values
             ?.any { controlFlowInfo ->

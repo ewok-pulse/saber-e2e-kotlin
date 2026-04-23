@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.Companion.outermostEntity
+import org.jetbrains.kotlin.fir.resolve.dependencies.hasImplementation
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousInitializerSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
@@ -41,7 +42,9 @@ sealed interface NodeIndex<out D : FirDeclaration> {
         override val enclosingEntity: EnclosingEntity<*>,
         override val symbol: FirPropertySymbol
     ) : DeclarationIndex<FirProperty> {
-        override val poisonsOnCyclicAccess: Boolean get() = symbol.hasInitializer
+        override val poisonsOnCyclicAccess: Boolean
+            get() = symbol.hasInitializer && symbol.getterSymbol?.let { !it.hasImplementation } ?: true
+
         override fun toString(): String =
             "${if (enclosingEntity is EnclosingEntity.File) "" else "$enclosingEntity."}${symbol.name.asString()}"
     }
@@ -61,7 +64,7 @@ sealed interface NodeIndex<out D : FirDeclaration> {
     ) : DeclarationIndex<D> {
         override val poisonsOnCyclicAccess: Boolean = false
         override fun toString(): String =
-            "${if (enclosingEntity is EnclosingEntity.File) "" else "$enclosingEntity."}${symbol.name.asString()}()"
+            "${if (enclosingEntity is EnclosingEntity.File) "" else "$enclosingEntity."}${symbol.name.asString()}${if (symbol !is FirPropertySymbol) "()" else " (getter)"}"
     }
 
     sealed interface BeginSubgraphIndex<D : FirDeclaration> : SingletonIndex<D>
@@ -97,7 +100,9 @@ sealed interface NodeIndex<out D : FirDeclaration> {
     data class InstancedPropertyIndex(
         override val enclosingEntity: EnclosingEntity.InstancedProperty,
     ) : BeginSubgraphIndex<FirProperty> {
-        override val poisonsOnCyclicAccess: Boolean get() = enclosingEntity.symbol.hasInitializer
+        override val poisonsOnCyclicAccess: Boolean
+            get() = enclosingEntity.symbol.hasInitializer && enclosingEntity.symbol.getterSymbol?.let { !it.hasImplementation } ?: true
+
         override fun toString(): String = enclosingEntity.toString()
     }
 

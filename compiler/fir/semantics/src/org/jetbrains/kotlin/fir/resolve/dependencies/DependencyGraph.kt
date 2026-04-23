@@ -7,13 +7,13 @@ package org.jetbrains.kotlin.fir.resolve.dependencies
 
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Visibilities
-import org.jetbrains.kotlin.descriptors.isEnumClass
 import org.jetbrains.kotlin.descriptors.isInterface
 import org.jetbrains.kotlin.descriptors.isObject
 import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.FirSessionComponent
 import org.jetbrains.kotlin.fir.SessionAndScopeSessionHolder
+import org.jetbrains.kotlin.fir.containingClassLookupTag
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousFunction
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousInitializer
 import org.jetbrains.kotlin.fir.declarations.FirCallableDeclaration
@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.fir.declarations.FirFile
 import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.FirNamedFunction
 import org.jetbrains.kotlin.fir.declarations.FirProperty
+import org.jetbrains.kotlin.fir.declarations.FirPropertyAccessor
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
 import org.jetbrains.kotlin.fir.declarations.fullyExpandedClass
@@ -34,6 +35,7 @@ import org.jetbrains.kotlin.fir.declarations.processAllDeclarations
 import org.jetbrains.kotlin.fir.declarations.utils.fromPrimaryConstructor
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
 import org.jetbrains.kotlin.fir.declarations.utils.isExtension
+import org.jetbrains.kotlin.fir.declarations.utils.isInner
 import org.jetbrains.kotlin.fir.declarations.utils.isInterface
 import org.jetbrains.kotlin.fir.declarations.utils.visibility
 import org.jetbrains.kotlin.fir.exceptionHandler
@@ -79,6 +81,7 @@ import org.jetbrains.kotlin.fir.expressions.FirWhenSubjectExpression
 import org.jetbrains.kotlin.fir.expressions.FirWrappedArgumentExpression
 import org.jetbrains.kotlin.fir.expressions.FirWrappedDelegateExpression
 import org.jetbrains.kotlin.fir.expressions.FirWrappedExpression
+import org.jetbrains.kotlin.fir.expressions.resolvedArgumentMapping
 import org.jetbrains.kotlin.fir.isGeneratedStaticEnumMember
 import org.jetbrains.kotlin.fir.originalIfFakeOverride
 import org.jetbrains.kotlin.fir.references.toResolvedConstructorSymbol
@@ -108,6 +111,7 @@ import org.jetbrains.kotlin.fir.resolve.dfa.isNotEmpty
 import org.jetbrains.kotlin.fir.resolve.dfa.stackOf
 import org.jetbrains.kotlin.fir.resolve.dfa.topOrNull
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
+import org.jetbrains.kotlin.fir.resolve.getContainingClassSymbol
 import org.jetbrains.kotlin.fir.resolve.providers.firProvider
 import org.jetbrains.kotlin.fir.resolve.providers.getContainingFile
 import org.jetbrains.kotlin.fir.resolve.toClassSymbol
@@ -115,6 +119,7 @@ import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.scopes.ProcessorAction
 import org.jetbrains.kotlin.fir.scopes.ScopeFunctionRequiresPrewarm
+import org.jetbrains.kotlin.fir.scopes.anyOverriddenOf
 import org.jetbrains.kotlin.fir.scopes.processAllCallables
 import org.jetbrains.kotlin.fir.scopes.unsubstitutedScope
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
@@ -130,13 +135,14 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirReceiverParameterSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirTypeAliasSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirTypeParameterSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirValueParameterSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirVariableSymbol
 import org.jetbrains.kotlin.fir.types.coneTypeOrNull
 import org.jetbrains.kotlin.fir.types.isNothing
 import org.jetbrains.kotlin.fir.types.isPrimitiveOrNullablePrimitive
+import org.jetbrains.kotlin.fir.types.isString
 import org.jetbrains.kotlin.fir.types.isUnit
 import org.jetbrains.kotlin.fir.types.toLookupTag
-import org.jetbrains.kotlin.fir.types.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.unwrapSubstitutionOverrides
 import org.jetbrains.kotlin.fir.visitors.FirVisitorVoid
 import org.jetbrains.kotlin.name.Name
@@ -147,6 +153,7 @@ import java.util.LinkedList
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.contains
+import kotlin.collections.mutableSetOf
 import kotlin.collections.set
 import kotlin.sequences.forEach
 
@@ -180,41 +187,43 @@ data class DependencyGraph(
 
     operator fun contains(enclosingEntity: EnclosingEntity<*>): Boolean = enclosingEntity in enclosingEntities
 
-    fun poisoningAccessesFor(
-        index: NodeIndex.SingletonIndex<*>,
-        visited: MutableSet<NodeIndex<*>> = mutableSetOf()
-    ): Set<FirExpression> {
+    fun poisoningAccessesFor(index: NodeIndex.SingletonIndex<*>): Map<FirExpression, Set<FirBasedSymbol<*>>> {
         require(index in poisonedNodes) { "Index $index must be poisoned to find poisoning accesses!" }
         return this[index]?.let { node ->
             when (node) {
-                is DependencyNode.CompositeNode -> mutableSetOf<FirExpression>().apply {
-                    node.accessesFor(index).forEach { (from, exprs) ->
+                is DependencyNode.CompositeNode -> mutableMapOf<FirExpression, MutableSet<FirBasedSymbol<*>>>().apply {
+                    node.accessesFor(index).forEach { (from, isDynamic, exprs) ->
                         if (node.causesPoisoningAccess(from, index)
-                            || from.isInPossiblyUninitializedEntity(node)
-                            || node.isAccessingOutOfOrderDeclaration(from, index)
-                            || isPoisoned(from, visited)
+                            || from.isInPossiblyUninitializedEntity(isDynamic, node)
+                            || index.isAccessingOutOfOrderDeclaration(from)
+                            || isPoisoned(from)
                         ) {
-                            addAll(exprs)
+                            exprs.forEach {
+                                getOrPut(it) { mutableSetOf() }
+                                    .add(if (from is NodeIndex.DeclarationIndex) from.symbol else from.enclosingEntity.symbol)
+                            }
                         }
                     }
                 }
-                is DependencyNode.SingletonNode -> mutableSetOf<FirExpression>().apply {
-                    node.accesses.forEach { (from, exprs) ->
-                        if (isPoisoned(from, visited)) {
-                            addAll(exprs)
+                is DependencyNode.SingletonNode -> mutableMapOf<FirExpression, MutableSet<FirBasedSymbol<*>>>().apply {
+                    node.accesses.forEach { (from, isDynamic, exprs) ->
+                        if (from.isInPossiblyUninitializedEntity(isDynamic, null)
+                            || index.isAccessingOutOfOrderDeclaration(from)
+                            || isPoisoned(from)
+                        ) {
+                            exprs.forEach {
+                                getOrPut(it) { mutableSetOf() }
+                                    .add(if (from is NodeIndex.DeclarationIndex) from.symbol else from.enclosingEntity.symbol)
+                            }
                         }
                     }
                 }
             }
-        } ?: emptySet()
+        } ?: emptyMap()
     }
 
     fun isPoisoned(index: NodeIndex.SingletonIndex<*>, visited: MutableSet<NodeIndex<*>> = mutableSetOf()): Boolean {
-//        println("Checking if $index is poisoned")
-        if (index !in this) {
-            println("Index $index is not in the graph (file: ${index.enclosingEntity.symbol.moduleData.session.firProvider.getContainingFile(index.enclosingEntity.symbol)?.name})")
-            return false
-        }
+        if (index !in this) return false
         if (index in poisonedNodes) return true
         if (index in visited) {
             poisonedNodes += index
@@ -226,32 +235,28 @@ data class DependencyGraph(
             when (node) {
                 // If it belongs to a composite node, ...
                 is DependencyNode.CompositeNode -> {
-//                    println("Checking accesses for composite node: $index")
                     val accesses = node.accessesFor(index)
-//                    println("Accesses: $accesses")
                     // Short-circuit on the first bad access if possible
                     var hasPoisoningInCycleAccess = false
                     var hasAccessCausingExceptionInInitializer = false
                     var hasOutOfOrderAccess = false
                     val uncheckedIndices = mutableSetOf<NodeIndex.SingletonIndex<*>>()
-                    for ((from, _) in accesses) {
-//                        println("Checking base cases for: $from -> $index")
+                    for ((from, isDynamic, _) in accesses) {
                         if (node.causesPoisoningAccess(from, index)) {
+                            println("Node $index is accessing $from which poisons the declaration")
                             hasPoisoningInCycleAccess = true
-//                            println("Cyclic poisoning access: $from -> $index")
                             break
                         }
-                        if (from.isInPossiblyUninitializedEntity(node)) {
+                        if (from.isInPossiblyUninitializedEntity(isDynamic, node)) {
+                            println("Node $index is accessing possibly-uninitialized entity $from")
                             hasAccessCausingExceptionInInitializer = true
-//                            println("Access in uninitialized nested entity: $from -> $index")
                             break
                         }
-                        if (node.isAccessingOutOfOrderDeclaration(from, index)) {
+                        if (index.isAccessingOutOfOrderDeclaration(from)) {
+                            println("Node $index is accessing $from out of order")
                             hasOutOfOrderAccess = true
-//                            println("Out-of-order of declaration access: $from -> $index")
                             break
                         }
-//                        println("Non-trivial access: $from -> $index")
                         // Check for transitive poisoning
                         uncheckedIndices.add(from)
                     }
@@ -270,8 +275,30 @@ data class DependencyGraph(
                 }
                 // If it belongs to a singleton node, ...
                 is DependencyNode.SingletonNode<*> -> {
+                    val accesses = node.accesses
+                    var hasAccessCausingExceptionInInitializer = false
+                    var hasOutOfOrderAccess = false
+                    val uncheckedIndices = mutableSetOf<NodeIndex.SingletonIndex<*>>()
+                    for ((from, isDynamic, _) in accesses) {
+                        if (from.isInPossiblyUninitializedEntity(isDynamic)) {
+                            println("Node $index is accessing possibly-uninitialized entity $from")
+                            hasAccessCausingExceptionInInitializer = true
+                            break
+                        }
+                        if (index.isAccessingOutOfOrderDeclaration(from)) {
+                            println("Node $index is accessing $from out of order")
+                            hasOutOfOrderAccess = true
+                            break
+                        }
+                        // Check for transitive poisoning
+                        uncheckedIndices.add(from)
+                    }
                     // Inductive step: if any information flowing to the node is from a node that is bad (elsewhere)
-                    if (node.accesses.any { (from, _) -> isPoisoned(from, visited.toMutableSet()) }) {
+                    if (hasAccessCausingExceptionInInitializer || hasOutOfOrderAccess) {
+                        poisonedNodes += index
+                        return@let true
+                    }
+                    if (uncheckedIndices.any { isPoisoned(it, visited.toMutableSet()) }) {
                         poisonedNodes += index
                         return@let true
                     }
@@ -281,7 +308,7 @@ data class DependencyGraph(
         } ?: false
     }
 
-    fun deadlockingEntities(enclosingEntity: EnclosingEntity<*>): Sequence<EnclosingEntity<*>> =
+    fun mutuallyDependentEntities(enclosingEntity: EnclosingEntity<*>): Sequence<EnclosingEntity<*>> =
         this[enclosingEntity].mapNotNull(::get)
             .filterIsInstance<DependencyNode.CondensedNode>()
             .flatMap { it.enclosingEntities }
@@ -359,43 +386,50 @@ data class DependencyGraph(
         private fun DependencyNode.CompositeNode.causesPoisoningAccess(
             from: NodeIndex.SingletonIndex<*>,
             to: NodeIndex.SingletonIndex<*>
-        ): Boolean {
-//            println("Poisoning access check: $from -> $to")
-//            println(from in this)
-//            println(to is NodeIndex.FunctionLikeIndex || !from.belongsToEntity(to.enclosingEntity))
-//            println(from.poisonsOnCyclicAccess)
-            return from in this && (to is NodeIndex.FunctionLikeIndex || !from.belongsToEntity(to.enclosingEntity)) && from.poisonsOnCyclicAccess
-        }
+        ): Boolean =
+            from in this && (to is NodeIndex.FunctionLikeIndex || !from.belongsToEntity(to.enclosingEntity)) && from.poisonsOnCyclicAccess
 
         // Accessing something in a possibly-uninitialized entity in this cycle
-        private fun NodeIndex.SingletonIndex<*>.isInPossiblyUninitializedEntity(cycle: DependencyNode.CompositeNode): Boolean =
+        private fun NodeIndex.SingletonIndex<*>.isInPossiblyUninitializedEntity(
+            isDynamic: Boolean,
+            cycle: DependencyNode.CompositeNode? = null
+        ): Boolean =
             // Only consider accessible nodes
-            enclosingEntity.isAccessedPossiblyUninitialized(cycle)
+            enclosingEntity.isAccessedPossiblyUninitialized(isDynamic, cycle)
 
         // Accessing something in the same entity but out of order of declaration (excluding function-likes)
         context(graph: DependencyGraph)
-        private fun DependencyNode.CompositeNode.isAccessingOutOfOrderDeclaration(
-            from: NodeIndex.SingletonIndex<*>,
-            to: NodeIndex.SingletonIndex<*>
+        private fun NodeIndex.SingletonIndex<*>.isAccessingOutOfOrderDeclaration(
+            from: NodeIndex.SingletonIndex<*>
         ): Boolean =
-            if (from.belongsToEntity(to.enclosingEntity) && from !is NodeIndex.FunctionLikeIndex<*>) {
-                // Case 1: the `from` node is outside of the loop, i.e., it must have a happens-before path to `index`
-                if (from !in this && from happensBefore index) return true
-                // Case 2: the `from` node is inside the loop, i.e., it must have an inner happens-before path to `index` inside
+            if (from.belongsToEntity(enclosingEntity) && from !is NodeIndex.FunctionLikeIndex<*>) {
+                val fromNode = graph[from] ?: return false
+                val toNode = graph[this] ?: return false
+                // Case 1: the `from` node is inside the loop, i.e., it must have an inner happens-before path to `index` inside
                 // the condensed node
-                if (from in this && innerHappensBeforeDescendants(from).any { it == index }) return true
+                if (fromNode == toNode && fromNode is DependencyNode.CondensedNode) {
+                    return fromNode.innerHappensBeforeDescendants(from).any { it == this }
+                }
+                // Case 2: the `from` node is outside of the loop, i.e., it must have a happens-before path to `index`
+                if (fromNode != toNode) {
+                    return from happensBefore this
+                }
                 return false
             } else false
 
         // Accessing an entity in a cycle which can be possibly uninitialized happens iff its outermost entity is a class and:
         // - the outermost class entity is an interface (KT-20238)
         // - OR the class' begin node is in the cycle as well
-        private fun EnclosingEntity<*>.isAccessedPossiblyUninitialized(cycle: DependencyNode.CompositeNode): Boolean =
+        private fun EnclosingEntity<*>.isAccessedPossiblyUninitialized(
+            isDynamic: Boolean,
+            cycle: DependencyNode.CompositeNode? = null
+        ): Boolean =
             parentEnclosingEntity?.let { outer ->
                 // The only entities whose their outer entity is a class are companion objects and enum entries (which must be in the cycle)
                 // If this is not the case, recurse further up the hierarchy (i.e., we are looking at an instanced property (not) in the cycle)
-                this in cycle && outer is EnclosingEntity.Class && (outer.symbol.isInterface || outer.beginSubgraphIndex in cycle)
-                        || outer.isAccessedPossiblyUninitialized(cycle)
+                outer is EnclosingEntity.Class
+                        && (outer.symbol.isInterface || cycle?.let { this in it || outer.beginSubgraphIndex in it } ?: false || isDynamic)
+                        || outer.isAccessedPossiblyUninitialized(isDynamic, cycle)
             } ?: false
     }
 
@@ -417,8 +451,9 @@ data class DependencyGraph(
 
         abstract val possiblyHappenAfter: Sequence<NodeIndex<*>>
 
-        abstract fun accessesTo(from: NodeIndex.SingletonIndex<*>): Set<FirExpression>
-          protected abstract fun addIncomingAccess(access: Dependency.Access, at: Set<FirExpression>): Boolean
+        abstract fun accessesTo(from: NodeIndex.SingletonIndex<*>, isDynamic: Boolean): Set<FirExpression>
+
+        protected abstract fun addIncomingAccess(access: Dependency.Access, at: Set<FirExpression>): Boolean
 
         protected abstract fun addOutgoingAccess(access: Dependency.Access): Boolean
 
@@ -473,11 +508,11 @@ data class DependencyGraph(
                     .filter(Dependency.TimeDependency::possiblyHappens)
                     .map(Dependency::to)
 
-            override fun accessesTo(from: NodeIndex.SingletonIndex<*>): Set<FirExpression> =
-                _incomingInfoFlow[Dependency.Access(from, index)] ?: emptySet()
+            override fun accessesTo(from: NodeIndex.SingletonIndex<*>, isDynamic: Boolean): Set<FirExpression> =
+                _incomingInfoFlow[Dependency.Access(from, index, isDynamic)] ?: emptySet()
 
-            val accesses: Sequence<Pair<NodeIndex.SingletonIndex<*>, Set<FirExpression>>>
-                get() = _incomingInfoFlow.asSequence().map { (access, accesses) -> access.from to accesses }
+            val accesses: Sequence<Triple<NodeIndex.SingletonIndex<*>, Boolean, Set<FirExpression>>>
+                get() = _incomingInfoFlow.asSequence().map { (access, accesses) -> Triple(access.from, access.isDynamic, accesses) }
 
             override fun addIncomingAccess(access: Dependency.Access, at: Set<FirExpression>): Boolean {
                 if (access.to != index) return false
@@ -555,15 +590,15 @@ data class DependencyGraph(
                     .filter(Dependency.TimeDependency::possiblyHappens)
                     .map(Dependency::to)
 
-            override fun accessesTo(from: NodeIndex.SingletonIndex<*>): Set<FirExpression> =
+            override fun accessesTo(from: NodeIndex.SingletonIndex<*>, isDynamic: Boolean): Set<FirExpression> =
                 filterIsInstance<NodeIndex.SingletonIndex<*>>().fold(linkedSetOf()) { acc, index ->
-                    _incomingAccesses[Dependency.Access(from, index)]?.apply(acc::addAll)
+                    _incomingAccesses[Dependency.Access(from, index, isDynamic)]?.apply(acc::addAll)
                     acc
                 }
 
-            fun accessesFor(index: NodeIndex.SingletonIndex<*>): Sequence<Pair<NodeIndex.SingletonIndex<*>, Set<FirExpression>>> =
+            fun accessesFor(index: NodeIndex.SingletonIndex<*>): Sequence<Triple<NodeIndex.SingletonIndex<*>, Boolean, Set<FirExpression>>> =
                 _incomingInfoFlow[index]?.asSequence()?.mapNotNull { access ->
-                    _incomingAccesses[access]?.let { exprs -> access.from to exprs }
+                    _incomingAccesses[access]?.let { exprs -> Triple(access.from, access.isDynamic, exprs) }
                 } ?: emptySequence()
 
             abstract val enclosingEntities: Set<EnclosingEntity<*>>
@@ -660,8 +695,25 @@ data class DependencyGraph(
                     },
                     innerHappensBeforeFlow = mutableMapOf<NodeIndex<*>, Set<NodeIndex<*>>>().also { flow ->
                         this.forEach { node ->
-                            flow[node.index] = node.outgoing.filterIsInstance<Dependency.HappensBefore>()
-                                .mapTo(mutableSetOf()) { it.to }
+                            when (val index = node.index) {
+                                is NodeIndex.CompositeIndex -> {
+                                    val connections = node.outgoing.filterIsInstance<Dependency.HappensBefore>()
+                                        .flatMapTo(mutableSetOf()) {
+                                            when (val to = it.to) {
+                                                is NodeIndex.CompositeIndex -> to.indices
+                                                else -> setOf(to)
+                                            }
+                                        }
+                                    index.indices.forEach { index -> flow[index] = connections }
+                                }
+                                else -> flow[index] = node.outgoing.filterIsInstance<Dependency.HappensBefore>()
+                                    .flatMapTo(mutableSetOf()) {
+                                        when (val to = it.to) {
+                                            is NodeIndex.CompositeIndex -> to.indices
+                                            else -> setOf(to)
+                                        }
+                                    }
+                            }
                         }
                     }
                 ).apply {
@@ -673,7 +725,7 @@ data class DependencyGraph(
                         node.incoming.forEach { dependency ->
                             when (dependency) {
                                 // Add all incoming access edges from each node (regardless if their targets are in the set of not)
-                                is Dependency.Access -> addIncomingAccess(dependency, node.accessesTo(dependency.from))
+                                is Dependency.Access -> addIncomingAccess(dependency, node.accessesTo(dependency.from, dependency.isDynamic))
                                 // Merge all incoming time dependencies into the new condensed node and update their targets
                                 is Dependency.HappensBefore -> {
                                     // Skip edges which connect nodes in the set
@@ -742,11 +794,11 @@ data class DependencyGraph(
         companion object {
 
             context(graph: DependencyGraph)
-            infix fun NodeIndex.SingletonIndex<*>?.accesses(access: Pair<NodeIndex.SingletonIndex<*>, Set<FirExpression>>): Boolean {
-                val (other, at) = access
+            infix fun NodeIndex.SingletonIndex<*>?.accesses(access: Triple<NodeIndex.SingletonIndex<*>, Boolean, Set<FirExpression>>): Boolean {
+                val (other, isDynamic, at) = access
                 // Disallow self-loops
                 if (this != null && this != other && this in graph && other in graph) {
-                    val dependency = Dependency.Access(other, this)
+                    val dependency = Dependency.Access(other, this, isDynamic)
                     val addedLeft = graph[this]?.addIncomingAccess(dependency, at) ?: false
                     val addedRight = graph[other]?.addOutgoingAccess(dependency) ?: false
                     return addedLeft || addedRight
@@ -884,7 +936,7 @@ data class DependencyGraph(
             /**
              * Directly referenced a class symbol of an entity
              *
-             * Used specifically to ensure may-happen-before relations when due to GetClass calls and class references
+             * Used specifically to ensure happens-before relations when due to constructor calls
              */
             data class ClassReference<D : FirClass>(val enclosingEntity: EnclosingEntity<D>) : SymbolReference<D> {
                 override val symbol: FirBasedSymbol<D> get() = enclosingEntity.symbol
@@ -932,6 +984,7 @@ data class DependencyGraph(
 
             private val symbolStack: Stack<FirBasedSymbol<*>> = stackOf()
             private val elementStack: Stack<FirElement> = stackOf()
+            private val defaultArgumentMap: MutableMap<FirCallableSymbol<*>, Set<Name>> = mutableMapOf()
 
             private inline fun <E : FirElement> E.visit(containingSymbol: FirBasedSymbol<*>? = null, crossinline block: E.() -> Unit) {
                 var popSymbol = false
@@ -987,10 +1040,15 @@ data class DependencyGraph(
 
             override fun visitProperty(property: FirProperty) {
                 property.visit {
-                    // Visit only the initializer and a getter
+                    // Visit only the initializer
                     initializer?.collect()
-                    getter?.collectRecursively()
                 }
+            }
+
+            override fun visitPropertyAccessor(propertyAccessor: FirPropertyAccessor) {
+                // So far we only care about getters
+                if (!propertyAccessor.isGetter) return
+                return propertyAccessor.visit { collectRecursively() }
             }
 
             override fun visitBlock(block: FirBlock) = block.visit { collectRecursively() }
@@ -1001,8 +1059,39 @@ data class DependencyGraph(
              * =============================================
              */
 
+            @OptIn(ScopeFunctionRequiresPrewarm::class)
             override fun visitFunction(function: FirFunction) = function.visit {
-                valueParameters.forEach { it.defaultValue?.collect() }
+                defaultArgumentMap[symbol]?.let { resolvedParameters ->
+                    val defaulted = mutableSetOf<FirValueParameterSymbol>()
+                    symbol.valueParameterSymbols.forEach { parameterSymbol ->
+                        if (parameterSymbol.name !in resolvedParameters && parameterSymbol.hasDefaultValue) {
+                            parameterSymbol.resolvedDefaultValue?.let {
+                                it.collect()
+                                defaulted += parameterSymbol
+                            }
+                        }
+                    }
+                    if (defaulted.isEmpty() && resolvedParameters.size < symbol.valueParameterSymbols.size) {
+                        val containingSymbol = symbol.getContainingClassSymbol() as? FirClassSymbol<*> ?: return@visit
+                        val scope = containingSymbol.unsubstitutedScope(true, memberRequiredPhase = null)
+                        var overridden: FirNamedFunctionSymbol? = null
+                        (symbol as? FirNamedFunctionSymbol)?.let { namedSymbol ->
+                            // Prewarm
+                            scope.processFunctionsByName(symbol.name) { }
+                            scope.anyOverriddenOf(namedSymbol) { function ->
+                                if (function.valueParameterSymbols.any { it.hasDefaultValue }) {
+                                    overridden = function
+                                    true
+                                } else false
+                            }
+                        }
+                        overridden?.valueParameterSymbols?.forEach { parameterSymbol ->
+                            if (parameterSymbol.name !in resolvedParameters && parameterSymbol.hasDefaultValue) {
+                                parameterSymbol.fir.defaultValue?.collect()
+                            }
+                        }
+                    }
+                }
                 body?.collect()
             }
 
@@ -1058,9 +1147,9 @@ data class DependencyGraph(
             private fun FirPropertyAccessExpression.toEnclosingEntity(): EnclosingEntity<*>? =
                 calleeReference.toResolvedEnumEntrySymbol(discardErrorReference = true)?.asEnumEntryEntity()
                     ?: calleeReference.toResolvedPropertySymbol(discardErrorReference = true)?.let { propertySymbol ->
-                        if (propertySymbol.isLocal || !propertySymbol.hasInitializer) return null
+                        if (propertySymbol.isLocal || !propertySymbol.hasInitializer || propertySymbol.getterSymbol?.hasImplementation ?: false) return null
                         // There can be no enclosing entity corresponding to a primitive property
-                        if (propertySymbol.resolvedReturnType.let { it.isPrimitiveOrNullablePrimitive || it.isUnit || it.isNothing }) return@let null
+                        if (propertySymbol.resolvedReturnType.let { it.isPrimitiveOrNullablePrimitive || it.isString || it.isUnit || it.isNothing }) return@let null
                         val enclosingEntity = dispatchReceiver?.let { receiver ->
                             when (receiver) {
                                 is FirResolvedQualifier -> receiver.toEnclosingEntity()
@@ -1072,8 +1161,8 @@ data class DependencyGraph(
                     }
 
             private fun FirPropertySymbol.toNodeReference(enclosingEntity: EnclosingEntity<*>): SymbolReference<FirProperty> =
-                when (hasInitializer) {
-                    true -> when (resolvedReturnType.isPrimitiveOrNullablePrimitive || resolvedReturnType.isUnit || resolvedReturnType.isNothing) {
+                when (hasInitializer && getterSymbol?.let { !it.hasImplementation } ?: true) {
+                    true -> when (resolvedReturnType.isPrimitiveOrNullablePrimitive || resolvedReturnType.isString || resolvedReturnType.isUnit || resolvedReturnType.isNothing) {
                         true -> SymbolReference.NodeReference(NodeIndex.PrimitivePropertyIndex(enclosingEntity, this))
                         false -> SymbolReference.SubgraphReference(asInstancedPropertyEntity(enclosingEntity))
                     }
@@ -1081,6 +1170,7 @@ data class DependencyGraph(
                 }
 
             private inline fun <D : FirCallableDeclaration, T : FirCallableSymbol<D>> Pair<T, FirQualifiedAccessExpression>.computeReference(
+                resolvedDefaultArguments: Set<Name> = setOf(),
                 crossinline toNodeReference: T.(EnclosingEntity<*>) -> SymbolReference<D>
             ): Unit = let { (symbol, access) ->
                 // If the callable is an extension, ...
@@ -1122,7 +1212,10 @@ data class DependencyGraph(
                 if (!reference.isStatic) {
                     // We "fallthrough" to the property declaration to look for dependencies
                     access.dispatchReceiver?.collect()
+                    val oldArguments = defaultArgumentMap[symbol]
+                    defaultArgumentMap[symbol] = resolvedDefaultArguments
                     symbol.fir.collect()
+                    oldArguments?.let { defaultArgumentMap[symbol] = it } ?: defaultArgumentMap.remove(symbol)
                 }
             }
 
@@ -1141,32 +1234,10 @@ data class DependencyGraph(
                     }
                 }
 
-            fun FirClassSymbol<*>.collectSuperTypeReferences(visited: MutableSet<FirClassSymbol<*>> = mutableSetOf(), at: FirExpression) {
-                resolvedSuperTypes.forEach { superType ->
-                    superType.fullyExpandedType().toRegularClassSymbol()?.let { superTypeSymbol ->
-                        // Skip library supertypes, as they cannot have mutual dependencies with the source types, interface types without
-                        // default methods, and types which are declared outside the current module
-                        if (superTypeSymbol.isLibraryDeclaration
-                            || !superTypeSymbol.isInitializedByItsSupertypes
-                            || superTypeSymbol.moduleData.name != moduleName
-                            || !visited.add(this)
-                        ) return@let
-                        // If the supertype has static declarations (it must be an enclosing entity), ...
-                        superTypeSymbol.asClassEntity()?.let {
-                            addReferenceToCurrent(
-                                reference = SymbolReference.ClassReference(it),
-                                at = at
-                            )
-                        } ?:
-                        // Otherwise, the supertype's supertypes may have static declarations, so connect to them instead
-                        superTypeSymbol.collectSuperTypeReferences(visited, at)
-                    }
-                }
-            }
-
             override fun visitResolvedQualifier(resolvedQualifier: FirResolvedQualifier): Unit =
                 resolvedQualifier.visit {
                     symbol?.fullyExpandedClass(session)?.apply {
+                        if (moduleData.name != moduleName) return@visit
                         // If the qualified class can be a value, ...
                         // Only objects can be used as values, enum entries are accessible as properties (variables), and (static) classes are not accessible
                         if (canBeValue) {
@@ -1189,56 +1260,61 @@ data class DependencyGraph(
                                 }
                             }
                         }
-                        // Otherwise, we at least try to ensure that the class is lazily initialized due to this reference
-                        else {
-                            asEntity()?.let { classEntity ->
-                                when (classEntity) {
-                                    is EnclosingEntity.Class -> addReferenceToCurrent(
-                                        reference = SymbolReference.ClassReference(classEntity),
-                                        at = resolvedQualifier
-                                    )
-                                    is EnclosingEntity.Object -> addReferenceToCurrent(
-                                        reference = SymbolReference.ClassReference(classEntity),
-                                        at = resolvedQualifier
-                                    )
-                                    else -> {}
-                                }
-                            } ?: collectSuperTypeReferences(at = resolvedQualifier)
-                        }
                     }
                 }
 
+            @OptIn(ScopeFunctionRequiresPrewarm::class)
             override fun visitFunctionCall(functionCall: FirFunctionCall): Unit = functionCall.visit {
                 // Check dependencies from the arguments
-                argumentList.collect()
-                functionCall.calleeReference.toResolvedFunctionSymbol(discardErrorReference = true)?.let { symbol ->
-                    (symbol to this).computeReference { SymbolReference.NodeReference(NodeIndex.FunctionLikeIndex(it, this)) }
+                val mappedParameters = resolvedArgumentMapping?.mapTo(
+                    destination = mutableSetOf(),
+                    transform = { (argument, parameter) ->
+                        argument.collect()
+                        parameter.name
+                    }
+                ) ?: argumentList.collect().let { emptySet() }
+                calleeReference.toResolvedFunctionSymbol(discardErrorReference = true)?.let { symbol ->
+                    if (symbol.isLibraryDeclaration || symbol.moduleData.name != moduleName) return@visit
+                    (symbol to this).computeReference(mappedParameters) {
+                        SymbolReference.NodeReference(NodeIndex.FunctionLikeIndex(it, this))
+                    }
+                }
+                calleeReference.toResolvedConstructorSymbol(discardErrorReference = true)?.let { symbol ->
+                    if (symbol.isLibraryDeclaration || symbol.moduleData.name != moduleName) return@visit
+                    symbol.containingClassLookupTag()?.toClassSymbol()?.fullyExpandedClass()?.let {
+                        if (it.isInitializedByItsSupertypes) {
+                            val entity = it.asClassEntity()
+                            addReferenceToCurrent(SymbolReference.ClassReference(entity), functionCall)
+                        }
+                    }
                 }
             }
 
             override fun visitArgumentList(argumentList: FirArgumentList) = argumentList.visit { collectRecursively() }
 
-            override fun visitCallableReferenceAccess(callableReferenceAccess: FirCallableReferenceAccess) {
-                // Skip unused references
-                if (elementStack.topOrNull() is FirBlock) return
-                callableReferenceAccess.visit {
-                    // References to enum entries, local properties, and value parameters are not supported; local function references are allowed
-                    calleeReference.toResolvedFunctionSymbol(discardErrorReference = true)?.let { symbol ->
-                        (symbol to this).computeReference { SymbolReference.NodeReference(NodeIndex.FunctionLikeIndex(it, this)) }
-                    }
-                    calleeReference.toResolvedPropertySymbol(discardErrorReference = true)?.let { symbol ->
-                        (symbol to this).computeReference { toNodeReference(it) }
-                    }
-                }
+            override fun visitCallableReferenceAccess(callableReferenceAccess: FirCallableReferenceAccess) = callableReferenceAccess.visit {
+                // So far only collect the dependencies from the receivers
+                callableReferenceAccess.collectRecursively()
             }
 
             override fun visitDelegatedConstructorCall(delegatedConstructorCall: FirDelegatedConstructorCall): Unit =
                 delegatedConstructorCall.visit {
-                    calleeReference.toResolvedConstructorSymbol(discardErrorReference = true)?.let {
+                    val mappedParameters = resolvedArgumentMapping?.mapTo(
+                        destination = mutableSetOf(),
+                        transform = { (argument, parameter) ->
+                            argument.collect()
+                            parameter.name
+                        }
+                    ) ?: argumentList.collect().let { emptySet() }
+                    calleeReference.toResolvedConstructorSymbol(discardErrorReference = true)?.let { symbol ->
                         // Skip constructor calls of library declarations, as they cannot create any dependencies
-                        if (it.isLibraryDeclaration) return@visit
-                        argumentList.collect()
-                        it.fir.collect()
+                        if (symbol.isLibraryDeclaration || symbol.moduleData.name != moduleName) return@visit
+                        symbol.valueParameterSymbols.forEach { parameterSymbol ->
+                            if (parameterSymbol.name !in mappedParameters && parameterSymbol.hasDefaultValue) {
+                                parameterSymbol.resolvedDefaultValue?.collect()
+                            }
+                        }
+                        symbol.fir.collect()
                     }
                 }
 
@@ -1262,20 +1338,7 @@ data class DependencyGraph(
             override fun visitCheckNotNullCall(checkNotNullCall: FirCheckNotNullCall): Unit =
                 checkNotNullCall.visit { collectRecursively() }
 
-            override fun visitClassReferenceExpression(classReferenceExpression: FirClassReferenceExpression): Unit =
-                classReferenceExpression.visit {
-                    classTypeRef.toRegularClassSymbol(session)?.let { symbol ->
-                        symbol.asEntity()?.let { classEntity ->
-                            when (classEntity) {
-                                is EnclosingEntity.Class ->
-                                    addReferenceToCurrent(SymbolReference.ClassReference(classEntity), classReferenceExpression)
-                                is EnclosingEntity.Object ->
-                                    addReferenceToCurrent(SymbolReference.ClassReference(classEntity), classReferenceExpression)
-                                else -> {}
-                            }
-                        } ?: symbol.collectSuperTypeReferences(at = classReferenceExpression)
-                    }
-                }
+            override fun visitClassReferenceExpression(classReferenceExpression: FirClassReferenceExpression): Unit = Unit
 
             override fun visitCollectionLiteral(collectionLiteral: FirCollectionLiteral): Unit =
                 collectionLiteral.visit { collectRecursively() }
@@ -1309,7 +1372,7 @@ data class DependencyGraph(
                 collectRecursively()
             }
 
-            override fun visitGetClassCall(getClassCall: FirGetClassCall): Unit = getClassCall.visit { argument.collect() }
+            override fun visitGetClassCall(getClassCall: FirGetClassCall): Unit = Unit
 
             override fun visitImplicitInvokeCall(implicitInvokeCall: FirImplicitInvokeCall): Unit =
                 visitFunctionCall(implicitInvokeCall)
@@ -1388,10 +1451,11 @@ data class DependencyGraph(
 
         private fun NodeIndex.SingletonIndex<*>?.accesses(
             other: NodeIndex.SingletonIndex<*>,
+            isDynamic: Boolean = false,
             at: Set<FirExpression>
         ): Boolean =
             context(graph) {
-                (this accesses (other to at)).ifTrue {
+                (this accesses Triple(other, isDynamic, at)).ifTrue {
                     this?.let { dirtyNodes.add(it) }
                     dirtyNodes.add(other)
                     true
@@ -1437,11 +1501,6 @@ data class DependencyGraph(
                 contexts.pop()
                 // If the context is nested directly under the parent's context, connect the begin node to the last constructed node,
                 // and continue construction from the end node
-//                println("============")
-//                println(context?.enclosingEntity)
-//                println(newContext.enclosingEntity)
-//                println(newContext.enclosingEntity.parentEnclosingEntity)
-//                println("============")
                 if (success && context?.enclosingEntity?.let { it == newContext.enclosingEntity.parentEnclosingEntity } ?: false) {
                     context?.let {
                         it.lastConstructedNode.happensBefore(enclosingEntity.beginSubgraphIndex)
@@ -1491,11 +1550,12 @@ data class DependencyGraph(
         private inline fun <D : FirDeclaration, T : DependencyNode<D>> lazyAccessNode(
             index: NodeIndex.SingletonIndex<D>,
             enclosingEntity: EnclosingEntity<*>,
+            isDynamic: Boolean = false,
             at: Set<FirExpression>,
             crossinline new: () -> T,
         ): DependencyNode<*> = getOrCreateNode(index, enclosingEntity, new).apply {
             // Maintain the information flow outgoing from the constructed node
-            (lastConstructedNode as? NodeIndex.SingletonIndex<*>).accesses(index, at)
+            (lastConstructedNode as? NodeIndex.SingletonIndex<*>).accesses(index, isDynamic, at)
         }
 
         private inline fun <D : FirDeclaration> buildBeginInitializationNode(
@@ -1518,10 +1578,12 @@ data class DependencyGraph(
 
         private fun <D : FirDeclaration> lazyAccessBeginInitializationNode(
             enclosingEntity: EnclosingEntity<D>,
+            isDynamic: Boolean,
             at: Set<FirExpression>
         ): DependencyNode<*> = lazyAccessNode(
             index = enclosingEntity.beginSubgraphIndex,
             enclosingEntity = enclosingEntity,
+            isDynamic = isDynamic,
             at = at,
             new = { DependencyNode.BeginInitializationNode(enclosingEntity) }
         )
@@ -1566,10 +1628,12 @@ data class DependencyGraph(
 
         private fun <D : FirDeclaration> lazyAccessDeclarationNode(
             index: NodeIndex.DeclarationIndex<D>,
+            isDynamic: Boolean,
             at: Set<FirExpression>
         ): DependencyNode<*> = lazyAccessNode(
             index = index,
             enclosingEntity = index.enclosingEntity,
+            isDynamic = isDynamic,
             at = at,
             new = { DependencyNode.DeclarationNode(index) }
         )
@@ -1581,9 +1645,7 @@ data class DependencyGraph(
          * classes and interfaces with default methods. In cases where the supertype has no static declarations, we recurse into its supertypes
          * to and connect to those instead
          */
-        private fun FirClassSymbol<*>.connectSubgraphToDirectlyInitializedSupertypes(
-            visited: MutableSet<FirClassSymbol<*>> = mutableSetOf(this)
-        ) {
+        private fun FirClassSymbol<*>.connectSubgraphToDirectlyInitializedSupertypes() {
             resolvedSuperTypes.forEach { superType ->
                 superType.fullyExpandedType().toRegularClassSymbol()?.let { superTypeSymbol ->
                     // Skip library supertypes, as they cannot have mutual dependencies with the source types, interface types without
@@ -1591,18 +1653,14 @@ data class DependencyGraph(
                     if (superTypeSymbol.isLibraryDeclaration
                         || !superTypeSymbol.isInitializedByItsSupertypes
                         || superTypeSymbol.moduleData.name != moduleName
-                        || !visited.add(superTypeSymbol)
                     ) return@let
-                    // If the supertype has static declarations (it must be an enclosing entity), ...
-                    superTypeSymbol.asClassEntity()?.let { enclosingEntity ->
+                    superTypeSymbol.asClassEntity().let { enclosingEntity ->
                         // DO NOT VISIT THE SUPERTYPE AS IT WAS EITHER ALREADY VISITED OR IT WILL BE VISITED LATER
                         lazyBuildEndInitializationNode(
                             enclosingEntity = enclosingEntity,
                             connect = { happensBefore(it) }
                         )
-                    } ?:
-                    // Otherwise, the supertype's supertypes may have static declarations, so connect to them instead
-                    superTypeSymbol.connectSubgraphToDirectlyInitializedSupertypes(visited)
+                    }
                 }
             }
         }
@@ -1731,16 +1789,7 @@ data class DependencyGraph(
             correspondingClassSymbol?.let { classSymbol ->
                 buildSubgraph(enclosingEntity = this, rebuild = true) {
                     buildBeginInitializationNode(this@unwrap) { node ->
-                        // OPTIMIZATION: do not connect subgraphs for entities of library types
-                        if (!classSymbol.isLibraryDeclaration) {
-                            (classSymbol as? FirRegularClassSymbol)?.asClassEntity()?.let { classEntity ->
-                                lazyBuildEndInitializationNode(
-                                    enclosingEntity = classEntity,
-                                    connect = { happensBefore(it) }
-                                )
-                            } ?: classSymbol.connectSubgraphToDirectlyInitializedSupertypes()
-                        }
-                        // The initializer and getter dependencies are collected with the outer enclosing entity
+                        // The initializer dependencies are collected in the context of the outer enclosing entity
                         AccessEvaluationContext(parentEnclosingEntity, node.index).collectAccessesFor(symbol)
                     }
                     classSymbol.getAllOrderedDeclarations().forEach {
@@ -1774,28 +1823,37 @@ data class DependencyGraph(
             buildSubgraph(enclosingEntity = enclosingEntity, rebuild = true) {
                 // Build the function-like node and its dependencies
                 buildDeclarationNode(this@lazyBuildFunctionLikeNode) {
-                    AccessEvaluationContext(
-                        enclosingEntity = enclosingEntity,
-                        accessingNode = it.index
-                    ).collectAccessesFor(symbol)
+                    if (symbol is FirPropertySymbol) {
+                        symbol.getterSymbol?.let { symbol ->
+                            AccessEvaluationContext(
+                                enclosingEntity = enclosingEntity,
+                                accessingNode = it.index
+                            ).collectAccessesFor(symbol)
+                        }
+                    } else {
+                        AccessEvaluationContext(
+                            enclosingEntity = enclosingEntity,
+                            accessingNode = it.index
+                        ).collectAccessesFor(symbol)
+                    }
                 }
                 // Build the outermost end node lazily as we want to connect it to the function-like node with a may-happen-before edge
                 lazyBuildEndInitializationNode(enclosingEntity.outermostEntity)
             }
         }
 
-        private fun AccessEvaluationContext.lazyInitDependency(accessedEntity: EnclosingEntity<*>, inDynamicContext: Boolean = false) {
+        private fun AccessEvaluationContext.lazyInitDependency(accessedEntity: EnclosingEntity<*>) {
             // Resolve the may-happen-before edge due to access
             val accessedOutermostEntity = accessedEntity.outermostEntity
             // Only connect entities that are not directly nested under the same outermost entity
-            if (enclosingEntity.outermostEntity != accessedOutermostEntity || inDynamicContext) {
+            if (enclosingEntity.outermostEntity != accessedOutermostEntity) {
                 lazyBuildEndInitializationNode(
                     enclosingEntity = accessedOutermostEntity
                 )
             }
         }
 
-        private fun AccessEvaluationContext.collectAccessesFor(symbol: FirBasedSymbol<*>) {
+        private fun AccessEvaluationContext.collectAccessesFor(symbol: FirBasedSymbol<*>, at: Set<FirExpression>? = null) {
             // Skip symbols that are not of the current module
             if (symbol.moduleData.name != moduleName) return
             // When the symbol has not been collected yet (possibly because its unresolved)
@@ -1816,22 +1874,23 @@ data class DependencyGraph(
                             // And it is not present in the graph, ...
                             if (reference.index !in graph) reference.index.lazyBuildFunctionLikeNode()
                             // Access the function-like node
-                            lazyAccessDeclarationNode(reference.index, expressions)
+                            lazyAccessDeclarationNode(reference.index, isDynamic, at ?: expressions)
                             // Always connect accessed function-like nodes to the accessor nodes with happens-before edges,
                             // even if they are nested under the same outermost entity
-                            lastConstructedNode?.let { reference.index.happensBefore(it) }
+                            lastConstructedNode?.let { reference.index.mayHappenBefore(it) }
                         }
                         // Otherwise, simply access the declaration node (but unwrap its parent first)
                         else {
-                            // Unwrap the parent enclosing entity if possible
-                            (reference.index.enclosingEntity.parentEnclosingEntity as? EnclosingEntity.InstancedProperty)?.unwrap()
+                            // Unwrap the enclosing entity if possible
+                            (reference.index.enclosingEntity as? EnclosingEntity.InstancedProperty)?.unwrap()
                             // Access the declaration node
                             lazyAccessDeclarationNode(
                                 index = reference.index,
-                                at = expressions
+                                isDynamic = isDynamic,
+                                at = at ?: expressions
                             )
                             // Resolve the may-happen-before edge from the end node due to access
-                            lazyInitDependency(reference.index.enclosingEntity, isDynamic)
+                            lazyInitDependency(reference.index.enclosingEntity)
                         }
                     }
                     is SymbolReference.SubgraphReference<*> -> {
@@ -1840,25 +1899,28 @@ data class DependencyGraph(
                         // Access the begin node
                         lazyAccessBeginInitializationNode(
                             enclosingEntity = reference.enclosingEntity,
-                            at = expressions
+                            isDynamic = isDynamic,
+                            at = at ?: expressions
                         )
                         // Resolve the may-happen-before edge due to access
-                        lazyInitDependency(reference.enclosingEntity, isDynamic)
+                        lazyInitDependency(reference.enclosingEntity)
                     }
                     is SymbolReference.ClassReference<*> -> lazyInitDependency(reference.enclosingEntity)
                     is SymbolReference.MemberReference<*> if !isDynamic ->
                         when (val symbol = reference.symbol) {
-                            is FirPropertySymbol if symbol.hasInitializer -> {
+                            is FirPropertySymbol if symbol.hasInitializer && symbol.getterSymbol?.let { !it.hasImplementation } ?: true -> {
                                 // No need to unwrap as we would not be visiting the accesses for this entity if its parent was not unwrapped
-                                if (symbol.resolvedReturnType.let { it.isPrimitiveOrNullablePrimitive || it.isUnit || it.isNothing }) {
+                                if (symbol.resolvedReturnType.let { it.isPrimitiveOrNullablePrimitive || it.isString || it.isUnit || it.isNothing }) {
                                     lazyAccessDeclarationNode(
                                         index = NodeIndex.PrimitivePropertyIndex(enclosingEntity, symbol),
-                                        at = expressions
+                                        isDynamic = false,
+                                        at = at ?: expressions
                                     )
                                 } else {
                                     lazyAccessBeginInitializationNode(
                                         enclosingEntity = symbol.asInstancedPropertyEntity(enclosingEntity),
-                                        at = expressions
+                                        isDynamic = false,
+                                        at = at ?: expressions
                                     )
                                 }
                                 // DISCLAIMER: No may-happen-before edge here because we are accessing the same entity we are visiting
@@ -1869,10 +1931,12 @@ data class DependencyGraph(
                                 if (index !in graph) index.lazyBuildFunctionLikeNode()
                                 lazyAccessDeclarationNode(
                                     index = index,
-                                    at = expressions
+                                    isDynamic = false,
+                                    at = at ?: expressions
                                 )
+                                // Always connect accessed function-like nodes to the accessor nodes with happens-before edges,
                                 // even if they are nested under the same outermost entity
-                                lastConstructedNode?.let { index.happensBefore(it) }
+                                lastConstructedNode?.let { index.mayHappenBefore(it) }
                             }
                             else -> {}
                         }
@@ -1883,9 +1947,9 @@ data class DependencyGraph(
                                 accessingNode = accessingNode,
                                 visited = visited,
                                 isDynamic = true
-                            ).collectAccessesFor(reference.symbol)
+                            ).collectAccessesFor(reference.symbol, at ?: expressions)
                         } else {
-                            collectAccessesFor(reference.symbol)
+                            collectAccessesFor(reference.symbol, at ?: expressions)
                         }
                     }
                 }
@@ -2007,15 +2071,14 @@ data class DependencyGraph(
                 }
             }
             // Case 2: a class with static declarations, i.e., an enum class and/or a class with a companion object
-            else if (classKind.isEnumClass || symbol.resolvedCompanionObjectSymbol != null) {
-                symbol.asClassEntity()?.let { enclosingEntity ->
+            else {
+                symbol.asClassEntity().let { enclosingEntity ->
                     buildSubgraph(enclosingEntity) {
                         buildBeginInitializationNode(enclosingEntity) {
                             symbol.connectSubgraphToDirectlyInitializedSupertypes()
-                            symbol.primaryConstructorIfAny(session)?.let { constructor ->
-                                AccessEvaluationContext(enclosingEntity, it.index).collectAccessesFor(constructor)
-                            }
                         }
+                        // Store the companion object declaration just in case it appears in the declaration list before enum entries, due to serialization
+                        var companionObjectDeclaration: FirRegularClass? = null
                         processAllDeclarations(session) { symbol ->
                             when (val declaration = symbol.fir) {
                                 is FirProperty if declaration.isGeneratedStaticEnumMember(this@buildEntity) ->
@@ -2023,22 +2086,15 @@ data class DependencyGraph(
                                 is FirEnumEntry -> declaration.buildEnumEntry(enclosingEntity)
                                 // Only companion objects will connect to this happens-before subgraph
                                 is FirRegularClass if declaration.classKind.isObject && declaration.isCompanion ->
-                                    declaration.buildEntity(enclosingEntity)
-                                is FirRegularClass -> declaration.buildEntity()
+                                    companionObjectDeclaration = declaration
+                                // Skip inner classes for now
+                                is FirRegularClass if !declaration.isInner -> declaration.buildEntity()
                                 else -> {}
                             }
                         }
+                        // Build the companion object subgraph according to the declaration order of Kotlin's JVM compilation
+                        companionObjectDeclaration?.buildEntity(enclosingEntity)
                         buildEndInitializationNode(enclosingEntity)
-                    }
-                }
-            }
-            // If the class is not an entity, ...
-            else {
-                // At least find the entities declared inside it
-                processAllDeclarations(session) { symbol ->
-                    when (val declaration = symbol.fir) {
-                        is FirRegularClass -> declaration.buildEntity()
-                        else -> {}
                     }
                 }
             }
@@ -2046,14 +2102,12 @@ data class DependencyGraph(
 
         private fun FirProperty.buildProperty(outerEnclosingEntity: EnclosingEntity<*>) {
             if (!isLocal && isVal && initializer != null) {
-//                println("Property $symbol is val and has initializer, but is not a local property!")
                 returnTypeRef.coneTypeOrNull?.let { type ->
                     // Case 1: A property of primitive type (possibly nullable)
-                    if (type.isPrimitiveOrNullablePrimitive || type.isUnit || type.isNothing) {
+                    if (type.isPrimitiveOrNullablePrimitive || type.isString || type.isUnit || type.isNothing) {
                         buildDeclarationNode(NodeIndex.PrimitivePropertyIndex(outerEnclosingEntity, symbol)) {
                             AccessEvaluationContext(outerEnclosingEntity, it.index).collectAccessesFor(symbol)
                         }
-//                        println("Built primitive!")
                     }
                     // Case 2: A property of a class type (with a subgraph)
                     else {
@@ -2078,7 +2132,7 @@ data class DependencyGraph(
                                 // Don't build the body yet, as it should be unwrapped lazily on access
                                 buildEndInitializationNode(enclosingEntity)
                             }
-                        } // ?: println("Property $symbol has non-class type ${returnTypeRef.coneType}!")
+                        }
                     }
                 }
             }

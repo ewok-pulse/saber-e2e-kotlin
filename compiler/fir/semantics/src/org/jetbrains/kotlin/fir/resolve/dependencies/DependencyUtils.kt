@@ -118,3 +118,9 @@ val FirBasedSymbol<*>.isLibraryDeclaration: Boolean
     get() = origin == FirDeclarationOrigin.Library
             || origin == FirDeclarationOrigin.Java.Library
             || moduleData.session.kind == FirSession.Kind.Library
+
+infix operator fun <T> List<T>.plus(element: T?): List<T> = toMutableList().apply { element?.let(::add) }
+
+infix operator fun <K, V> Map<K, V>.plus(entry: Pair<K, V>?): Map<K, V> = toMutableMap().apply {
+    entry?.let { put(it.first, it.second) }
+}

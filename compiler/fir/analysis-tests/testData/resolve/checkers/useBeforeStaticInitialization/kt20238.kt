@@ -2,7 +2,7 @@
 // FIR_IDENTICAL
 
 <!POSSIBLE_INITIALIZATION_DEADLOCK!>enum class Enum(val y: String) {
-    <!UNINITIALIZED_PROPERTY!>ENTRY(<!UNINITIALIZED_ACCESS!>EnumTest.x<!>) {
+    <!POTENTIALLY_UNINITIALIZED_PROPERTY!>ENTRY(<!POTENTIALLY_UNINITIALIZED_ACCESSES!>EnumTest.x<!>) {
         override fun toString(): String = y
     };<!>
 }<!>
@@ -10,18 +10,33 @@
 <!POSSIBLE_INITIALIZATION_DEADLOCK!>interface EnumTest {
     companion object {
         val x = "OK"
-        <!UNINITIALIZED_PROPERTY!>val z = <!UNINITIALIZED_ACCESS!>Enum.ENTRY.y<!><!>
+        <!POTENTIALLY_UNINITIALIZED_PROPERTY!>val z = <!POTENTIALLY_UNINITIALIZED_ACCESSES!>Enum.ENTRY.y<!><!>
     }
 }<!>
 
 class Class {
-    val y = <!UNINITIALIZED_ACCESS!>ClassTest.y<!>
+    val y = ClassTest.y
 }
 
 interface ClassTest {
     companion object {
         val x = "OK"
-        <!UNINITIALIZED_PROPERTY!>val z = Class().y<!>
+        <!POTENTIALLY_UNINITIALIZED_PROPERTY!>val z = <!POTENTIALLY_UNINITIALIZED_ACCESSES!>Class().y<!><!>
         val y = "yay"
+    }
+}
+
+interface Interface {
+    fun foo(arg: String = InterfaceTest.x): String
+}
+
+class InterfaceImpl : Interface {
+    override fun foo(arg: String): String = arg
+}
+
+interface InterfaceTest {
+    companion object {
+        val x = "OK"
+        <!POTENTIALLY_UNINITIALIZED_PROPERTY!>val z = <!POTENTIALLY_UNINITIALIZED_ACCESSES!>InterfaceImpl().foo()<!><!>
     }
 }

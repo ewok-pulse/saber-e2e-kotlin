@@ -4,7 +4,7 @@
 <!POSSIBLE_INITIALIZATION_DEADLOCK!>object A<!> {
     val x = 1
     init {
-        println(<!UNINITIALIZED_ACCESS("val y: String")!>B.y<!>)
+        println(<!POTENTIALLY_UNINITIALIZED_ACCESSES!>B.y<!>)
     }
 }
 

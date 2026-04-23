@@ -686,6 +686,8 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.PLUGIN_AMBIGUOUS_
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.POSSIBLE_INITIALIZATION_DEADLOCK
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.POTENTIALLY_NON_REPORTED_ANNOTATION
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.POTENTIALLY_NULLABLE_RETURN_TYPE_OF_OPERATOR_OF
+import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.POTENTIALLY_UNINITIALIZED_ACCESSES
+import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.POTENTIALLY_UNINITIALIZED_PROPERTY
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.PRE_RELEASE_CLASS
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.PRIMARY_CONSTRUCTOR_DELEGATION_CALL_EXPECTED
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.PRIVATE_CLASS_MEMBER_FROM_INLINE
@@ -836,11 +838,9 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNDERSCORE_IS_RES
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNDERSCORE_USAGE_WITHOUT_BACKTICKS
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNEXPECTED_SAFE_CALL
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNEXPECTED_TRAILING_LAMBDA_ON_A_NEW_LINE
-import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNINITIALIZED_ACCESS
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNINITIALIZED_ENUM_COMPANION
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNINITIALIZED_ENUM_ENTRY
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNINITIALIZED_PARAMETER
-import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNINITIALIZED_PROPERTY
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNINITIALIZED_VARIABLE
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNNAMED_DELEGATED_PROPERTY
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.UNNAMED_PROPERTY_WITH_IMPLICIT_UNIT_TYPE
@@ -3983,13 +3983,16 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             },
         )
         map.put(
-            UNINITIALIZED_ACCESS,
-            "Depending on the order of initialization of the containing declaration, the access to ''{0}'' may happen before its initialization.",
-            SYMBOL,
+            POTENTIALLY_UNINITIALIZED_ACCESSES,
+            "Depending on the order of initialization of the containing class, the following access causes (transitive) accesses to the following static declarations ''{0}'' which may happen before their initialization.",
+            Renderer { accesses: Set<FirBasedSymbol<*>> -> accesses.joinToString(transform = SYMBOL::render) },
         )
         map.put(
-            UNINITIALIZED_PROPERTY,
-            "Depending on the order of initialization of the containing declaration, the property may become uninitialized.",
+            POTENTIALLY_UNINITIALIZED_PROPERTY,
+            "The static property may become uninitialized depending on the order of initialization of the containing class and its mutually dependent classes ''{0}''.",
+            Renderer { args: List<FirBasedSymbol<*>> ->
+                if (args.isNotEmpty()) args.joinToString(transform = SYMBOL::render) else ""
+            }
         )
     }
 }

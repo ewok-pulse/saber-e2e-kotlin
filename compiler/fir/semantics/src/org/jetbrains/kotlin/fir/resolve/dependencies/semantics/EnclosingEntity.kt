@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.fir.resolve.dependencies.semantics
 
-import org.jetbrains.kotlin.descriptors.isEnumClass
 import org.jetbrains.kotlin.descriptors.isObject
 import org.jetbrains.kotlin.fir.declarations.FirDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirEnumEntry
@@ -117,11 +116,7 @@ sealed class EnclosingEntity<D : FirDeclaration> {
             false -> null
         }
 
-        fun FirRegularClassSymbol.asClassEntity(): Class? =
-            when (classKind.isEnumClass || resolvedCompanionObjectSymbol != null) {
-                true -> Class(this)
-                false -> null
-            }
+        fun FirRegularClassSymbol.asClassEntity(): Class = Class(this)
 
         fun FirAnonymousObjectSymbol.asEnumEntryEntity(): EnumEntry? = findCorrespondingEnumEntry()?.let(::EnumEntry)
 

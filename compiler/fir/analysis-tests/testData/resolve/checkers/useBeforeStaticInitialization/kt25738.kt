@@ -4,7 +4,7 @@
     <!POSSIBLE_INITIALIZATION_DEADLOCK!>object O<!> : S()
 
     companion object {
-        <!UNINITIALIZED_PROPERTY!>val x = foo(<!UNINITIALIZED_ACCESS!>O<!>)<!>
+        <!POTENTIALLY_UNINITIALIZED_PROPERTY!>val x = foo(<!POTENTIALLY_UNINITIALIZED_ACCESSES!>O<!>)<!>
     }
 }<!>
 

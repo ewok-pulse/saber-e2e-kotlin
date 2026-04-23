@@ -2401,9 +2401,11 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
         val POSSIBLE_INITIALIZATION_DEADLOCK by warning<PsiElement> {
             parameter<List<FirBasedSymbol<*>>>("deadlockingDeclarations")
         }
-        val UNINITIALIZED_PROPERTY by warning<PsiElement>()
-        val UNINITIALIZED_ACCESS by warning<PsiElement> {
-            parameter<FirBasedSymbol<*>>("accessedDeclaration")
+        val POTENTIALLY_UNINITIALIZED_PROPERTY by warning<PsiElement> {
+            parameter<List<FirBasedSymbol<*>>>("dependentClasses")
+        }
+        val POTENTIALLY_UNINITIALIZED_ACCESSES by warning<PsiElement> {
+            parameter<Set<FirBasedSymbol<*>>>("accessedDeclarations")
         }
     }
 }

@@ -11,9 +11,8 @@ import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.FirEnumEntry
-import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
-import org.jetbrains.kotlin.fir.expressions.toResolvedCallableSymbol
 import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraphBuilder
+import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asEnumEntryEntity
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 
@@ -22,17 +21,17 @@ object FirUninitializedEnumEntryChecker : FirEnumEntryChecker(MppCheckerKind.Com
     @OptIn(SymbolInternals::class)
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirEnumEntry) {
-        val enumEntryIndex = declaration.symbol.asEnumEntryEntity().beginSubgraphIndex
+        val enumEntryEntity = declaration.symbol.asEnumEntryEntity()
+        val enumEntryIndex = enumEntryEntity.beginSubgraphIndex
         val dependencyGraph = declaration.moduleData.dependencyGraphBuilder.graph
         if (dependencyGraph.isPoisoned(enumEntryIndex)) {
-            reporter.reportOn(declaration.source, FirErrors.UNINITIALIZED_PROPERTY)
-            dependencyGraph.poisoningAccessesFor(enumEntryIndex).forEach {
-                when (it) {
-                    is FirResolvedQualifier ->
-                        reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, it.symbol!!)
-                    else ->
-                        reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, it.toResolvedCallableSymbol(context.session)!!)
-                }
+            reporter.reportOn(
+                declaration.source,
+                FirErrors.POTENTIALLY_UNINITIALIZED_PROPERTY,
+                dependencyGraph.mutuallyDependentEntities(enumEntryEntity).mapTo(mutableListOf(), EnclosingEntity<*>::symbol)
+            )
+            dependencyGraph.poisoningAccessesFor(enumEntryIndex).forEach { (access, symbols) ->
+                reporter.reportOn(access.source, FirErrors.POTENTIALLY_UNINITIALIZED_ACCESSES, symbols)
             }
         }
     }

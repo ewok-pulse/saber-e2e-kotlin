@@ -5,7 +5,7 @@
     val y = 5
     init {
         println("A = " + A)
-        println(<!UNINITIALIZED_ACCESS("val y: String")!>A.y<!>)
+        println(<!POTENTIALLY_UNINITIALIZED_ACCESSES!>A.y<!>)
     }
 }
 

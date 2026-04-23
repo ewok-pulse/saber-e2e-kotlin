@@ -3,7 +3,7 @@
 
 <!POSSIBLE_INITIALIZATION_DEADLOCK!>sealed class Base {
     companion object {
-        <!UNINITIALIZED_PROPERTY!>val fooAccess = <!UNINITIALIZED_ACCESS!>Derived.foo()<!><!>
+        <!POTENTIALLY_UNINITIALIZED_PROPERTY!>val fooAccess = <!POTENTIALLY_UNINITIALIZED_ACCESSES!>Derived.foo()<!><!>
     }
 }<!>
 

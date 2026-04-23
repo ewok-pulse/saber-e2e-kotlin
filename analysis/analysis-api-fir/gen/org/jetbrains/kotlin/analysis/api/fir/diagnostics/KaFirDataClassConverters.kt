@@ -2212,6 +2212,15 @@ private fun KaDiagnosticConverterBuilder.addConversions46() {
             token,
         )
     }
+    add(FirErrors.POTENTIALLY_UNINITIALIZED_ACCESSES) { firDiagnostic ->
+        PotentiallyUninitializedAccessesImpl(
+            firDiagnostic.a.map { firBasedSymbol ->
+                firSymbolBuilder.buildSymbol(firBasedSymbol)
+            },
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
 }
 
 private fun KaDiagnosticConverterBuilder.addConversions47() {
@@ -4112,6 +4121,15 @@ private fun KaDiagnosticConverterBuilder.addConversions91() {
             token,
         )
     }
+    add(FirErrors.POTENTIALLY_UNINITIALIZED_PROPERTY) { firDiagnostic ->
+        PotentiallyUninitializedPropertyImpl(
+            firDiagnostic.a.map { firBasedSymbol ->
+                firSymbolBuilder.buildSymbol(firBasedSymbol)
+            },
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
     add(FirJvmErrors.JVM_INLINE_WITHOUT_VALUE_CLASS) { firDiagnostic ->
         JvmInlineWithoutValueClassImpl(
             firDiagnostic as KtPsiDiagnostic,
@@ -5758,13 +5776,6 @@ private fun KaDiagnosticConverterBuilder.addConversions127() {
     add(FirErrors.UNSAFE_IMPLICIT_INVOKE_CALL) { firDiagnostic ->
         UnsafeImplicitInvokeCallImpl(
             firSymbolBuilder.typeBuilder.buildKtType(firDiagnostic.a),
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
-    add(FirErrors.UNINITIALIZED_ACCESS) { firDiagnostic ->
-        UninitializedAccessImpl(
-            firSymbolBuilder.buildSymbol(firDiagnostic.a),
             firDiagnostic as KtPsiDiagnostic,
             token,
         )
@@ -7819,12 +7830,6 @@ private fun KaDiagnosticConverterBuilder.addConversions176() {
     }
     add(FirErrors.EXPECT_ACTUAL_OPT_IN_ANNOTATION) { firDiagnostic ->
         ExpectActualOptInAnnotationImpl(
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
-    add(FirErrors.UNINITIALIZED_PROPERTY) { firDiagnostic ->
-        UninitializedPropertyImpl(
             firDiagnostic as KtPsiDiagnostic,
             token,
         )

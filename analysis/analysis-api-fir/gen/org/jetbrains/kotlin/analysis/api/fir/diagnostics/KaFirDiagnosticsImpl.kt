@@ -5732,16 +5732,17 @@ internal class PossibleInitializationDeadlockImpl(
     token: KaLifetimeToken,
 ) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.PossibleInitializationDeadlock
 
-internal class UninitializedPropertyImpl(
+internal class PotentiallyUninitializedPropertyImpl(
+    override val dependentClasses: List<KaSymbol>,
     firDiagnostic: KtPsiDiagnostic,
     token: KaLifetimeToken,
-) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.UninitializedProperty
+) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.PotentiallyUninitializedProperty
 
-internal class UninitializedAccessImpl(
-    override val accessedDeclaration: KaSymbol,
+internal class PotentiallyUninitializedAccessesImpl(
+    override val accessedDeclarations: List<KaSymbol>,
     firDiagnostic: KtPsiDiagnostic,
     token: KaLifetimeToken,
-) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.UninitializedAccess
+) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.PotentiallyUninitializedAccesses
 
 internal class OverrideCannotBeStaticImpl(
     firDiagnostic: KtPsiDiagnostic,

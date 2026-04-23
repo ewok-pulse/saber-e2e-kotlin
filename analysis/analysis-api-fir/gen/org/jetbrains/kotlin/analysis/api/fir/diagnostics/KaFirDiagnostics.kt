@@ -4774,13 +4774,14 @@ sealed interface KaFirDiagnostic<PSI : PsiElement> : KaDiagnosticWithPsi<PSI> {
         val deadlockingDeclarations: List<KaSymbol>
     }
 
-    interface UninitializedProperty : KaFirDiagnostic<PsiElement> {
-        override val diagnosticClass get() = UninitializedProperty::class
+    interface PotentiallyUninitializedProperty : KaFirDiagnostic<PsiElement> {
+        override val diagnosticClass get() = PotentiallyUninitializedProperty::class
+        val dependentClasses: List<KaSymbol>
     }
 
-    interface UninitializedAccess : KaFirDiagnostic<PsiElement> {
-        override val diagnosticClass get() = UninitializedAccess::class
-        val accessedDeclaration: KaSymbol
+    interface PotentiallyUninitializedAccesses : KaFirDiagnostic<PsiElement> {
+        override val diagnosticClass get() = PotentiallyUninitializedAccesses::class
+        val accessedDeclarations: List<KaSymbol>
     }
 
     interface OverrideCannotBeStatic : KaFirDiagnostic<PsiElement> {

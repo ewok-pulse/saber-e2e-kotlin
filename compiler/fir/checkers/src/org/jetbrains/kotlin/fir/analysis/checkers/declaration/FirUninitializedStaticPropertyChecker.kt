@@ -13,9 +13,9 @@ import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.utils.isEnumEntry
-import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
-import org.jetbrains.kotlin.fir.expressions.toResolvedCallableSymbol
 import org.jetbrains.kotlin.fir.resolve.dependencies.dependencyGraphBuilder
+import org.jetbrains.kotlin.fir.resolve.dependencies.hasImplementation
+import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asEnumEntryEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asFileEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.semantics.EnclosingEntity.Companion.asInstancedPropertyEntity
@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirFileSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.isNothing
 import org.jetbrains.kotlin.fir.types.isPrimitiveOrNullablePrimitive
+import org.jetbrains.kotlin.fir.types.isString
 import org.jetbrains.kotlin.fir.types.isUnit
 
 object FirUninitializedStaticPropertyChecker : FirPropertyChecker(MppCheckerKind.Common) {
@@ -41,26 +42,24 @@ object FirUninitializedStaticPropertyChecker : FirPropertyChecker(MppCheckerKind
                 is FirFileSymbol -> containingSymbol.asFileEntity()
                 else -> return
             }
-            val index = if (declaration.initializer != null) {
+            val index = if (declaration.initializer != null && declaration.getter?.let { !it.symbol.hasImplementation } ?: true) {
                 declaration.symbol.resolvedReturnType.let { type ->
-                    if (type.isPrimitiveOrNullablePrimitive || type.isUnit || type.isNothing) {
+                    if (type.isPrimitiveOrNullablePrimitive || type.isString || type.isUnit || type.isNothing) {
                         NodeIndex.PrimitivePropertyIndex(enclosingEntity, declaration.symbol)
                     } else {
                         declaration.symbol.asInstancedPropertyEntity(enclosingEntity).beginSubgraphIndex
                     }
                 }
-            } else return
+            } else NodeIndex.FunctionLikeIndex(enclosingEntity, declaration.symbol)
             val dependencyGraph = declaration.moduleData.dependencyGraphBuilder.graph
-//            println(dependencyGraph)
             if (dependencyGraph.isPoisoned(index)) {
-                reporter.reportOn(declaration.source, FirErrors.UNINITIALIZED_PROPERTY)
-                dependencyGraph.poisoningAccessesFor(index).forEach {
-                    when (it) {
-                        is FirResolvedQualifier ->
-                            reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, it.symbol!!)
-                        else ->
-                            reporter.reportOn(it.source, FirErrors.UNINITIALIZED_ACCESS, it.toResolvedCallableSymbol(context.session)!!)
-                    }
+                reporter.reportOn(
+                    declaration.source,
+                    FirErrors.POTENTIALLY_UNINITIALIZED_PROPERTY,
+                    dependencyGraph.mutuallyDependentEntities(enclosingEntity).mapTo(mutableListOf(), EnclosingEntity<*>::symbol)
+                )
+                dependencyGraph.poisoningAccessesFor(index).forEach { (access, symbols) ->
+                    reporter.reportOn(access.source, FirErrors.POTENTIALLY_UNINITIALIZED_ACCESSES, symbols)
                 }
             }
         }

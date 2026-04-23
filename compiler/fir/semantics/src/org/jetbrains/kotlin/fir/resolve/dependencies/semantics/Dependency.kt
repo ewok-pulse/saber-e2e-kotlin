@@ -11,7 +11,11 @@ sealed interface Dependency {
 
     val to: NodeIndex<*>
 
-    data class Access(override val from: NodeIndex.SingletonIndex<*>, override val to: NodeIndex.SingletonIndex<*>) : Dependency
+    data class Access(
+        override val from: NodeIndex.SingletonIndex<*>,
+        override val to: NodeIndex.SingletonIndex<*>,
+        val isDynamic: Boolean = false
+    ) : Dependency
 
     sealed interface TimeDependency : Dependency {
         // reduces the amount of dynamic casting

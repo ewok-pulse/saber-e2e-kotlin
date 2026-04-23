@@ -1133,8 +1133,8 @@ object FirErrors : KtDiagnosticsContainer() {
 
     // Static Initialization
     val POSSIBLE_INITIALIZATION_DEADLOCK: KtDiagnosticFactory1<List<FirBasedSymbol<*>>> = KtDiagnosticFactory1("POSSIBLE_INITIALIZATION_DEADLOCK", WARNING, SourceElementPositioningStrategies.DEFAULT, PsiElement::class, getRendererFactory())
-    val UNINITIALIZED_PROPERTY: KtDiagnosticFactory0 = KtDiagnosticFactory0("UNINITIALIZED_PROPERTY", WARNING, SourceElementPositioningStrategies.DEFAULT, PsiElement::class, getRendererFactory())
-    val UNINITIALIZED_ACCESS: KtDiagnosticFactory1<FirBasedSymbol<*>> = KtDiagnosticFactory1("UNINITIALIZED_ACCESS", WARNING, SourceElementPositioningStrategies.DEFAULT, PsiElement::class, getRendererFactory())
+    val POTENTIALLY_UNINITIALIZED_PROPERTY: KtDiagnosticFactory1<List<FirBasedSymbol<*>>> = KtDiagnosticFactory1("POTENTIALLY_UNINITIALIZED_PROPERTY", WARNING, SourceElementPositioningStrategies.DEFAULT, PsiElement::class, getRendererFactory())
+    val POTENTIALLY_UNINITIALIZED_ACCESSES: KtDiagnosticFactory1<Set<FirBasedSymbol<*>>> = KtDiagnosticFactory1("POTENTIALLY_UNINITIALIZED_ACCESSES", WARNING, SourceElementPositioningStrategies.DEFAULT, PsiElement::class, getRendererFactory())
 
     override fun getRendererFactory(): BaseDiagnosticRendererFactory = FirErrorsDefaultMessages
 }

@@ -41,4 +41,9 @@ internal class KaFe10ExpressionInformationProvider(
             val bindingContext = analysisContext.analyze(this)
             return isUsedAsResultOfLambda(bindingContext)
         }
+
+    override val KtExpression.isStableForSmartCasting: Boolean
+        get() = withPsiValidityAssertion {
+            throw UnsupportedOperationException("This operation is not supported in the K1 version of the Analysis API.")
+        }
 }

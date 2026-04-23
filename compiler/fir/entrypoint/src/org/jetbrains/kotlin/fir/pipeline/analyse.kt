@@ -34,6 +34,11 @@ fun FirSession.runCheckers(
     diagnosticsCollector: BaseDiagnosticsCollector,
     mppCheckerKind: MppCheckerKind
 ): Map<FirFile, List<KtDiagnostic>> {
+    context(scopeSession) {
+        if (mppCheckerKind == MppCheckerKind.Common) {
+            println("Node count for this module: ${moduleData.dependencyGraphBuilder.graph.size}")
+        }
+    }
     val collector = DiagnosticComponentsFactory.create(this, scopeSession, mppCheckerKind)
     val diagnosticsReporter = PendingDiagnosticsReporterImpl(diagnosticsCollector)
     for (file in firFiles) {

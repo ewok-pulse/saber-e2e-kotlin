@@ -168,7 +168,7 @@ data class DependencyGraph(
 
     val enclosingEntities: Set<EnclosingEntity<*>> get() = entities.keys
 
-    override val size: Int get() = nodes.size
+    override val size: Int get() = nodes.values.size
 
     override fun isEmpty(): Boolean = nodes.isEmpty()
 
@@ -428,7 +428,7 @@ data class DependencyGraph(
                 // The only entities whose their outer entity is a class are companion objects and enum entries (which must be in the cycle)
                 // If this is not the case, recurse further up the hierarchy (i.e., we are looking at an instanced property (not) in the cycle)
                 outer is EnclosingEntity.Class
-                        && (outer.symbol.isInterface || cycle?.let { this in it || outer.beginSubgraphIndex in it } ?: false || isDynamic)
+                        && (outer.symbol.isInterface || cycle?.let { this in it && outer.beginSubgraphIndex in it } ?: false || isDynamic)
                         || outer.isAccessedPossiblyUninitialized(isDynamic, cycle)
             } ?: false
     }
@@ -978,6 +978,7 @@ data class DependencyGraph(
             visitedFiles.clear()
             symbolReferences.clear()
             pendingResolution.clear()
+            symbolReferenceCollector.clear()
         }
 
         private inner class SymbolReferenceCollector : FirVisitorVoid() {
@@ -985,6 +986,12 @@ data class DependencyGraph(
             private val symbolStack: Stack<FirBasedSymbol<*>> = stackOf()
             private val elementStack: Stack<FirElement> = stackOf()
             private val defaultArgumentMap: MutableMap<FirCallableSymbol<*>, Set<Name>> = mutableMapOf()
+
+            fun clear() {
+                symbolStack.reset()
+                elementStack.reset()
+                defaultArgumentMap.clear()
+            }
 
             private inline fun <E : FirElement> E.visit(containingSymbol: FirBasedSymbol<*>? = null, crossinline block: E.() -> Unit) {
                 var popSymbol = false

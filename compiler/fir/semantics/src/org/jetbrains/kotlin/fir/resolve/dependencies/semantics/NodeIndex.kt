@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.fir.declarations.FirEnumEntry
 import org.jetbrains.kotlin.fir.declarations.FirFile
 import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
+import org.jetbrains.kotlin.fir.declarations.utils.isConst
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph
 import org.jetbrains.kotlin.fir.resolve.dependencies.DependencyGraph.Companion.outermostEntity
 import org.jetbrains.kotlin.fir.resolve.dependencies.hasImplementation
@@ -43,7 +44,7 @@ sealed interface NodeIndex<out D : FirDeclaration> {
         override val symbol: FirPropertySymbol
     ) : DeclarationIndex<FirProperty> {
         override val poisonsOnCyclicAccess: Boolean
-            get() = symbol.hasInitializer && symbol.getterSymbol?.let { !it.hasImplementation } ?: true
+            get() = !symbol.isConst && symbol.hasInitializer && symbol.getterSymbol?.let { !it.hasImplementation } ?: true
 
         override fun toString(): String =
             "${if (enclosingEntity is EnclosingEntity.File) "" else "$enclosingEntity."}${symbol.name.asString()}"

@@ -23,6 +23,7 @@ object FirDeadlockingClassDeclarationChecker : FirRegularClassChecker(MppChecker
     override fun check(declaration: FirRegularClass) {
         if (declaration.isCompanion || declaration.isInner) return
         val dependencyGraph = declaration.moduleData.dependencyGraphBuilder.graph
+        println(dependencyGraph.toString())
         declaration.symbol.asEntity()?.let { enclosingEntity ->
             val deadlockingEntities = dependencyGraph.mutuallyDependentEntities(enclosingEntity).toList()
             if (deadlockingEntities.isNotEmpty()) {

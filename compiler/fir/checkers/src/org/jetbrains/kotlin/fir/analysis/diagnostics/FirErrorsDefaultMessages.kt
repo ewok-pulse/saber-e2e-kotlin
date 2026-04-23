@@ -3978,8 +3978,8 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(
             POSSIBLE_INITIALIZATION_DEADLOCK,
             "The initialization of this class may deadlock with the following ''{0}'' classes.",
-            Renderer { args: List<FirBasedSymbol<*>> ->
-                if (args.isNotEmpty()) args.joinToString(transform = SYMBOL::render) else ""
+            Renderer { classes: List<FirBasedSymbol<*>> ->
+                if (classes.isNotEmpty()) classes.joinToString(transform = SYMBOL::render) else ""
             },
         )
         map.put(
@@ -3989,9 +3989,9 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         )
         map.put(
             POTENTIALLY_UNINITIALIZED_PROPERTY,
-            "The static property may become uninitialized depending on the order of initialization of the containing class and its mutually dependent classes ''{0}''.",
+            "The static property may become uninitialized depending on the order of initialization of the containing class ''{0}''.",
             Renderer { args: List<FirBasedSymbol<*>> ->
-                if (args.isNotEmpty()) args.joinToString(transform = SYMBOL::render) else ""
+                if (args.isNotEmpty()) "and its mutually dependent classes: ${args.joinToString(transform = SYMBOL::render)}" else "due to dynamic accesses"
             }
         )
     }

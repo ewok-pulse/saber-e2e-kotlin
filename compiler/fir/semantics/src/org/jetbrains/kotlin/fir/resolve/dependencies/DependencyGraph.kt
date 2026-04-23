@@ -408,11 +408,11 @@ data class DependencyGraph(
                 // Case 1: the `from` node is inside the loop, i.e., it must have an inner happens-before path to `index` inside
                 // the condensed node
                 if (fromNode == toNode && fromNode is DependencyNode.CondensedNode) {
-                    return fromNode.innerHappensBeforeDescendants(from).any { it == this }
+                    return fromNode.innerHappensBeforeDescendants(this).any { it == from }
                 }
                 // Case 2: the `from` node is outside of the loop, i.e., it must have a happens-before path to `index`
                 if (fromNode != toNode) {
-                    return from happensBefore this
+                    return this happensBefore from
                 }
                 return false
             } else false

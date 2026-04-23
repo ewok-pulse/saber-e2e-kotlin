@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.analysis.api.fir.components
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.components.KaExpressionInformationProvider
 import org.jetbrains.kotlin.analysis.api.fir.KaFirSession
@@ -14,7 +15,9 @@ import org.jetbrains.kotlin.analysis.api.impl.base.components.withPsiValidityAss
 import org.jetbrains.kotlin.analysis.api.resolution.KaSuccessCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaVariableAccessCall
 import org.jetbrains.kotlin.analysis.api.symbols.KaCallableSymbol
+import org.jetbrains.kotlin.analysis.low.level.api.fir.api.getOrBuildFirFile
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.getOrBuildFirSafe
+import org.jetbrains.kotlin.analysis.low.level.api.fir.util.ContextCollector
 import org.jetbrains.kotlin.diagnostics.WhenMissingCase
 import org.jetbrains.kotlin.fir.expressions.FirWhenExpression
 import org.jetbrains.kotlin.fir.resolve.transformers.FirWhenExhaustivenessComputer
@@ -22,6 +25,7 @@ import org.jetbrains.kotlin.fir.withSession
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.unwrapParenthesesLabelsAndAnnotations
+import org.jetbrains.kotlin.types.SmartcastStability
 import org.jetbrains.kotlin.utils.exceptions.errorWithAttachment
 import org.jetbrains.kotlin.utils.exceptions.withPsiEntry
 
@@ -47,6 +51,18 @@ internal class KaFirExpressionInformationProvider(
             val additionalInfoCollector = AdditionalInfoCollector()
                 .also { collector -> isUsed(this, collector) }
             additionalInfoCollector.isUsedAsResultOfLambda
+        }
+
+    @KaExperimentalApi
+    override val KtExpression.isStableForSmartCasting: Boolean
+        get() = withPsiValidityAssertion {
+            val firFile = containingKtFile.getOrBuildFirFile(resolutionFacade)
+            val context = ContextCollector.process(resolutionFacade, firFile, targetElement = this)
+                ?: errorWithAttachment("Cannot find context for ${this::class}") {
+                    withPsiEntry("position", this@isStableForSmartCasting)
+                }
+
+            return context.expressionStability == SmartcastStability.STABLE_VALUE
         }
 
     private class AdditionalInfoCollector() {

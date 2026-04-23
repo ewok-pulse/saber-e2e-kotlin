@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.analysis.api.impl.base.components.KaBaseSessionCompo
 import org.jetbrains.kotlin.analysis.api.lifetime.withValidityAssertion
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaTypeParameterSymbol
+import org.jetbrains.kotlin.analysis.api.types.KaClassType
 import org.jetbrains.kotlin.analysis.api.types.KaSubstitutor
 import org.jetbrains.kotlin.analysis.api.types.KaType
 
@@ -43,5 +44,11 @@ internal class KaFe10SubstitutorProvider(
         if (mappings.isEmpty()) return KaSubstitutor.Empty(token)
 
         throw UnsupportedOperationException("This operation is not supported in the K1 version of the Analysis API.")
+    }
+
+    override fun createSubtypingSubstitutor(subClass: KaClassSymbol, superType: KaClassType): KaSubstitutor? {
+        withValidityAssertion {
+            throw UnsupportedOperationException("This operation is not supported in the K1 version of the Analysis API.")
+        }
     }
 }

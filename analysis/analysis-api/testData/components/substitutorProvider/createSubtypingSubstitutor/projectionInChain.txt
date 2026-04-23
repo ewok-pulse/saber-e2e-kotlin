@@ -1,0 +1,3 @@
+Subclass: A
+Supertype: C<out Number>
+Substitutor: <map substitutor: {T = kotlin/Number}>

@@ -31,16 +31,12 @@ import org.jetbrains.kotlin.buildtools.api.jvm.JvmSnapshotBasedIncrementalCompil
 import org.jetbrains.kotlin.buildtools.api.jvm.operations.JvmCompilationOperation
 import org.jetbrains.kotlin.buildtools.api.jvm.operations.JvmCompilationOperation.Companion.INCREMENTAL_COMPILATION
 import org.jetbrains.kotlin.buildtools.api.jvm.operations.JvmCompilationOperation.Companion.KOTLINSCRIPT_EXTENSIONS
+import org.jetbrains.kotlin.buildtools.api.wasm.WasmHistoryBasedIncrementalCompilationConfiguration
+import org.jetbrains.kotlin.buildtools.api.wasm.WasmPlatformToolchain.Companion.wasm
+import org.jetbrains.kotlin.buildtools.api.wasm.operations.WasmKlibCompilationOperation
 import org.jetbrains.kotlin.cli.common.ExitCode
-import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments
-import org.jetbrains.kotlin.cli.common.arguments.K2JSCompilerArguments
-import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
-import org.jetbrains.kotlin.cli.common.arguments.parseCommandLineArguments
-import org.jetbrains.kotlin.compilerRunner.GradleKotlinCompilerWorkArguments
-import org.jetbrains.kotlin.compilerRunner.IncrementalCompilationEnvironment
-import org.jetbrains.kotlin.compilerRunner.KotlinCompilerArgumentsLogLevel
-import org.jetbrains.kotlin.compilerRunner.asFinishLogMessage
-import org.jetbrains.kotlin.compilerRunner.toArgumentStrings
+import org.jetbrains.kotlin.cli.common.arguments.*
+import org.jetbrains.kotlin.compilerRunner.*
 import org.jetbrains.kotlin.gradle.internal.ClassLoadersCachingBuildService
 import org.jetbrains.kotlin.gradle.internal.ParentClassLoaderProvider
 import org.jetbrains.kotlin.gradle.logging.*
@@ -143,6 +139,53 @@ internal abstract class BuildToolsApiCompilationWork<CompilerArgs : CommonCompil
                             this[JsHistoryBasedIncrementalCompilationConfiguration.ROOT_PROJECT_BUILD_DIR] =
                                 workArguments.incrementalModuleInfo?.rootProjectBuildDir?.toPath()
                             this[JsHistoryBasedIncrementalCompilationConfiguration.HISTORY_FILE_DIR] =
+                                icEnv.multiModuleICSettings.buildHistoryFile.parentFile.toPath()
+                        }.build()
+                    }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCompilerArgument::class)
+    internal abstract class Wasm @Inject constructor(
+        fileSystemOperations: FileSystemOperations,
+        objects: ObjectFactory,
+    ) : BuildToolsApiCompilationWork<KotlinWasmCompilerArguments, CommonJsAndWasmArguments.Builder>(fileSystemOperations, objects) {
+        override val argumentsClass = KotlinWasmCompilerArguments::class
+
+        override fun KotlinToolchains.createOperationBuilder(
+            sources: List<Path>,
+            args: KotlinWasmCompilerArguments,
+        ): BaseCompilationOperation.Builder {
+            val destination = Path(requireNotNull(args.outputDir))
+            return args.includes?.let { includes ->
+                wasm.wasmLinkingOperationBuilder(Path(includes), destination)
+            } ?: wasm.wasmKlibCompilationOperationBuilder(sources, destination)
+        }
+
+        override fun setupIc(compilationOperationBuilder: BaseCompilationOperation.Builder) {
+            if (compilationOperationBuilder is WasmKlibCompilationOperation.Builder) {
+                compilationOperationBuilder[WasmKlibCompilationOperation.INCREMENTAL_COMPILATION] =
+                    workArguments.incrementalCompilationEnvironment?.let { icEnv ->
+                        compilationOperationBuilder.historyBasedIcConfigurationBuilder(
+                            icEnv.rootProjectDir.toPath(),
+                            icEnv.workingDir.toPath(),
+                            icEnv.changedFiles,
+                            workArguments.incrementalModuleInfo?.let {
+                                it.dirToModule.map { (dir, module) ->
+                                    org.jetbrains.kotlin.buildtools.api.wasm.IncrementalModule(
+                                        module.name,
+                                        dir.toPath(),
+                                        module.buildDir.toPath(),
+                                        module.buildHistoryFile.parentFile.toPath()
+                                    )
+                                }
+                            } ?: emptyList()
+                        ).apply {
+                            setupBaseIcOptions(icEnv)
+                            this[WasmHistoryBasedIncrementalCompilationConfiguration.ROOT_PROJECT_BUILD_DIR] =
+                                workArguments.incrementalModuleInfo?.rootProjectBuildDir?.toPath()
+                            this[WasmHistoryBasedIncrementalCompilationConfiguration.HISTORY_FILE_DIR] =
                                 icEnv.multiModuleICSettings.buildHistoryFile.parentFile.toPath()
                         }.build()
                     }

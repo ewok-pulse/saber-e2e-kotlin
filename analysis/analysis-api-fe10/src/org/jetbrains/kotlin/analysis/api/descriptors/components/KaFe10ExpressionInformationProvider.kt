@@ -41,4 +41,7 @@ internal class KaFe10ExpressionInformationProvider(
             val bindingContext = analysisContext.analyze(this)
             return isUsedAsResultOfLambda(bindingContext)
         }
+
+    override val KtExpression.isStable: Boolean
+        get() = withPsiValidityAssertion { error("Not supported") }
 }

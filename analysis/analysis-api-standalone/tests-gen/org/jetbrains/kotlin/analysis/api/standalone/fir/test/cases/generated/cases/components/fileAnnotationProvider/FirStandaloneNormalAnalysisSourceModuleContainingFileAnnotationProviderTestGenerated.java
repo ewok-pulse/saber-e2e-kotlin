@@ -60,4 +60,16 @@ public class FirStandaloneNormalAnalysisSourceModuleContainingFileAnnotationProv
   public void testJsWithoutFileAnnotations() {
     run("jsWithoutFileAnnotations.kt");
   }
+
+  @Test
+  @TestMetadata("jvmLibrary.kt")
+  public void testJvmLibrary() {
+    run("jvmLibrary.kt");
+  }
+
+  @Test
+  @TestMetadata("jvmSource.kt")
+  public void testJvmSource() {
+    run("jvmSource.kt");
+  }
 }

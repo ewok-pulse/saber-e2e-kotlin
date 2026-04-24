@@ -29,7 +29,6 @@ object FirJvmInlineApplicabilityChecker : FirRegularClassChecker(MppCheckerKind.
     @OptIn(SuspiciousValueClassCheck::class)
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirRegularClass) {
-        val isExtendedValueClassSupportEnabled = LanguageFeature.ValueClasses.isEnabled()
         val annotation = declaration.getAnnotationByClassId(JVM_INLINE_ANNOTATION_CLASS_ID, context.session)
         if (annotation != null && !declaration.isValue) {
             // only report if value keyword does not exist, this includes the deprecated inline class syntax
@@ -37,6 +36,7 @@ object FirJvmInlineApplicabilityChecker : FirRegularClassChecker(MppCheckerKind.
         } else if (annotation == null && declaration.isValue && !declaration.isExpect) {
             // only report if value keyword exists, this ignores the deprecated inline class syntax
             val keyword = declaration.getModifier(KtTokens.VALUE_KEYWORD)!!.source
+            val isExtendedValueClassSupportEnabled = LanguageFeature.ValueClasses.isEnabled()
             if (!isExtendedValueClassSupportEnabled) {
                 reporter.reportOn(keyword, FirJvmErrors.VALUE_CLASS_WITHOUT_JVM_INLINE_ANNOTATION)
             }

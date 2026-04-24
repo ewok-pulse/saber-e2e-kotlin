@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.BaseKotlinCompile
 import org.jetbrains.kotlin.testFederation.TemporaryTestFederationApi
 import org.jetbrains.kotlin.testFederation.isSmokeTest
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
@@ -45,6 +44,15 @@ val wasmStdlibImplResolvable = configurations.resolvable("wasmStdlibImplResolvab
     }
 }
 
+val metadataStdlibImpl = configurations.dependencyScope("metadataStdlibImpl")
+val metadataStdlibImplResolvable = configurations.resolvable("metadataStdlibImplResolvable") {
+    extendsFrom(metadataStdlibImpl.get())
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class, "kotlin-runtime"))
+        attribute(Attribute.of("org.jetbrains.kotlin.platform.type", String::class.java), "common")
+    }
+}
+
 val scriptingCompilerPlugin = configurations.dependencyScope("scriptingCompilerPlugin")
 val scriptingCompilerPluginResolvable = configurations.resolvable("scriptingCompilerPluginResolvable") {
     extendsFrom(scriptingCompilerPlugin.get())
@@ -82,6 +90,7 @@ dependencies {
     }
     jsStdlibImpl(project(":kotlin-stdlib"))
     wasmStdlibImpl(project(":kotlin-stdlib"))
+    metadataStdlibImpl(project(":kotlin-stdlib"))
 }
 
 kotlin {
@@ -109,6 +118,7 @@ class BuildToolsVersion(val version: KotlinToolingVersion, val isCurrent: Boolea
 val COMPILER_CLASSPATH_PROPERTY = "kotlin.build-tools-api.test.compilerClasspath"
 val JS_STDLIB_CLASSSPATH_PROPERTY = "kotlin.build-tools-api.test.jsStdlibClasspath"
 val WASM_STDLIB_CLASSSPATH_PROPERTY = "kotlin.build-tools-api.test.wasmStdlibClasspath"
+val METADATA_STDLIB_CLASSSPATH_PROPERTY = "kotlin.build-tools-api.test.metadataStdlibClasspath"
 
 fun Test.ensureExecutedAgainstExpectedBuildToolsImplVersion(version: BuildToolsVersion) {
     if (version.isCurrent) return
@@ -174,6 +184,7 @@ fun JvmTestSuite.addSnapshotBuildToolsImpl() {
             addClasspathProperty(buildToolsApiImplResolvable.get(), COMPILER_CLASSPATH_PROPERTY)
             addClasspathProperty(jsStdlibImplResolvable.get(), JS_STDLIB_CLASSSPATH_PROPERTY)
             addClasspathProperty(wasmStdlibImplResolvable.get(), WASM_STDLIB_CLASSSPATH_PROPERTY)
+            addClasspathProperty(metadataStdlibImplResolvable.get(), METADATA_STDLIB_CLASSSPATH_PROPERTY)
         }
     }
 }

@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.analysis.test.framework.utils.indented
 import org.jetbrains.kotlin.name.ClassId
 
 object TestAnnotationRenderer {
-    fun renderAnnotations(analysisSession: KaSession, annotations: KaAnnotationList, prefix: String = "annotations") = buildString {
+    fun renderAnnotations(analysisSession: KaSession, annotations: KaAnnotationList, prefix: String = "annotations: ") = buildString {
         renderAnnotationsRecursive(analysisSession, annotations, currentMetaAnnotations = null, indent = 0, prefix)
     }
 
@@ -25,9 +25,9 @@ object TestAnnotationRenderer {
         annotations: KaAnnotationList,
         currentMetaAnnotations: Set<ClassId>?,
         indent: Int,
-        prefix: String = "annotations",
+        prefix: String = "annotations: ",
     ) {
-        appendLine("$prefix: [".indented(indent))
+        appendLine("$prefix[".indented(indent))
         for (annotation in annotations) {
             appendLine(KaDebugRenderer().renderAnnotationApplication(analysisSession, annotation).indented(indent = indent + 2))
             if (currentMetaAnnotations != null) {

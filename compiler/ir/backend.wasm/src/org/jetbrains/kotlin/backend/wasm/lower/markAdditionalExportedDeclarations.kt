@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.ir.builders.irAnnotation
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.types.isString
+import org.jetbrains.kotlin.ir.types.isUnit
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.name.FqName
 
@@ -27,7 +28,10 @@ fun markExportedDeclaration(context: WasmBackendContext, irFile: IrFile, fqName:
     }
 
     irFile.declarations.find {
-        it is IrFunction && it.parameters.isEmpty() && it.returnType.isString() && it.fqNameWhenAvailable == fqName
+        it is IrFunction && it.parameters.isEmpty() &&
+                (it.returnType.isString() ||
+                        it.returnType.isUnit()) && // Parts of stepping tests using `box` fun returning `Unit`. 
+                it.fqNameWhenAvailable == fqName
     }?.let {
         val builder = context.createIrBuilder(irFile.symbol)
         it.annotations += builder.irAnnotation(exportConstructor, typeArguments = emptyList())

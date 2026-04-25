@@ -5,4 +5,4 @@ val x = { a: Int, b: Result<String> -> b.getOrNullNoinline() }
 
 fun test() = x(1, Result.success("OK"))
 
-fun box() = test()!!
+fun box(): String = test()!!

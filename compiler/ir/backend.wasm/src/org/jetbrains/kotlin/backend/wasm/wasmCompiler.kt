@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.backend.wasm.ic.overrideBuiltInsSignatures
 import org.jetbrains.kotlin.backend.wasm.ir2wasm.*
 import org.jetbrains.kotlin.backend.wasm.ir2wasm.WasmCompiledModuleFragment.JsCodeSnippet
 import org.jetbrains.kotlin.backend.wasm.lower.JsInteropFunctionsLowering
-import org.jetbrains.kotlin.backend.wasm.lower.markExportedDeclarations
+import org.jetbrains.kotlin.backend.wasm.lower.markExportedDeclaration
 import org.jetbrains.kotlin.backend.wasm.utils.DwarfGenerator
 import org.jetbrains.kotlin.backend.wasm.utils.SourceMapGenerator
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -34,7 +34,6 @@ import org.jetbrains.kotlin.js.config.generateDts
 import org.jetbrains.kotlin.js.config.sourceMap
 import org.jetbrains.kotlin.js.config.useDebuggerCustomFormatters
 import org.jetbrains.kotlin.library.isWasmStdlib
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.platform.wasm.WasmTarget
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.jetbrains.kotlin.utils.addToStdlib.runIf
@@ -43,6 +42,7 @@ import org.jetbrains.kotlin.wasm.config.wasmDebug
 import org.jetbrains.kotlin.wasm.config.wasmGenerateDwarf
 import org.jetbrains.kotlin.wasm.config.wasmGenerateWat
 import org.jetbrains.kotlin.wasm.config.wasmNoJsTag
+import org.jetbrains.kotlin.wasm.config.wasmTestBoxFunctionToExport
 import org.jetbrains.kotlin.wasm.ir.ByteWriterWithOffsetWrite
 import org.jetbrains.kotlin.wasm.ir.WasmBinaryData
 import org.jetbrains.kotlin.wasm.ir.WasmBinaryData.Companion.writeTo
@@ -88,7 +88,6 @@ fun compileToLoweredIr(
     irModuleInfo: IrModuleInfo,
     mainModule: MainModule,
     configuration: CompilerConfiguration,
-    exportedDeclarations: Set<FqName> = emptySet(),
 ): LoweredIrWithExtraArtifacts {
     val (moduleFragment, moduleDependencies, irBuiltIns, symbolTable, irLinker) = irModuleInfo
 
@@ -118,9 +117,11 @@ fun compileToLoweredIr(
     irLinker.checkNoUnboundSymbols(symbolTable, "at the end of IR linkage process")
     irLinker.clear()
 
-    for (module in allModules)
-        for (file in module.files)
-            markExportedDeclarations(context, file, exportedDeclarations)
+    configuration.wasmTestBoxFunctionToExport?.let { testBoxFunToExport ->
+        for (module in allModules)
+            for (file in module.files)
+                markExportedDeclaration(context, file, testBoxFunToExport)
+    }
 
     val typeScriptFragment = runIf(configuration.generateDts) {
         val exportModel = ExportModelGenerator(context).generateExport(allModules)

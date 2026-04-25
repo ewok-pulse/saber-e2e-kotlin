@@ -42,18 +42,17 @@ private val IrModuleFragment.outputFileName
 
 abstract class WasmCompilerBase(val configuration: CompilerConfiguration) {
     abstract val irFactory: IrFactoryImplForWasmIC
-    abstract fun lowerIr(irModuleInfo: IrModuleInfo, mainModule: MainModule, exportedDeclarations: Set<FqName>): LoweredIrWithExtraArtifacts
+    abstract fun lowerIr(irModuleInfo: IrModuleInfo, mainModule: MainModule): LoweredIrWithExtraArtifacts
     abstract fun compileIr(loweredIr: LoweredIrWithExtraArtifacts): List<WasmIrModuleConfiguration>
 }
 
 abstract class WholeWorldCompilerBase(configuration: CompilerConfiguration, private val noCrossFileOptimisations: Boolean) : WasmCompilerBase(configuration) {
-    override fun lowerIr(irModuleInfo: IrModuleInfo, mainModule: MainModule, exportedDeclarations: Set<FqName>): LoweredIrWithExtraArtifacts {
+    override fun lowerIr(irModuleInfo: IrModuleInfo, mainModule: MainModule): LoweredIrWithExtraArtifacts {
         configuration.wasmDisableCrossFileOptimisations = noCrossFileOptimisations
         return compileToLoweredIr(
             irModuleInfo = irModuleInfo,
             mainModule = mainModule,
             configuration = configuration,
-            exportedDeclarations = exportedDeclarations,
         )
     }
 }
@@ -103,14 +102,12 @@ class SingleModuleCompiler(configuration: CompilerConfiguration, override val ir
     override fun lowerIr(
         irModuleInfo: IrModuleInfo,
         mainModule: MainModule,
-        exportedDeclarations: Set<FqName>
     ): LoweredIrWithExtraArtifacts {
         configuration.wasmDisableCrossFileOptimisations = true
         return compileToLoweredIr(
             irModuleInfo = irModuleInfo,
             mainModule = mainModule,
             configuration = configuration,
-            exportedDeclarations = exportedDeclarations,
         )
     }
 

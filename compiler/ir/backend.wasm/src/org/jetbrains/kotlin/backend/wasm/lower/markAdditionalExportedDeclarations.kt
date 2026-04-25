@@ -10,23 +10,26 @@ import org.jetbrains.kotlin.backend.wasm.WasmBackendContext
 import org.jetbrains.kotlin.ir.builders.irAnnotation
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.types.isString
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.name.FqName
 
 /**
- * Mark declarations from [exportedFqNames] with @JsExport annotation
+ * Mark declaration with [fqName] fqn with @JsExport annotation.
+ * The declaration must be a function with no parameters, returning `kotlin.String`.
  */
-fun markExportedDeclarations(context: WasmBackendContext, irFile: IrFile, exportedFqNames: Set<FqName>) {
+fun markExportedDeclaration(context: WasmBackendContext, irFile: IrFile, fqName: FqName) {
+    if (irFile.packageFqName != fqName.parent()) return
+
     val exportConstructor = when (context.isWasmJsTarget) {
         true -> context.wasmSymbols.jsRelatedSymbols.jsExportConstructor
         else -> context.wasmSymbols.wasmExportConstructor
     }
 
-    for (declaration in irFile.declarations) {
-        if (declaration is IrFunction && declaration.fqNameWhenAvailable in exportedFqNames) {
-            val builder = context.createIrBuilder(irFile.symbol)
-            declaration.annotations +=
-                builder.irAnnotation(exportConstructor, typeArguments = emptyList())
-        }
+    irFile.declarations.find {
+        it is IrFunction && it.parameters.isEmpty() && it.returnType.isString() && it.fqNameWhenAvailable == fqName
+    }?.let {
+        val builder = context.createIrBuilder(irFile.symbol)
+        it.annotations += builder.irAnnotation(exportConstructor, typeArguments = emptyList())
     }
 }

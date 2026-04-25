@@ -1,5 +1,3 @@
-// KT-66105: SyntaxError: Identifier 'box' has already been declared
-// IGNORE_BACKEND: WASM_JS, WASM_WASI
 // WITH_STDLIB
 
 import kotlin.test.*

@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.backend.wasm.*
 import org.jetbrains.kotlin.backend.wasm.ic.WasmICContextMultimodule
 import org.jetbrains.kotlin.backend.wasm.ic.WasmICContextSingleModule
 import org.jetbrains.kotlin.backend.wasm.ic.WasmICContextWholeWorld
-import org.jetbrains.kotlin.backend.wasm.lower.markExportedDeclarations
+import org.jetbrains.kotlin.backend.wasm.lower.markExportedDeclaration
 import org.jetbrains.kotlin.cli.create
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -31,11 +31,10 @@ import org.jetbrains.kotlin.ir.backend.js.ic.CacheUpdater
 import org.jetbrains.kotlin.ir.backend.js.ic.IrCompilerICInterface
 import org.jetbrains.kotlin.ir.backend.js.ic.IrICProgramFragments
 import org.jetbrains.kotlin.ir.declarations.IrFile
-import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.js.config.*
 import org.jetbrains.kotlin.klib.KlibCompilerInvocationTestUtils
-import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.wasm.WasmPlatforms
 import org.jetbrains.kotlin.platform.wasm.WasmTarget
 import org.jetbrains.kotlin.test.TargetBackend
@@ -52,12 +51,9 @@ import java.io.File
 
 @Suppress("OPT_IN_USAGE")
 private fun markExportedDeclarations(dirtyFiles: Collection<IrFile>, context: WasmBackendContext) {
-    val testFile = dirtyFiles.firstOrNull { file ->
-        file.declarations.any { declaration -> declaration is IrFunction && declaration.name.asString() == "box" }
-    } ?: return
-
-    val packageFqName = testFile.packageFqName.asString().takeIf { it.isNotEmpty() }
-    markExportedDeclarations(context, testFile, setOf(FqName.fromSegments(listOfNotNull(packageFqName, "box"))))
+    dirtyFiles.forEach { file ->
+        markExportedDeclaration(context, file, file.packageFqName.child(Name.identifier("box")))
+    }
 }
 
 

@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.ir.backend.js.ic.CacheUpdater
 import org.jetbrains.kotlin.ir.backend.js.ic.IrCompilerICInterface
 import org.jetbrains.kotlin.ir.backend.js.ic.IrICProgramFragments
 import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.types.isBoolean
 import org.jetbrains.kotlin.ir.types.isInt
@@ -53,18 +54,21 @@ import java.io.File
 
 @Suppress("OPT_IN_USAGE")
 private fun markExportedDeclarations(dirtyFiles: Collection<IrFile>, context: WasmBackendContext) {
+//    val box = dirtyFiles.flatMap { it.declarations.mapNotNull { (it as? IrFunction)?.takeIf { it.name.asString() == "box" } } }.singleOrNull() ?: return
+//    markFunctionToExport(context, box)
     dirtyFiles.forEach { file ->
         markFunctionToExport(context, file) {
+            // fun box(): String
+            // fun box(step: Int): String
             // fun box(stepId: Int, isWasm: Boolean): String
             name.asString() == "box" &&
-                    parameters.let { it.size == 2 && it[0].type.isInt() && it[1].type.isBoolean() } &&
+                    parameters.let {
+                        it.isEmpty() || it.size == 1 && it[0].type.isInt() || it.size == 2 && it[0].type.isInt() && it[1].type.isBoolean()
+                    } &&
                     returnType.isString()
         }
     }
 }
-
-
-
 
 private class WasmICContextMultimoduleForTesting : WasmICContextMultimodule(
     allowIncompleteImplementations = false,

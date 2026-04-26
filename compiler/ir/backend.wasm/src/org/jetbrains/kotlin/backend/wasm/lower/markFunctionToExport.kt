@@ -25,3 +25,13 @@ fun markFunctionToExport(context: WasmBackendContext, irFile: IrFile, matcher: I
         it.annotations += builder.irAnnotation(exportConstructor, typeArguments = emptyList())
     }
 }
+
+fun markFunctionToExport(context: WasmBackendContext, function: IrFunction) {
+    val exportConstructor = when (context.isWasmJsTarget) {
+        true -> context.wasmSymbols.jsRelatedSymbols.jsExportConstructor
+        else -> context.wasmSymbols.wasmExportConstructor
+    }
+
+    val builder = context.createIrBuilder(function.symbol)
+    function.annotations += builder.irAnnotation(exportConstructor, typeArguments = emptyList())
+}

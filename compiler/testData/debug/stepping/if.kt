@@ -24,7 +24,7 @@ inline fun getB(): Int {
 // test.kt:9 box
 // test.kt:15 box
 // test.kt:9 box
-//
+
 // EXPECTATIONS NATIVE
 // test.kt:6 box
 // test.kt:15 box

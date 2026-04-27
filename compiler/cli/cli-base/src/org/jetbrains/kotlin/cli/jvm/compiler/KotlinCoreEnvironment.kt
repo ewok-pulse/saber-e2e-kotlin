@@ -689,7 +689,6 @@ class KotlinCoreEnvironment private constructor(
             CollectAdditionalSourcesExtension.registerExtensionPoint(project)
             ProcessSourcesBeforeCompilingExtension.registerExtensionPoint(project)
             ExtraImportsProviderExtension.registerExtensionPoint(project)
-            ScriptEvaluationExtension.registerExtensionPoint(project)
             ShellExtension.registerExtensionPoint(project)
         }
 

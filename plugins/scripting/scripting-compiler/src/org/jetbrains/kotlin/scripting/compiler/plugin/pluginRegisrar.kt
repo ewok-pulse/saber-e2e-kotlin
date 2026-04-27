@@ -8,6 +8,7 @@
 package org.jetbrains.kotlin.scripting.compiler.plugin
 
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
+import org.jetbrains.kotlin.cli.common.extensions.ScriptEvaluationExtension
 import org.jetbrains.kotlin.cli.extensionsStorage
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.registerExtension
@@ -37,6 +38,7 @@ class ScriptingK2CompilerPluginRegistrar : CompilerPluginRegistrar() {
         registerComponents(this, configuration)
 
         CollectAdditionalSourceFilesExtension.registerExtension(CollectAdditionalScriptSourcesExtension())
+        ScriptEvaluationExtension.registerExtension(JvmCliScriptEvaluationExtension())
     }
 
     override val pluginId: String get() = KOTLIN_SCRIPTING_PLUGIN_ID

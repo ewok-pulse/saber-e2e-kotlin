@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.cli.pipeline.CheckCompilationErrors.CheckDiagnosticC
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.expressionToEvaluate
+import org.jetbrains.kotlin.scripting.compiler.plugin.definitions.CliScriptDefinitionProvider
 import org.jetbrains.kotlin.scripting.configuration.ScriptingConfigurationKeys
 import org.jetbrains.kotlin.scripting.definitions.ScriptDefinitionProvider
 import java.io.File
@@ -92,6 +93,9 @@ abstract class AbstractScriptEvaluationExtension : ScriptEvaluationExtension {
         freeArgs: List<String>,
     ): ExitCode {
         val messageCollector = configuration.getNotNull(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY)
+        projectEnvironment.project.apply {
+            registerService(ScriptDefinitionProvider::class.java, CliScriptDefinitionProvider())
+        }
         val scriptDefinitionProvider = ScriptDefinitionProvider.getInstance(projectEnvironment.project)
         if (scriptDefinitionProvider == null) {
             messageCollector.report(CompilerMessageSeverity.ERROR, "Unable to process the script, scripting plugin is not configured")

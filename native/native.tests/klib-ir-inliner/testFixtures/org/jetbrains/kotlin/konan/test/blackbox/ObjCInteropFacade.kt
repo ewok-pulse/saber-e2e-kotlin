@@ -39,14 +39,18 @@ import kotlin.io.extension
 /*
  * When [customClassLoader] is not null, it means ObjCInteropFacade is used in scope of forward compatibility testing:
  */
-class ObjCInteropFacade(val testServices: TestServices, val isForwardTest: Boolean = false) :
-    AbstractTestFacade<ResultingArtifact.Source, BinaryArtifacts.KLib>()
-{
+class ObjCInteropFacade(
+    val testServices: TestServices,
+    val isForwardTest: Boolean = false,
+    customClassLoader: ClassLoader? = null
+) : AbstractTestFacade<ResultingArtifact.Source, BinaryArtifacts.KLib>() {
+
     override val inputKind = SourcesKind
     override val outputKind = ArtifactKinds.KLib
     private val settings = testServices.testRunSettings
     private val targets: KotlinNativeTargets = settings.get()
-    private val classLoader: KotlinNativeClassLoader = settings.get()
+    private val classLoader: ClassLoader = customClassLoader
+        ?: settings.get<KotlinNativeClassLoader>().classLoader
 
     override fun shouldTransform(module: TestModule): Boolean {
         return module.files.any { it.name.endsWith(".def") }
@@ -123,7 +127,7 @@ class ObjCInteropFacade(val testServices: TestServices, val isForwardTest: Boole
         val loggedCInteropParameters = LoggedData.CInteropParameters(args, defFile)
         val (loggedCall: LoggedData, immediateResult: TestCompilationResult.ImmediateResult<out KLIB>) = try {
             val (exitCode, cinteropOutput, cinteropOutputHasErrors, duration) = invokeCInterop(
-                classLoader.classLoader,
+                classLoader,
                 expectedArtifact.klibFile,
                 args.toTypedArray()
             )

@@ -81,7 +81,7 @@ open class AbstractCustomNativeCompilerSecondStageTest : AbstractNativeCoreTest(
         // The rest of the 1st stage pipeline will be skipped naturally, since other 1st stage facades don't accept klibs as input artifact.
         // The pipeline for the 2nd stage will be skipped, since cinterop klibs do not represent a main module in tests
         // The current version of "cinterop" tool is used for ObjCInteropFacade, which targets old ABI.
-        facadeStep(::ObjCInteropFacade.bind(/*isForwardTest*/true))
+        facadeStep(::ObjCInteropFacade.bind(/*isForwardTest*/true, /*customClassLoader*/null))
 
         commonConfigurationForNativeFirstStageUpToSerialization()
         facadeStep(::KlibSerializerNativeCliFacade)

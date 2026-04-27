@@ -1034,23 +1034,25 @@ private class ContextCollectorVisitor(
                 process(anonymousFunction.receiverParameter)
 
                 onActive {
-                    context.withAnonymousFunction(anonymousFunction, bodyHolder) {
-                        for (contextParameter in anonymousFunction.contextParameters) {
-                            context.storeValueParameterIfNeeded(contextParameter, bodyHolder.session)
+                    withLocalVariableHolder(onEnter = { enterFunction(anonymousFunction) }, onExit = { exitFunction() }) {
+                        context.withAnonymousFunction(anonymousFunction, bodyHolder) {
+                            for (contextParameter in anonymousFunction.contextParameters) {
+                                context.storeValueParameterIfNeeded(contextParameter, bodyHolder.session)
+                            }
+
+                            for (valueParameter in anonymousFunction.valueParameters) {
+                                context.storeValueParameterIfNeeded(valueParameter, bodyHolder.session)
+                            }
+
+                            dumpContext(anonymousFunction, ContextKind.BODY)
+
+                            processList(anonymousFunction.contextParameters)
+                            processList(anonymousFunction.valueParameters)
+                            process(anonymousFunction.body)
                         }
 
-                        for (valueParameter in anonymousFunction.valueParameters) {
-                            context.storeValueParameterIfNeeded(valueParameter, bodyHolder.session)
-                        }
-
-                        dumpContext(anonymousFunction, ContextKind.BODY)
-
-                        processList(anonymousFunction.contextParameters)
-                        processList(anonymousFunction.valueParameters)
-                        process(anonymousFunction.body)
+                        processChildren(anonymousFunction)
                     }
-
-                    processChildren(anonymousFunction)
                 }
             }
         }

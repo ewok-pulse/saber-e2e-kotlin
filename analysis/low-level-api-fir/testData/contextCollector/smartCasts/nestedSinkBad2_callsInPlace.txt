@@ -29,10 +29,13 @@ Smart Casts:
     Types:
         kotlin.Any
 
-FILE: [ResolvedTo(IMPORTS)] nestedSink.kt
+FILE: [ResolvedTo(IMPORTS)] nestedSinkBad2_callsInPlace.kt
     public final [ResolvedTo(BODY_RESOLVE)] fun test(): R|kotlin/Unit| {
         [ResolvedTo(BODY_RESOLVE)] lvar x: R|kotlin/Int?| = Int(42)
-        R|<local>/x| = <Unresolved name: getNullableInt>#()
+        R|kotlin/run|<R|kotlin/Unit|>(<L> = [ResolvedTo(BODY_RESOLVE)] run@fun <anonymous>(): R|kotlin/Unit| <inline=Inline, kind=EXACTLY_ONCE>  {
+            R|<local>/x| = Null(null)
+        }
+        )
         R|kotlin/run|<R|kotlin/Unit|>(<L> = [ResolvedTo(BODY_RESOLVE)] run@fun <anonymous>(): R|kotlin/Unit| <inline=Inline, kind=EXACTLY_ONCE>  {
             when () {
                 !=(R|<local>/x|, Null(null)) ->  {

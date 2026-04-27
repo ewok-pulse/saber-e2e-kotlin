@@ -86,12 +86,6 @@ public class FirStandaloneNormalAnalysisSourceModuleIsStableTestGenerated extend
   }
 
   @Test
-  @TestMetadata("stableLocalVarSmartCastWithNullableNonContractLambda.kt")
-  public void testStableLocalVarSmartCastWithNullableNonContractLambda() {
-    run("stableLocalVarSmartCastWithNullableNonContractLambda.kt");
-  }
-
-  @Test
   @TestMetadata("stableLocalVarWithAssignment.kt")
   public void testStableLocalVarWithAssignment() {
     run("stableLocalVarWithAssignment.kt");
@@ -170,9 +164,27 @@ public class FirStandaloneNormalAnalysisSourceModuleIsStableTestGenerated extend
   }
 
   @Test
+  @TestMetadata("unstableLocalVarSmartCastWithCompatibleRunAssignment.kt")
+  public void testUnstableLocalVarSmartCastWithCompatibleRunAssignment() {
+    run("unstableLocalVarSmartCastWithCompatibleRunAssignment.kt");
+  }
+
+  @Test
   @TestMetadata("unstableLocalVarSmartCastWithNullableCapturedAssignment.kt")
   public void testUnstableLocalVarSmartCastWithNullableCapturedAssignment() {
     run("unstableLocalVarSmartCastWithNullableCapturedAssignment.kt");
+  }
+
+  @Test
+  @TestMetadata("unstableLocalVarSmartCastWithNullableNonContractLambda.kt")
+  public void testUnstableLocalVarSmartCastWithNullableNonContractLambda() {
+    run("unstableLocalVarSmartCastWithNullableNonContractLambda.kt");
+  }
+
+  @Test
+  @TestMetadata("unstableLocalVarSmartCastWithNullableRunAssignment.kt")
+  public void testUnstableLocalVarSmartCastWithNullableRunAssignment() {
+    run("unstableLocalVarSmartCastWithNullableRunAssignment.kt");
   }
 
   @Test

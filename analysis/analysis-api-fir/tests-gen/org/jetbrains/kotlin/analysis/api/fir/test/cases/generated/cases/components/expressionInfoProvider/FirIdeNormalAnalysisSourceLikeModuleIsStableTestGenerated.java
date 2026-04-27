@@ -68,6 +68,12 @@ public class FirIdeNormalAnalysisSourceLikeModuleIsStableTestGenerated extends A
   }
 
   @Test
+  @TestMetadata("stableLocalVarSmartCastWithCompatibleCapturedAssignment.kt")
+  public void testStableLocalVarSmartCastWithCompatibleCapturedAssignment() {
+    run("stableLocalVarSmartCastWithCompatibleCapturedAssignment.kt");
+  }
+
+  @Test
   @TestMetadata("stableLocalVarWithAssignment.kt")
   public void testStableLocalVarWithAssignment() {
     run("stableLocalVarWithAssignment.kt");
@@ -110,14 +116,50 @@ public class FirIdeNormalAnalysisSourceLikeModuleIsStableTestGenerated extends A
   }
 
   @Test
+  @TestMetadata("unstableLocalVarNested2WithCompatibleAssignment.kt")
+  public void testUnstableLocalVarNested2WithCompatibleAssignment() {
+    run("unstableLocalVarNested2WithCompatibleAssignment.kt");
+  }
+
+  @Test
+  @TestMetadata("unstableLocalVarNestedWithCompatibleAssignment.kt")
+  public void testUnstableLocalVarNestedWithCompatibleAssignment() {
+    run("unstableLocalVarNestedWithCompatibleAssignment.kt");
+  }
+
+  @Test
+  @TestMetadata("unstableLocalVarSmartCastWithNullableCapturedAssignment.kt")
+  public void testUnstableLocalVarSmartCastWithNullableCapturedAssignment() {
+    run("unstableLocalVarSmartCastWithNullableCapturedAssignment.kt");
+  }
+
+  @Test
+  @TestMetadata("unstableLocalVarWithCompatibleAssignment.kt")
+  public void testUnstableLocalVarWithCompatibleAssignment() {
+    run("unstableLocalVarWithCompatibleAssignment.kt");
+  }
+
+  @Test
   @TestMetadata("unstablePublicOpenVal.kt")
   public void testUnstablePublicOpenVal() {
     run("unstablePublicOpenVal.kt");
   }
 
   @Test
+  @TestMetadata("unstablePublicValFromOtherModule.kt")
+  public void testUnstablePublicValFromOtherModule() {
+    run("unstablePublicValFromOtherModule.kt");
+  }
+
+  @Test
   @TestMetadata("unstablePublicVar.kt")
   public void testUnstablePublicVar() {
     run("unstablePublicVar.kt");
+  }
+
+  @Test
+  @TestMetadata("unstableValWithCustomGetter.kt")
+  public void testUnstableValWithCustomGetter() {
+    run("unstableValWithCustomGetter.kt");
   }
 }

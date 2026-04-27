@@ -68,9 +68,27 @@ public class FirStandaloneNormalAnalysisSourceModuleIsStableTestGenerated extend
   }
 
   @Test
+  @TestMetadata("stableLocalVarNestedNonContractLambda.kt")
+  public void testStableLocalVarNestedNonContractLambda() {
+    run("stableLocalVarNestedNonContractLambda.kt");
+  }
+
+  @Test
   @TestMetadata("stableLocalVarSmartCastWithCompatibleCapturedAssignment.kt")
   public void testStableLocalVarSmartCastWithCompatibleCapturedAssignment() {
     run("stableLocalVarSmartCastWithCompatibleCapturedAssignment.kt");
+  }
+
+  @Test
+  @TestMetadata("stableLocalVarSmartCastWithCompatibleNonContractLambda.kt")
+  public void testStableLocalVarSmartCastWithCompatibleNonContractLambda() {
+    run("stableLocalVarSmartCastWithCompatibleNonContractLambda.kt");
+  }
+
+  @Test
+  @TestMetadata("stableLocalVarSmartCastWithNullableNonContractLambda.kt")
+  public void testStableLocalVarSmartCastWithNullableNonContractLambda() {
+    run("stableLocalVarSmartCastWithNullableNonContractLambda.kt");
   }
 
   @Test
@@ -116,15 +134,39 @@ public class FirStandaloneNormalAnalysisSourceModuleIsStableTestGenerated extend
   }
 
   @Test
+  @TestMetadata("unstableLocalVarNested2NonContractLambda.kt")
+  public void testUnstableLocalVarNested2NonContractLambda() {
+    run("unstableLocalVarNested2NonContractLambda.kt");
+  }
+
+  @Test
   @TestMetadata("unstableLocalVarNested2WithCompatibleAssignment.kt")
   public void testUnstableLocalVarNested2WithCompatibleAssignment() {
     run("unstableLocalVarNested2WithCompatibleAssignment.kt");
   }
 
   @Test
+  @TestMetadata("unstableLocalVarNested2WithCompatibleAssignmentNonContractLambda.kt")
+  public void testUnstableLocalVarNested2WithCompatibleAssignmentNonContractLambda() {
+    run("unstableLocalVarNested2WithCompatibleAssignmentNonContractLambda.kt");
+  }
+
+  @Test
+  @TestMetadata("unstableLocalVarNestedNonContractLambda.kt")
+  public void testUnstableLocalVarNestedNonContractLambda() {
+    run("unstableLocalVarNestedNonContractLambda.kt");
+  }
+
+  @Test
   @TestMetadata("unstableLocalVarNestedWithCompatibleAssignment.kt")
   public void testUnstableLocalVarNestedWithCompatibleAssignment() {
     run("unstableLocalVarNestedWithCompatibleAssignment.kt");
+  }
+
+  @Test
+  @TestMetadata("unstableLocalVarNestedWithCompatibleAssignmentNonContractLambda.kt")
+  public void testUnstableLocalVarNestedWithCompatibleAssignmentNonContractLambda() {
+    run("unstableLocalVarNestedWithCompatibleAssignmentNonContractLambda.kt");
   }
 
   @Test

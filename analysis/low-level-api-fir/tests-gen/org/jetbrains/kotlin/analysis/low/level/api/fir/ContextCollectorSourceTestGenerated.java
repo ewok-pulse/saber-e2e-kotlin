@@ -1172,6 +1172,18 @@ public class ContextCollectorSourceTestGenerated extends AbstractContextCollecto
     }
 
     @Test
+    @TestMetadata("directSink.kt")
+    public void testDirectSink() {
+      run("directSink.kt");
+    }
+
+    @Test
+    @TestMetadata("directSinkBad.kt")
+    public void testDirectSinkBad() {
+      run("directSinkBad.kt");
+    }
+
+    @Test
     @TestMetadata("directSinkBad_callsInPlace.kt")
     public void testDirectSinkBad_callsInPlace() {
       run("directSinkBad_callsInPlace.kt");
@@ -1241,6 +1253,24 @@ public class ContextCollectorSourceTestGenerated extends AbstractContextCollecto
     @TestMetadata("localVariableMutable.kt")
     public void testLocalVariableMutable() {
       run("localVariableMutable.kt");
+    }
+
+    @Test
+    @TestMetadata("nestedSink.kt")
+    public void testNestedSink() {
+      run("nestedSink.kt");
+    }
+
+    @Test
+    @TestMetadata("nestedSinkBad.kt")
+    public void testNestedSinkBad() {
+      run("nestedSinkBad.kt");
+    }
+
+    @Test
+    @TestMetadata("nestedSinkBad2.kt")
+    public void testNestedSinkBad2() {
+      run("nestedSinkBad2.kt");
     }
 
     @Test

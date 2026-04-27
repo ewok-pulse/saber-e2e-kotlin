@@ -16,6 +16,7 @@ open class AbstractScriptWithCustomDefDiagnosticsTestBase : AbstractFirDiagnosti
         super.configure(builder)
         with(builder) {
             configureWithCustomScriptDef()
+            useConfigurators(::CustomScriptDefinitionEnvironmentConfigurator)
         }
     }
 }
@@ -26,6 +27,7 @@ open class AbstractScriptWithCustomDefBlackBoxCodegenTest : AbstractFirScriptCod
         with(builder) {
             configureWithCustomScriptDef()
             useCustomRuntimeClasspathProviders(::ScriptWithCustomDefRuntimeClassPathProvider)
+            useConfigurators(::CustomScriptDefinitionEnvironmentConfigurator)
         }
     }
 }

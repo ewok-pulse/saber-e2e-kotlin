@@ -6,8 +6,8 @@
 package org.jetbrains.kotlin.scripting.compiler.plugin
 
 import com.intellij.core.CoreFileTypeRegistry
-import com.intellij.mock.MockProject
 import com.intellij.openapi.fileTypes.FileTypeRegistry
+import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
 import org.jetbrains.kotlin.config.CompilerConfiguration
@@ -23,7 +23,7 @@ import java.io.File
 import kotlin.script.experimental.host.ScriptingHostConfiguration
 
 class ScriptingCompilerConfigurationExtension(
-    val project: MockProject,
+    val project: Project,
     val baseHostConfiguration: ScriptingHostConfiguration
 ) : CompilerConfigurationExtension {
 

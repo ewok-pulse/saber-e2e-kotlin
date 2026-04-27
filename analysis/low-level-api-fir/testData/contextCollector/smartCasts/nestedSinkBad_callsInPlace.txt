@@ -29,13 +29,9 @@ Smart Casts:
     Types:
         kotlin.Any
 
-FILE: [ResolvedTo(IMPORTS)] nestedSinkBad2.kt
-    public final [ResolvedTo(BODY_RESOLVE)] fun test(): R|kotlin/Unit| {
+FILE: [ResolvedTo(IMPORTS)] nestedSinkBad_callsInPlace.kt
+    public final [ResolvedTo(ANNOTATION_ARGUMENTS)] [PartialBodyAnalysisStateKey=2(2/3) #1] fun test(): R|kotlin/Unit| {
         [ResolvedTo(BODY_RESOLVE)] lvar x: R|kotlin/Int?| = Int(42)
-        R|kotlin/run|<R|kotlin/Unit|>(<L> = [ResolvedTo(BODY_RESOLVE)] run@fun <anonymous>(): R|kotlin/Unit| <inline=Inline, kind=EXACTLY_ONCE>  {
-            R|<local>/x| = Null(null)
-        }
-        )
         R|kotlin/run|<R|kotlin/Unit|>(<L> = [ResolvedTo(BODY_RESOLVE)] run@fun <anonymous>(): R|kotlin/Unit| <inline=Inline, kind=EXACTLY_ONCE>  {
             when () {
                 !=(R|<local>/x|, Null(null)) ->  {
@@ -45,4 +41,6 @@ FILE: [ResolvedTo(IMPORTS)] nestedSinkBad2.kt
 
         }
         )
+        x# = getNullableInt#()
     }
+    public? final? [ResolvedTo(RAW_FIR)] fun getNullableInt(): Int? { LAZY_BLOCK }

@@ -332,6 +332,19 @@ class FirLocalVariableAssignmentAnalyzer private constructor(
         assignment.type = type
     }
 
+    /**
+     * Checks whether [declaration] has an assignment which is known syntactically but has not been visited by the
+     * data-flow traversal yet.
+     */
+    @CfgInternals
+    fun hasUnvisitedAssignment(declaration: FirDeclaration): Boolean {
+        val root = rootSymbol ?: return false
+        if (declaration !is FirProperty || !declaration.isEffectivelyLocal || !declaration.isVar) return false
+
+        buildInfoForRoot(root)
+        return variableAssignments?.get(declaration)?.any { it.type == null } == true
+    }
+
     companion object {
         /**
          * Computes assigned local variables in each execution path. This analyzer runs before BODY_RESOLVE. Hence, it works on

@@ -33,7 +33,9 @@ import org.jetbrains.kotlin.fir.resolve.SessionHolderImpl
 import org.jetbrains.kotlin.fir.resolve.calls.ImplicitValue
 import org.jetbrains.kotlin.fir.resolve.dfa.DataFlowAnalyzerContext
 import org.jetbrains.kotlin.fir.resolve.dfa.FirLocalVariableAssignmentAnalyzer
+import org.jetbrains.kotlin.fir.resolve.dfa.Flow
 import org.jetbrains.kotlin.fir.resolve.dfa.RealVariable
+import org.jetbrains.kotlin.fir.resolve.dfa.VariableStorage
 import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CFGNode
 import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CfgInternals
 import org.jetbrains.kotlin.fir.resolve.dfa.cfg.ClassExitNode
@@ -82,10 +84,14 @@ object ContextCollector {
      * [SmartcastStability.STABLE_VALUE] [SmartCast.stability] impact data flow.
      * Check the "Smart cast sink stability" in the Kotlin language specification.
      * Unstable smart casts are still provided for more precise checking and diagnosing.
+     *
+     * @param expressionStability the smart-cast sink stability of the expression corresponding to this context, if the expression can be
+     * represented as a real data-flow variable.
      */
     class Context(
         val towerDataContext: FirTowerDataContext,
         val smartCasts: List<SmartCast>,
+        val expressionStability: SmartcastStability? = null,
     )
 
     class SmartCast(
@@ -267,6 +273,7 @@ private class ContextCollectorVisitor(
     private var isActive = true
 
     private val parents = ArrayList<FirElement>()
+    private val capturedAssignments = HashSet<FirProperty>()
 
     private val context = BodyResolveContext(
         returnTypeCalculator = ReturnTypeCalculatorForFullBodyResolve.Default,
@@ -325,11 +332,16 @@ private class ContextCollectorVisitor(
         val implicitReceiverStack = context.towerDataContext.implicitValueStorage
 
         val cfgNode = getClosestControlFlowNode(fir, kind)
+        val flow = cfgNode?.flow
         val smartCasts = mutableListOf<ContextCollector.SmartCast>()
+        val expressionForStability = findExpressionForStability(fir)
+        val expressionStability = if (flow != null && expressionForStability != null) {
+            computeExpressionStability(expressionForStability, flow)
+        } else {
+            null
+        }
 
-        if (cfgNode != null) {
-            val flow = cfgNode.flow
-
+        if (flow != null) {
             val realVariables = flow.knownVariables.filterIsInstance<RealVariable>()
                 .sortedBy { it.symbol.memberDeclarationNameOrNull?.asString() }
 
@@ -376,8 +388,54 @@ private class ContextCollectorVisitor(
             }
         }
 
-        return Context(towerDataContextSnapshot, smartCasts)
+        return Context(towerDataContextSnapshot, smartCasts, expressionStability)
     }
+
+    private fun findExpressionForStability(fir: FirElement): FirExpression? {
+        if (fir is FirExpression) {
+            return fir
+        }
+
+        val psi = fir.anchorPsi ?: return null
+        return parents.asReversed()
+            .filterIsInstance<FirExpression>()
+            .firstOrNull { it.anchorPsi == psi }
+    }
+
+    @OptIn(CfgInternals::class)
+    private fun computeExpressionStability(fir: FirExpression, flow: Flow): SmartcastStability? {
+        val storage = VariableStorage(bodyHolder.session)
+        val realVariable = storage.get(fir, createReal = true, unwrapAlias = { it }) as? RealVariable ?: return null
+        if (realVariable.hasUnstableCapturedAssignment()) {
+            return SmartcastStability.CAPTURED_VARIABLE
+        }
+
+        return context(bodyHolder, context.dataFlowAnalyzerContext) {
+            realVariable.computeEffectiveStability(flow, targetTypes = null)
+        }
+    }
+
+    @OptIn(CfgInternals::class)
+    private fun RealVariable.hasUnstableCapturedAssignment(): Boolean {
+        val property = symbol.fir as? FirProperty
+        if (property != null && property.isEffectivelyLocal && property.isVar) {
+            if (property in capturedAssignments) {
+                return true
+            }
+
+            if (isInsideNestedCapturingDeclaration() &&
+                context.dataFlowAnalyzerContext.variableAssignmentAnalyzer.hasUnvisitedAssignment(property)
+            ) {
+                return true
+            }
+        }
+
+        return dispatchReceiver?.hasUnstableCapturedAssignment() == true ||
+                extensionReceiver?.hasUnstableCapturedAssignment() == true
+    }
+
+    private fun isInsideNestedCapturingDeclaration(): Boolean =
+        parents.any { it is FirAnonymousFunction || it is FirAnonymousObject || (it is FirRegularClass && it.isLocal) }
 
     private fun getClosestControlFlowNode(fir: FirElement, kind: ContextKind): CFGNode<*>? {
         val selfNode = getControlFlowNode(fir, kind)
@@ -730,6 +788,9 @@ private class ContextCollectorVisitor(
                 if (property != null && property.isEffectivelyLocal) {
                     val type = variableAssignment.rValue.resolvedType.refinedTypeForDataFlowOrSelf
                     this@exitBlock.visitAssignment(property, type) // Explicit receiver to avoid occasional clashes
+                    if (isInsideNestedCapturingDeclaration()) {
+                        capturedAssignments += property
+                    }
                 }
             }
         ) {
@@ -1271,4 +1332,3 @@ private class ContextCollectorVisitor(
         }
     }
 }
-

@@ -69,8 +69,12 @@ internal class KaFirExpressionInformationProvider(
             val storage = VariableStorage(analysisSession.firSession)
             val realVariable = storage.get(firExpression, createReal = true, unwrapAlias = { it }) as? RealVariable ?: return false
 
-            val smartCast = context.smartCasts.find { it.realVariable == realVariable } ?: return false
-            return smartCast.stability == SmartcastStability.STABLE_VALUE
+            val smartCast = context.smartCasts.find { it.realVariable == realVariable }
+            if (smartCast != null) {
+                return smartCast.stability == SmartcastStability.STABLE_VALUE
+            }
+
+            return context.expressionStability == SmartcastStability.STABLE_VALUE
         }
 
     private class AdditionalInfoCollector() {

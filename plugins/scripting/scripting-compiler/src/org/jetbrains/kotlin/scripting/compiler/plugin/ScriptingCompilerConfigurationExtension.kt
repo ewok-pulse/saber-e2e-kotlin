@@ -30,7 +30,7 @@ class ScriptingCompilerConfigurationExtension(
     override fun updateConfiguration(configuration: CompilerConfiguration) {
 
         if (!configuration.getBoolean(ScriptingConfigurationKeys.DISABLE_SCRIPTING_PLUGIN_OPTION)) {
-
+            @Suppress("DEPRECATION")
             val projectRoot = project.run { basePath ?: baseDir?.canonicalPath }?.let(::File)
             if (projectRoot != null) {
                 configuration.put(

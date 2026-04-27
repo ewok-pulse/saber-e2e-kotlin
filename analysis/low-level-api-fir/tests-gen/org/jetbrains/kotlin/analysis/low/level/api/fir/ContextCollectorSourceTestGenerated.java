@@ -1172,15 +1172,15 @@ public class ContextCollectorSourceTestGenerated extends AbstractContextCollecto
     }
 
     @Test
-    @TestMetadata("directSink.kt")
-    public void testDirectSink() {
-      run("directSink.kt");
+    @TestMetadata("directSinkBad_callsInPlace.kt")
+    public void testDirectSinkBad_callsInPlace() {
+      run("directSinkBad_callsInPlace.kt");
     }
 
     @Test
-    @TestMetadata("directSinkBad.kt")
-    public void testDirectSinkBad() {
-      run("directSinkBad.kt");
+    @TestMetadata("directSink_callsInPlace.kt")
+    public void testDirectSink_callsInPlace() {
+      run("directSink_callsInPlace.kt");
     }
 
     @Test
@@ -1244,21 +1244,21 @@ public class ContextCollectorSourceTestGenerated extends AbstractContextCollecto
     }
 
     @Test
-    @TestMetadata("nestedSink.kt")
-    public void testNestedSink() {
-      run("nestedSink.kt");
+    @TestMetadata("nestedSinkBad2_callsInPlace.kt")
+    public void testNestedSinkBad2_callsInPlace() {
+      run("nestedSinkBad2_callsInPlace.kt");
     }
 
     @Test
-    @TestMetadata("nestedSink2.kt")
-    public void testNestedSink2() {
-      run("nestedSink2.kt");
+    @TestMetadata("nestedSinkBad_callsInPlace.kt")
+    public void testNestedSinkBad_callsInPlace() {
+      run("nestedSinkBad_callsInPlace.kt");
     }
 
     @Test
-    @TestMetadata("nestedSinkBad2.kt")
-    public void testNestedSinkBad2() {
-      run("nestedSinkBad2.kt");
+    @TestMetadata("nestedSink_callsInPlace.kt")
+    public void testNestedSink_callsInPlace() {
+      run("nestedSink_callsInPlace.kt");
     }
 
     @Test

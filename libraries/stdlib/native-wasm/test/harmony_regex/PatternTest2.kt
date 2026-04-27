@@ -1205,12 +1205,12 @@ class PatternTest2 {
 
     @Test fun testGeneralCategory() {
         val categoryToRegexes = unicodeCategoryTestData
-            .map(UnicodeCategorySample::majorCategory)
+            .map(UnicodeCategorySample::generalCategory)
             .toSet()
             .associateWith(::categoryPatternVariants)
 
         for (sample in unicodeCategoryTestData) {
-            for (regex in categoryToRegexes[sample.majorCategory]!!) {
+            for (regex in categoryToRegexes[sample.generalCategory]!!) {
                 assertTrue(
                     regex.matches(sample.value),
                     "$regex should match \"${sample.value}\" (${sample.value.formatFirstCodePoint()}) from ${sample.generalCategory}"
@@ -1218,7 +1218,7 @@ class PatternTest2 {
             }
 
             for ((otherCategory, otherRegexes) in categoryToRegexes) {
-                if (otherCategory == sample.majorCategory) continue
+                if (otherCategory == sample.generalCategory) continue
                 for (otherRegex in otherRegexes) {
                     assertFalse(
                         otherRegex.matches(sample.value),

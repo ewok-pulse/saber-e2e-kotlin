@@ -210,6 +210,73 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
         assertContains(dumpFromPublication, "class PublicAbi")
         assertFalse(dumpFromPublication.contains("fun internalValue"))
     }
+
+    @GradleTest
+    fun testFatJarIncludesDependencyClassesUsedInPublicApi(
+        gradleVersion: GradleVersion,
+    ) {
+        val compilationsDump: String
+        project(
+            "base-kotlin-jvm-library",
+            gradleVersion,
+        ).run {
+            abiValidation()
+            buildScriptInjection {
+                project.dependencies.add("implementation", "org.apache.commons:commons-lang3:3.17.0")
+            }
+            addFatJarPublicApiSampleSource()
+
+            build("updateKotlinAbi")
+            compilationsDump = referenceJvmDumpFile().readText()
+        }
+
+        val dumpFromPublication: String
+        project(
+            "base-kotlin-jvm-library",
+            gradleVersion,
+        ).run {
+            plugins {
+                id("org.gradle.maven-publish")
+            }
+
+            abiValidation {
+                binariesSource.set(BinariesSource.MAVEN_PUBLICATIONS)
+            }
+
+            buildScriptInjection {
+                project.dependencies.add("implementation", "org.apache.commons:commons-lang3:3.17.0")
+
+                val sourceSets = project.extensions.getByType(org.gradle.api.tasks.SourceSetContainer::class.java)
+                val mainSourceSet = sourceSets.named("main").get()
+                val runtimeClasspath = project.configurations.named("runtimeClasspath")
+
+                project.tasks.named("jar", org.gradle.jvm.tasks.Jar::class.java) { jar ->
+                    jar.from(mainSourceSet.output)
+                    jar.from(runtimeClasspath.map { files ->
+                        files.filter { it.name.endsWith(".jar") }.map { project.zipTree(it) }
+                    })
+                    jar.duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.EXCLUDE
+                }
+
+                publishing.publications.create<MavenPublication>("fat") {
+                    from(this@buildScriptInjection.project.components.getByName("java"))
+
+                    groupId = this@buildScriptInjection.project.group.toString()
+                    artifactId = this@buildScriptInjection.project.name
+                    version = this@buildScriptInjection.project.version.toString()
+                }
+            }
+
+            addFatJarPublicApiSampleSource()
+
+            build("updateKotlinAbi")
+            dumpFromPublication = referenceJvmDumpFile().readText()
+        }
+
+        assertContains(dumpFromPublication, compilationsDump)
+        assertContains(compilationsDump, "Pair")
+        assertContains(dumpFromPublication, "class org/apache/commons/lang3/tuple/Pair")
+    }
 }
 
 private fun GradleProject.addSampleSource() {
@@ -218,6 +285,10 @@ private fun GradleProject.addSampleSource() {
 
 private fun GradleProject.addFatJarSampleSource() {
     kotlinSourcesDir().source("org/jetbrains/tests/FatJarApi.kt") { FAT_JAR_SOURCE_FILE }
+}
+
+private fun GradleProject.addFatJarPublicApiSampleSource() {
+    kotlinSourcesDir().source("org/jetbrains/tests/FatJarPublicApi.kt") { FAT_JAR_PUBLIC_API_SOURCE_FILE }
 }
 
 private val SOURCE_FILE = """
@@ -241,4 +312,12 @@ private val FAT_JAR_SOURCE_FILE = """
     private val internalPair = Pair.of("left", "right")
 
     internal fun internalValue(): String = internalPair.left
+""".trimIndent()
+
+private val FAT_JAR_PUBLIC_API_SOURCE_FILE = """
+    import org.apache.commons.lang3.tuple.Pair
+
+    class PublicAbi {
+        fun getResult(): Pair<String, String> = Pair.of("left", "right")
+    }
 """.trimIndent()

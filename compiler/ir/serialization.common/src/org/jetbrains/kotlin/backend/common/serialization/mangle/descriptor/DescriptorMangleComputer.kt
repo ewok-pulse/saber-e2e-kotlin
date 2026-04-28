@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.backend.common.serialization.mangle.descriptor
 
 import org.jetbrains.kotlin.backend.common.serialization.mangle.*
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.descriptors.IrImplementingDelegateDescriptor
 import org.jetbrains.kotlin.ir.descriptors.IrPropertyDelegateDescriptor
 import org.jetbrains.kotlin.ir.util.varargElementType
@@ -65,6 +64,8 @@ open class DescriptorMangleComputer(builder: StringBuilder, mode: MangleMode) :
 
     override fun getRegularParameters(function: FunctionDescriptor): List<ValueParameterDescriptor> =
         function.valueParameters
+
+    override fun getCompanionExtensionName(function: FunctionDescriptor): String? = null
 
     override fun getReturnType(function: FunctionDescriptor): KotlinType? =
         function.returnType

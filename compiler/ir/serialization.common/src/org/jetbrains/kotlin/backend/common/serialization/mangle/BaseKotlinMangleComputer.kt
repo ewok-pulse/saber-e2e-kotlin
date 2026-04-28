@@ -115,6 +115,8 @@ abstract class BaseKotlinMangleComputer<Declaration, Type, TypeParameter, ValueP
 
     protected abstract fun getRegularParameters(function: FunctionDeclaration): List<ValueParameter>
 
+    protected abstract fun getCompanionExtensionName(function: FunctionDeclaration): String?
+
     protected abstract fun getReturnType(function: FunctionDeclaration): Type?
 
     protected abstract fun isUnit(type: Type): Boolean
@@ -165,6 +167,13 @@ abstract class BaseKotlinMangleComputer<Declaration, Type, TypeParameter, ValueP
 
         if (!isConstructor && isStatic) {
             builder.appendSignature(MangleConstant.STATIC_MEMBER_MARK)
+        }
+
+        val companionExtensionClassName = getCompanionExtensionName(this)
+        if (companionExtensionClassName != null) {
+            builder.appendSignature(MangleConstant.COMPANION_EXTENSION_MARK)
+            builder.appendSignature(MangleConstant.EXTENSION_RECEIVER_PREFIX)
+            builder.appendSignature(companionExtensionClassName)
         }
 
         platformSpecificFunctionMarks().forEach { builder.appendSignature(it) }

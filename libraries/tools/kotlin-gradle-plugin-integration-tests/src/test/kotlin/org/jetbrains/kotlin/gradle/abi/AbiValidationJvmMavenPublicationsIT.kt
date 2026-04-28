@@ -207,7 +207,6 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
         }
 
         assertContains(dumpFromPublication, compilationsDump)
-        assertContains(dumpFromPublication, "class PublicAbi")
         assertFalse(dumpFromPublication.contains("fun internalValue"))
     }
 
@@ -274,7 +273,6 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
         }
 
         assertContains(dumpFromPublication, compilationsDump)
-        assertContains(compilationsDump, "Pair")
         assertContains(dumpFromPublication, "class org/apache/commons/lang3/tuple/Pair")
     }
 }

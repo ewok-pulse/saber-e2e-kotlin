@@ -405,7 +405,16 @@ internal class SymbolKotlinAsJavaSupport(project: Project) : KotlinAsJavaSupport
         val declarationModule = this.getContainingModule().takeIf(moduleFilter) ?: return null
 
         val suitableImplementingDependents = KotlinModuleDependentsProvider.getInstance(project).getRefinementDependents(declarationModule)
-            .filter(KaModule::isValidContextModule)
+            .filter { module ->
+                module.isValidContextModule() && analyzeForLightClasses(module) {
+                    // This is needed to handle production / test modules on the Intellij side.
+                    // E.g., if the declaration-site module is commonTest with kind=TEST, then
+                    // getRefinementDependents returns two jvmTest modules: one with kind=TEST and another with kind=PRODUCTION.
+                    // We cannot blindly return PRODUCTION jvmTest module, as it doesn't depend on TEST commonTest module,
+                    // only on PRODUCTION commonTest.
+                    this@findContextModule.canBeAnalysed()
+                }
+            }
 
         if (suitableImplementingDependents.isNotEmpty()) {
             val moduleConverter = KaModuleConverter.getInstance()

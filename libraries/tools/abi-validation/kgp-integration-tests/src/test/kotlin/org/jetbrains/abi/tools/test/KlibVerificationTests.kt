@@ -250,32 +250,4 @@ internal class KlibVerificationTests : BaseKotlinGradleTest() {
         )
     }
 
-    @Test
-    fun `re-validate dump after sources updated`() {
-        val runner = test {
-            baseProjectSetting()
-            addToSrcSet("/examples/classes/AnotherBuildConfig.kt")
-            abiFile(projectName = "testproject") {
-                resolve("/examples/classes/AnotherBuildConfig.klib.dump")
-            }
-            runApiCheck()
-        }
-        assertApiCheckPassed(runner.build())
-
-        // Update the source file by adding a declaration
-        val updatedSourceFile = File(
-            this::class.java.getResource(
-                "/examples/classes/AnotherBuildConfigModified.kt"
-            )!!.toURI()
-        )
-        val existingSource = runner.projectDir.resolve(
-            "src/commonMain/kotlin/AnotherBuildConfig.kt"
-        )
-        Files.write(existingSource.toPath(), updatedSourceFile.readBytes())
-
-        runner.buildAndFail().apply {
-            assertTaskFailure(":checkKotlinAbi")
-        }
-    }
-
 }

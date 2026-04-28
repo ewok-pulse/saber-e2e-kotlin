@@ -7,6 +7,8 @@
 
 package org.jetbrains.kotlin.gradle.abi
 
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.GradleVersion
@@ -121,8 +123,8 @@ class AbiValidationKmpIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("apiCheck should fail when a class is not in a dump")
-    fun testApiCheckFailsWhenClassNotInDump(gradleVersion: GradleVersion) {
+    @DisplayName("checkKotlinAbi should fail when a class is not in a dump")
+    fun testCheckFailsWhenClassNotInDump(gradleVersion: GradleVersion) {
         project("base-kotlin-multiplatform-library", gradleVersion) {
             defaultKmpProject()
             kotlinSourcesDir("commonMain").source("test/classes/SimpleClass.kt") { SIMPLE_CLASS }
@@ -136,8 +138,8 @@ class AbiValidationKmpIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("apiDump should include target-specific sources")
-    fun testApiDumpIncludesTargetSpecificSources(gradleVersion: GradleVersion) {
+    @DisplayName("updateKotlinAbi should include target-specific sources")
+    fun testUpdateIncludesTargetSpecificSources(gradleVersion: GradleVersion) {
         project("base-kotlin-multiplatform-library", gradleVersion) {
             defaultKmpProject()
             kotlinSourcesDir("commonMain").source("test/classes/SimpleClass.kt") { SIMPLE_CLASS }
@@ -153,8 +155,8 @@ class AbiValidationKmpIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("apiDump should succeed if a class listed in ignoredClasses is not found")
-    fun testApiDumpSucceedsIfIgnoredClassNotFound(gradleVersion: GradleVersion) {
+    @DisplayName("updateKotlinAbi should succeed if a class listed in ignoredClasses is not found")
+    fun testUpdateSucceedsIfIgnoredClassNotFound(gradleVersion: GradleVersion) {
         project("base-kotlin-multiplatform-library", gradleVersion) {
             defaultKmpProject()
             abiValidation {
@@ -356,7 +358,6 @@ class AbiValidationKmpIT : KGPBaseTest() {
         }
     }
 
-    // simplify
     @GradleTest
     @DisplayName("infer a dump for a target with custom name")
     fun testInferForTargetWithCustomName(gradleVersion: GradleVersion) {
@@ -550,8 +551,8 @@ class AbiValidationKmpIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("apiDump should not fail for empty project and should dump empty file")
-    fun testApiDumpForEmptyProject(gradleVersion: GradleVersion) {
+    @DisplayName("updateKotlinAbi should not fail for empty project and should dump empty file")
+    fun testUpdateForEmptyProject(gradleVersion: GradleVersion) {
         project("base-kotlin-multiplatform-library", gradleVersion) {
             defaultKmpProject()
             // sources only in test source set - no main sources
@@ -575,8 +576,8 @@ class AbiValidationKmpIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("apiDump should not fail if there is only one target")
-    fun testApiDumpWithSingleTarget(gradleVersion: GradleVersion) {
+    @DisplayName("updateKotlinAbi should not fail if there is only one target")
+    fun testUpdateWithSingleTarget(gradleVersion: GradleVersion) {
         project("base-kotlin-multiplatform-library", gradleVersion) {
             defaultKmpProject()
             kotlinSourcesDir("commonTest").source("test/classes/SimpleClass.kt") { SIMPLE_CLASS }
@@ -592,7 +593,7 @@ class AbiValidationKmpIT : KGPBaseTest() {
 
     @GradleTest
     @DisplayName("checkKotlinAbi should fail for empty project without a dump file")
-    fun testApiCheckFailsForEmptyProjectWithoutDump(gradleVersion: GradleVersion) {
+    fun testUpdateFailsForEmptyProjectWithoutDump(gradleVersion: GradleVersion) {
         project("base-kotlin-multiplatform-library", gradleVersion) {
             defaultKmpProject()
             kotlinSourcesDir("commonTest").source("test/classes/SimpleClass.kt") { SIMPLE_CLASS }
@@ -607,14 +608,14 @@ class AbiValidationKmpIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("apiDump and apiCheck for a project with generated sources only")
+    @DisplayName("updateKotlinAbi and checkKotlinAbi for a project with generated sources only")
     fun testGeneratedSources(gradleVersion: GradleVersion) {
         project("base-kotlin-multiplatform-library", gradleVersion) {
             defaultKmpProject()
             buildScriptInjection {
-                abstract class GenerateSourcesTask : org.gradle.api.DefaultTask() {
+                abstract class GenerateSourcesTask : DefaultTask() {
                     @get:OutputDirectory
-                    abstract val outputDirectory: org.gradle.api.file.DirectoryProperty
+                    abstract val outputDirectory: DirectoryProperty
 
                     @TaskAction
                     fun generate() {

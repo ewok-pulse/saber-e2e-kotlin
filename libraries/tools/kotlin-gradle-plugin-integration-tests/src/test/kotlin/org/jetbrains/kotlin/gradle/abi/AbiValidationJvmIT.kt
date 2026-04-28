@@ -7,6 +7,8 @@
 
 package org.jetbrains.kotlin.gradle.abi
 
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.GradleVersion
@@ -39,7 +41,7 @@ class AbiValidationJvmIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("Test the simplest case with check with default settings")
+    @DisplayName("Test ABI dump check with default settings")
     fun testSimpleCheck(
         gradleVersion: GradleVersion,
     ) {
@@ -56,7 +58,7 @@ class AbiValidationJvmIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("Test the simplest case with check failure with default settings")
+    @DisplayName("ABI validation should fail if the dump does not match the expected dump")
     fun testSimpleCheckFailure(
         gradleVersion: GradleVersion,
     ) {
@@ -74,7 +76,7 @@ class AbiValidationJvmIT : KGPBaseTest() {
 
 
     @GradleTest
-    @DisplayName("checkKotlinAbi should fail, when there is no api directory, even if there are no Kotlin sources")
+    @DisplayName("checkKotlinAbi should fail, when there is no abi directory, even if there are no Kotlin sources")
     fun testNoDump(
         gradleVersion: GradleVersion,
     ) {
@@ -88,7 +90,7 @@ class AbiValidationJvmIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("checkKotlinAbi should succeed, when api-File is empty, but where are no kotlin source files")
+    @DisplayName("checkKotlinAbi should succeed, when abi file is empty, but where are no kotlin source files")
     fun testEmptyDump(
         gradleVersion: GradleVersion,
     ) {
@@ -104,8 +106,8 @@ class AbiValidationJvmIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("checkKotlinAbi should fail when public classes match api file ignoring case")
-    fun testIgnoreFileNameCase(
+    @DisplayName("Check dump file name is case sensitive")
+    fun testFileNameCaseSensitive(
         gradleVersion: GradleVersion,
     ) {
         // check only on case-sensitive file systems
@@ -123,7 +125,7 @@ class AbiValidationJvmIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("updateKotlinAbi should create empty api file when there are no Kotlin sources")
+    @DisplayName("updateKotlinAbi should create empty abi file when there are no Kotlin sources")
     fun testUpdateEmptyDump(
         gradleVersion: GradleVersion,
     ) {
@@ -139,7 +141,7 @@ class AbiValidationJvmIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @DisplayName("updateKotlinAbi should create api file with the name of the project, respecting settings file")
+    @DisplayName("updateKotlinAbi should create abi file with the name of the project, respecting settings file")
     fun testProjectName(
         gradleVersion: GradleVersion,
     ) {
@@ -253,9 +255,9 @@ class AbiValidationJvmIT : KGPBaseTest() {
             abiValidation()
 
             buildScriptInjection {
-                abstract class GenerateSourcesTask : org.gradle.api.DefaultTask() {
+                abstract class GenerateSourcesTask : DefaultTask() {
                     @get:OutputDirectory
-                    abstract val outputDirectory: org.gradle.api.file.DirectoryProperty
+                    abstract val outputDirectory: DirectoryProperty
 
                     @TaskAction
                     fun generate() {

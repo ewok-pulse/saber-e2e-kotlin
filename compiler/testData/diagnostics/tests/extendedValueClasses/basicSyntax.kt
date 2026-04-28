@@ -1,4 +1,4 @@
-// LANGUAGE: +ValueClasses
+// LANGUAGE: +ValueClasses, -EnableNameBasedDestructuringShortForm
 // RUN_PIPELINE_TILL: FRONTEND
 // WITH_STDLIB
 

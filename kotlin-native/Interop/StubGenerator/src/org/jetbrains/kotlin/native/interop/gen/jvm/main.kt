@@ -37,6 +37,8 @@ import org.jetbrains.kotlin.utils.KotlinNativePaths
 import org.jetbrains.kotlin.utils.usingNativeMemoryAllocator
 import org.jetbrains.kotlin.library.metadata.resolver.impl.KotlinLibraryResolverImpl
 import org.jetbrains.kotlin.library.metadata.resolver.impl.libraryResolver
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.isSubpackageOf
 import org.jetbrains.kotlin.native.interop.gen.*
 import org.jetbrains.kotlin.native.interop.indexer.*
 import org.jetbrains.kotlin.native.interop.tool.*
@@ -292,10 +294,11 @@ private fun processCLib(
             it
         else Paths.get(projectDir, it).absolutePathString()
     }
+
     val fqParts = (cinteropArguments.pkg ?: def.config.packageName)?.split('.')
             ?: defFile!!.name.split('.').reversed().drop(1)
-
     val outKtPkg = fqParts.joinToString(".")
+    checkPackageName(outKtPkg)
 
     val resolver = getLibraryResolver(cinteropArguments, tool.target)
 
@@ -494,6 +497,15 @@ private fun processCLib(
             )
             return null
         }
+    }
+}
+
+fun checkPackageName(outKtPkg: String) {
+    val pkgFqName = FqName(outKtPkg)
+    // See KT-85765
+    check(!pkgFqName.isSubpackageOf(FqName("kotlin")) && !pkgFqName.isSubpackageOf(FqName("kotlinx.cinterop"))) {
+        "Bindings cannot be placed under a package \"kotlin.\" or \"kotlinx.cinterop\" as they are reserved for Kotlin standard library. " +
+                "Please specify a different package via a \"-pkg\" CLI option or a \"package\" directive."
     }
 }
 

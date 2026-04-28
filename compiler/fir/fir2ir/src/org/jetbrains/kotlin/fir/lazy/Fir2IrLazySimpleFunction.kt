@@ -10,6 +10,8 @@ import org.jetbrains.kotlin.fir.backend.lazyMappedFunctionListVar
 import org.jetbrains.kotlin.fir.backend.toIrType
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.FirNamedFunction
+import org.jetbrains.kotlin.fir.declarations.utils.isCompanionExtension
+import org.jetbrains.kotlin.fir.declarations.utils.isStatic
 import org.jetbrains.kotlin.fir.initialSignatureAttr
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationParent
@@ -20,6 +22,7 @@ import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.types.classOrFail
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
@@ -73,5 +76,7 @@ class Fir2IrLazySimpleFunction(
     override val containerSource: DeserializedContainerSource?
         get() = fir.containerSource
 
-    override var companionExtensionClass: IrClassSymbol? = null
+    override var companionExtensionClass: IrClassSymbol?
+        get() = fir.receiverParameter?.takeIf { fir.isCompanionExtension }?.typeRef?.toIrType()?.classOrFail
+        set(_) = mutationNotSupported()
 }

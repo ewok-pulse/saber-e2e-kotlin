@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrErrorExpressionImpl
 import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.symbols.impl.*
 import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.types.classOrFail
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.*
 import org.jetbrains.kotlin.types.AbstractTypeChecker
@@ -133,6 +134,7 @@ class Fir2IrCallableDeclarationsGenerator(private val c: Fir2IrComponents) : Fir
                 isInfix = namedFunction?.isInfix == true,
                 isExternal = isEffectivelyExternal(namedFunction, irParent),
                 containerSource = namedFunction?.containerSource,
+                companionExtensionClass = function.receiverParameter?.takeIf { function.isCompanionExtension }?.typeRef?.toIrType()?.classOrFail
             ).apply {
                 metadata = FirMetadataSource.Function(function)
                 declarationStorage.withScope(symbol) {
@@ -453,6 +455,7 @@ class Fir2IrCallableDeclarationsGenerator(private val c: Fir2IrComponents) : Fir
             isInfix = false,
             isExternal = isEffectivelyExternal(propertyAccessor, irParent),
             containerSource = containerSource,
+            companionExtensionClass = property.receiverParameter?.takeIf { property.isCompanionExtension }?.typeRef?.toIrType()?.classOrFail
         ).apply {
             correspondingPropertySymbol = (correspondingProperty as? IrProperty)?.symbol
             if (propertyAccessor != null) {

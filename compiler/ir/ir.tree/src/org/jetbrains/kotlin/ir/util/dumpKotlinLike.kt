@@ -738,12 +738,14 @@ private class KotlinLikeDumper(val p: Printer, val options: KotlinLikeDumpOption
                     isInline = isInline,
                     isInfix = isInfix,
                     isOperator = isOperator,
+                    isCompanion = companionExtensionClass != null
                 ),
             )
             p.printWithNoIndent(keyword)
             if (printTypeParametersAndExtensionReceiver) printTypeParametersWithNoIndent(postfix = " ")
             if (printTypeParametersAndExtensionReceiver) {
                 parameters.firstOrNull { it.kind == IrParameterKind.ExtensionReceiver }?.printExtensionReceiverParameter()
+                companionExtensionClass?.printCompanionExtension()
             }
             p.printWithNoIndent(name)
             if (printSignatureAndBody) {
@@ -776,6 +778,10 @@ private class KotlinLikeDumper(val p: Printer, val options: KotlinLikeDumpOption
     private fun IrValueParameter.printExtensionReceiverParameter() {
         type.printTypeWithNoIndent()
         p.printWithNoIndent(".")
+    }
+
+    private fun IrClassSymbol.printCompanionExtension() {
+        p.printWithNoIndent("${owner.classId?.asFqNameString()}.")
     }
 
     private fun IrFunction.printRegularParametersWithNoIndent() {

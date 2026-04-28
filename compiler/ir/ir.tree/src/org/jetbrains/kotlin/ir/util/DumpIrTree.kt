@@ -263,6 +263,7 @@ class DumpIrTreeVisitor(
                 dumpAnnotations(declaration)
             }
             declaration.correspondingPropertySymbol?.dumpAsDeclaration("correspondingProperty")
+            declaration.companionExtensionClass?.dumpAsDeclaration("companionExtension")
             declaration.overriddenSymbols.dumpFakeOverrideSymbols()
             declaration.body?.accept(this, "")
         }

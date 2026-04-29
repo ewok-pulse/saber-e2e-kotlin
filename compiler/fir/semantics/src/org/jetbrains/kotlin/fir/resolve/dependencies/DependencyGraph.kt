@@ -243,17 +243,17 @@ data class DependencyGraph(
                     val uncheckedIndices = mutableSetOf<NodeIndex.SingletonIndex<*>>()
                     for ((from, isDynamic, _) in accesses) {
                         if (node.causesPoisoningAccess(from, index)) {
-                            println("Node $index is accessing $from which poisons the declaration")
+//                            println("Node $index is accessing $from which poisons the declaration")
                             hasPoisoningInCycleAccess = true
                             break
                         }
                         if (from.isInPossiblyUninitializedEntity(isDynamic, node)) {
-                            println("Node $index is accessing possibly-uninitialized entity $from")
+//                            println("Node $index is accessing possibly-uninitialized entity $from")
                             hasAccessCausingExceptionInInitializer = true
                             break
                         }
                         if (index.isAccessingOutOfOrderDeclaration(from)) {
-                            println("Node $index is accessing $from out of order")
+//                            println("Node $index is accessing $from out of order")
                             hasOutOfOrderAccess = true
                             break
                         }
@@ -281,12 +281,12 @@ data class DependencyGraph(
                     val uncheckedIndices = mutableSetOf<NodeIndex.SingletonIndex<*>>()
                     for ((from, isDynamic, _) in accesses) {
                         if (from.isInPossiblyUninitializedEntity(isDynamic)) {
-                            println("Node $index is accessing possibly-uninitialized entity $from")
+//                            println("Node $index is accessing possibly-uninitialized entity $from")
                             hasAccessCausingExceptionInInitializer = true
                             break
                         }
                         if (index.isAccessingOutOfOrderDeclaration(from)) {
-                            println("Node $index is accessing $from out of order")
+//                            println("Node $index is accessing $from out of order")
                             hasOutOfOrderAccess = true
                             break
                         }
@@ -427,8 +427,7 @@ data class DependencyGraph(
             parentEnclosingEntity?.let { outer ->
                 // The only entities whose their outer entity is a class are companion objects and enum entries (which must be in the cycle)
                 // If this is not the case, recurse further up the hierarchy (i.e., we are looking at an instanced property (not) in the cycle)
-                outer is EnclosingEntity.Class
-                        && (outer.symbol.isInterface || cycle?.let { this in it && outer.beginSubgraphIndex in it } ?: false || isDynamic)
+                (cycle?.let { this in it } ?: false || isDynamic) && outer is EnclosingEntity.Class && (outer.symbol.isInterface || cycle?.let { outer.beginSubgraphIndex in it } ?: false)
                         || outer.isAccessedPossiblyUninitialized(isDynamic, cycle)
             } ?: false
     }

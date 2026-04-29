@@ -338,3 +338,18 @@ public class ChannelConfig internal constructor(
             ChannelConfig(capacity = <!UNRESOLVED_REFERENCE!>Channel<!>.UNLIMITED, onOverflow = ChannelOverflow.SUSPEND)
     }
 }
+
+<!POSSIBLE_INITIALIZATION_DEADLOCK!>public abstract class HttpCacheStorage {
+
+    public companion object {
+        /**
+         * Disabled cache always empty and store nothing.
+         *
+         * [Report a problem](https://ktor.io/feedback/?fqname=io.ktor.client.plugins.cache.storage.HttpCacheStorage.Companion.Disabled)
+         */
+        <!POTENTIALLY_UNINITIALIZED_PROPERTY!>public val Disabled: HttpCacheStorage = <!POTENTIALLY_UNINITIALIZED_ACCESSES!>DisabledCacheStorage<!><!>
+    }
+}<!>
+
+internal <!POSSIBLE_INITIALIZATION_DEADLOCK!>object DisabledCacheStorage<!> : HttpCacheStorage() {
+}

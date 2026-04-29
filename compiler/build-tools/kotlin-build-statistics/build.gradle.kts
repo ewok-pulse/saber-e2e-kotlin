@@ -3,6 +3,7 @@ description = "Kotlin Build Report Common"
 plugins {
     kotlin("jvm")
     id("gradle-plugin-published-compiler-dependency-configuration")
+    id("test-inputs-check")
 }
 
 dependencies {
@@ -15,11 +16,13 @@ dependencies {
     compileOnly(intellijCore())
     implementation(project(":compiler:build-tools:kotlin-build-tools-api"))
     implementation(commonDependency("com.google.code.gson:gson"))
+
+    testImplementation(kotlinTest("junit"))
 }
 
 sourceSets {
     "main" { projectDefault() }
-    "test" { none() }
+    "test" { projectDefault() }
 }
 
 publish()

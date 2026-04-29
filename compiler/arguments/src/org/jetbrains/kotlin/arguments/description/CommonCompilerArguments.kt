@@ -618,7 +618,6 @@ val actualCommonCompilerArguments by compilerArgumentsLevel(CompilerArgumentsLev
         )
     }
 
-
     compilerArgument {
         name = "Xuse-fir-lt"
         compilerName = "useFirLT"
@@ -628,6 +627,7 @@ val actualCommonCompilerArguments by compilerArgumentsLevel(CompilerArgumentsLev
         lifecycle(
             introducedVersion = KotlinReleaseVersion.v1_7_0,
         )
+        firstPhaseOnly()
     }
 
 
@@ -1047,6 +1047,7 @@ The argument should be used only if the new compilation scheme is enabled with -
         lifecycle(
             introducedVersion = KotlinReleaseVersion.v1_9_0,
         )
+        secondPhaseOnly()
     }
 
 

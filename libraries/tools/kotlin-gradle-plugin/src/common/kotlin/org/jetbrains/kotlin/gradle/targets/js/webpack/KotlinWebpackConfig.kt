@@ -312,6 +312,17 @@ data class KotlinWebpackConfig(
         appendLine()
     }
 
+    internal fun Appendable.appendPluginFromHelpers(pluginName: String, rawOptions: Map<String, Any>) {
+        appendLine(
+            """
+            ;(function(config) {
+                var $pluginName = require('kotlin-web-helpers/dist/$pluginName.js')
+                config.plugins.push(new $pluginName({ ${rawOptions.map { "${it.key}: ${it.value}" }.joinToString(", ")} }))
+            })(config);
+        """.trimIndent())
+        appendLine()
+    }
+
     private fun Appendable.appendDevServer() {
         if (devServer != null) {
 
@@ -343,6 +354,31 @@ data class KotlinWebpackConfig(
     private fun Appendable.appendSourceMaps() {
         if (!sourceMaps) return
 
+        fun devtoolToPluginOptions(devtool: String): Pair<String, Map<String, Any>> {
+            if (devtool == "eval") return "EvalDevToolModulePlugin" to mapOf()
+
+            val hidden = "hidden" in devtool
+            val inline = "inline" in devtool
+            val evalWrapped = "eval" in devtool
+            val cheap = "cheap" in devtool
+            val moduleMaps = "module" in devtool
+            val noSources = "nosources" in devtool
+
+            val plugin = if (evalWrapped) "EvalSourceMapDevToolPlugin" else "SourceMapDevToolPlugin"
+
+            val options = buildMap {
+                if (!evalWrapped) put("test", """/\.((c|m)?js|css)($|\?)/i""")
+                if (!evalWrapped) put("filename", if (inline) "null" else "\"[file].map[query]\"")
+                if (hidden) put("append", "false")
+                put("module", if (moduleMaps) true else !cheap)
+                put("columns", !cheap)
+                put("noSources", noSources)
+                put("ignoreList", "/NATIVE_IMPLEMENTATIONS.kt/")
+            }
+
+            return plugin to options
+        }
+
         //language=JavaScript 1.8
         appendLine(
             """
@@ -352,14 +388,18 @@ data class KotlinWebpackConfig(
                         use: ["source-map-loader"],
                         enforce: "pre"
                 });
-                config.devtool = ${devtool?.let { "'$it'" } ?: false};
+                config.devtool = false;
                 config.ignoreWarnings = [
                     /Failed to parse source map/,
                     /Accessing import\.meta directly is unsupported \(only property access or destructuring is supported\)/
-                ]
-                
+                ];  
             """.trimIndent()
         )
+
+        devtool?.let {
+            val (plugin, options) = devtoolToPluginOptions(it)
+            appendPluginFromHelpers(plugin, options)
+        }
     }
 
     private fun Appendable.appendOptimization() {

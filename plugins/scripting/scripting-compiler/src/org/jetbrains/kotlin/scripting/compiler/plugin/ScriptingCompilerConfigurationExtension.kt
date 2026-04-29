@@ -10,6 +10,7 @@ import com.intellij.openapi.fileTypes.FileTypeRegistry
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
+import org.jetbrains.kotlin.compiler.plugin.getCompilerExtensions
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.config.messageCollector
@@ -23,7 +24,8 @@ import java.io.File
 import kotlin.script.experimental.host.ScriptingHostConfiguration
 
 class ScriptingCompilerConfigurationExtension(
-    val baseHostConfiguration: ScriptingHostConfiguration
+    val baseHostConfiguration: ScriptingHostConfiguration,
+    val scriptDefinitionProvider: ScriptDefinitionProvider? = null
 ) : CompilerConfigurationExtension {
     override fun updateConfiguration(project: Project, configuration: CompilerConfiguration) {
 
@@ -45,7 +47,7 @@ class ScriptingCompilerConfigurationExtension(
 
             configureScriptDefinitions(configuration, hostConfiguration, this::class.java.classLoader)
 
-            val scriptDefinitionProvider = ScriptDefinitionProvider.getInstance(project) as? CliScriptDefinitionProvider
+            val scriptDefinitionProvider = configuration.getCompilerExtensions(ScriptDefinitionProvider).firstOrNull() as? CliScriptDefinitionProvider
             if (scriptDefinitionProvider != null) {
                 scriptDefinitionProvider.setScriptDefinitionsSources(configuration.getList(ScriptingConfigurationKeys.SCRIPT_DEFINITIONS_SOURCES))
                 scriptDefinitionProvider.setScriptDefinitions(configuration.getList(ScriptingConfigurationKeys.SCRIPT_DEFINITIONS))
@@ -54,7 +56,6 @@ class ScriptingCompilerConfigurationExtension(
     }
 
     override fun updateFileRegistry(project: Project) {
-        val scriptDefinitionProvider = ScriptDefinitionProvider.getInstance(project) as? CliScriptDefinitionProvider
         if (scriptDefinitionProvider != null) {
             // Register new file extensions
             val fileTypeRegistry = FileTypeRegistry.getInstance() as CoreFileTypeRegistry

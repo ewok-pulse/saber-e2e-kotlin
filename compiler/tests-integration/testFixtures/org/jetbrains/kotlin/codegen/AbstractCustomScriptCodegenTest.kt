@@ -44,7 +44,7 @@ abstract class AbstractCustomScriptCodegenTest : CodegenTestCase() {
             )
         }
 
-        configuration.addJvmClasspathRoots(additionalDependencies.orEmpty())
+        configuration.addJvmClasspathRoots(additionalDependencies)
 
         loadScriptingPlugin(configuration, testRootDisposable)
     }
@@ -77,10 +77,10 @@ abstract class AbstractCustomScriptCodegenTest : CodegenTestCase() {
 
         createEnvironmentWithMockJdkAndIdeaAnnotations(configurationKind, files, TestJdkKind.FULL_JDK)
 
-        myFiles = CodegenTestFiles.create(file.name, content, myEnvironment.project)
+        myFiles = CodegenTestFiles.create(file.name, content, myEnvironment!!.project)
 
         try {
-            val scriptClass = generateClass(myFiles.psiFile.script!!.fqName.asString())
+            val scriptClass = generateClass(myFiles!!.psiFile.script!!.fqName.asString())
 
             // TODO: add types to receivers, envVars and params
             val receivers = InTextDirectivesUtils.findListWithPrefixes(content, "receiver:")

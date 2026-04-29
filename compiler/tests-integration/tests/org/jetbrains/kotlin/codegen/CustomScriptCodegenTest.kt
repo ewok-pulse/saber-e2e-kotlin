@@ -60,7 +60,7 @@ abstract class CustomScriptCodegenTest : CodegenTestCase() {
     private fun generateScriptClass(): Class<*> = generateClass("ScriptTest")
 
     private fun loadScript(text: String) {
-        myFiles = CodegenTestFiles.create("scriptTest.kts", text, myEnvironment.project)
+        myFiles = CodegenTestFiles.create("scriptTest.kts", text, myEnvironment!!.project)
     }
 
     private fun createScriptTestEnvironment(vararg scriptDefinitions: String) {
@@ -76,7 +76,7 @@ abstract class CustomScriptCodegenTest : CodegenTestCase() {
                         arrayOf(
                             KOTLIN_SCRIPTING_COMPILER_PLUGIN_JAR, KOTLIN_SCRIPTING_COMPILER_IMPL_JAR,
                             KOTLIN_SCRIPTING_COMMON_JAR, KOTLIN_SCRIPTING_JVM_JAR
-                        ).mapNotNull { jarName -> File(libPath, jarName).also { assertTrue("$it not found", it.exists()) } }
+                        ).map { jarName -> File(libPath, jarName).also { assertTrue("$it not found", it.exists()) } }
                     }
 
         val configuration = createConfiguration(
@@ -102,7 +102,7 @@ abstract class CustomScriptCodegenTest : CodegenTestCase() {
     }
 }
 
-private inline fun <reified T> containingDependencyPath(): File? {
+private inline fun <reified T> containingDependencyPath(): File {
     return File(T::class.java.protectionDomain.codeSource.location.toURI().path)
 }
 

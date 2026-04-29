@@ -9,8 +9,10 @@ package kotlin.powerassert
  * Given an [Explanation], builds the default Power-Assert style diagram.
  * Used to build the string argument for Power-Assert transformations of
  * functions provided via fully-qualified domain names.
+ *
+ * @param render Provides the string representation of the given [Expression].
+ * If `null` is returned, the value is excluded from the diagram.
  */
-// TODO toDefaultDiagramString?
 @ExperimentalPowerAssert
 public fun Explanation.toDefaultMessage(
     render: (Expression) -> String? = Expression::valueToString,
@@ -43,7 +45,6 @@ private fun StringBuilder.appendDiagram(
     }
 
     fun Expression.toDiagramValue(): DiagramValue? {
-        if (this is LiteralExpression) return null
         val display = render(this) ?: return null
         val row = -(newlineOffsets.binarySearch(displayOffset) + 1)
         val rowOffset = if (row == 0) 0 else newlineOffsets[row - 1] + 1
@@ -81,13 +82,11 @@ private fun StringBuilder.appendDiagram(
         }
 
         // Print the first row of displayable indicators.
-        run {
-            var currentIndent = 0
-            for (indent in rowValues.map { it.indent }) {
-                currentIndent = appendWithIndent(currentIndent, indent, "|")
-            }
-            appendLine()
+        var currentIndent = 0
+        for (indent in rowValues.map { it.indent }) {
+            currentIndent = appendWithIndent(currentIndent, indent, "|")
         }
+        appendLine()
 
         // Collect values that need to always be rendered at the end of a row.
         val trailingDiagramValues = mutableSetOf<DiagramValue>()
@@ -136,7 +135,8 @@ private fun StringBuilder.appendDiagram(
 
 @ExperimentalPowerAssert
 @OptIn(ExperimentalUnsignedTypes::class)
-private fun Expression.valueToString(): String {
+private fun Expression.valueToString(): String? {
+    if (this is LiteralExpression) return null
     return when (val value = value) {
         is Array<*> -> value.contentDeepToString()
         is ByteArray -> value.contentToString()

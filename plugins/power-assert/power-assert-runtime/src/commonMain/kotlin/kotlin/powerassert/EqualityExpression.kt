@@ -12,14 +12,12 @@ package kotlin.powerassert
  * the positive identity operator (`===`),
  * or the negaitve identity operator (`!==`).
  */
-// TODO name something like PositiveEqualityOperatorExpression?
-//  - may want an expression in the future to support all 4 equality/identity cases.
 @ExperimentalPowerAssert
 public class EqualityExpression(
-    startOffset: Int,
-    endOffset: Int,
-    displayOffset: Int,
-    value: Any?,
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override val displayOffset: Int,
+    override val value: Any?,
 
     /**
      * The left-hand side of the equality operator.
@@ -30,7 +28,7 @@ public class EqualityExpression(
      * The right-hand side of the equality operator.
      */
     public val rhs: Any?,
-) : Expression(startOffset, endOffset, displayOffset, value) {
+) : Expression {
     override fun copy(deltaOffset: Int): EqualityExpression {
         return EqualityExpression(
             startOffset = startOffset + deltaOffset,
@@ -44,5 +42,29 @@ public class EqualityExpression(
 
     override fun toString(): String {
         return "EqualityExpression(startOffset=$startOffset, endOffset=$endOffset, displayOffset=$displayOffset, value=$value, lhs=$lhs, rhs=$rhs)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        other as EqualityExpression
+
+        if (startOffset != other.startOffset) return false
+        if (endOffset != other.endOffset) return false
+        if (displayOffset != other.displayOffset) return false
+        if (value != other.value) return false
+        if (lhs != other.lhs) return false
+        if (rhs != other.rhs) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = startOffset
+        result = 31 * result + endOffset
+        result = 31 * result + displayOffset
+        result = 31 * result + (value?.hashCode() ?: 0)
+        result = 31 * result + (lhs?.hashCode() ?: 0)
+        result = 31 * result + (rhs?.hashCode() ?: 0)
+        return result
     }
 }

@@ -10,8 +10,4 @@ class SimpleExplanation(
     override val offset: Int,
     override val source: String,
     override val expressions: List<Expression>,
-) : Explanation() {
-    override fun toString(): String {
-        return "SimpleExplanation(offset=$offset, source='$source', expressions=$expressions)"
-    }
-}
+) : Explanation

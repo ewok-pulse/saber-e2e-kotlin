@@ -21,30 +21,30 @@ package kotlin.powerassert
  * - And an expression with `value=mascot.name == "Kodee"`, `startOffset=0`, `endOffset=22`, and `displayOffset=12`.
  */
 @ExperimentalPowerAssert
-public abstract class Expression internal constructor(
+public interface Expression {
     /**
      * The text character, within [Explanation.source], where the expression source code begins (inclusive).
      */
-    public val startOffset: Int,
+    public val startOffset: Int
 
     /**
      * The text character, within [Explanation.source], where the expression source code ends (exclusive).
      */
-    public val endOffset: Int,
+    public val endOffset: Int
 
     /**
      * The text character, within [Explanation.source], where the expression result is best displayed.
      * This offset will always be in the range `startOffset..<endOffset`.
      */
-    public val displayOffset: Int,
+    public val displayOffset: Int
 
     /**
      * The evaluation result of the expression.
      */
-    public val value: Any?,
-) {
+    public val value: Any?
+
     /**
      * Returns a copy of the expression with all offsets adjusted by [deltaOffset].
      */
-    public abstract fun copy(deltaOffset: Int): Expression
+    public fun copy(deltaOffset: Int): Expression
 }

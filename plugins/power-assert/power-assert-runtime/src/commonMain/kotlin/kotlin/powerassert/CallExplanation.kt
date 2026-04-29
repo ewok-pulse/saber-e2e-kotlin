@@ -8,7 +8,6 @@ package kotlin.powerassert
 /**
  * Provides information about a function call, including its source and arguments.
  */
-// TODO CallArgumentsExplanation?
 @ExperimentalPowerAssert
 public class CallExplanation(
     override val offset: Int,
@@ -19,13 +18,9 @@ public class CallExplanation(
      * Implicit, default, or arguments annotated with [PowerAssert.Ignore] will be `null`.
      */
     public val arguments: List<Argument?>,
-) : Explanation() {
+) : Explanation {
     override val expressions: List<Expression>
         get() = arguments.sortedBy { it?.startOffset }.flatMap { it?.expressions.orEmpty() }
-
-    override fun toString(): String {
-        return "CallExplanation(offset=$offset, source='$source', arguments=$arguments)"
-    }
 
     /**
      * Provides information about an argument to a function call.
@@ -52,15 +47,57 @@ public class CallExplanation(
          */
         public val expressions: List<Expression>,
     ) {
-        override fun toString(): String {
-            return "Argument(startOffset=$startOffset, endOffset=$endOffset, kind=$kind, expressions=$expressions)"
-        }
-
         public enum class Kind {
             DISPATCH,
             CONTEXT,
             EXTENSION,
-            VALUE, // TODO REGULAR?
+            VALUE,
         }
+
+        override fun toString(): String {
+            return "Argument(startOffset=$startOffset, endOffset=$endOffset, kind=$kind, expressions=$expressions)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            other as Argument
+
+            if (startOffset != other.startOffset) return false
+            if (endOffset != other.endOffset) return false
+            if (kind != other.kind) return false
+            if (expressions != other.expressions) return false
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = startOffset
+            result = 31 * result + endOffset
+            result = 31 * result + kind.hashCode()
+            result = 31 * result + expressions.hashCode()
+            return result
+        }
+    }
+
+    override fun toString(): String {
+        return "CallExplanation(offset=$offset, source='$source', arguments=$arguments)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        other as CallExplanation
+
+        if (offset != other.offset) return false
+        if (source != other.source) return false
+        if (arguments != other.arguments) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = offset
+        result = 31 * result + source.hashCode()
+        result = 31 * result + arguments.hashCode()
+        return result
     }
 }

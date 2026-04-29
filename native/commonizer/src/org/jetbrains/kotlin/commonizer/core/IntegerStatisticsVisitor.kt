@@ -61,11 +61,11 @@ internal class IntegerStatisticsVisitor(
     }
 
     override fun visitRootNode(node: CirRootNode, data: Unit) {
-        onRootNode(node)
-
-        node.modules.values.forEach { module ->
-            module.accept(this, Unit)
-        }
+//        onRootNode(node)
+//
+//        node.modules.values.forEach { module ->
+//            module.accept(this, Unit)
+//        }
     }
 
     data class TypeAlias(val targetType: String, val sourceType: String, val platform: String)

@@ -12,7 +12,7 @@ internal class CommonizationVisitor(
     private val integerStatisticsVisitor: IntegerStatisticsVisitor,
 ) : CirNodeVisitor<Unit, Unit> {
     override fun visitRootNode(node: CirRootNode, data: Unit) {
-        integerStatisticsVisitor.onRootNode(node)
+//        integerStatisticsVisitor.onRootNode(node)
 
         check(node === root)
         check(node.commonDeclaration() != null) // root should already be commonized
@@ -23,7 +23,7 @@ internal class CommonizationVisitor(
     }
 
     override fun visitModuleNode(node: CirModuleNode, data: Unit) {
-        integerStatisticsVisitor.onModuleNode(node)
+//        integerStatisticsVisitor.onModuleNode(node)
 
         node.commonDeclaration() // commonize module
 
@@ -34,7 +34,7 @@ internal class CommonizationVisitor(
 
     @Suppress("DuplicatedCode")
     override fun visitPackageNode(node: CirPackageNode, data: Unit) {
-        integerStatisticsVisitor.onPackageNode(node)
+//        integerStatisticsVisitor.onPackageNode(node)
 
         node.commonDeclaration() // commonize package
 
@@ -59,22 +59,30 @@ internal class CommonizationVisitor(
         commonizationValues.clear()
         val commonized = node.commonDeclaration() ?: return // commonize property
 
-        integerStatisticsVisitor.visitFunctionOrPropertyNode(
-            commonized,
-            node.targetDeclarations,
-            isOptimistic = commonizationValues.isNotEmpty(),
-        )
+//        if (commonizationValues.isEmpty()) {
+//            return
+//        }
+
+//        integerStatisticsVisitor.visitFunctionOrPropertyNode(
+//            commonized,
+//            node.targetDeclarations,
+//            isOptimistic = commonizationValues.isNotEmpty(),
+//        )
     }
 
     override fun visitFunctionNode(node: CirFunctionNode, data: Unit) {
         commonizationValues.clear()
         val commonized = node.commonDeclaration() ?: return // commonize function
 
-        integerStatisticsVisitor.visitFunctionOrPropertyNode(
-            commonized,
-            node.targetDeclarations,
-            isOptimistic = commonizationValues.isNotEmpty(),
-        )
+//        if (commonizationValues.isEmpty()) {
+//            return
+//        }
+
+//        integerStatisticsVisitor.visitFunctionOrPropertyNode(
+//            commonized,
+//            node.targetDeclarations,
+//            isOptimistic = commonizationValues.isNotEmpty(),
+//        )
     }
 
     @Suppress("DuplicatedCode")

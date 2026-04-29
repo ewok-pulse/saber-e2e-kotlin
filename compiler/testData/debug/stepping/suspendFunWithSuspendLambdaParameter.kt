@@ -42,7 +42,6 @@ suspend fun box() {
 
 // EXPECTATIONS JS_IR
 // test.kt:10 doResume
-// test.kt:10 box$slambda
 // test.kt:10 doResume
 // test.kt:6 foo
 // test.kt:6 foo

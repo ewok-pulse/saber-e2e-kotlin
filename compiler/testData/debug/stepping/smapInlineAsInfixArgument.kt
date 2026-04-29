@@ -65,7 +65,6 @@ fun fail() : String {
 // test.kt:19 fail
 // test.kt:7 box
 // test.kt:4 execute
-// test.kt:10 box
 // test.kt:19 fail
 // test.kt:10 box
 // test.kt:4 execute

@@ -5,6 +5,7 @@
 package org.jetbrains.kotlin.js.sourceMap
 
 import org.jetbrains.kotlin.js.backend.SourceLocationConsumer
+import org.jetbrains.kotlin.js.backend.ast.JsLocation
 import org.jetbrains.kotlin.js.backend.ast.JsLocationWithSource
 import org.jetbrains.kotlin.utils.addToStdlib.popLast
 import java.io.File
@@ -18,26 +19,43 @@ class SourceMapBuilderConsumer(
 ) : SourceLocationConsumer {
 
     private val sourceStack = mutableListOf<JsLocationWithSource?>()
+    private var ignoreLocationDeepness = 0
 
     override fun newLine() {
         mappingConsumer.newLine()
     }
 
     override fun pushSourceInfo(info: JsLocationWithSource?) {
+        if (info?.asSimpleLocation() == JsLocation.Ignored)
+            ignoreLocationDeepness++
         sourceStack.add(info)
         addMapping(info)
     }
 
     override fun popSourceInfo() {
-        sourceStack.popLast()
+        if (sourceStack.popLast()?.asSimpleLocation() == JsLocation.Ignored)
+            ignoreLocationDeepness--
         addMapping(sourceStack.lastOrNull())
     }
 
     private fun addMapping(sourceInfo: JsLocationWithSource?) {
+        if (ignoreLocationDeepness > 0) {
+            mappingConsumer.addMapping(
+                JsLocation.Ignored.file,
+                JsLocation.Ignored.fileIdentity,
+                { null },
+                JsLocation.Ignored.startLine,
+                JsLocation.Ignored.startChar,
+                JsLocation.Ignored.name
+            )
+            return
+        }
+
         if (sourceInfo == null) {
             mappingConsumer.addEmptyMapping()
             return
         }
+
         val contentSupplier = if (provideExternalModuleContent) sourceInfo.sourceProvider else {
             { null }
         }

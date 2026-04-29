@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.js.backend.JsToStringGenerationVisitor
 import org.jetbrains.kotlin.js.backend.NoOpSourceLocationConsumer
 import org.jetbrains.kotlin.js.backend.SourceLocationConsumer
 import org.jetbrains.kotlin.js.backend.ast.JsCompositeBlock
+import org.jetbrains.kotlin.js.backend.ast.JsLocation
 import org.jetbrains.kotlin.js.backend.ast.JsSingleLineComment
 import org.jetbrains.kotlin.js.common.safeModuleName
 import org.jetbrains.kotlin.js.config.*
@@ -628,7 +629,9 @@ fun generateSingleWrappedModuleBody(
         val sourceMapPrefix = sourceMapsInfo.sourceMapPrefix
         val outputDir = sourceMapsInfo.outputDir?.resolve(artifactConfiguration.moduleName.substringBeforeLast("/", ""))
 
-        sourceMapBuilder = SourceMap3Builder(null, jsCode::getColumn, sourceMapPrefix)
+        sourceMapBuilder = SourceMap3Builder(null, jsCode::getColumn, sourceMapPrefix).apply {
+            addIgnoredSource(JsLocation.Ignored.file)
+        }
 
         val pathResolver = SourceFilePathResolver.create(sourceMapsInfo.sourceRoots, sourceMapPrefix, outputDir)
 

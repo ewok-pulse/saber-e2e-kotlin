@@ -75,6 +75,13 @@ annotation class AffectedByMaven
 annotation class AffectedByIntelliJ
 
 /**
+* Will mark tests as 'affected by' the given domain [Domain.BuildInfrastructure].
+* Such tests will run, additionally, for all commits affecting the BuildInfrastructure domain.
+*/
+@Tag("affectedBy:BuildInfrastructure")
+annotation class AffectedByBuildInfrastructure
+
+/**
 * Will mark tests as 'affected by' the given domain [Domain.Unknown].
 * Such tests will run, additionally, for all commits affecting the Unknown domain.
 */
@@ -92,5 +99,6 @@ fun affectedByAnnotationOf(domain: Domain) = when (domain) {
     Domain.Gradle -> AffectedByGradle::class
     Domain.Maven -> AffectedByMaven::class
     Domain.IntelliJ -> AffectedByIntelliJ::class
+    Domain.BuildInfrastructure -> AffectedByBuildInfrastructure::class
     Domain.Unknown -> AffectedByUnknown::class
 }

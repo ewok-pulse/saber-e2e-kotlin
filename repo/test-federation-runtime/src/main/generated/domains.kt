@@ -14,6 +14,7 @@ enum class Domain {
     Gradle,
     Maven,
     IntelliJ,
+    BuildInfrastructure,
     Unknown,
 
 }

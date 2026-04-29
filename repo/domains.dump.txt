@@ -135,6 +135,14 @@ Maven:
  - libraries/tools/kotlin-maven-serialization
  - libraries/tools/maven-archetypes
 
+BuildInfrastructure:
+ - build.gradle.kts
+ - gradle
+ - gradle.properties
+ - repo
+ - scripts
+ - settings.gradle.kts
+
 Unknown:
  - .ai
  - .claude
@@ -153,12 +161,9 @@ Unknown:
  - annotations
  - benchmarks
  - build-common
- - build.gradle.kts
  - dependencies
  - docs
  - generators
- - gradle
- - gradle.properties
  - gradlew
  - gradlew.bat
  - idea
@@ -221,10 +226,7 @@ Unknown:
  - libraries/tools/stats-analyser
  - license
  - prepare
- - repo
  - resources
- - scripts
- - settings.gradle.kts
  - spec-docs
  - test-instrumenter
  - tests

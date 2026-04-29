@@ -71,6 +71,16 @@ IntelliJ:
     - Compiler
     - AnalysisApi
 
+BuildInfrastructure:
+  home: "repo"
+  include:
+    - "repo/**"
+    - "gradle/**"
+    - "build.gradle.kts"
+    - "settings.gradle.kts"
+    - "gradle.properties"
+    - "scripts/**"
+
 Unknown:
   home: "."
   include:

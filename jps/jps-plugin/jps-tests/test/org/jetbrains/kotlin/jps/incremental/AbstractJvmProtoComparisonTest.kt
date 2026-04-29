@@ -22,16 +22,16 @@ import org.jetbrains.kotlin.incremental.LocalFileKotlinClass
 import org.jetbrains.kotlin.incremental.ProtoData
 import org.jetbrains.kotlin.incremental.storage.ProtoMapValue
 import org.jetbrains.kotlin.incremental.toProtoData
+import org.jetbrains.kotlin.jps.MockLibraryUtilWithSeparateClassLoader
 import org.jetbrains.kotlin.load.kotlin.header.KotlinClassHeader
-import org.jetbrains.kotlin.metadata.jvm.deserialization.BitEncoding
 import org.jetbrains.kotlin.metadata.deserialization.MetadataVersion
+import org.jetbrains.kotlin.metadata.jvm.deserialization.BitEncoding
 import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.test.MockLibraryUtil
 import java.io.File
 
 abstract class AbstractJvmProtoComparisonTest : AbstractProtoComparisonTest<LocalFileKotlinClass>() {
     override fun compileAndGetClasses(sourceDir: File, outputDir: File): Map<ClassId, LocalFileKotlinClass> {
-        MockLibraryUtil.compileKotlinSources(
+        MockLibraryUtilWithSeparateClassLoader.compileKotlinSources(
             sourcesPath = sourceDir.path,
             outDir = outputDir,
             extraOptions = listOf(K2JVMCompilerArguments::disableDefaultScriptingPlugin.cliArgument)

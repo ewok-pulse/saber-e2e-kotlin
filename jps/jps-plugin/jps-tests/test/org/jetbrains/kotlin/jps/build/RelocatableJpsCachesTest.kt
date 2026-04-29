@@ -15,10 +15,10 @@ import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.config.KotlinFacetSettings
 import org.jetbrains.kotlin.incremental.KOTLIN_CACHE_DIRECTORY_NAME
 import org.jetbrains.kotlin.incremental.testingUtils.assertEqualDirectories
+import org.jetbrains.kotlin.jps.MockLibraryUtilWithSeparateClassLoader
 import org.jetbrains.kotlin.jps.build.fixtures.EnableICFixture
 import org.jetbrains.kotlin.jps.incremental.KotlinDataContainerTarget
 import org.jetbrains.kotlin.jps.model.JpsKotlinFacetModuleExtension
-import org.jetbrains.kotlin.test.MockLibraryUtilExt
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
@@ -108,7 +108,7 @@ abstract class RelocatableCacheTestCase(
 
         //create lib
         val libraryName = "module1-1.0-SNAPSHOT"
-        val libraryJar = MockLibraryUtilExt.compileJvmLibraryToJar(workDir.resolve("non-existent-folder").absolutePath, libraryName)
+        val libraryJar = MockLibraryUtilWithSeparateClassLoader.compileJvmLibraryToJar(workDir.resolve("non-existent-folder").absolutePath, libraryName)
         val module1Lib = this.workDir.resolve("lib").resolve("$libraryName.jar")
         Files.createDirectories(module1Lib.parentFile.toPath())
         Files.copy(libraryJar.toPath(), module1Lib.toPath(), StandardCopyOption.REPLACE_EXISTING)

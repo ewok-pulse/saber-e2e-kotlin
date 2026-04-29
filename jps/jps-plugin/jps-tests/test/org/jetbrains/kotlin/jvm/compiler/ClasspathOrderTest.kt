@@ -8,9 +8,9 @@ package org.jetbrains.kotlin.jvm.compiler
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.kotlin.build.JvmSourceRoot
 import org.jetbrains.kotlin.config.IncrementalCompilation
+import org.jetbrains.kotlin.jps.MockLibraryUtilWithSeparateClassLoader
 import org.jetbrains.kotlin.jps.build.AbstractKotlinJpsBuildTestCase
 import org.jetbrains.kotlin.modules.KotlinModuleXmlBuilder
-import org.jetbrains.kotlin.test.MockLibraryUtil
 import org.jetbrains.kotlin.test.TestCaseWithTmpdir
 import org.jetbrains.kotlin.test.kotlinPathsForDistDirectoryForTests
 import org.jetbrains.kotlin.utils.PathUtil
@@ -28,7 +28,7 @@ class ClasspathOrderTest : TestCaseWithTmpdir() {
     }
 
     fun testClasspathOrderForCLI() {
-        MockLibraryUtil.compileKotlinSources(sourceDir.path, tmpdir)
+        MockLibraryUtilWithSeparateClassLoader.compileKotlinSources(sourceDir.path, tmpdir)
     }
 
     fun testClasspathOrderForModuleScriptBuild() {
@@ -50,6 +50,6 @@ class ClasspathOrderTest : TestCaseWithTmpdir() {
         val xml = File(tmpdir, "module.xml")
         xml.writeText(xmlContent)
 
-        MockLibraryUtil.compileKotlinModule(xml.absolutePath)
+        MockLibraryUtilWithSeparateClassLoader.compileKotlinModule(xml.absolutePath)
     }
 }

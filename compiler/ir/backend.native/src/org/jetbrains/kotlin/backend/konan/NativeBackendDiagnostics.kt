@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.diagnostics.warningWithoutSource
 object NativeBackendDiagnostics : KtDiagnosticsContainer() {
     val NATIVE_BACKEND_ERROR by errorWithoutSource()
     val OBJC_EXPORT_WARNING by warningWithoutSource()
+    val NATIVE_OPTIMIZATION_WARNING by warningWithoutSource()
 
     override fun getRendererFactory(): BaseDiagnosticRendererFactory = Messages
 
@@ -21,6 +22,7 @@ object NativeBackendDiagnostics : KtDiagnosticsContainer() {
         override val MAP by KtDiagnosticFactoryToRendererMap("NativeBackendDiagnostics") { map ->
             map.put(NATIVE_BACKEND_ERROR, MESSAGE_PLACEHOLDER)
             map.put(OBJC_EXPORT_WARNING, MESSAGE_PLACEHOLDER)
+            map.put(NATIVE_OPTIMIZATION_WARNING, MESSAGE_PLACEHOLDER)
         }
     }
 }

@@ -65,7 +65,7 @@ internal class KaFirExpressionInformationProvider(
             return context.expressionStability == SmartcastStability.STABLE_VALUE
         }
 
-    private class AdditionalInfoCollector() {
+    private class AdditionalInfoCollector {
         var isUsedAsResultOfLambda: Boolean = false
     }
 

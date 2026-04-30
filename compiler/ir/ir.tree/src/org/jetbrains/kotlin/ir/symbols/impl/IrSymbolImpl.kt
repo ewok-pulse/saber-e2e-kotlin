@@ -81,5 +81,5 @@ abstract class IrSymbolBase<out Descriptor : DeclarationDescriptor, Owner : IrSy
 
 abstract class IrSymbolWithSignature<out Descriptor : DeclarationDescriptor, Owner : IrSymbolOwner>(
     descriptor: Descriptor?,
-    override val signature: IdSignature?,
+    override var signature: IdSignature?,
 ) : IrSymbolBase<Descriptor, Owner>(descriptor)

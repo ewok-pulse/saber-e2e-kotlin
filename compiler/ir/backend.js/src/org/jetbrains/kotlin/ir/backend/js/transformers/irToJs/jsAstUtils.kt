@@ -58,7 +58,6 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.IdentityHashMap
-import kotlin.collections.set
 
 fun String.toWellKnownSymbolAccess(): JsExpression =
     jsElementAccess(this, JsNameRef("Symbol"))

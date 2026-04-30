@@ -19,7 +19,7 @@ class SourceMapBuilderConsumer(
 ) : SourceLocationConsumer {
 
     private val sourceStack = mutableListOf<JsLocationWithSource?>()
-    private var ignoreLocationDeepness = 0
+    private var ignoreLocationDepth = 0
 
     override fun newLine() {
         mappingConsumer.newLine()
@@ -27,19 +27,19 @@ class SourceMapBuilderConsumer(
 
     override fun pushSourceInfo(info: JsLocationWithSource?) {
         if (info?.asSimpleLocation() == JsLocation.Ignored)
-            ignoreLocationDeepness++
+            ignoreLocationDepth++
         sourceStack.add(info)
         addMapping(info)
     }
 
     override fun popSourceInfo() {
         if (sourceStack.popLast()?.asSimpleLocation() == JsLocation.Ignored)
-            ignoreLocationDeepness--
+            ignoreLocationDepth--
         addMapping(sourceStack.lastOrNull())
     }
 
     private fun addMapping(sourceInfo: JsLocationWithSource?) {
-        if (ignoreLocationDeepness > 0) {
+        if (ignoreLocationDepth > 0) {
             mappingConsumer.addMapping(
                 JsLocation.Ignored.file,
                 JsLocation.Ignored.fileIdentity,

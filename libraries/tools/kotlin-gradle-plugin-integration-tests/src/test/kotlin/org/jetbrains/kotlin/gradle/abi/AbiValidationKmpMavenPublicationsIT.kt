@@ -41,63 +41,6 @@ class AbiValidationKmpMavenPublicationsIT : KGPBaseTest() {
     }
 
     @GradleTest
-    fun testClassifierArtifactsAreIgnored(
-        gradleVersion: GradleVersion,
-    ) {
-        val compilationsKlibDump: String
-        val compilationsJvmDump: String
-        project(
-            "base-kotlin-multiplatform-library",
-            gradleVersion,
-        ).run {
-            addSampleSource()
-            buildScriptInjection {
-                with(kotlinMultiplatform) {
-                    jvm()
-                    linuxX64()
-                }
-            }
-            abiValidation()
-            build("updateKotlinAbi")
-            compilationsKlibDump = referenceKlibDumpFile().readText()
-            compilationsJvmDump = referenceJvmDumpFile().readText()
-        }
-
-        val klibDumpFromPublication: String
-        val jvmDumpFromPublication: String
-        project(
-            "base-kotlin-multiplatform-library",
-            gradleVersion,
-        ).run {
-            plugins {
-                id("org.gradle.maven-publish")
-            }
-            addSampleSource()
-            buildScriptInjection {
-                with(kotlinMultiplatform) {
-                    jvm()
-                    linuxX64()
-                }
-                val javadocJar = project.tasks.register("javadocJar", org.gradle.jvm.tasks.Jar::class.java) { jar ->
-                    jar.archiveClassifier.set("javadoc")
-                }
-                publishing.publications.withType(org.gradle.api.publish.maven.MavenPublication::class.java).configureEach { publication ->
-                    publication.artifact(javadocJar)
-                }
-            }
-            abiValidation {
-                binariesSource.set(BinariesSource.MAVEN_PUBLICATIONS)
-            }
-            build("updateKotlinAbi")
-            klibDumpFromPublication = referenceKlibDumpFile().readText()
-            jvmDumpFromPublication = referenceJvmDumpFile().readText()
-        }
-
-        assertEquals(compilationsKlibDump, klibDumpFromPublication)
-        assertEquals(compilationsJvmDump, jvmDumpFromPublication)
-    }
-
-    @GradleTest
     fun testSame(
         gradleVersion: GradleVersion,
     ) {

@@ -83,7 +83,10 @@ internal class KonanInteropModuleDeserializerK2(
     private val metadataReader = KlibMetadataReader(klib, moduleHeaderProto)
 
     private val deserializedClasses = mutableListOf<IrClass>()
-    private val deserializedCallableDeclarations = mutableListOf<IrDeclarationWithName>()
+
+    // Already deserialized callable references. An alternative is to add functions to SymbolTable allowing to probe for existing symbol
+    // without creating a new one if doesn't exist.
+    private val deserializedCallableSymbols = hashMapOf<IdSignature, IrSymbol>()
     private val irPackagesByFqName = mutableMapOf<FqName, IrExternalPackageFragment>()
     private val typeDefinitionsFilesForPackage = mutableMapOf<IrExternalPackageFragment, IrFile>()
 
@@ -94,30 +97,46 @@ internal class KonanInteropModuleDeserializerK2(
             return false
         }
 
-        val topLevelSig = idSig.topLevelSignature() as? IdSignature.CommonSignature ?: return false
-        val packageFqName = FqName(topLevelSig.packageFqName)
+        val commonSignature = ((idSig as? IdSignature.AccessorSignature)?.propertySignature ?: idSig)
+                as? IdSignature.CommonSignature ?: return false
+        val packageFqName = FqName(commonSignature.packageFqName)
         if (packageFqName !in metadataReader.definedPackageFqNames) {
             return false
         }
 
-        val topLevelName = FqName(topLevelSig.declarationFqName.substringBefore('.'))
-        for (kind in TopLevelSymbolKind.entries) {
-            // C-interop Klibs do define type aliases, but all types in IR and metadata already provide their expanded representation,
-            // and type aliases are not otherwise useful in IR, so there is no need to deserialize them.
-            if (kind == TopLevelSymbolKind.TYPEALIAS_SYMBOL) continue
-
-            val id = MetadataDeclarationId(kind, packageFqName, topLevelName)
-            if (id in metadataReader.getDeclaredDeclarationIds()) {
-                return true
-            }
+        // First, check for the presence of a top-level class. We assume that if it exists, all its members should also exist.
+        // C-interop Klibs also define type aliases, but all types in IR and metadata already provide their expanded representation,
+        // and type aliases are not otherwise useful in IR, so there is no need to deserialize them.
+        val topLevelName = FqName(commonSignature.declarationFqName.substringBefore('.'))
+        val topLevelClassId = MetadataDeclarationId(TopLevelSymbolKind.CLASS_SYMBOL, packageFqName, topLevelName)
+        if (topLevelClassId in metadataReader.getDeclaredDeclarationIds()) {
+            return true
         }
 
+        if ('.' !in commonSignature.declarationFqName) {
+            // If no top-level class is found for a given FQ name, there may also be such a function or property.
+            // Unfortunately, for those, there is no quick way to tell if they exist inside the interop Klib, because metadata does
+            // not contain signatures. It's necessary to invoke the actual deserialization, which will compute the signatures on the fly
+            // and match against the requested one.
+            return tryDeserializeIrSymbol(idSig, BinarySymbolData.SymbolKind.FUNCTION_SYMBOL) != null ||
+                    tryDeserializeIrSymbol(idSig, BinarySymbolData.SymbolKind.PROPERTY_SYMBOL) != null
+        }
         return false
     }
 
     override fun tryDeserializeIrSymbol(idSig: IdSignature, symbolKind: BinarySymbolData.SymbolKind): IrSymbol? {
-        val symbol = symbolTable.referenceSymbolByKind(idSig, symbolKind) ?: return null
-        if (symbol.isBound) return symbol
+        var classSymbol: IrClassSymbol? = null
+        if (symbolKind == BinarySymbolData.SymbolKind.CLASS_SYMBOL) {
+            // Class symbol must be created right-away because it may be referenced by members during deserialization of this very class.
+            classSymbol = symbolTable.referenceClass(idSig)
+            if (classSymbol.isBound) {
+                return classSymbol
+            }
+        } else {
+            deserializedCallableSymbols[idSig]?.let {
+                return it
+            }
+        }
 
         var searchForSymbolKind = symbolKind
         var commonSig = idSig
@@ -129,10 +148,11 @@ internal class KonanInteropModuleDeserializerK2(
         }
         commonSig = commonSig as? IdSignature.CommonSignature ?: return null
 
-        if ('.' in commonSig.declarationFqName) {
+        val isClassMember = '.' in commonSig.declarationFqName
+        if (isClassMember) {
             // When looking for a class member, try to deserialize the (top-most) containing class instead.
             // Doing so will, in turn, deserialize everything declared inside that class (including nested classes, recursively).
-            // If the sought declaration is indeed defined somewhere inside this class, it will be linked, although later.
+            // If the sought declaration is indeed defined somewhere inside this class, it will be linked.
             val topLevelClassSig = commonSig.topLevelSignature()
             tryDeserializeIrSymbol(topLevelClassSig, BinarySymbolData.SymbolKind.CLASS_SYMBOL)
         } else {
@@ -156,28 +176,33 @@ internal class KonanInteropModuleDeserializerK2(
                         is KmClass -> deserializeClass(kmDeclaration, irPackage)
                         is KmFunction -> deserializeFunction(kmDeclaration, irPackage)
                         is KmProperty -> deserializeProperty(kmDeclaration, irPackage)
-                        else -> error(kmDeclaration)
+                        else -> error(kmDeclaration.javaClass.name)
                     }
                     irPackage.addChild(irDeclaration)
+                    computeSignatureAndRegisterInSymbolTable(irDeclaration)
                 }
             }
         }
 
-        return symbol
+        classSymbol?.let { return it }
+        deserializedCallableSymbols[idSig]?.let { return it }
+        if (isClassMember) {
+            // If a member was not found inside a class, it may be because the signature actually refers to a fake override.
+            // F/Os are not present in Klib and will be created later, but the symbol for it must be created here.
+            val overridableSymbol = when (symbolKind) {
+                BinarySymbolData.SymbolKind.FUNCTION_SYMBOL -> symbolTable.referenceSimpleFunction(idSig)
+                BinarySymbolData.SymbolKind.PROPERTY_SYMBOL -> symbolTable.referenceProperty(idSig)
+                else -> null
+            }
+            if (overridableSymbol != null) {
+                deserializedCallableSymbols[idSig] = overridableSymbol
+                return overridableSymbol
+            }
+        }
+        return null
     }
 
     override fun deserializedSymbolNotFound(idSig: IdSignature): Nothing = error("No C-Interop symbol found for $idSig")
-
-    private fun SymbolTable.referenceSymbolByKind(idSig: IdSignature, symbolKind: BinarySymbolData.SymbolKind): IrSymbol? {
-        return when (symbolKind) {
-            BinarySymbolData.SymbolKind.CLASS_SYMBOL -> referenceClass(idSig)
-            BinarySymbolData.SymbolKind.CONSTRUCTOR_SYMBOL -> referenceConstructor(idSig)
-            BinarySymbolData.SymbolKind.FUNCTION_SYMBOL -> referenceSimpleFunction(idSig)
-            BinarySymbolData.SymbolKind.PROPERTY_SYMBOL -> referenceProperty(idSig)
-            BinarySymbolData.SymbolKind.ENUM_ENTRY_SYMBOL -> referenceEnumEntry(idSig)
-            else -> null
-        }
-    }
 
     private fun findReferencedClassifier(classifier: KmClassifier, typeParametersInScope: Map<Int, IrTypeParameter> = emptyMap()): IrClassifierSymbol {
         return when (classifier) {
@@ -231,15 +256,6 @@ internal class KonanInteropModuleDeserializerK2(
     override fun postProcess() {
         super.postProcess()
 
-        // Unless it's a class, we cannot compute the actual signature for deserialized declarations right away,
-        // and so cannot link the declarations with a particular signature, too.
-        // So first, we only deserialize the "promising" declarations (by FQ name),
-        // but postpone computing the signature and the actual linkage to here.
-        for (declaration in deserializedCallableDeclarations) {
-            computeSignatureAndMaybeBind(declaration)
-        }
-        deserializedCallableDeclarations.clear()
-
         // If the C-interop Klib is already cached, the cache should contain all the implementation.
         if (!isLibraryCached) {
             val implGen = IrImplementationGeneratorForCStructsAndEnumsK2(builtIns, symbols)
@@ -250,29 +266,23 @@ internal class KonanInteropModuleDeserializerK2(
         deserializedClasses.clear()
     }
 
-    private fun computeSignatureAndMaybeBind(declaration: IrDeclarationWithName) {
-        val signature = signatureComputer.computeSignature(declaration)
-        when (declaration) {
-            is IrSimpleFunction -> {
-                val newSymbol = symbolTable.referenceSimpleFunction(signature)
-                newSymbol.bind(declaration)
-                (declaration as IrFunctionImpl).symbol = newSymbol
-                symbolTable.declareSimpleFunction(signature, { newSymbol }, { declaration })
-            }
-            is IrConstructor -> {
-                val newSymbol = symbolTable.referenceConstructor(signature)
-                newSymbol.bind(declaration)
-                (declaration as IrConstructorImpl).symbol = newSymbol
-                symbolTable.declareConstructor(signature, { newSymbol }, { declaration })
-            }
-            is IrProperty -> {
-                val newSymbol = symbolTable.referenceProperty(signature)
-                newSymbol.bind(declaration)
-                (declaration as IrPropertyImpl).symbol = newSymbol
-                symbolTable.declareProperty(signature, { newSymbol }, { declaration })
+    private fun computeSignatureAndRegisterInSymbolTable(declaration: IrDeclarationWithName) {
+        if (declaration is IrClass) {
+            // Classes have signatures and are declared right upon creation, nothing to do here.
+            return
+        }
 
-                declaration.getter?.correspondingPropertySymbol = newSymbol
-                declaration.setter?.correspondingPropertySymbol = newSymbol
+        val signature = signatureComputer.computeSignature(declaration)
+        (declaration.symbol as IrSymbolWithSignature<*, *>).signature = signature
+        deserializedCallableSymbols[signature] = declaration.symbol
+        when (declaration) {
+            // TODO: If two declarations would resolve the the same IdSignature, the following code would crash. Is it possible?
+            is IrSimpleFunction -> symbolTable.declareSimpleFunction(signature, { declaration.symbol }) { declaration }
+            is IrConstructor -> symbolTable.declareConstructor(signature, { declaration.symbol }) { declaration }
+            is IrProperty -> {
+                symbolTable.declareProperty(signature, { declaration.symbol }) { declaration }
+                declaration.getter?.let(::computeSignatureAndRegisterInSymbolTable)
+                declaration.setter?.let(::computeSignatureAndRegisterInSymbolTable)
             }
         }
     }
@@ -385,10 +395,12 @@ internal class KonanInteropModuleDeserializerK2(
             clazz.declarations += members
             for (member in members) {
                 member.patchDeclarationParents(clazz)
-
-                deserializedCallableDeclarations += member
-                deserializedCallableDeclarations += listOfNotNull((member as? IrProperty)?.getter, (member as? IrProperty)?.setter)
             }
+        }
+
+        // Computing a signature sometimes depends on sibling members in the class, so it has to be done after all the members are created.
+        for (member in clazz.declarations) {
+            computeSignatureAndRegisterInSymbolTable(member as IrDeclarationWithName)
         }
 
         linker.fakeOverrideBuilder.enqueueClass(clazz, signature, CompatibilityMode.CURRENT)
@@ -495,7 +507,6 @@ internal class KonanInteropModuleDeserializerK2(
         function.annotations = kmFunction.annotations.map { deserializeAnnotation(it) }
 
         function.parent = parent
-        deserializedCallableDeclarations += function
         return function
     }
 
@@ -520,7 +531,6 @@ internal class KonanInteropModuleDeserializerK2(
         constructor.annotations = kmConstructor.annotations.map { deserializeAnnotation(it) }
 
         constructor.parent = parent
-        deserializedCallableDeclarations += constructor
         return constructor
     }
 
@@ -557,7 +567,6 @@ internal class KonanInteropModuleDeserializerK2(
         require(kmProperty.typeParameters.isEmpty()) { TODO("Function type parameters") }
 
         property.parent = parent
-        deserializedCallableDeclarations += property
         return property
     }
 
@@ -615,7 +624,6 @@ internal class KonanInteropModuleDeserializerK2(
         require(kmProperty.typeParameters.isEmpty()) { TODO("Function type parameters") }
 
         accessor.parent = parent
-        deserializedCallableDeclarations += accessor
         return accessor
     }
 

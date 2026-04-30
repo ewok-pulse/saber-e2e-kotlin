@@ -10,8 +10,8 @@ package org.jetbrains.kotlin.gradle.abi
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.create
 import org.gradle.util.GradleVersion
+import org.jetbrains.kotlin.gradle.abi.utils.AbiValidationTestDumps.assertDumpsEqual
 import org.jetbrains.kotlin.gradle.abi.utils.abiValidation
-import org.jetbrains.kotlin.gradle.abi.utils.assertDumpsEqual
 import org.jetbrains.kotlin.gradle.abi.utils.referenceJvmDumpFile
 import org.jetbrains.kotlin.gradle.dsl.abi.BinariesSource
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
@@ -145,7 +145,7 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
     }
 
     @GradleTest
-    fun testFatJarIgnoresDependencyClassesUsedOnlyInternally(
+    fun testFatJarDependencyClassFiltering(
         gradleVersion: GradleVersion,
     ) {
         val compilationsDump: String
@@ -163,6 +163,7 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
             compilationsDump = referenceJvmDumpFile().readText()
         }
 
+        // Pair used only internally: fat jar publication dump must equal compilations dump (Pair filtered out)
         project(
             "base-kotlin-jvm-library",
             gradleVersion,
@@ -204,28 +205,9 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
             build("updateKotlinAbi")
             assertDumpsEqual(compilationsDump, referenceJvmDumpFile())
         }
-    }
 
-    @GradleTest
-    fun testFatJarIncludesDependencyClassesUsedInPublicApi(
-        gradleVersion: GradleVersion,
-    ) {
-        val compilationsDump: String
-        project(
-            "base-kotlin-jvm-library",
-            gradleVersion,
-        ).run {
-            abiValidation()
-            buildScriptInjection {
-                project.dependencies.add("implementation", "org.apache.commons:commons-lang3:3.17.0")
-            }
-            addFatJarPublicApiSampleSource()
-
-            build("updateKotlinAbi")
-            compilationsDump = referenceJvmDumpFile().readText()
-        }
-
-        val dumpFromPublication: String
+        // Pair used in public API: fat jar publication dump must include the Pair class
+        val dumpPublicApi: String
         project(
             "base-kotlin-jvm-library",
             gradleVersion,
@@ -265,11 +247,10 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
             addFatJarPublicApiSampleSource()
 
             build("updateKotlinAbi")
-            dumpFromPublication = referenceJvmDumpFile().readText()
+            dumpPublicApi = referenceJvmDumpFile().readText()
         }
 
-        assertContains(dumpFromPublication, compilationsDump)
-        assertContains(dumpFromPublication, "class org/apache/commons/lang3/tuple/Pair")
+        assertContains(dumpPublicApi, "class org/apache/commons/lang3/tuple/Pair")
     }
 }
 

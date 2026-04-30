@@ -31,14 +31,22 @@ class AbiValidationJvmNonTestCompilationsIT : KGPBaseTest() {
                 binariesSource.set(BinariesSource.NON_TEST_COMPILATIONS)
             }
 
+            buildScriptInjection {
+                project.plugins.apply("jvm-test-suite")
+                val testing = project.extensions.getByType(org.gradle.testing.base.TestingExtension::class.java)
+                testing.suites.register("integrationTest", org.gradle.api.plugins.jvm.JvmTestSuite::class.java)
+            }
+
             kotlinSourcesDir().source("PublicAbi.kt") { MAIN_SOURCE }
             kotlinSourcesDir("test").source("TestOnlyClass.kt") { TEST_SOURCE }
+            kotlinSourcesDir("integrationTest").source("IntegrationTestOnlyClass.kt") { INTEGRATION_TEST_SOURCE }
 
             build("updateKotlinAbi")
 
             val dump = referenceJvmDumpFile().readText()
             assertContains(dump, "class PublicAbi")
             assertFalse(dump.contains("class TestOnlyClass"))
+            assertFalse(dump.contains("class IntegrationTestOnlyClass"))
         }
     }
 }
@@ -52,5 +60,11 @@ private val MAIN_SOURCE = """
 private val TEST_SOURCE = """
     class TestOnlyClass {
         fun testHelper(): String = "test"
+    }
+""".trimIndent()
+
+private val INTEGRATION_TEST_SOURCE = """
+    class IntegrationTestOnlyClass {
+        fun integrationHelper(): String = "integration test"
     }
 """.trimIndent()

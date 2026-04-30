@@ -57,7 +57,6 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
-import java.util.IdentityHashMap
 
 fun String.toWellKnownSymbolAccess(): JsExpression =
     jsElementAccess(this, JsNameRef("Symbol"))
@@ -755,15 +754,15 @@ private fun IrClass?.canUseSuperRef(context: JsGenerationContext, superClass: Ir
     return currentFunctionsIncludingParents.none { it.isEs6ConstructorReplacement || it.shouldBeCompiledAsGenerator || it.isCoroutine() }
 }
 
-private val debugFriendlyOrigins = IdentityHashMap<IrDeclarationOrigin, Boolean>().apply {
-    set(IrDeclarationOrigin.DEFINED, true)
-    set(IrDeclarationOrigin.LOCAL_FUNCTION, true)
-    set(IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA, true)
-    set(IrDeclarationOrigin.FUNCTION_FOR_DEFAULT_PARAMETER, true)
-    set(IrDeclarationOrigin.LOWERED_SUSPEND_FUNCTION, true)
-    set(AbstractSuspendFunctionsLowering.DECLARATION_ORIGIN_COROUTINE_IMPL_INVOKE, true)
-    set(ENUM_ENTRIES_INITIALIZER_ORIGIN, true)
-}
+private val debugFriendlyOrigins = setOf(
+    IrDeclarationOrigin.DEFINED,
+    IrDeclarationOrigin.LOCAL_FUNCTION,
+    IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA,
+    IrDeclarationOrigin.FUNCTION_FOR_DEFAULT_PARAMETER,
+    IrDeclarationOrigin.LOWERED_SUSPEND_FUNCTION,
+    AbstractSuspendFunctionsLowering.DECLARATION_ORIGIN_COROUTINE_IMPL_INVOKE,
+    ENUM_ENTRIES_INITIALIZER_ORIGIN,
+)
 
 val IrDeclaration.isInlinedCode: Boolean
     get() = this is IrFunction && (isInline || origin == IrDeclarationOrigin.INLINE_LAMBDA)

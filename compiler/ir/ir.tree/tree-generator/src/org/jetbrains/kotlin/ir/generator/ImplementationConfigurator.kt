@@ -64,13 +64,7 @@ object ImplementationConfigurator : AbstractIrTreeImplementationConfigurator() {
             defaultNull("correspondingPropertySymbol")
         }
 
-        impl(simpleFunction, "IrFunctionImpl") {
-            isMutable("symbol")
-        }
-
-        impl(constructor) {
-            isMutable("symbol")
-        }
+        impl(simpleFunction, "IrFunctionImpl")
 
         impl(functionWithLateBinding) {
             configureDeclarationWithLateBindinig(simpleFunctionSymbol)
@@ -84,9 +78,7 @@ object ImplementationConfigurator : AbstractIrTreeImplementationConfigurator() {
             defaultNull("backingField", "getter", "setter")
         }
 
-        impl(property) {
-            isMutable("symbol")
-        }
+        impl(property)
 
         impl(propertyWithLateBinding) {
             configureDeclarationWithLateBindinig(propertySymbol)

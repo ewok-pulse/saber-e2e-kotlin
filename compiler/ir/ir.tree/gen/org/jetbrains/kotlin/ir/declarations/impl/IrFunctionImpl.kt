@@ -38,7 +38,7 @@ class IrFunctionImpl @IrImplementationDetail constructor(
     override var isExpect: Boolean,
     override var modality: Modality,
     override var isFakeOverride: Boolean,
-    override var symbol: IrSimpleFunctionSymbol,
+    override val symbol: IrSimpleFunctionSymbol,
     override var isTailrec: Boolean,
     override var isSuspend: Boolean,
     override var isOperator: Boolean,

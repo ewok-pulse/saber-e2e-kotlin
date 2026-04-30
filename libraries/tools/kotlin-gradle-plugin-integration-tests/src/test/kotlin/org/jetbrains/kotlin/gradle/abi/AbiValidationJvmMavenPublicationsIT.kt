@@ -11,13 +11,13 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.create
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.abi.utils.abiValidation
+import org.jetbrains.kotlin.gradle.abi.utils.assertDumpsEqual
 import org.jetbrains.kotlin.gradle.abi.utils.referenceJvmDumpFile
 import org.jetbrains.kotlin.gradle.dsl.abi.BinariesSource
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 import org.jetbrains.kotlin.gradle.testbase.*
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 
 @JvmGradlePluginTests
 class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
@@ -163,7 +163,6 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
             compilationsDump = referenceJvmDumpFile().readText()
         }
 
-        val dumpFromPublication: String
         project(
             "base-kotlin-jvm-library",
             gradleVersion,
@@ -203,11 +202,8 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
             addFatJarSampleSource()
 
             build("updateKotlinAbi")
-            dumpFromPublication = referenceJvmDumpFile().readText()
+            assertDumpsEqual(compilationsDump, referenceJvmDumpFile())
         }
-
-        assertContains(dumpFromPublication, compilationsDump)
-        assertFalse(dumpFromPublication.contains("fun internalValue"))
     }
 
     @GradleTest

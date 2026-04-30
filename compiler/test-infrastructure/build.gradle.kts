@@ -10,8 +10,13 @@ dependencies {
     testFixturesApi(project(":native:native.config"))
     testFixturesApi(intellijCore())
 
+    testFixturesApi(platform(libs.junit.bom))
     testFixturesApi(libs.junit.jupiter.api)
+    testFixturesApi(libs.junit.platform.launcher)
     testFixturesApi(testFixtures(project(":compiler:test-infrastructure-utils")))
+
+    testFixturesCompileOnly(libs.junit.jupiter.engine)
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
 
     testRuntimeOnly(commonDependency("org.jetbrains.intellij.deps.jna:jna"))
 }

@@ -38,10 +38,9 @@ import org.jetbrains.kotlin.test.directives.model.DirectivesContainer
 import org.jetbrains.kotlin.test.directives.model.singleOrZeroValue
 import org.jetbrains.kotlin.test.frontend.fir.FirMetaInfoDiffSuppressor
 import org.jetbrains.kotlin.test.frontend.fir.handlers.FirDiagnosticsHandler
-import org.jetbrains.kotlin.test.impl.testConfiguration
+import org.jetbrains.kotlin.test.grouping.MutedTestsIsolator
 import org.jetbrains.kotlin.test.model.ArtifactKinds
 import org.jetbrains.kotlin.test.model.GroupingTestIsolator
-import org.jetbrains.kotlin.test.model.SimpleTestFailureSuppressor
 import org.jetbrains.kotlin.test.services.BatchingPackageInserter
 import org.jetbrains.kotlin.test.services.CompilationStage
 import org.jetbrains.kotlin.test.services.TestModuleStructure
@@ -181,14 +180,5 @@ class NativeGroupingTestIsolator(testServices: TestServices) : GroupingTestIsola
 
     private fun TestModuleStructure.sourceContains(regex: Regex): Boolean {
         return sourceContainsCache.getOrPut(this to regex) { modules.any { it.files.any { it.originalContent.contains(regex) } } }
-    }
-}
-
-class MutedTestsIsolator(testServices: TestServices) : GroupingTestIsolator(testServices, affectsFileGenerators = false) {
-    override fun computeBatchToken(moduleStructure: TestModuleStructure): BatchToken {
-        @OptIn(TestInfrastructureInternals::class)
-        val testIsMuted = testServices.testConfiguration.failureSuppressors.filterIsInstance<SimpleTestFailureSuppressor>().any { it.testIsMuted() }
-        if (testIsMuted) return BatchToken.Isolated
-        return BatchToken.Regular
     }
 }

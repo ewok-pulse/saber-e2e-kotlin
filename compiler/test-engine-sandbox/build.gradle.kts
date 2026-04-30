@@ -37,7 +37,7 @@ dependencies {
 
     testFixturesApi(testFixtures(project(":native:native.tests")))
 
-    testFixturesImplementation(libs.kotlinx.coroutines.core)
+
 
     testRuntimeOnly(toolsJar())
 }

@@ -7,10 +7,10 @@ import sys
 
 dumps_location = "/tmp/cinterop-dumps-2"
 commonized_line_pattern = re.compile(
-    "^\\| (?:unsafe )?(?:int )?(?:optimistic )?\\s*\\| (fun|val|var) ([a-zA-Z0-9_./:#<>]+)([:(].*) \\|"
+    "^\\| (?:unsafe )?(?:int )?(?:optimistic )?\\s*\\| (fun|val|var|typealias) ([a-zA-Z0-9_./:#<>]+)((?:[:(]| =).*) \\|"
 )
 platform_line_pattern = re.compile(
-    "^\\| ([a-zA-Z0-9_]+|\\([a-zA-Z0-9_]+(?:, [a-zA-Z0-9_]+)+\\)) \\s*\\| (fun|val|var) ([a-zA-Z0-9_./:#<>]+)([:(].*) \\|"
+    "^\\| ([a-zA-Z0-9_]+|\\([a-zA-Z0-9_]+(?:, [a-zA-Z0-9_]+)+\\)) \\s*\\| (fun|val|var|typealias) ([a-zA-Z0-9_./:#<>]+)((?:[:(]| =).*) \\|"
 )
 tags = set(["unsafe", "int", "optimistic"])
 

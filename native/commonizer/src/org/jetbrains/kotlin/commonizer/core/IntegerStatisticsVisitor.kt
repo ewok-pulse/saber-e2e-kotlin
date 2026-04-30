@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.commonizer.cir.CirAnnotation
 import org.jetbrains.kotlin.commonizer.cir.CirClass
 import org.jetbrains.kotlin.commonizer.cir.CirClassOrTypeAliasType
 import org.jetbrains.kotlin.commonizer.cir.CirClassType
+import org.jetbrains.kotlin.commonizer.cir.CirDeclaration
 import org.jetbrains.kotlin.commonizer.cir.CirEntityId
 import org.jetbrains.kotlin.commonizer.cir.CirExtensionReceiver
 import org.jetbrains.kotlin.commonizer.cir.CirFlexibleType
@@ -18,6 +19,7 @@ import org.jetbrains.kotlin.commonizer.cir.CirFunctionOrProperty
 import org.jetbrains.kotlin.commonizer.cir.CirProperty
 import org.jetbrains.kotlin.commonizer.cir.CirRegularTypeProjection
 import org.jetbrains.kotlin.commonizer.cir.CirType
+import org.jetbrains.kotlin.commonizer.cir.CirTypeAlias
 import org.jetbrains.kotlin.commonizer.cir.CirTypeAliasType
 import org.jetbrains.kotlin.commonizer.cir.CirValueParameter
 import org.jetbrains.kotlin.commonizer.cir.expandedType
@@ -170,7 +172,10 @@ internal class IntegerStatisticsVisitor(
         }
     }
 
-    override fun visitTypeAliasNode(node: CirTypeAliasNode, data: Unit) {}
+    override fun visitTypeAliasNode(node: CirTypeAliasNode, data: Unit) {
+        val commonized = node.commonDeclaration() ?: return
+        visitDeclarationNode(commonized, node.targetDeclarations)
+    }
 
     override fun visitClassConstructorNode(node: CirClassConstructorNode, data: Unit) {
 
@@ -178,17 +183,17 @@ internal class IntegerStatisticsVisitor(
 
     override fun visitPropertyNode(node: CirPropertyNode, data: Unit) {
         val commonized = node.commonDeclaration() ?: return
-        visitFunctionOrPropertyNode(commonized, node.targetDeclarations)
+        visitDeclarationNode(commonized, node.targetDeclarations)
     }
 
     override fun visitFunctionNode(node: CirFunctionNode, data: Unit) {
         val commonized = node.commonDeclaration() ?: return
-        visitFunctionOrPropertyNode(commonized, node.targetDeclarations)
+        visitDeclarationNode(commonized, node.targetDeclarations)
     }
 
-    fun visitFunctionOrPropertyNode(
-        commonized: CirFunctionOrProperty,
-        targetDeclarations: List<CirFunctionOrProperty?>,
+    fun visitDeclarationNode(
+        commonized: CirDeclaration,
+        targetDeclarations: List<CirDeclaration?>,
         isOptimistic: Boolean = false,
     ) {
         val rendered = commonized.render()
@@ -209,13 +214,14 @@ internal class IntegerStatisticsVisitor(
         currentFile.appendText("\n")
     }
 
-    private fun CirFunctionOrProperty.containsTypealiasesToIntegers(): Boolean =
+    private fun CirDeclaration.containsTypealiasesToIntegers(): Boolean =
         collectTypes().any { it?.mentionsIntegers == true }
 
-    private fun CirFunctionOrProperty.collectTypes(): List<CirType?> = when (this) {
+    private fun CirDeclaration.collectTypes(): List<CirType?> = when (this) {
         is CirFunction -> listOf(extensionReceiver?.type) + valueParameters.map { it.returnType } + returnType
         is CirProperty -> listOf(extensionReceiver?.type, returnType)
-        else -> error("Unexpected CirFunctionOrProperty: $this")
+        is CirTypeAlias -> listOf(underlyingType)
+        else -> error("Unexpected CirDeclaration: $this")
     }
 
     private fun List<CirType?>.unwrapAll(): List<CirType?> =
@@ -244,6 +250,30 @@ internal class IntegerStatisticsVisitor(
 
         require(current is CirClassType)
         return current
+    }
+
+    private fun CirDeclaration.render(): String = when (this) {
+        is CirFunctionOrProperty -> render()
+        is CirTypeAlias -> render()
+        else -> error("Unexpected CirDeclaration: $this")
+    }
+
+    private fun CirTypeAlias.render(): String = buildString { renderTypeAlias(this@render) }
+
+    private fun StringBuilder.renderTypeAlias(typeAlias: CirTypeAlias) {
+//        renderAnnotations(function.annotations)
+        append("typealias ")
+        append(currentPackage.packageName.toString())
+        append("/")
+//        val containingClass = typeAlias.containingClass
+//        if (containingClass is CirClass) {
+//            append(containingClass.name.name)
+//            append("::")
+//        }
+        append(typeAlias.name)
+
+        append(" = ")
+        renderType(typeAlias.underlyingType)
     }
 
     private fun CirFunctionOrProperty.render(): String = buildString { renderFunctionOrProperty(this@render) }

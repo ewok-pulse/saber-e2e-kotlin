@@ -63,7 +63,7 @@ internal class CommonizationVisitor(
 //            return
 //        }
 
-//        integerStatisticsVisitor.visitFunctionOrPropertyNode(
+//        integerStatisticsVisitor.visitDeclarationNode(
 //            commonized,
 //            node.targetDeclarations,
 //            isOptimistic = commonizationValues.isNotEmpty(),
@@ -78,7 +78,7 @@ internal class CommonizationVisitor(
 //            return
 //        }
 
-//        integerStatisticsVisitor.visitFunctionOrPropertyNode(
+//        integerStatisticsVisitor.visitDeclarationNode(
 //            commonized,
 //            node.targetDeclarations,
 //            isOptimistic = commonizationValues.isNotEmpty(),
@@ -124,6 +124,17 @@ internal class CommonizationVisitor(
     }
 
     override fun visitTypeAliasNode(node: CirTypeAliasNode, data: Unit) {
-        node.commonDeclaration() // commonize type alias
+        commonizationValues.clear()
+        val commonized = node.commonDeclaration() ?: return // commonize type alias
+
+//        if (commonizationValues.isEmpty()) {
+//            return
+//        }
+
+//        integerStatisticsVisitor.visitDeclarationNode(
+//            commonized,
+//            node.targetDeclarations,
+//            isOptimistic = commonizationValues.isNotEmpty(),
+//        )
     }
 }

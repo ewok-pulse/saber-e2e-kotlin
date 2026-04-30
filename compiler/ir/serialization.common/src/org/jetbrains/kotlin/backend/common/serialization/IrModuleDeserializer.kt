@@ -104,7 +104,7 @@ abstract class IrModuleDeserializer(
     /**
      * Run deserialization of top-level declarations previously scheduled for deserialization in the current module.
      */
-    open fun deserializeReachableDeclarations() { error("Unsupported Operation") }
+    open fun deserializeReachableDeclarations() { }
 
     abstract val moduleFragment: IrModuleFragment
 

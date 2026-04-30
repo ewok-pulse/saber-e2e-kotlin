@@ -138,7 +138,7 @@ abstract class KotlinIrLinker(
         }
     }
 
-    private fun findDeserializedDeclarationForSymbol(symbol: IrSymbol): Boolean {
+    private fun findDeserializedDeclarationForSymbol(symbol: IrSymbol, deserializeDeclarationsFromOtherModules: Boolean): Boolean {
         if (!triedToDeserializeDeclarationForSymbol.add(symbol)) return false
 
         val signature = symbol.signature ?: return false
@@ -146,7 +146,11 @@ abstract class KotlinIrLinker(
             ?: return false
         moduleDeserializer.declareIrSymbol(symbol)
 
-        deserializeAllReachableTopLevels()
+        if (deserializeDeclarationsFromOtherModules) {
+            deserializeAllReachableTopLevels()
+        } else {
+            moduleDeserializer.deserializeReachableDeclarations()
+        }
 
         return symbol.isBound
     }
@@ -154,16 +158,19 @@ abstract class KotlinIrLinker(
     protected open fun platformSpecificSymbol(symbol: IrSymbol): Boolean = false
 
     override fun getDeclaration(symbol: IrSymbol): IrDeclaration? =
-        deserializeOrResolveDeclaration(symbol)
+        deserializeOrResolveDeclaration(symbol, true)
 
-    private fun deserializeOrResolveDeclaration(symbol: IrSymbol): IrDeclaration? {
+    fun getDeclarationWithoutTouchingOtherModules(symbol: IrSymbol): IrDeclaration? =
+        deserializeOrResolveDeclaration(symbol, false)
+
+    private fun deserializeOrResolveDeclaration(symbol: IrSymbol, deserializeDeclarationsFromOtherModules: Boolean): IrDeclaration? {
         if (!symbol.isPublicApi && symbol.hasDescriptor && !platformSpecificSymbol(symbol) &&
             symbol.descriptor.module !== currentModule
         ) return null
 
         if (!symbol.isBound) {
             try {
-                if (!findDeserializedDeclarationForSymbol(symbol)) return null
+                if (!findDeserializedDeclarationForSymbol(symbol, deserializeDeclarationsFromOtherModules)) return null
             } catch (e: IrSymbolTypeMismatchException) {
                 SymbolTypeMismatch(e).raiseIssue(messageCollector)
             }

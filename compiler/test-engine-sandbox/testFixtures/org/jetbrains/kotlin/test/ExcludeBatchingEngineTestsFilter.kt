@@ -13,7 +13,7 @@ import org.junit.platform.launcher.PostDiscoveryFilter
 import kotlin.jvm.optionals.getOrNull
 
 /**
- * Filters out tests inheriting [AbstractTwoStageKotlinCompilerTest] from engines other than
+ * Filters out tests inheriting [AbstractTwoStageKotlinCompilerTestBase] from engines other than
  * [CompilerTestGroupingTestEngine].
  *
  * This prevents the standard JUnit Jupiter engine from running tests that should
@@ -53,7 +53,7 @@ class ExcludeBatchingEngineTestsFilter : PostDiscoveryFilter {
 }
 
 internal fun Class<*>.isTwoStageKotlinCompilerTest(): Boolean {
-    val targetClass = AbstractTwoStageKotlinCompilerTest::class.java
+    val targetClass = AbstractTwoStageKotlinCompilerTestBase::class.java
     var currentClass: Class<*>? = this
     while (currentClass != null) {
         if (currentClass == targetClass) {

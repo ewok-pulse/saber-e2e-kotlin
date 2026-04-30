@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.test.services.StandardLibrariesPathProviderForKotlin
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInfo
 
-abstract class AbstractTwoStageKotlinCompilerTest {
+abstract class AbstractTwoStageKotlinCompilerTest : AbstractTwoStageKotlinCompilerTestBase() {
     val configurationBuilder: TwoPhaseTestConfigurationBuilder.() -> Unit = {
         commonConfiguration {
             AbstractKotlinCompilerTest.defaultConfiguration(this)
@@ -45,16 +45,16 @@ abstract class AbstractTwoStageKotlinCompilerTest {
 
 
     private lateinit var testInfo: KotlinTestInfo
-    lateinit var nonGroupingRunner: NonGroupingTestRunner
+    final override lateinit var nonGroupingRunner: NonGroupingTestRunner
         private set
 
-    var nonGroupingPhaseRunnerInitialized: Boolean = false
+    final override var nonGroupingPhaseRunnerInitialized: Boolean = false
         private set
 
-    lateinit var groupingPhaseRunner: GroupingTestRunner
+    final override lateinit var groupingPhaseRunner: GroupingTestRunner
         private set
 
-    var secondPhaseRunnerInitialized: Boolean = false
+    final override var secondPhaseRunnerInitialized: Boolean = false
         private set
 
     open fun createApplicationDisposableProvider(): ApplicationDisposableProvider {

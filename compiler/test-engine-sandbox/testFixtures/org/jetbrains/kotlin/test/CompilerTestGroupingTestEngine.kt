@@ -154,7 +154,7 @@ class CompilerTestGroupingTestEngine : TestEngine {
         methodContext.throwableCollector.execute { method.execute(methodContext, DynamicTestExecutorStub) }
         val testInstance = methodContext.extensionContext
             .requiredTestInstances
-            .findInstance(AbstractTwoStageKotlinCompilerTest::class.java)
+            .findInstance(AbstractTwoStageKotlinCompilerTestBase::class.java)
             .get()
 
         // If there is no `@TestMetadata` annotation, then this is some utility test (like `testAllFilesPresentIn`)
@@ -404,7 +404,7 @@ private class GroupingPhaseTestDescriptor(
 private data class TestMethodInfo(
     val descriptor: TestMethodTestDescriptor,
     val context: JupiterEngineExecutionContext,
-    val testInstance: AbstractTwoStageKotlinCompilerTest,
+    val testInstance: AbstractTwoStageKotlinCompilerTestBase,
 ) {
     val failed: Boolean
         get() = nonGroupingPhaseThrowableCollector.isNotEmpty

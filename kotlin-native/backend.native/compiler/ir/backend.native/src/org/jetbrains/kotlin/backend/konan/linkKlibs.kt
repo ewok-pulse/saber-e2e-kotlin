@@ -186,6 +186,8 @@ internal fun LinkKlibsContext.linkKlibs(
                 dependenciesCount = dependencies.size
             }
 
+            linker.init(mainModule)
+
             // When building a cache for a C-interop library, ensure all the C structs and enums defined there are loaded.
             // This is because there is a synthetic implementation generated for them (see IrImplementationGeneratorForCStructsAndEnumsK2),
             // which ends up being compiled into assembly code.
@@ -195,7 +197,6 @@ internal fun LinkKlibsContext.linkKlibs(
                 (cinteropModule.moduleDeserializer as? KonanInteropModuleDeserializerK2)?.deserializeAllCStructsAndEnums()
             }
 
-            linker.init(mainModule)
             ExternalDependenciesGenerator(linker.symbolTable, listOf(linker)).generateUnboundSymbolsAsDependencies()
             linker.postProcess(inOrAfterLinkageStep = true)
         }

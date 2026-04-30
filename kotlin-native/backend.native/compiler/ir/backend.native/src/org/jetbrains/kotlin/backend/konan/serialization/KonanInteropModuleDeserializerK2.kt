@@ -86,7 +86,6 @@ internal class KonanInteropModuleDeserializerK2(
     private val deserializedCallableDeclarations = mutableListOf<IrDeclarationWithName>()
     private val irPackagesByFqName = mutableMapOf<FqName, IrExternalPackageFragment>()
     private val typeDefinitionsFilesForPackage = mutableMapOf<IrExternalPackageFragment, IrFile>()
-    private val annotatedElementsToDeserializeLater = mutableMapOf<IrMutableAnnotationContainer, List<KmAnnotation>>()
 
     private fun IdSignature.isInteropSignature() = IdSignature.Flags.IS_NATIVE_INTEROP_LIBRARY.test()
 
@@ -232,11 +231,6 @@ internal class KonanInteropModuleDeserializerK2(
     override fun postProcess() {
         super.postProcess()
 
-        for ((element, annotations) in annotatedElementsToDeserializeLater) {
-            element.annotations = annotations.map { deserializeAnnotation(it) }
-        }
-        annotatedElementsToDeserializeLater.clear()
-
         // Unless it's a class, we cannot compute the actual signature for deserialized declarations right away,
         // and so cannot link the declarations with a particular signature, too.
         // So first, we only deserialize the "promising" declarations (by FQ name),
@@ -358,7 +352,7 @@ internal class KonanInteropModuleDeserializerK2(
 
         check(!(kmClass.isExternal && (parent as? IrClass)?.isExternal == false)) { "Inconsistent isExternal status of classes, need to account for that when creating" }
 
-        scheduleDeserializingAnnotations(clazz, kmClass.annotations)
+        clazz.annotations = kmClass.annotations.map { deserializeAnnotation(it) }
         clazz.superTypes = if (kmClass.supertypes.isNotEmpty()) {
             kmClass.supertypes.map { it.toIrType() }
         } else {
@@ -418,7 +412,7 @@ internal class KonanInteropModuleDeserializerK2(
             )
         }
 
-        scheduleDeserializingAnnotations(enumEntry, kmEnumEntry.annotations)
+        enumEntry.annotations = kmEnumEntry.annotations.map { deserializeAnnotation(it) }
 
         enumEntry.parent = parent
         return enumEntry
@@ -498,7 +492,7 @@ internal class KonanInteropModuleDeserializerK2(
         function.typeParameters = typeParametersById.values.sortedBy { it.index }
         function.typeParameters.forEach { it.parent = function }
 
-        scheduleDeserializingAnnotations(function, kmFunction.annotations)
+        function.annotations = kmFunction.annotations.map { deserializeAnnotation(it) }
 
         function.parent = parent
         deserializedCallableDeclarations += function
@@ -523,7 +517,7 @@ internal class KonanInteropModuleDeserializerK2(
         constructor.parameters = kmConstructor.valueParameters.map { deserializeRegularParameter(it, constructor, emptyMap()) }
         constructor.parameters.forEach { it.parent = constructor }
 
-        scheduleDeserializingAnnotations(constructor, kmConstructor.annotations)
+        constructor.annotations = kmConstructor.annotations.map { deserializeAnnotation(it) }
 
         constructor.parent = parent
         deserializedCallableDeclarations += constructor
@@ -559,7 +553,7 @@ internal class KonanInteropModuleDeserializerK2(
             }
         }
 
-        scheduleDeserializingAnnotations(property, kmProperty.annotations)
+        property.annotations = kmProperty.annotations.map { deserializeAnnotation(it) }
         require(kmProperty.typeParameters.isEmpty()) { TODO("Function type parameters") }
 
         property.parent = parent
@@ -617,7 +611,7 @@ internal class KonanInteropModuleDeserializerK2(
         }
         accessor.parameters.forEach { it.parent = accessor }
 
-        scheduleDeserializingAnnotations(accessor, kmAccessor.annotations)
+        accessor.annotations = kmAccessor.annotations.map { deserializeAnnotation(it) }
         require(kmProperty.typeParameters.isEmpty()) { TODO("Function type parameters") }
 
         accessor.parent = parent
@@ -643,7 +637,7 @@ internal class KonanInteropModuleDeserializerK2(
         if (kmParameter.declaresDefaultValue) {
             parameter.defaultValue = parameter.createStubDefaultValue()
         }
-        scheduleDeserializingAnnotations(parameter, kmParameter.annotations)
+        parameter.annotations = kmParameter.annotations.map { deserializeAnnotation(it) }
 
         parameter.parent = parent
         return parameter
@@ -664,7 +658,7 @@ internal class KonanInteropModuleDeserializerK2(
                 isNoinline = false,
                 isHidden = false,
         )
-        scheduleDeserializingAnnotations(parameter, kmAnnotations)
+        parameter.annotations = kmAnnotations.map { deserializeAnnotation(it) }
 
         parameter.parent = parent
         return parameter
@@ -719,15 +713,9 @@ internal class KonanInteropModuleDeserializerK2(
     }
 
 
-    private fun scheduleDeserializingAnnotations(element: IrMutableAnnotationContainer, annotations: List<KmAnnotation>) {
-        if (annotations.isNotEmpty()) {
-            annotatedElementsToDeserializeLater[element] = annotations
-        }
-    }
-
     private fun deserializeAnnotation(kmAnnotation: KmAnnotation): IrAnnotation {
         val annotationClassSymbol = findReferencedClass(kmAnnotation.className)
-        val annotationClass = linker.getDeclaration(annotationClassSymbol) as? IrClass
+        val annotationClass = linker.getDeclarationWithoutTouchingOtherModules(annotationClassSymbol) as? IrClass
         val constructor = annotationClass?.constructors?.singleOrNull()
         if (constructor == null) {
             // A proper annotation cannot be created, so make some stub to report it later.

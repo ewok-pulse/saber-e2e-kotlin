@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.android.tests
 import com.intellij.util.PlatformUtils
 import junit.framework.TestCase
 import junit.framework.TestSuite
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -16,6 +17,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.jetbrains.kotlin.android.tests.emulator.Emulator
 import org.jetbrains.kotlin.android.tests.gradle.GradleRunner
+import org.jetbrains.kotlin.android.tests.run.ProcessFailedException
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import org.junit.Assert
@@ -51,9 +53,10 @@ class CodegenTestsOnAndroidRunner private constructor(private val pathManager: P
 
             try {
                 emulator.waitEmulatorStart()
+                emulator.waitForInstallStabilization()
 
                 for (flavor in flavorsToRun) {
-                    gradleRunner.installAndroidDebugTest(flavor)
+                    installAndroidDebugTestWithRetry(gradleRunner, emulator, flavor)
                     val className = flavor.capitalizeAsciiOnly()
                     runTestsOnEmulator(emulator, className, TestSuite(className)).apply {
                         rootSuite.addTest(this)
@@ -178,6 +181,39 @@ class CodegenTestsOnAndroidRunner private constructor(private val pathManager: P
         return resultLines
     }
 
+    private suspend fun installAndroidDebugTestWithRetry(
+        gradleRunner: GradleRunner,
+        emulator: Emulator,
+        flavor: String,
+    ) {
+        var firstFailure: ProcessFailedException? = null
+
+        repeat(INSTALL_ATTEMPTS) { attemptIndex ->
+            val attempt = attemptIndex + 1
+            try {
+                gradleRunner.installAndroidDebugTest(flavor)
+                return
+            } catch (e: ProcessFailedException) {
+                emulator.dumpInstallDiagnostics(
+                    "Install for flavor $flavor failed on attempt $attempt/$INSTALL_ATTEMPTS: ${e.result}"
+                )
+
+                if (attempt == INSTALL_ATTEMPTS) {
+                    firstFailure?.let { e.addSuppressed(it) }
+                    throw e
+                }
+
+                if (firstFailure == null) {
+                    firstFailure = e
+                }
+
+                val retryDelay = emulator.installRetryDelay()
+                println("Waiting ${retryDelay.inWholeSeconds}s before retrying install for flavor $flavor...")
+                delay(retryDelay)
+            }
+        }
+    }
+
     private suspend fun runTestsOnEmulator(emulator: Emulator, className: String, suite: TestSuite): TestSuite {
         val platformPrefixProperty = System.setProperty(PlatformUtils.PLATFORM_PREFIX_KEY, "Idea")
         try {
@@ -195,6 +231,8 @@ class CodegenTestsOnAndroidRunner private constructor(private val pathManager: P
     }
 
     companion object {
+        private const val INSTALL_ATTEMPTS = 2
+
         private val flavorsToRun: List<String> = listOf(
             "common0", "common1", "common2", "common3", "common4", "reflect0",
         )

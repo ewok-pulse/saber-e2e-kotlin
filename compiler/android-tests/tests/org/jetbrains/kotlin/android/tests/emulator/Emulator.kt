@@ -203,6 +203,25 @@ class Emulator(private val pathManager: PathManager, private val platform: Strin
         }
     }
 
+    suspend fun waitForInstallStabilization() {
+        val stabilizationDelay = if (isRunningInCi) 15.seconds else Duration.ZERO
+        if (stabilizationDelay != Duration.ZERO) {
+            println("Waiting ${stabilizationDelay.inWholeSeconds}s for emulator services to settle before install...")
+            delay(stabilizationDelay)
+        }
+    }
+
+    fun installRetryDelay(): Duration =
+        if (isRunningInCi) 15.seconds else 5.seconds
+
+    suspend fun dumpInstallDiagnostics(reason: String) {
+        println("Dumping adb diagnostics: $reason")
+        runDiagnosticCommand("devices", "-l")
+        runDiagnosticCommand("shell", "getprop", "sys.boot_completed")
+        runDiagnosticCommand("shell", "getprop", "dev.bootcomplete")
+        runDiagnosticCommand("shell", "pm", "path", "android")
+    }
+
     private fun androidStartupTimeout(): Duration {
         val minutes = System.getenv("kotlin.tests.android.timeout")?.toLongOrNull() ?: 45L
         return minutes.minutes
@@ -223,6 +242,14 @@ class Emulator(private val pathManager: PathManager, private val platform: Strin
         )
         val execute = runProcessCancellable(adbCommand)
         return execute.stdout
+    }
+
+    private suspend fun runDiagnosticCommand(vararg parameters: String) {
+        val commandLine = createAdbCommand()
+        commandLine.addParameters(*parameters)
+        println("Diagnostic command: ${commandLine.commandLineString}")
+        val result = runProcessCancellable(commandLine, checkExitCode = false)
+        println("Diagnostic exit code: ${result.exitCode}")
     }
 
     companion object {

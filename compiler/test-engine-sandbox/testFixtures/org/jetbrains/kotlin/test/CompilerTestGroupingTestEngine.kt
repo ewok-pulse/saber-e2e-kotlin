@@ -309,7 +309,6 @@ class CompilerTestGroupingTestEngine : TestEngine {
         val engineDescriptor = JupiterEngineDescriptor(uniqueId, configuration)
         DiscoverySelectorResolver().resolveSelectors(discoveryRequest, engineDescriptor)
 
-        // Filter: keep only test classes annotated with @UseBatchingEngine (directly or inherited)
         filterDescriptor(engineDescriptor)
 
         return engineDescriptor
@@ -323,13 +322,8 @@ class CompilerTestGroupingTestEngine : TestEngine {
     }
 
     private fun shouldIncludeDescriptor(descriptor: TestDescriptor): Boolean {
-        // Always include container nodes (they'll be filtered recursively)
-        if (descriptor.isContainer && descriptor.children.isNotEmpty()) {
-            return true
-        }
-
-        if (descriptor.isContainer) {
-            val testClass = (descriptor as? ClassTestDescriptor)?.testClass
+        if (descriptor is ClassTestDescriptor) {
+            val testClass = descriptor.testClass
             if (testClass != null) {
                 return testClass.isTwoStageKotlinCompilerTest()
             }

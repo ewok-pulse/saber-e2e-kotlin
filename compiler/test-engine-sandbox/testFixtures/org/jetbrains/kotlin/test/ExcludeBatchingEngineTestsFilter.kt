@@ -26,7 +26,7 @@ class ExcludeBatchingEngineTestsFilter : PostDiscoveryFilter {
             return FilterResult.included("Batching engine test")
         }
 
-        // For other engines (e.g., junit-jupiter), exclude tests with @UseBatchingEngine
+        // For other engines (e.g., junit-jupiter), exclude tests not inheriting AbstractTwoStageKotlinCompilerTestBase
         if (shouldExclude(descriptor)) {
             return FilterResult.excluded("Test class uses @UseBatchingEngine annotation")
         }
@@ -35,7 +35,7 @@ class ExcludeBatchingEngineTestsFilter : PostDiscoveryFilter {
     }
 
     private fun shouldExclude(descriptor: TestDescriptor): Boolean {
-        // Check if this descriptor or any parent has @UseBatchingEngine
+        // Check if this descriptor or any parent inherits AbstractTwoStageKotlinCompilerTestBase
         var current: TestDescriptor? = descriptor
         while (current != null) {
             val testClass = when (current) {
@@ -53,13 +53,5 @@ class ExcludeBatchingEngineTestsFilter : PostDiscoveryFilter {
 }
 
 internal fun Class<*>.isTwoStageKotlinCompilerTest(): Boolean {
-    val targetClass = AbstractTwoStageKotlinCompilerTestBase::class.java
-    var currentClass: Class<*>? = this
-    while (currentClass != null) {
-        if (currentClass == targetClass) {
-            return true
-        }
-        currentClass = currentClass.superclass
-    }
-    return false
+    return AbstractTwoStageKotlinCompilerTestBase::class.java.isAssignableFrom(this)
 }

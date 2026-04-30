@@ -5,7 +5,9 @@
 
 package org.jetbrains.kotlin.backend.common.serialization.mangle
 
+import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.types.AbstractTypeChecker
 import org.jetbrains.kotlin.types.model.*
 
 /**
@@ -262,18 +264,30 @@ abstract class BaseKotlinMangleComputer<Declaration, Type, TypeParameter, ValueP
         }
     }
 
+    // FIXME: Use effective variance here according to the klib spec: `org.jetbrains.kotlin.types.AbstractTypeChecker.effectiveVariance(typeParameter.getVariance(), typeArgument.getVariance())`
+    // NOTE: If we start using effective variance instead of declared variance, we must take into account
+    // binary compatibility implications.
+    open val useEffectiveTypeVariances: Boolean get() = false
+
     protected fun mangleTypeArguments(tBuilder: StringBuilder, type: Type, declarationSiteSession: Session) =
         with(getTypeSystemContext(declarationSiteSession)) {
             val typeArguments = type.getArguments()
             if (typeArguments.isEmpty()) return
 
-            val typeArgumentsWithParameters = typeArguments.zip(type.typeConstructor().getParameters())
+            val typeParameters = if (useEffectiveTypeVariances) type.typeConstructor().getParameters() else null
             @Suppress("UNUSED_DESTRUCTURED_PARAMETER_ENTRY")
-            typeArgumentsWithParameters.collectForMangler(tBuilder, MangleConstant.TYPE_ARGUMENTS) { (typeArgument, typeParameter) ->
+            typeArguments.withIndex().collectForMangler(tBuilder, MangleConstant.TYPE_ARGUMENTS) { (index, typeArgument) ->
                 when {
                     typeArgument.isStarProjection() -> appendSignature(MangleConstant.STAR_MARK)
                     else -> {
-                        val variance = getVariance(typeArgument, typeParameter, this@with)
+                        val variance = if (useEffectiveTypeVariances) {
+                            val typeParameter = typeParameters!![index]
+                            AbstractTypeChecker.effectiveVariance(
+                                typeParameter.getVariance(), typeArgument.getVariance()
+                            ) ?: typeArgument.getVariance()
+                        } else {
+                            typeArgument.getVariance()
+                        }
                         if (variance != TypeVariance.INV) {
                             appendSignature(variance.presentation)
                             appendSignature(MangleConstant.VARIANCE_SEPARATOR)
@@ -285,17 +299,4 @@ abstract class BaseKotlinMangleComputer<Declaration, Type, TypeParameter, ValueP
                 }
             }
         }
-
-    protected open fun getVariance(
-        typeArgument: TypeArgumentMarker,
-        typeParameter: TypeParameterMarker,
-        c: TypeSystemContext,
-    ): TypeVariance {
-        // FIXME: Use effective variance here according to the klib spec: `org.jetbrains.kotlin.types.AbstractTypeChecker.effectiveVariance(typeParameter.getVariance(), typeArgument.getVariance())`
-        // NOTE: If we start using effective variance instead of declared variance, we must take into account
-        // binary compatibility implications.
-        with(c) {
-            return typeArgument.getVariance()
-        }
-    }
 }

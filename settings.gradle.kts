@@ -435,7 +435,6 @@ include(
     ":libraries:tools:abi-validation:abi-tools-api",
     ":libraries:tools:abi-validation:abi-tools-embeddable",
     ":libraries:tools:abi-validation:abi-tools-tests",
-    ":libraries:tools:abi-validation:kgp-integration-tests"
 )
 
 include(

@@ -1065,6 +1065,80 @@ public class ContextCollectorSourceTestGenerated extends AbstractContextCollecto
   }
 
   @Nested
+  @TestMetadata("analysis/low-level-api-fir/testData/contextCollector/expressionStability")
+  @TestDataPath("$PROJECT_ROOT")
+  public class ExpressionStability {
+    private void run(String fileName) {
+      runTest("analysis/low-level-api-fir/testData/contextCollector/expressionStability/" + fileName);
+    }
+
+    @Test
+    public void testAllFilesPresentInExpressionStability() {
+      KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("analysis/low-level-api-fir/testData/contextCollector/expressionStability"), Pattern.compile("^(.+)\\.(kt)$"), null, true);
+    }
+
+    @Test
+    @TestMetadata("stableBoundLocalValSmartCast.kt")
+    public void testStableBoundLocalValSmartCast() {
+      run("stableBoundLocalValSmartCast.kt");
+    }
+
+    @Test
+    @TestMetadata("stableLocalVal.kt")
+    public void testStableLocalVal() {
+      run("stableLocalVal.kt");
+    }
+
+    @Test
+    @TestMetadata("stablePublicVal.kt")
+    public void testStablePublicVal() {
+      run("stablePublicVal.kt");
+    }
+
+    @Test
+    @TestMetadata("stableQualifiedPropertySmartCast.kt")
+    public void testStableQualifiedPropertySmartCast() {
+      run("stableQualifiedPropertySmartCast.kt");
+    }
+
+    @Test
+    @TestMetadata("stableSmartCast.kt")
+    public void testStableSmartCast() {
+      run("stableSmartCast.kt");
+    }
+
+    @Test
+    @TestMetadata("unstableCapturedLocalVar.kt")
+    public void testUnstableCapturedLocalVar() {
+      run("unstableCapturedLocalVar.kt");
+    }
+
+    @Test
+    @TestMetadata("unstableCustomGetter.kt")
+    public void testUnstableCustomGetter() {
+      run("unstableCustomGetter.kt");
+    }
+
+    @Test
+    @TestMetadata("unstableDelegatedVal.kt")
+    public void testUnstableDelegatedVal() {
+      run("unstableDelegatedVal.kt");
+    }
+
+    @Test
+    @TestMetadata("unstableOpenVal.kt")
+    public void testUnstableOpenVal() {
+      run("unstableOpenVal.kt");
+    }
+
+    @Test
+    @TestMetadata("unstablePublicVar.kt")
+    public void testUnstablePublicVar() {
+      run("unstablePublicVar.kt");
+    }
+  }
+
+  @Nested
   @TestMetadata("analysis/low-level-api-fir/testData/contextCollector/repl")
   @TestDataPath("$PROJECT_ROOT")
   public class Repl {

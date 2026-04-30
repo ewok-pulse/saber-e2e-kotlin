@@ -99,6 +99,20 @@ public class ContextCollectorScriptTestGenerated extends AbstractContextCollecto
   }
 
   @Nested
+  @TestMetadata("analysis/low-level-api-fir/testData/contextCollector/expressionStability")
+  @TestDataPath("$PROJECT_ROOT")
+  public class ExpressionStability {
+    private void run(String fileName) {
+      runTest("analysis/low-level-api-fir/testData/contextCollector/expressionStability/" + fileName);
+    }
+
+    @Test
+    public void testAllFilesPresentInExpressionStability() {
+      KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("analysis/low-level-api-fir/testData/contextCollector/expressionStability"), Pattern.compile("^(.+)\\.(kts)$"), null, true);
+    }
+  }
+
+  @Nested
   @TestMetadata("analysis/low-level-api-fir/testData/contextCollector/repl")
   @TestDataPath("$PROJECT_ROOT")
   public class Repl {

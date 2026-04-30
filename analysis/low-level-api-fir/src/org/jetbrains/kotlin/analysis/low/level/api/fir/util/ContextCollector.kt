@@ -33,7 +33,9 @@ import org.jetbrains.kotlin.fir.resolve.SessionHolderImpl
 import org.jetbrains.kotlin.fir.resolve.calls.ImplicitValue
 import org.jetbrains.kotlin.fir.resolve.dfa.DataFlowAnalyzerContext
 import org.jetbrains.kotlin.fir.resolve.dfa.FirLocalVariableAssignmentAnalyzer
+import org.jetbrains.kotlin.fir.resolve.dfa.Flow
 import org.jetbrains.kotlin.fir.resolve.dfa.RealVariable
+import org.jetbrains.kotlin.fir.resolve.dfa.VariableStorage
 import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CFGNode
 import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CfgInternals
 import org.jetbrains.kotlin.fir.resolve.dfa.cfg.ClassExitNode
@@ -80,12 +82,16 @@ object ContextCollector {
      *
      * @param smartCasts a list of smart-casts (potentially) available to the context element. Note that only smart casts with a
      * [SmartcastStability.STABLE_VALUE] [SmartCast.stability] impact data flow.
-     * Check the "Smart cast sink stability" in the Kotlin language specification.
+     * Check the ["Smart cast sink stability"](https://kotlinlang.org/spec/type-inference.html#smart-cast-sink-stability) in the Kotlin language specification.
      * Unstable smart casts are still provided for more precise checking and diagnosing.
+     *
+     * @param expressionStability the smart-cast sink stability of the expression corresponding to this context, if the expression can be
+     * represented as a real data-flow variable.
      */
     class Context(
         val towerDataContext: FirTowerDataContext,
         val smartCasts: List<SmartCast>,
+        val expressionStability: SmartcastStability? = null,
     )
 
     class SmartCast(
@@ -325,11 +331,16 @@ private class ContextCollectorVisitor(
         val implicitReceiverStack = context.towerDataContext.implicitValueStorage
 
         val cfgNode = getClosestControlFlowNode(fir, kind)
+        val flow = cfgNode?.flow
         val smartCasts = mutableListOf<ContextCollector.SmartCast>()
+        val expression = findExpression(fir)
+        val expressionStability = if (flow != null && expression != null) {
+            computeExpressionStability(expression, flow)
+        } else {
+            null
+        }
 
-        if (cfgNode != null) {
-            val flow = cfgNode.flow
-
+        if (flow != null) {
             val realVariables = flow.knownVariables.filterIsInstance<RealVariable>()
                 .sortedBy { it.symbol.memberDeclarationNameOrNull?.asString() }
 
@@ -376,7 +387,29 @@ private class ContextCollectorVisitor(
             }
         }
 
-        return Context(towerDataContextSnapshot, smartCasts)
+        return Context(towerDataContextSnapshot, smartCasts, expressionStability)
+    }
+
+    private fun findExpression(fir: FirElement): FirExpression? {
+        if (fir is FirExpression) {
+            return fir
+        }
+
+        val psi = fir.anchorPsi ?: return null
+        return parents.asReversed()
+            .filterIsInstance<FirExpression>()
+            .firstOrNull { it.anchorPsi == psi }
+    }
+
+    @OptIn(CfgInternals::class)
+    private fun computeExpressionStability(fir: FirExpression, flow: Flow): SmartcastStability? {
+        val storage = VariableStorage(bodyHolder.session)
+        val realVariable = storage.get(fir, createReal = true, unwrapAlias = { it }) as? RealVariable ?: return null
+        val targetTypes = flow.getTypeStatement(realVariable)?.upperTypes
+
+        return context(bodyHolder, context.dataFlowAnalyzerContext) {
+            realVariable.computeEffectiveStability(flow, targetTypes)
+        }
     }
 
     private fun getClosestControlFlowNode(fir: FirElement, kind: ContextKind): CFGNode<*>? {
@@ -1273,4 +1306,3 @@ private class ContextCollectorVisitor(
         }
     }
 }
-

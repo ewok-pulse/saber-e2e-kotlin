@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.test.services.TestServices
 import org.jetbrains.kotlin.test.services.assertions
+import org.jetbrains.kotlin.types.SmartcastStability
 
 abstract class AbstractContextCollectorTest : AbstractAnalysisApiBasedTest() {
     override fun doTestByMainFile(mainFile: KtFile, mainModule: KtTestModule, testServices: TestServices) {
@@ -92,6 +93,7 @@ private class FirDeclarationRendererWithPartialBodyResolveState : FirDeclaration
 internal object ElementContextRenderer {
     fun render(context: ContextCollector.Context, builder: StringBuilder) = with(builder) {
         renderTowerDataContext(context.towerDataContext)
+        renderExpressionStability(context.expressionStability)
         renderSmartCasts(context.smartCasts)
     }
 
@@ -217,6 +219,14 @@ internal object ElementContextRenderer {
         }
     }
 
+    private fun StringBuilder.renderExpressionStability(stability: SmartcastStability?) {
+        if (stability == null) {
+            return
+        }
+
+        append("Expression Stability: ").append(stability).appendLine()
+    }
+
     private fun StringBuilder.appendBlock(title: String? = null, block: StringBuilder.() -> Unit): StringBuilder {
         if (title != null) {
             appendLine(title)
@@ -272,4 +282,3 @@ abstract class AbstractContextCollectorScriptTest : AbstractContextCollectorTest
     override val configurator: AnalysisApiTestConfigurator =
         AnalysisApiFirCustomScriptDefinitionTestConfigurator(analyseInDependentSession = false)
 }
-

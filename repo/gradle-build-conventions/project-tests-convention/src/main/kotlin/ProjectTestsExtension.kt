@@ -79,6 +79,10 @@ abstract class ProjectTestsExtension(val project: Project) {
         project.tasks.withType(Test::class.java).configureEach { withDist() }
     }
 
+    fun withNativeImageDist() {
+        project.tasks.withType(Test::class.java).configureEach { withNativeImageDist() }
+    }
+
     fun withMockJdkRuntime() {
         project.tasks.withType(Test::class.java).configureEach { withMockJdkRuntime() }
     }

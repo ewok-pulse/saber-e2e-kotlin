@@ -8,6 +8,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.attributes.AttributeContainer
 import org.gradle.api.attributes.Usage
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.project
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -63,6 +64,16 @@ fun Test.withDist() {
         add(project.dependencies.project(path = ":kotlin-compiler", configuration = "distElements"))
     })
     addClasspathProperty(dist, TestCompilePaths.KOTLIN_DIST_PATH)
+}
+
+fun Test.withNativeImageDist() {
+    val nativeImageProject = project.rootProject.project(":kotlin-compiler-native-image")
+    val distDir = nativeImageProject.layout.buildDirectory.dir("dist/kotlinc-native-image")
+    dependsOn(":kotlin-compiler-native-image:kotlincNativeImageDist")
+    inputs.dir(distDir)
+        .withPropertyName("nativeImageDist")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+    systemProperty(TestCompilePaths.KOTLIN_NATIVE_IMAGE_DIST_PATH, distDir.get().asFile.absolutePath)
 }
 
 fun Test.withThirdPartyAnnotations() {

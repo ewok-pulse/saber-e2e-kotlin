@@ -88,6 +88,7 @@ import org.jetbrains.kotlin.resolve.jvm.modules.JavaModuleResolver
 import org.jetbrains.kotlin.resolve.lazy.declarations.CliDeclarationProviderFactoryService
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactoryService
 import org.jetbrains.kotlin.serialization.DescriptorSerializerPlugin
+import org.jetbrains.kotlin.utils.isGraalNativeImageRuntime
 import java.io.File
 
 class KotlinCoreEnvironment private constructor(
@@ -172,8 +173,10 @@ class KotlinCoreEnvironment private constructor(
 
         fun registerExtensionsFromPlugins(configuration: CompilerConfiguration) {
             if (!extensionRegistered) {
-                registerPluginExtensionPoints(project)
-                registerExtensionsFromPlugins(project, configuration)
+                if (!isGraalNativeImageRuntime) {
+                    registerPluginExtensionPoints(project)
+                    registerExtensionsFromPlugins(project, configuration)
+                }
                 extensionRegistered = true
             }
         }

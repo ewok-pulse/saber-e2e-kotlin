@@ -336,6 +336,7 @@ fun Project.configureTests() {
             ":kotlin-build-common",
             ":kotlin-compiler-client-embeddable",
             ":kotlin-compiler-embeddable",
+            ":kotlin-compiler-native-image",
             ":kotlin-daemon-client",
             ":kotlin-gradle-plugin",
             ":kotlin-gradle-plugin-dsl-codegen",

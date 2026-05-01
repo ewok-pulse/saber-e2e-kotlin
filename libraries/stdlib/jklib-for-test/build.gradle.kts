@@ -162,6 +162,7 @@ fun JavaExec.configureJklibCompilation(
         include("**/*.kt")
     }
     inputs.files(sourceTree)
+    inputs.files(jklibCompilerClasspath).withPropertyName("jklibCompilerClasspath")
     outputs.file(klibOutput)
 
     doFirst {
@@ -184,6 +185,8 @@ fun JavaExec.configureJklibCompilation(
             "-module-name", "kotlin-stdlib",
             "-Xstdlib-compilation",
             "-d", outputPath,
+
+
             "-Xmulti-platform",
             "-opt-in=kotlin.contracts.ExperimentalContracts",
             "-opt-in=kotlin.ExperimentalMultiplatform",

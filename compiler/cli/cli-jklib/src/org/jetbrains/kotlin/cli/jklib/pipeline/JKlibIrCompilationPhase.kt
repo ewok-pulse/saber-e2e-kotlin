@@ -50,7 +50,7 @@ import org.jetbrains.kotlin.ir.util.ExternalDependenciesGenerator
 import org.jetbrains.kotlin.ir.util.SymbolTable
 import org.jetbrains.kotlin.konan.file.File
 import org.jetbrains.kotlin.library.KotlinLibrary
-import org.jetbrains.kotlin.library.isJklibStdlib
+import org.jetbrains.kotlin.library.isAnyPlatformStdlib
 import org.jetbrains.kotlin.library.loader.KlibLoader
 import org.jetbrains.kotlin.library.loader.reportLoadingProblemsIfAny
 import org.jetbrains.kotlin.library.metadata.KlibMetadataFactories
@@ -84,6 +84,15 @@ object JKlibIrCompilationPhase :
         val projectEnvironment = input.projectEnvironment
 
         val klibFiles = configuration.getList(JVMConfigurationKeys.KLIB_PATHS) + klib.absolutePath
+        for (klibPath in klibFiles) {
+            val file = java.io.File(klibPath)
+            if (file.exists()) {
+                println("DEBUG [JKlibIrCompilationPhase]: FOUND KLIB path = $klibPath")
+            } else {
+                println("WARNING [JKlibIrCompilationPhase]: MISSING KLIB path = $klibPath")
+            }
+        }
+        
         val projectContext = ProjectContext(projectEnvironment.project, "TopDownAnalyzer for JKlib")
         val storageManager = projectContext.storageManager
         val builtIns = JvmBuiltIns(projectContext.storageManager, JvmBuiltIns.Kind.FROM_DEPENDENCIES)
@@ -100,7 +109,7 @@ object JKlibIrCompilationPhase :
                 klib,
                 configuration.languageVersionSettings,
                 storageManager,
-                if (klib.isJklibStdlib) null else builtIns,
+                if (klib.isAnyPlatformStdlib) null else builtIns,
                 lookupTracker = LookupTracker.DO_NOTHING,
             )
         }

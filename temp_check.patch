@@ -1,0 +1,10 @@
+--- compiler/jklib.tests/testFixtures/org/jetbrains/kotlin/jklib/test/irText/JKlibSourceRootConfigurator.kt
++++ compiler/jklib.tests/testFixtures/org/jetbrains/kotlin/jklib/test/irText/JKlibSourceRootConfigurator.kt
+@@ -21,6 +21,7 @@
+         configuration.addSourcesForDependsOnClosure(module, testServices)
+ 
+         val stdlibKlib = System.getProperty("kotlin.stdlib.jvm.ir.klib")
++        println("DEBUG: Found stdlibKlib property = $stdlibKlib")
+         if (stdlibKlib != null) {
+             configuration.put(JVMConfigurationKeys.KLIB_PATHS, listOf(stdlibKlib))
+         }

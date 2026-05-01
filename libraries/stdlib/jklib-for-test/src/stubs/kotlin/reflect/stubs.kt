@@ -15,17 +15,6 @@ public expect interface KClass<T : Any> : KClassifier {
 
 public expect interface KFunction<out R> : KCallable<R>, Function<R>
 
-public expect interface KFunction0<out R> : KFunction<R>, () -> R
-public expect interface KFunction1<in P1, out R> : KFunction<R>, (P1) -> R
-public expect interface KFunction2<in P1, in P2, out R> : KFunction<R>, (P1, P2) -> R
-public expect interface KFunction3<in P1, in P2, in P3, out R> : KFunction<R>, (P1, P2, P3) -> R
-
-public expect interface KSuspendFunction0<out R> : KFunction<R>, suspend () -> R
-public expect interface KSuspendFunction1<in P1, out R> : KFunction<R>, suspend (P1) -> R
-public expect interface KSuspendFunction2<in P1, in P2, out R> : KFunction<R>, suspend (P1, P2) -> R
-public expect interface KSuspendFunction3<in P1, in P2, in P3, out R> : KFunction<R>, suspend (P1, P2, P3) -> R
-
-
 public expect interface KProperty<out V> : KCallable<V>
 public expect interface KMutableProperty<V> : KProperty<V>
 

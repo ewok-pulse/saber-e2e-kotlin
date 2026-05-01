@@ -13,17 +13,6 @@ public actual interface KClass<T : Any> : KClassifier {
 
 public actual interface KFunction<out R> : KCallable<R>, Function<R>
 
-public actual interface KFunction0<out R> : KFunction<R>, () -> R
-public actual interface KFunction1<in P1, out R> : KFunction<R>, (P1) -> R
-public actual interface KFunction2<in P1, in P2, out R> : KFunction<R>, (P1, P2) -> R
-public actual interface KFunction3<in P1, in P2, in P3, out R> : KFunction<R>, (P1, P2, P3) -> R
-
-public actual interface KSuspendFunction0<out R> : KFunction<R>, suspend () -> R
-public actual interface KSuspendFunction1<in P1, out R> : KFunction<R>, suspend (P1) -> R
-public actual interface KSuspendFunction2<in P1, in P2, out R> : KFunction<R>, suspend (P1, P2) -> R
-public actual interface KSuspendFunction3<in P1, in P2, in P3, out R> : KFunction<R>, suspend (P1, P2, P3) -> R
-
-
 public actual interface KProperty<out V> : KCallable<V>
 public actual interface KMutableProperty<V> : KProperty<V>
 

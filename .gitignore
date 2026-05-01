@@ -70,3 +70,4 @@ kotlin-ide/
 **/xcuserdata
 .test-federation.*
 .obsidian
+libraries/stdlib/design/*/review

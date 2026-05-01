@@ -9,7 +9,7 @@ set -euo pipefail
 
 # The implementation begins at this commit (inclusive).
 # The reviewer sees `git diff ${START_COMMIT}^..HEAD`.
-START_COMMIT="a204bd5063c60d21c42aad0a03d3411e776bfacc"
+START_COMMIT="49b200d892400ca81996f7125bfdb4d9f3d82a62"
 
 # Path prefixes Claude is allowed to modify. Anything else is reverted.
 ALLOWED_PATH_PREFIXES=(

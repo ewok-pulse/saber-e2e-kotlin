@@ -51,7 +51,7 @@ In the current generator [`libraries/tools/kotlin-stdlib-gen/src/templates/Aggre
 - `allEqual()` for `DoubleArray` / `FloatArray` compares elements via `compareTo == 0`.
 - `allEqual()` for `Iterable<T>`, `Sequence<T>`, `Array<T>`, the rest of the primitive arrays, and unsigned arrays uses ordinary `!=`.
 - `allEqualBy()` compares selector results as values of type `K`, i.e. via ordinary `!=`. Because `K` is a generic type parameter, the comparison goes through structural equality even when the selector returns `Double` / `Float` — so the floating-point behavior is the same as for the boxed-element overloads of `allEqual()`, regardless of the receiver type. In particular, on a `DoubleArray` / `FloatArray`, `allEqualBy { it }` follows the generic-selector equality path rather than `allEqual()`'s primitive `compareTo == 0` implementation, but it gives the same answer.
-- `allEqualWith()` currently doesn't define any floating-point semantics of its own: that's entirely determined by the user's predicate. It is not part of the final API rationale here, because the current plan is to remove it before finalizing the `allEqual` family.
+- `allEqualWith()` currently doesn't define any floating-point semantics of its own: that's entirely determined by the user's predicate. It is not part of the final API rationale here, because the design meeting (2026-04-29) decided to remove it before finalizing the `allEqual` family.
 
 All overloads return `true` for empty (vacuously) and single-element receivers.
 
@@ -408,7 +408,7 @@ That is, treat the default behavior for floating-point values as aligned with Ko
 
 Remove it from the final API.
 
-The current implementation makes `allEqualWith()` an explicit user-defined predicate hook, so it does not have default floating-point semantics of its own. However, it should not be used as the escape hatch in the final design: its main useful case is referential equality, and it is a poor fit for epsilon-style floating-point comparison because such predicates are usually not equivalence relations.
+The current implementation makes `allEqualWith()` an explicit user-defined predicate hook, so it does not have default floating-point semantics of its own. However, it should not be used as the escape hatch in the final design: the originally-cited motivator was referential equality, and it is a poor fit for epsilon-style floating-point comparison because such predicates are usually not equivalence relations. The full use-case investigation that informed the removal decision is in [`Removing allEqualWith from the allEqual family`](Removing-allEqualWith-from-the-allEqual-family.md).
 
 Consequently, samples and final API documentation should not rely on `allEqualWith()` as the way to obtain IEEE behavior.
 

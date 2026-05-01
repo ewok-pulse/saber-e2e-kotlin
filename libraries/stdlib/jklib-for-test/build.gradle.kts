@@ -35,7 +35,7 @@ dependencies {
     substrateStdlibCompilerDependencies(commonDependency("com.fasterxml:aalto-xml"))
 }
 
-val outputKlib = layout.buildDirectory.file("libs/kotlin-stdlib-jvm-ir.klib")
+val outputKlib = layout.buildDirectory.file("libs/kotlin-stdlib-jklib-for-test.klib")
 
 val copyMinimalSources by tasks.registering(Sync::class) {
     dependsOn(":prepare:build.version:writeStdlibVersion")

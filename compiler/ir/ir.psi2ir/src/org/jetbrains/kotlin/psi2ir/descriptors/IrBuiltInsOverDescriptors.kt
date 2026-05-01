@@ -57,7 +57,11 @@ class IrBuiltInsOverDescriptors(
             }
         set(value) {
             synchronized(this) {
-                _functionFactory = value
+                if (_functionFactory != null) {
+                    error("functionFactory already set")
+                } else {
+                    _functionFactory = value
+                }
             }
         }
 

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.ir.backend.jklib
 
 import org.jetbrains.kotlin.backend.common.serialization.*
+import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.IrDiagnosticReporter
 
 class JKlibGlobalDeclarationTable : GlobalDeclarationTable(JKlibIrMangler())
@@ -17,7 +18,6 @@ class JKlibModuleSerializer(
     settings, diagnosticReporter
 ) {
     override val globalDeclarationTable = JKlibGlobalDeclarationTable()
-
 
     override fun createFileSerializer(settings: IrSerializationSettings): IrFileSerializer =
         IrFileSerializer(settings, DeclarationTable.Default(globalDeclarationTable))

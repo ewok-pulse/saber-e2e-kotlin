@@ -9,6 +9,8 @@ package org.jetbrains.kotlin.ir.backend.jklib
 import org.jetbrains.kotlin.backend.common.overrides.IrLinkerFakeOverrideProvider
 import org.jetbrains.kotlin.backend.common.serialization.*
 import org.jetbrains.kotlin.backend.common.serialization.encodings.BinarySymbolData
+import org.jetbrains.kotlin.backend.common.serialization.knownBuiltins
+import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.builtins.jvm.JvmBuiltInsSignatures
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -70,8 +72,7 @@ class JKlibIrLinker(
         partialLinkageSupport = partialLinkageSupport,
     )
 
-    override fun isBuiltInModule(moduleDescriptor: ModuleDescriptor): Boolean =
-        moduleDescriptor === moduleDescriptor.builtIns.builtInsModule
+    override fun isBuiltInModule(moduleDescriptor: ModuleDescriptor): Boolean = false
 
     override fun createModuleDeserializer(
         moduleDescriptor: ModuleDescriptor,
@@ -125,12 +126,13 @@ class JKlibIrLinker(
                 return symbol
             }
 
-            // This is needed to avoid unbound symbols for some kotlin.Int functions.
-            mappedClassSymbols[FqName("kotlin.Int")]?.owner?.declarations
-
             val funName = idSig.nameSegments.last()
             val mappedClassFqn = mappedClassFqnByFunctionName[funName] ?: return null
             val mappedClassSymbol = mappedClassSymbols[mappedClassFqn] ?: return null
+
+            if (!mappedClassSymbol.isBound) {
+                getDeclaration(mappedClassSymbol)
+            }
 
             for (declaration in mappedClassSymbol.owner.declarations) {
                 if (declaration.getNameWithAssert().asString() == funName) {
@@ -226,10 +228,22 @@ class JKlibIrLinker(
 
         private val deserializedSymbols = mutableMapOf<IdSignature, IrSymbol>()
 
+        override fun contains(idSig: IdSignature): Boolean {
+            if (idSig.render().contains("kotlin.internal.ir")) return true
+            return super.contains(idSig)
+        }
+
         override fun tryDeserializeIrSymbol(
             idSig: IdSignature,
             symbolKind: BinarySymbolData.SymbolKind,
         ): IrSymbol? = withKotlinBuiltinsHack(idSig) {
+            if (idSig.render().contains("kotlin.internal.ir")) {
+                println("DEBUG: INTERCEPTING ${idSig.render()}")
+                println("DEBUG: knownBuiltins: ${builtIns.knownBuiltins.map { (it as? IrSymbolOwner)?.symbol?.signature?.render() ?: "null" }}")
+                val builtin = builtIns.knownBuiltins.find { (it as? IrSymbolOwner)?.symbol?.signature == idSig }
+                if (builtin != null) return@withKotlinBuiltinsHack (builtin as IrSymbolOwner).symbol
+            }
+            
             super.tryDeserializeIrSymbol(idSig, symbolKind)?.let {
                 return@withKotlinBuiltinsHack it
             }

@@ -50,7 +50,7 @@ import org.jetbrains.kotlin.ir.util.ExternalDependenciesGenerator
 import org.jetbrains.kotlin.ir.util.SymbolTable
 import org.jetbrains.kotlin.konan.file.File
 import org.jetbrains.kotlin.library.KotlinLibrary
-import org.jetbrains.kotlin.library.isAnyPlatformStdlib
+import org.jetbrains.kotlin.library.isJklibStdlib
 import org.jetbrains.kotlin.library.loader.KlibLoader
 import org.jetbrains.kotlin.library.loader.reportLoadingProblemsIfAny
 import org.jetbrains.kotlin.library.metadata.KlibMetadataFactories
@@ -68,7 +68,14 @@ import org.jetbrains.kotlin.resolve.CompilerEnvironment
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.jvm.multiplatform.OptionalAnnotationPackageFragmentProvider
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
-
+import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
+import org.jetbrains.kotlin.ir.types.IrSimpleType
+import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeBuilder
+import org.jetbrains.kotlin.ir.types.impl.buildSimpleType
+import org.jetbrains.kotlin.ir.expressions.IrFunctionReference
+import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationWithName
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 object JKlibIrCompilationPhase :
     PipelinePhase<JKlibSerializationArtifact, JKlibIrCompilationArtifact>(
@@ -109,10 +116,16 @@ object JKlibIrCompilationPhase :
                 klib,
                 configuration.languageVersionSettings,
                 storageManager,
-                if (klib.isAnyPlatformStdlib) null else builtIns,
+                if (klib.isJklibStdlib) null else builtIns,
                 lookupTracker = LookupTracker.DO_NOTHING,
             )
         }
+
+        val stdlibKlib = sortedDependencies.find { it.isJklibStdlib }
+        val stdlibDescriptor = stdlibKlib?.let { dependencyDescriptorsByKlib[it] }
+        stdlibDescriptor?.let {
+            builtIns.initialize(it, true)
+        } 
 
         val descriptors = dependencyDescriptorsByKlib.values + jarDepsModuleDescriptor
         descriptors.forEach { if (it != jarDepsModuleDescriptor) it.setDependencies(descriptors) }
@@ -160,7 +173,7 @@ object JKlibIrCompilationPhase :
             { DeserializationStrategy.ALL },
             jarDepsModuleDescriptor.name.asString(),
         )
-
+        
         lateinit var mainModuleFragment: IrModuleFragment
         for ((dep, descriptor) in dependencyDescriptorsByKlib) {
             when {
@@ -171,19 +184,14 @@ object JKlibIrCompilationPhase :
             }
         }
 
-        irBuiltIns.functionFactory = IrDescriptorBasedFunctionFactory(
-            irBuiltIns,
-            symbolTable,
-            typeTranslator,
-            getPackageFragment = null,
-            referenceFunctionsWhenKFunctionAreReferenced = true
-        )
-
         linker.init(null)
+        mainModuleFragment.transformChildrenVoid(JKlibCallableReferenceLowering(irBuiltIns))
         ExternalDependenciesGenerator(symbolTable, listOf(linker)).generateUnboundSymbolsAsDependencies()
         linker.postProcess(inOrAfterLinkageStep = true)
 
         linker.checkNoUnboundSymbols(symbolTable, "Found unbound symbol")
+
+        
 
         return JKlibIrCompilationArtifact(
             pluginContext,
@@ -279,5 +287,31 @@ private class SourceOrBinaryModuleClassResolver(private val sourceScope: GlobalS
         val resolver = if (javaClass is VirtualFileBoundJavaClass && javaClass.isFromSourceCodeInScope(sourceScope)) sourceCodeResolver
         else compiledCodeResolver
         return resolver.resolveClass(javaClass)
+    }
+}
+
+@OptIn(ObsoleteDescriptorBasedAPI::class)
+private class JKlibCallableReferenceLowering(
+    private val irBuiltIns: IrBuiltInsOverDescriptors
+) : IrElementTransformerVoid() {
+    override fun visitFunctionReference(expression: IrFunctionReference): IrExpression {
+        expression.transformChildrenVoid()
+        val type = expression.type as? IrSimpleType ?: return expression
+        val classifier = type.classifier
+        if (!classifier.isBound) return expression
+        val name = (classifier.owner as? IrDeclarationWithName)?.name?.asString() ?: return expression
+
+        if (name.startsWith("KFunction") || name.startsWith("KSuspendFunction")) {
+            val arity = type.arguments.size - 1
+            val isSuspend = name.startsWith("KSuspend")
+            val newClassifier = if (isSuspend) irBuiltIns.suspendFunctionN(arity).symbol else irBuiltIns.functionN(arity).symbol
+            expression.type = IrSimpleTypeBuilder().run {
+                this.classifier = newClassifier
+                this.arguments = type.arguments
+                this.nullability = type.nullability
+                buildSimpleType()
+            }
+        }
+        return expression
     }
 }

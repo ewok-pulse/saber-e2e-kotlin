@@ -4,10 +4,9 @@ I am working on [KT-10380 — `allEqual` function for `Iterable`](https://youtra
 
 ## Implementation already in place
 
-**Extension-method generators** in `libraries/tools/kotlin-stdlib-gen/src/templates/Aggregates.kt` — three template definitions:
+**Extension-method generators** in `libraries/tools/kotlin-stdlib-gen/src/templates/Aggregates.kt` — two template definitions:
 - `f_allEqual`
 - `f_allEqualBy`
-- `f_allEqualWith`
 
 **Generated extension methods** (output of the templates above) for `Iterable`, `Sequence`, and arrays:
 - `libraries/stdlib/common/src/generated/_Collections.kt`

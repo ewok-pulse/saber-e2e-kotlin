@@ -33,6 +33,12 @@ internal constructor(
     @get:InputFile
     @get:PathSensitive(NONE)
     @get:NormalizeLineEndings
+    val packageJson: Provider<RegularFile>
+        get() = npmToolingProjectDir.file("package.json")
+
+    @get:InputFile
+    @get:PathSensitive(NONE)
+    @get:NormalizeLineEndings
     val npmLockFile: Provider<RegularFile>
         get() = npmToolingProjectDir.file("package-lock.json")
 
@@ -54,6 +60,7 @@ internal constructor(
         val lockfileDir = outputDir.resolve(relativePathToBaseLockFilesDir.get())
 
         fs.sync { s ->
+            s.from(packageJson)
             s.from(npmLockFile) {
                 it.into("npm")
             }

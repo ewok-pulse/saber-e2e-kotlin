@@ -143,7 +143,8 @@ class KotlinKarma internal constructor(
         progressReporter = true,
         rules = project.objects.webpackRulesContainer(),
         experiments = mutableSetOf("topLevelAwait"),
-        resolveLoadersFromKotlinToolingDir = isWasm
+        resolveLoadersFromKotlinToolingDir = isWasm,
+        preserveImportMeta = !isWasm,
     )
 
     init {

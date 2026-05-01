@@ -61,6 +61,7 @@ data class KotlinWebpackConfig(
     var progressReporter: Boolean = false,
     var resolveFromModulesFirst: Boolean = false,
     var resolveLoadersFromKotlinToolingDir: Boolean = false,
+    var preserveImportMeta: Boolean = true,
 ) : WebpackRulesDsl {
 
     val entryInput: String?
@@ -301,6 +302,8 @@ data class KotlinWebpackConfig(
                 //language=JavaScript 1.8
                 appendLine("module.exports = config")
             }
+
+            appendOmittingImportMeta()
         }
     }
 
@@ -452,6 +455,33 @@ data class KotlinWebpackConfig(
             """.trimIndent()
         )
     }
+
+    private fun Appendable.appendOmittingImportMeta() {
+        if (preserveImportMeta) return
+
+        appendLine()
+
+        //language=JavaScript 1.8
+        appendLine(
+            """
+                // omit import.meta
+                config.module.rules.push({
+                        test: /\.m?js$/,
+                        use: [
+                            {
+                                loader: "string-replace-loader",
+                                options: {
+                                    search: /\bimport\.meta\b(?!\.url\b)/g,
+                                    replace: "({})",
+                                }
+                            },
+                        ],
+                });
+            """.trimIndent()
+        )
+        appendLine()
+    }
+
 
     private fun json(obj: Any) = StringWriter().also {
         GsonBuilder()

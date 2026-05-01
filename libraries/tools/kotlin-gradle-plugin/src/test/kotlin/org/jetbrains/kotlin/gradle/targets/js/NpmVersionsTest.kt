@@ -40,6 +40,7 @@ class NpmVersionsTest {
                 "sass-loader",
                 "source-map-loader",
                 "source-map-support",
+                "string-replace-loader",
                 "style-loader",
                 "@swc/helpers",
                 "to-string-loader",

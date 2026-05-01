@@ -296,7 +296,11 @@ abstract class WasmPackageManagerGradlePluginIT : KGPBaseTest() {
                     }
                 }
 
-                val toolingCustomDir = project.projectDir.resolve(toolingCustomDir)
+                val toolingCustomDir = project.projectDir.resolve(toolingCustomDir).apply {
+                    mkdirs()
+                }
+
+                toolingCustomDir.resolve("package.json").writeText(kgpPackageJsonFileContent)
 
                 if (isYarn) {
                     toolingCustomDir.resolve("yarn.lock").writeText(kgpYarnLockFileContent)
@@ -367,6 +371,10 @@ abstract class WasmPackageManagerGradlePluginIT : KGPBaseTest() {
     }
 
     companion object {
+        private val kgpPackageJsonFileContent: String by lazy {
+            NodeJsPlugin::class.loadResource("/org/jetbrains/kotlin/gradle/targets/js/package.json")
+        }
+
         private val kgpPackageLockJsonFileContent: String by lazy {
             NodeJsPlugin::class.loadResource("/org/jetbrains/kotlin/gradle/targets/js/npm/package-lock.json")
         }

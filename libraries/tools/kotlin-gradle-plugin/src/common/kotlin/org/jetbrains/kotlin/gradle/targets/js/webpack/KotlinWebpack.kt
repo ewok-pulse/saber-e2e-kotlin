@@ -20,6 +20,7 @@ import org.gradle.deployment.internal.DeploymentRegistry
 import org.gradle.process.ExecOperations
 import org.gradle.work.NormalizeLineEndings
 import org.jetbrains.kotlin.build.report.metrics.*
+import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.report.UsesBuildMetricsService
 import org.jetbrains.kotlin.gradle.targets.js.NpmVersions
@@ -233,6 +234,11 @@ internal constructor(
         compilation.platformType
     }
 
+    @get:Input
+    @get:Optional
+    @InternalKotlinGradlePluginApi
+    abstract val preserveImportMeta: Property<Boolean>
+
     /**
      * [forNpmDependencies] is used to avoid querying [outputDirectory] before task execution.
      * Otherwise, Gradle will fail the build.
@@ -251,7 +257,8 @@ internal constructor(
         devtool = devtool,
         sourceMaps = sourceMaps,
         resolveFromModulesFirst = resolveFromModulesFirst,
-        resolveLoadersFromKotlinToolingDir = getIsWasm.get()
+        resolveLoadersFromKotlinToolingDir = getIsWasm.get(),
+        preserveImportMeta = preserveImportMeta.getOrElse(!getIsWasm.get()),
     )
 
     private fun createRunner(): KotlinWebpackRunner {

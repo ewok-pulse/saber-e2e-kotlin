@@ -55,6 +55,7 @@ projectTests {
         "test",
         allowParallelExecution = true,
         requirePlatformLibs = true,
+        enableGroupingTestEngine = true,
     ) {
         val testTargetName = providers.gradleProperty("kotlin.internal.native.test.target")
             .orElse(providers.gradleProperty("kn.target"))

@@ -73,8 +73,8 @@ data class LlvmPipelineConfig(
                 if (dir.exists()) {
                     dir.resolve(phase) // This subdirectory does not have to exist: llvm will create it itself
                 } else {
-                    context.messageCollector.report(
-                            CompilerMessageSeverity.WARNING,
+                    context.diagnosticReporter.report(
+                            NativeBackendDiagnostics.LLVM_WARNING,
                             "Cannot dump LLVM IR to non-existent location: ${dir.absolutePath}")
                     null
                 }

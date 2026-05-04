@@ -111,10 +111,11 @@ abstract class AbstractAddContinuationToFunctionCallsLowering : BodyLoweringPass
         }
     }
 
-    private fun IrCall.throwLinkageError(file: PLFile): IrCall =
+    private fun IrCall.throwLinkageError(file: PLFile): IrCall = context(context.irBuiltIns) {
         context.partialLinkageSupport.throwLinkageError(
             SuspendableFunctionCallWithoutCoroutineContext(this),
             element = this,
             file
         )
+    }
 }

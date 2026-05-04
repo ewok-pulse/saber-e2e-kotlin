@@ -54,7 +54,7 @@ internal class PartiallyLinkedIrTreePatcher(
     private val PLModule.shouldBeSkipped: Boolean get() = this == PLModule.SyntheticBuiltInFunctions || this == stdlibModule
 
     // Used only to generate IR expressions that throw linkage errors.
-    private val supportForLowerings by lazy { PartialLinkageSupportForLoweringsImpl(builtIns, logger) }
+    private val supportForLowerings by lazy { PartialLinkageSupportForLoweringsImpl(logger) }
 
     val linkageIssuesLogged get() = supportForLowerings.linkageIssuesLogged
 
@@ -205,7 +205,7 @@ internal class PartiallyLinkedIrTreePatcher(
                 anonInitializer.body.statements.clear()
 
                 // Generate IR call that throws linkage error. Report compiler warning.
-                anonInitializer.body.statements += partialLinkageCase.throwLinkageError(anonInitializer)
+                anonInitializer.body.statements += with(builtIns) { partialLinkageCase.throwLinkageError(anonInitializer) }
 
                 // Finish processing of the current class.
                 declaration.typeParameters.forEach { tp ->
@@ -270,7 +270,7 @@ internal class PartiallyLinkedIrTreePatcher(
                 }
                 // IMPORTANT: Unlike it's done for IrSimpleFunction don't clean-up statements. Insert PL linkage as the first one.
                 // This is necessary to preserve anonymous initializer call and delegating constructor call in place.
-                blockBody.statements.add(0, partialLinkageCase.throwLinkageError(declaration, issueSignificance))
+                blockBody.statements.add(0, with(builtIns) { partialLinkageCase.throwLinkageError(declaration, issueSignificance) })
             }
 
             return declaration.transformChildren()
@@ -315,7 +315,7 @@ internal class PartiallyLinkedIrTreePatcher(
                 }
 
                 // Generate IR call that throws linkage error. Report compiler warning.
-                blockBody.statements += partialLinkageCase.throwLinkageError(declaration, issueSignificance)
+                blockBody.statements += with(builtIns) { partialLinkageCase.throwLinkageError(declaration, issueSignificance) }
 
                 // Don't remove inline functions, this may harm linkage in K/N backend with enabled static caches.
                 if (!declaration.isInline) {
@@ -469,6 +469,7 @@ internal class PartiallyLinkedIrTreePatcher(
             }
         }
 
+        context(irBuiltIns: IrBuiltIns)
         private fun PartialLinkageCase.throwLinkageError(
             declaration: IrDeclaration,
             significance: PartialLinkageIssueSignificance = PartialLinkageIssueSignificance.MAJOR,
@@ -631,9 +632,11 @@ internal class PartiallyLinkedIrTreePatcher(
         protected inline fun <T : IrExpression> T.maybeThrowLinkageError(
             significance: PartialLinkageIssueSignificance = PartialLinkageIssueSignificance.MAJOR,
             computePartialLinkageCase: T.() -> PartialLinkageCase?,
-        ): IrExpression = maybeThrowLinkageError(this@ExpressionTransformer, significance) {
-            computePartialLinkageCase() ?: checkExpressionType(type) // Check something that is always present in every expression.
-        }.also { onAfterMaybeThrowLinkageError() }
+        ): IrExpression = with(builtIns) {
+            maybeThrowLinkageError(this@ExpressionTransformer, significance) {
+                computePartialLinkageCase() ?: checkExpressionType(type) // Check something that is always present in every expression.
+            }.also { onAfterMaybeThrowLinkageError() }
+        }
 
         // Custom post-check. Can be overridden.
         protected open fun IrExpression.onAfterMaybeThrowLinkageError() = Unit
@@ -1238,16 +1241,18 @@ internal class PartiallyLinkedIrTreePatcher(
         ) { super.visitReturnableBlock(expression) }
 
         override fun visitReturn(expression: IrReturn) = withContext { context ->
-            expression.maybeThrowLinkageError(transformer = this@NonLocalReturnsPatcher) {
-                if (returnTargetSymbol !in context.validReturnTargets)
-                    IllegalNonLocalReturn(expression, context.validReturnTargets)
-                else
-                    null
+            with(builtIns) {
+                expression.maybeThrowLinkageError(transformer = this@NonLocalReturnsPatcher) {
+                    if (returnTargetSymbol !in context.validReturnTargets)
+                        IllegalNonLocalReturn(expression, context.validReturnTargets)
+                    else
+                        null
+                }
             }
-
         }
     }
 
+    context(irBuiltIns: IrBuiltIns)
     private inline fun <T : IrExpression> T.maybeThrowLinkageError(
         transformer: FileAwareIrElementTransformerVoid,
         significance: PartialLinkageIssueSignificance = PartialLinkageIssueSignificance.MAJOR,

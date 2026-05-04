@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.gradle.targets.js
 
 import org.jetbrains.kotlin.gradle.testing.prettyPrinted
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -50,5 +51,16 @@ class NpmVersionsTest {
             ).prettyPrinted,
             NpmVersions().allDependencies.map { it.name }.prettyPrinted,
         )
+    }
+
+    /**
+     * Ensure the Karma version points to Kotlin's Karma fork
+     * https://github.com/Kotlin/karma
+     */
+    @Test
+    fun `verify Karma version is resolved git url for Kotlin's fork`() {
+        val karmaVersion = NpmVersions().karma.version
+        val expectedPrefix = "git+ssh://git@github.com/Kotlin/karma.git#"
+        assertTrue(karmaVersion.startsWith(expectedPrefix), "Karma version should be a git url, but was $karmaVersion")
     }
 }

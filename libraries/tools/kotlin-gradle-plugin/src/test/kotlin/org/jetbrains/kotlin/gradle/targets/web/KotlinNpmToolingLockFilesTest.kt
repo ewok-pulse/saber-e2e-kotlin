@@ -17,9 +17,9 @@ import org.jetbrains.kotlin.gradle.testing.js.PackageJson
 import org.jetbrains.kotlin.gradle.testing.js.PackageLockJson
 import org.jetbrains.kotlin.gradle.testing.js.YarnLock
 import org.jetbrains.kotlin.gradle.testing.prettyPrinted
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNull
+import org.junit.jupiter.api.DynamicTest.dynamicTest
 import kotlin.io.path.Path
 import kotlin.io.path.readText
 import kotlin.test.assertEquals
@@ -145,28 +145,30 @@ class KotlinNpmToolingLockFilesTest {
      * Check all dependencies in [NpmVersions] are present in [packageLockJson],
      * with the expected version.
      */
-    @Test
-    fun `expect all dependencies in NpmVersions contain the resolved versions in npm lockfile`() {
-        val mapActualToExpected =
-            NpmVersions().allDependencies
-                // I don't know if there's a sensible way to check github versions?
-                .filter { !it.version.startsWith("github:") }
-                .associate { d ->
-                    val actual = "${d.name} : ${d.version}"
-                    val expected = packageLockJson.packages["node_modules/${d.name}"]?.let { pkg ->
-                        "${d.name} : ${pkg.version}"
+    @TestFactory
+    fun `expect all dependencies in NpmVersions use resolved versions from npm lockfile`(): Iterator<DynamicTest> {
+        return NpmVersions().allDependencies.map { d ->
+            dynamicTest(d.name) {
+                val actualVersion = d.version
+
+                val pkg = packageLockJson.packages["node_modules/${d.name}"]
+
+                assertNotNull(pkg, "Missing package-lock.json entry for ${d.name}")
+
+                val expectedVersion =
+                    if (pkg.resolved != null && pkg.resolved.startsWith("git+")) {
+                        pkg.resolved
+                    } else {
+                        pkg.version
                     }
-                    actual to expected
-                }
 
-        val mismatches = mapActualToExpected.filter { it.key != it.value }
-
-        assertTrue(mismatches.isEmpty()) {
-            buildString {
-                appendLine("Found mismatches between NpmVersions and package-lock.json:")
-                append(mismatches.entries.joinToString("\n") { (actual, expected) -> "$actual != $expected" })
+                assertEquals(
+                    expected = expectedVersion,
+                    actual = actualVersion,
+                    message = "version mismatch for ${d.name}: expected $expectedVersion, but was $actualVersion"
+                )
             }
-        }
+        }.iterator()
     }
 
     /**

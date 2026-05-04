@@ -23,6 +23,7 @@ internal data class PackageLockJson(
     @Serializable
     data class PackageEntry(
         val version: String? = null,
+        val resolved: String? = null,
         val dependencies: Map<String, String> = emptyMap(),
     )
 

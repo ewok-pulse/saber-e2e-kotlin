@@ -22,6 +22,7 @@ internal data class PackageLockJson(
     @Serializable
     data class Package(
         val version: String? = null,
+        val resolved: String? = null,
         val dependencies: Map<String, String> = emptyMap(),
         val devDependencies: Map<String, String> = emptyMap(),
         val peerDependencies: Map<String, String> = emptyMap(),

@@ -222,7 +222,7 @@ abstract class KotlinIrLinker(
 
         if (inOrAfterLinkageStep) {
             // Finally, generate stubs for the remaining unbound symbols and patch every usage of any unbound symbol inside the IR tree.
-            partialLinkageSupport.generateStubsAndPatchUsages(symbolTable)
+            partialLinkageSupport.generateStubsAndPatchUsages(builtIns, symbolTable)
             deserializersForModules.values.forEach { if (it is IrModuleDeserializerWithBuiltIns) it.finish(builtIns) }
         }
         // TODO: fix IrPluginContext to make it not produce additional external reference

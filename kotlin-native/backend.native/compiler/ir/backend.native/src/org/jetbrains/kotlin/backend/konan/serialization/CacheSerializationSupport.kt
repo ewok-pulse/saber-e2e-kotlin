@@ -146,7 +146,7 @@ internal class InlineFunctionDeserializer(
         linker.fakeOverrideBuilder.provideFakeOverrides()
 
         linker.partialLinkageSupport.enqueueDeclaration(function)
-        linker.partialLinkageSupport.generateStubsAndPatchUsages(linker.symbolTable)
+        linker.partialLinkageSupport.generateStubsAndPatchUsages(linker.builtIns, linker.symbolTable)
 
         linker.checkNoUnboundSymbols(
                 linker.symbolTable,

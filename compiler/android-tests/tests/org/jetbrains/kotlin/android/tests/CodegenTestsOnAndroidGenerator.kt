@@ -112,14 +112,14 @@ class CodegenTestsOnAndroidGenerator private constructor(private val pathManager
     private fun copyGradleWrapperAndPatch() {
         val projectRoot = File(pathManager.tmpFolder)
         val target = File(projectRoot, "gradle/wrapper")
-        File("./gradle/wrapper/").copyRecursively(target)
+        File(pathManager.kotlinRootFolder, "/gradle/wrapper/").copyRecursively(target)
         val gradlew = File(projectRoot, "gradlew")
-        File("./gradlew").copyTo(gradlew).also {
+        File(pathManager.kotlinRootFolder, "/gradlew").copyTo(gradlew).also {
             if (!SystemInfo.isWindows) {
                 it.setExecutable(true)
             }
         }
-        File("./gradlew.bat").copyTo(File(projectRoot, "gradlew.bat"))
+        File(pathManager.kotlinRootFolder, "/gradlew.bat").copyTo(File(projectRoot, "gradlew.bat"))
         val file = File(target, "gradle-wrapper.properties")
         file.readLines().map {
             when {
@@ -157,9 +157,9 @@ class CodegenTestsOnAndroidGenerator private constructor(private val pathManager
         println("Generating test files...")
 
         val folders = arrayOf(
-            File("compiler/testData/codegen/box"),
-            File("compiler/testData/codegen/boxJvm"),
-            File("compiler/testData/codegen/boxInline")
+            File(pathManager.kotlinRootFolder, "compiler/testData/codegen/box"),
+            File(pathManager.kotlinRootFolder, "compiler/testData/codegen/boxJvm"),
+            File(pathManager.kotlinRootFolder, "compiler/testData/codegen/boxInline")
         )
 
         generateTestMethodsForDirectories(commonFlavor, reflectFlavor, *folders)
@@ -387,7 +387,7 @@ class CodegenTestsOnAndroidGenerator private constructor(private val pathManager
                         continue
                     }
 
-                    patchFilesAndAddTest(file, module, services, filesHolder)
+                    patchFilesAndAddTest(file, module, services, filesHolder, pathManager)
                 }
             }
         }

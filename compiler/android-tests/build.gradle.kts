@@ -51,7 +51,6 @@ projectTests {
             testRetry.maxRetries.set(0)
         }
 
-        dependsOn(":dist")
         dependsOn(acceptAndroidSdkLicenses)
         val jdkHome = project.getToolchainJdkHomeFor(JdkMajorVersion.JDK_17_0)
         doFirst {
@@ -67,7 +66,6 @@ projectTests {
             systemProperty("kotlin.test.android.path.filter", it.toString())
         }
 
-        workingDir = rootDir
         androidSdkProvisioner {
             provideToThisTaskAsSystemProperty(ProvisioningType.SDK_WITH_EMULATOR)
         }
@@ -77,6 +75,7 @@ projectTests {
     withTestJar()
     withScriptRuntime()
     withMockJdkAnnotationsJar()
+    withMockJdkRuntime()
 }
 
 val generateAndroidTests by generator(

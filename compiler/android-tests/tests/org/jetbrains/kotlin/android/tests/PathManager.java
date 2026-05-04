@@ -19,15 +19,18 @@ package org.jetbrains.kotlin.android.tests;
 import org.jetbrains.kotlin.test.util.KtTestUtil;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 public class PathManager {
 
     private final String tmpFolder;
-    private final String rootFolder;
+    private final String androidTestsRootFolder;
+    private final String kotlinRootFolder;
 
-    public PathManager(String rootFolder, String tmpFolder) {
+    public PathManager(String androidTestsRootFolder, String tmpFolder) {
         this.tmpFolder = tmpFolder;
-        this.rootFolder = rootFolder;
+        this.androidTestsRootFolder = androidTestsRootFolder;
+        this.kotlinRootFolder = Paths.get(androidTestsRootFolder).toAbsolutePath().getParent().getParent().toString();
     }
 
     public String getPlatformFolderInAndroidSdk() {
@@ -73,10 +76,14 @@ public class PathManager {
     }
 
     public String getAndroidModuleRoot() {
-        return rootFolder + "/compiler/android-tests/android-module";
+        return androidTestsRootFolder + "/android-module";
     }
 
     public String getTmpFolder() {
         return tmpFolder;
+    }
+
+    public String getKotlinRootFolder() {
+        return kotlinRootFolder;
     }
 }

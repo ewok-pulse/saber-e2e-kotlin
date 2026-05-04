@@ -831,6 +831,8 @@ abstract class FirDataFlowAnalyzer(
 
     fun exitCheckNotNullCall(checkNotNullCall: FirCheckNotNullCall, callCompleted: Boolean) {
         graphBuilder.exitCheckNotNullCall(checkNotNullCall, callCompleted).mergeIncomingFlow { _, flow ->
+            @OptIn(UnresolvedExpressionTypeAccess::class) // Lambdas can have unresolved type here, similar to KT-61837
+            if (checkNotNullCall.argument.coneTypeOrNull is ConeDynamicType) return@mergeIncomingFlow
             val argumentVariable = flow.getVariableIfUsedOrReal(checkNotNullCall.argument) ?: return@mergeIncomingFlow
             flow.commitOperationStatement(argumentVariable notEq null)
         }

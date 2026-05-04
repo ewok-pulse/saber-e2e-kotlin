@@ -1,19 +1,22 @@
 /*
- * Copyright 2010-2024 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Copyright 2010-2026 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.test
+package org.jetbrains.kotlin.test.grouping
 
 import com.intellij.testFramework.TestDataFile
+import org.jetbrains.kotlin.test.ExecutionListenerBasedDisposableProvider
+import org.jetbrains.kotlin.test.GroupingTestRunner
+import org.jetbrains.kotlin.test.NonGroupingTestRunner
 import org.jetbrains.kotlin.test.backend.handlers.IrValidationErrorChecker
 import org.jetbrains.kotlin.test.builders.TwoPhaseTestConfigurationBuilder
-import org.jetbrains.kotlin.test.directives.ModuleStructureDirectives.ESCAPE_MODULE_NAME
-import org.jetbrains.kotlin.test.grouping.AbstractTwoStageKotlinCompilerTestBase
+import org.jetbrains.kotlin.test.directives.ModuleStructureDirectives
 import org.jetbrains.kotlin.test.model.ResultingArtifact
 import org.jetbrains.kotlin.test.runners.AbstractKotlinCompilerTest
 import org.jetbrains.kotlin.test.runners.toKotlinTestInfo
 import org.jetbrains.kotlin.test.services.ApplicationDisposableProvider
+import org.jetbrains.kotlin.test.services.BatchingPackageInserter
 import org.jetbrains.kotlin.test.services.KotlinStandardLibrariesPathProvider
 import org.jetbrains.kotlin.test.services.KotlinTestInfo
 import org.jetbrains.kotlin.test.services.StandardLibrariesPathProviderForKotlinProject
@@ -25,16 +28,18 @@ abstract class AbstractTwoStageKotlinCompilerTest : AbstractTwoStageKotlinCompil
         commonConfiguration {
             AbstractKotlinCompilerTest.defaultConfiguration(this)
             defaultDirectives {
-                +ESCAPE_MODULE_NAME
+                +ModuleStructureDirectives.ESCAPE_MODULE_NAME
             }
             useAdditionalService { createApplicationDisposableProvider() }
             useAdditionalService { createKotlinStandardLibrariesPathProvider() }
+            useSourcePreprocessor(::BatchingPackageInserter)
             useFailureSuppressors(::IrValidationErrorChecker)
         }
 
         nonGroupingPhase {
             startingArtifactFactory = { ResultingArtifact.Source() }
             testInfo = this@AbstractTwoStageKotlinCompilerTest.testInfo
+            useGroupingTestIsolators(::MutedTestsIsolator)
         }
 
         groupingPhase {

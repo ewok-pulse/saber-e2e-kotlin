@@ -38,10 +38,9 @@ import org.jetbrains.kotlin.test.directives.model.DirectivesContainer
 import org.jetbrains.kotlin.test.directives.model.singleOrZeroValue
 import org.jetbrains.kotlin.test.frontend.fir.FirMetaInfoDiffSuppressor
 import org.jetbrains.kotlin.test.frontend.fir.handlers.FirDiagnosticsHandler
-import org.jetbrains.kotlin.test.grouping.MutedTestsIsolator
+import org.jetbrains.kotlin.test.grouping.AbstractTwoStageKotlinCompilerTest
 import org.jetbrains.kotlin.test.model.ArtifactKinds
 import org.jetbrains.kotlin.test.model.GroupingTestIsolator
-import org.jetbrains.kotlin.test.services.BatchingPackageInserter
 import org.jetbrains.kotlin.test.services.CompilationStage
 import org.jetbrains.kotlin.test.services.TestModuleStructure
 import org.jetbrains.kotlin.test.services.TestServices
@@ -83,9 +82,6 @@ abstract class AbstractMyNativeTwoPhaseTest : AbstractTwoStageKotlinCompilerTest
                 ::NativeTestsSuppressor,
             )
 
-            // TODO(KT-84712): should be moved into `AbstractTwoStageKotlinCompilerTest`
-            useSourcePreprocessor(::BatchingPackageInserter)
-
             useAdditionalService { // Register TestRunSettings into TestServices
                 extensionContext.createTestRunSettings(extensionContext.computeBlackBoxTestInstances())
             }
@@ -100,7 +96,7 @@ abstract class AbstractMyNativeTwoPhaseTest : AbstractTwoStageKotlinCompilerTest
                 ::NativeFirstStageEnvironmentConfigurator,
             )
 
-            useGroupingTestIsolators(::NativeGroupingTestIsolator, ::MutedTestsIsolator)
+            useGroupingTestIsolators(::NativeGroupingTestIsolator)
 
             // Because of package escaping various dumps for grouping mode would be different from
             // the regular one, so we don't want all the frontend handlers to be set up, only some specific ones.

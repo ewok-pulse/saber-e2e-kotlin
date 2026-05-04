@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.fir.resolve.inference.model.ConeArgumentConstraintPo
 import org.jetbrains.kotlin.fir.resolve.inference.model.ConeExplicitTypeParameterConstraintPosition
 import org.jetbrains.kotlin.fir.resolve.inference.model.ConeReceiverConstraintPosition
 import org.jetbrains.kotlin.fir.resolve.inference.model.ConeRegularLambdaArgumentConstraintPosition
+import org.jetbrains.kotlin.fir.resolve.shouldBeResolvedInContextSensitiveMode
 import org.jetbrains.kotlin.fir.symbols.ConeTypeParameterLookupTag
 import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.fir.types.impl.ConeTypeParameterTypeImpl
@@ -141,7 +142,7 @@ internal object ArgumentCheckingProcessor {
                 is FirCallableReferenceAccess -> preprocessCallableReference(atom)
                 is FirPropertyAccessExpression ->
                     when {
-                        atom.expression.explicitReceiver == null ->
+                        atom.expression.explicitReceiver == null && atom.expression.shouldBeResolvedInContextSensitiveMode() ->
                             preprocessSimpleNameReferenceForContextSensitiveResolution(atom, atom.expression)
                         AnalysisFlags.ideMode.isSet() ->
                             preprocessQualifierWithContextSensitiveAlternative(atom, atom.expression)

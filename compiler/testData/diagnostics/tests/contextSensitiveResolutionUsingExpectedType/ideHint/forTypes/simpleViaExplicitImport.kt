@@ -15,16 +15,16 @@ import test.A.X
 import test.A.Y
 
 fun foo(a: A) {
-    if (a is X) {
+    if (a is <!DEBUG_INFO_CSR_MIGHT_BE_USED!>X<!>) {
         "".hashCode()
     }
 
-    if (a !is Y) {
+    if (a !is <!DEBUG_INFO_CSR_MIGHT_BE_USED!>Y<!>) {
         "".hashCode()
     }
 
-    val x = a as X
-    val y = a <!CAST_NEVER_SUCCEEDS!>as?<!> Y
+    val x = a as <!DEBUG_INFO_CSR_MIGHT_BE_USED!>X<!>
+    val y = a <!CAST_NEVER_SUCCEEDS!>as?<!> <!DEBUG_INFO_CSR_MIGHT_BE_USED!>Y<!>
 }
 
 /* GENERATED_FIR_TAGS: asExpression, classDeclaration, functionDeclaration, ifExpression, isExpression, localProperty,

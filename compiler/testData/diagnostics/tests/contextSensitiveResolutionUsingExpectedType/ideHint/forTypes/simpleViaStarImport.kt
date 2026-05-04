@@ -14,11 +14,11 @@ import test.A
 import test.A.*
 
 fun foo(a: A) {
-    if (a is X) {
+    if (a is <!DEBUG_INFO_CSR_MIGHT_BE_USED!>X<!>) {
         "".hashCode()
     }
 
-    if (a !is Y) {
+    if (a !is <!DEBUG_INFO_CSR_MIGHT_BE_USED!>Y<!>) {
         "".hashCode()
     }
 }

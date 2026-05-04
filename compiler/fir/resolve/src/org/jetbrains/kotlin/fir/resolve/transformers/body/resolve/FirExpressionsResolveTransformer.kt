@@ -264,6 +264,11 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
      * For expression in a form like `MyEnum.X` and mode=[ResolutionMode.WithExpectedType], it tries to resolve `X` via CSR and given
      *   expected type and adds non-fatal diagnostic if it's successful.
      *
+     * For a simple name like `X` that was resolved through a star or explicit import (e.g., `import MyEnum.*`), it likewise
+     *   either schedules the CSR alternative for the call completer ([ResolutionMode.ContextDependent]) or runs CSR immediately
+     *   ([ResolutionMode.WithExpectedType]) and adds the IDE hint when CSR resolves to the same symbol — so the IDE can detect
+     *   that the import is removable.
+     *
      * Effectively does nothing for other cases.
      *
      * @receiver resolved version of [original]
@@ -273,7 +278,6 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
         original: FirPropertyAccessExpression,
         mode: ResolutionMode
     ) {
-        if (original.explicitReceiver == null) return
         if (original.calleeReference is FirErrorNamedReference || original.calleeReference is FirNamedReferenceWithCandidate) return
         if (this !is FirResolvedQualifier && this !is FirPropertyAccessExpression) return
 
@@ -288,20 +292,16 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
             is ResolutionMode.UpdateImplicitTypeRef, is ResolutionMode.WithStatus -> error("Unexpected mode for expression: $mode")
         }
 
+        if (original.explicitReceiver == null) {
+            prepareCSRHintForSimpleNameResolvedViaImport(mode)
+            return
+        }
+
         if (this is FirPropertyAccessExpression && explicitReceiver !is FirResolvedQualifier) return
 
         val name = original.calleeReference.name
 
-        val simpleNameAlternative = buildPropertyAccessExpression {
-            explicitReceiver = null
-            source =
-                this@prepareContextSensitiveAlternativeIfNeeded.source?.fakeElement(KtFakeSourceElementKind.ContextSensitiveAlternative)
-            calleeReference = buildSimpleNamedReference {
-                this.name = name
-                source = this@prepareContextSensitiveAlternativeIfNeeded.source
-                    ?.fakeElement(KtFakeSourceElementKind.ReferenceForContextSensitiveAlternative)
-            }
-        }
+        val simpleNameAlternative = buildSimpleNameAlternative(name)
 
         val resolvedAlternative =
             context.withReturnTypeCalculator(ReturnTypeCalculator.AlreadyComputedOrError) {
@@ -333,6 +333,62 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
 
         return
     }
+
+    /**
+     * For an already-resolved simple name like `X` whose [FirResolvedNamedReference] origin is a star or explicit import
+     * (i.e., the import is something an IDE could remove), check whether CSR using the surrounding expected type would
+     * also resolve `X` to the same symbol, and emit the [ContextSensitiveResolutionMightBeUsed] IDE hint accordingly.
+     *
+     * For [ResolutionMode.WithExpectedType] (or any mode carrying a [ResolutionMode.hintForContextSensitiveResolution]),
+     * the CSR check happens immediately. For [ResolutionMode.ContextDependent], a fresh simple-name copy is set as the
+     * `contextSensitiveAlternative`; the postponed CSR-alternative atom then runs CSR + symbol comparison during call
+     * completion.
+     */
+    @FirIdeOnly
+    private fun FirExpression.prepareCSRHintForSimpleNameResolvedViaImport(mode: ResolutionMode) {
+        val (origin, simpleName) = when (this) {
+            is FirPropertyAccessExpression -> {
+                val ref = calleeReference as? FirResolvedNamedReference ?: return
+                ref.resolvedSymbolOrigin to ref.name
+            }
+            is FirResolvedQualifier -> {
+                val symbol = symbol ?: return
+                resolvedSymbolOrigin to symbol.classId.shortClassName
+            }
+            else -> return
+        }
+
+        if (origin != FirResolvedSymbolOrigin.StarImport && origin != FirResolvedSymbolOrigin.ExplicitImport) return
+
+        when {
+            mode is ResolutionMode.WithExpectedType || mode.hintForContextSensitiveResolution != null -> {
+                val expectedType = mode.hintForContextSensitiveResolution ?: mode.expectedType ?: return
+                val syntheticAccess = buildSimpleNameAlternative(simpleName)
+                context.withReturnTypeCalculator(ReturnTypeCalculator.AlreadyComputedOrError) {
+                    components.runContextSensitiveResolutionForPropertyAccess(syntheticAccess, expectedType)
+                }?.let { resolvedCSR ->
+                    appendCSRAlternativeDiagnosticIfNeeded(resolvedCSR)
+                }
+            }
+
+            mode is ResolutionMode.ContextDependent ->
+                // For context-dependent leave it for call completer: a fresh simple-name copy avoids a self-cycle in the FIR tree.
+                replaceContextSensitiveAlternative(buildSimpleNameAlternative(simpleName))
+
+            else -> error("CSR alternative computation might only be applied for WithExpectedType/ContextDependent, but $mode found")
+        }
+    }
+
+    private fun FirExpression.buildSimpleNameAlternative(name: Name): FirPropertyAccessExpression =
+        buildPropertyAccessExpression {
+            explicitReceiver = null
+            source = this@buildSimpleNameAlternative.source?.fakeElement(KtFakeSourceElementKind.ContextSensitiveAlternative)
+            calleeReference = buildSimpleNamedReference {
+                this.name = name
+                source = this@buildSimpleNameAlternative.source
+                    ?.fakeElement(KtFakeSourceElementKind.ReferenceForContextSensitiveAlternative)
+            }
+        }
 
     private fun FirExpression.addSmartcastIfNeeded(resolutionMode: ResolutionMode): FirExpression {
         // If we're resolving the LHS of an assignment, skip DFA to prevent the access being treated as a variable read and
@@ -1353,9 +1409,11 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
     }
 
     /**
-     * In IDE mode, for type operator calls whose conversion type ref was resolved normally via a qualified name (e.g., `A.X`),
-     * checks whether context-sensitive resolution could also resolve just the simple name.
-     * If so, appends [ContextSensitiveResolutionMightBeUsed] to [FirTypeOperatorCall.nonFatalDiagnostics].
+     * In IDE mode, for type operator calls whose conversion type ref was resolved normally — either via a qualified name
+     * (e.g., `A.X`) or via a simple name brought in by a star/explicit import (e.g., `import A.X` + `is X`) — checks whether
+     * context-sensitive resolution could also resolve just the simple name to the same class. If so, appends
+     * [ContextSensitiveResolutionMightBeUsed] to [FirTypeOperatorCall.nonFatalDiagnostics] so the IDE can shorten / drop
+     * the import.
      */
     @FirIdeOnly
     private fun FirTypeOperatorCall.prepareCSRHintForTypeOperatorIfNeeded() {
@@ -1364,34 +1422,41 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
         if (resolvedTypeRef is FirErrorTypeRef) return
         if (resolvedTypeRef.resolvedSymbolOrigin == FirResolvedSymbolOrigin.ContextSensitive) return
 
-        // Only applicable when the user wrote a qualified name (qualifier.size > 1)
         val userTypeRef = resolvedTypeRef.delegatedTypeRef as? FirUserTypeRef ?: return
-        if (userTypeRef.qualifier.size <= 1) return
-
         val argument = argumentList.arguments.singleOrNull() ?: return
 
-        val lastQualifierPart = userTypeRef.qualifier.last()
-        val simpleNameTypeRef = buildUserTypeRef {
-            source = userTypeRef.source
-            isMarkedNullable = userTypeRef.isMarkedNullable
-            qualifier.add(lastQualifierPart)
-        }
+        val simpleNameTypeRef = when {
+            // Qualified name like `A.X`: build a stripped simple-name version and verify it would NOT resolve normally
+            // (otherwise the user can already use the simple name without CSR).
+            userTypeRef.qualifier.size > 1 -> {
+                val lastQualifierPart = userTypeRef.qualifier.last()
+                val candidate = buildUserTypeRef {
+                    source = userTypeRef.source
+                    isMarkedNullable = userTypeRef.isMarkedNullable
+                    qualifier.add(lastQualifierPart)
+                }
+                val normalResolution = typeResolverTransformer.withBareTypes {
+                    typeResolverTransformer.transformTypeRef(
+                        candidate,
+                        TypeResolutionConfiguration(
+                            components.createCurrentScopeList(),
+                            context.containingClassDeclarations,
+                            context.file,
+                            context.topContainerForTypeResolution,
+                        )
+                    )
+                }
+                if (normalResolution !is FirErrorTypeRef || !normalResolution.diagnostic.meansAbsenceOfVisibleClass()) return
+                candidate
+            }
 
-        // First, check that the simple name does NOT resolve normally (i.e., no visible class with that name in scope).
-        // If it does resolve, the user can already use the simple name without CSR — no hint needed.
-        // If it resolves to some other visible class, CSR wouldn't apply.
-        val normalResolution = typeResolverTransformer.withBareTypes {
-            typeResolverTransformer.transformTypeRef(
-                simpleNameTypeRef,
-                TypeResolutionConfiguration(
-                    components.createCurrentScopeList(),
-                    context.containingClassDeclarations,
-                    context.file,
-                    context.topContainerForTypeResolution,
-                )
-            )
+            // Simple name resolved via a star or explicit import (e.g., `import A.X` + `is X`): the import is the only
+            // reason the simple name resolves; CSR would resolve it without the import. Reuse `userTypeRef` directly.
+            resolvedTypeRef.resolvedSymbolOrigin == FirResolvedSymbolOrigin.StarImport ||
+                    resolvedTypeRef.resolvedSymbolOrigin == FirResolvedSymbolOrigin.ExplicitImport -> userTypeRef
+
+            else -> return
         }
-        if (normalResolution !is FirErrorTypeRef || !normalResolution.diagnostic.meansAbsenceOfVisibleClass()) return
 
         val csrResolvedTypeRef = tryResolveTypeRefViaCSR(simpleNameTypeRef, argument) ?: return
         val resolvedClass = resolvedTypeRef.coneType.fullyExpandedType().toClassLikeSymbol(session) ?: return

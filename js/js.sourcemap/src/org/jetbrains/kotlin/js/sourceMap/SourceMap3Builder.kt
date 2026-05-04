@@ -151,7 +151,7 @@ class SourceMap3Builder(
         val nameIndex = name?.let(this::getNameIndex) ?: -1
 
         if (!currentMappingIsEmpty &&
-            source != JsLocation.Ignored.file &&
+            source != JsLocation.IGNORED.file &&
             previousSourceIndex == sourceIndex &&
             previousSourceLine == sourceLine &&
             previousSourceColumn == sourceColumn

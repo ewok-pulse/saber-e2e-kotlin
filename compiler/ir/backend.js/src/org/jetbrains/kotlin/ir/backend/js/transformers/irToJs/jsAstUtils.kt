@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.ir.backend.js.JsLoweredDeclarationOrigin
 import org.jetbrains.kotlin.ir.backend.js.JsStatementOrigins
 import org.jetbrains.kotlin.ir.backend.js.ir.isBridge
 import org.jetbrains.kotlin.ir.backend.js.lower.ENUM_ENTRIES_INITIALIZER_ORIGIN
+import org.jetbrains.kotlin.ir.backend.js.lower.SecondaryConstructorLowering
 import org.jetbrains.kotlin.ir.backend.js.lower.WebCallableReferenceLowering
 import org.jetbrains.kotlin.ir.backend.js.lower.coroutines.isProxyParameterWithDefaultForExportedSuspendFunction
 import org.jetbrains.kotlin.ir.backend.js.lower.coroutines.shouldBeCompiledAsGenerator
@@ -693,7 +694,7 @@ fun IrElement.getStartSourceLocation(fileEntry: IrFileEntry) =
 
 inline fun IrElement.getSourceLocation(fileEntry: IrFileEntry, offsetSelector: IrElement.() -> Int): JsLocation? {
     if (this is IrDeclaration && this.symbol.shouldIgnore)
-        return JsLocation.Ignored
+        return JsLocation.IGNORED
     if (startOffset == UNDEFINED_OFFSET || endOffset == UNDEFINED_OFFSET) return null
     val path = fileEntry.name
     val offset = offsetSelector()
@@ -762,6 +763,7 @@ private val debugFriendlyOrigins = setOf(
     IrDeclarationOrigin.LOWERED_SUSPEND_FUNCTION,
     AbstractSuspendFunctionsLowering.DECLARATION_ORIGIN_COROUTINE_IMPL_INVOKE,
     ENUM_ENTRIES_INITIALIZER_ORIGIN,
+    SecondaryConstructorLowering.SECONDARY_CONSTRUCTOR_INIT_ORIGIN
 )
 
 val IrDeclaration.isInlinedCode: Boolean

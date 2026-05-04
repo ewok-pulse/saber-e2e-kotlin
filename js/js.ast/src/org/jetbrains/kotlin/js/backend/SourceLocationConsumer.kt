@@ -23,5 +23,9 @@ interface SourceLocationConsumer {
 
     fun pushSourceInfo(info: JsLocationWithSource?)
 
+    fun pushDeclarationInfo(info: JsLocationWithSource?)
+
     fun popSourceInfo()
+
+    fun popDeclarationInfo()
 }

@@ -43,6 +43,8 @@ fun box() {
 // test.kt:14 box
 // test.kt:7 <init>
 // test.kt:16 box
+// test.kt:10 C_init_$Init$
+// test.kt:10 C_init_$Init$
 // test.kt:7 <init>
 // test.kt:17 box
 

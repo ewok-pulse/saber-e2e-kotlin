@@ -630,7 +630,7 @@ fun generateSingleWrappedModuleBody(
         val outputDir = sourceMapsInfo.outputDir?.resolve(artifactConfiguration.moduleName.substringBeforeLast("/", ""))
 
         sourceMapBuilder = SourceMap3Builder(null, jsCode::getColumn, sourceMapPrefix).apply {
-            addIgnoredSource(JsLocation.Ignored.file)
+            addIgnoredSource(JsLocation.IGNORED.file)
         }
 
         val pathResolver = SourceFilePathResolver.create(sourceMapsInfo.sourceRoots, sourceMapPrefix, outputDir)

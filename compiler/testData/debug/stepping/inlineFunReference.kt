@@ -33,6 +33,7 @@ fun box(): String {
 // test.kt:10 box
 // test.kt:7 bar
 // test.kt:10 box
+// test.kt:4 foo$ref$lambda
 
 // EXPECTATIONS WASM
 // test.kt:10 $box (11)

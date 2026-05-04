@@ -117,7 +117,7 @@ class JsGenerationContext(
     ): JsLocation? {
         return cache.getOrPut(irElement.offsetSelector()) {
             when (val location = irElement.getSourceLocation(currentFileEntry, offsetSelector)) {
-                JsLocation.Ignored -> return JsLocation.Ignored
+                JsLocation.IGNORED -> return JsLocation.IGNORED
                 null -> return null
                 else -> location.copy(name = originalName)
             }

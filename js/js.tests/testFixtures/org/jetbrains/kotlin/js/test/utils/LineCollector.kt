@@ -31,7 +31,7 @@ class LineCollector : RecursiveJsVisitor() {
                     document.getLineNumber(offset)
                 } else null
             }
-            is JsLocationWithSource if source.file == JsLocation.Ignored.file -> {
+            is JsLocationWithSource if source.file == JsLocation.IGNORED.file -> {
                 lines += null
                 null
             }

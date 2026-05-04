@@ -67,6 +67,7 @@ fun fail() : String {
 // test.kt:21 fail
 // test.kt:5 box
 // test.kt:14 checkEquals
+// test.kt:8 box
 // test.kt:21 fail
 // test.kt:8 box
 // test.kt:14 checkEquals

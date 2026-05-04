@@ -88,9 +88,14 @@ fun box(): String {
 // test.kt:6 generate
 // test.kt:3 <init>
 // test.kt:6 generate
+// test.kt:17 bar$lambda$lambda
 // test.kt:11 foo
 // test.kt:9 <init>
 // test.kt:9 <init>
+// test.kt:17 bar$lambda$lambda
+// test.kt:24 box$lambda$lambda
+// test.kt:25 box$lambda$lambda
+// test.kt:18 bar$lambda$lambda
 // test.kt:7 generate
 // test.kt:19 bar
 // test.kt:27 box

@@ -756,6 +756,7 @@ public class JsToStringGenerationVisitor extends JsVisitor {
 
     // function <declaration>
     private void printRegularFunction(@NotNull JsFunction x) {
+        pushDeclaration(x);
         pushSourceInfo(x.getSource());
 
         p.print(CHARS_FUNCTION);
@@ -763,20 +764,24 @@ public class JsToStringGenerationVisitor extends JsVisitor {
         printFunction(x);
 
         popSourceInfo();
+        popDeclaration();
     }
 
     // constructor <declaration>
     private void printConstructor(@NotNull JsFunction x) {
+        pushDeclaration(x);
         pushSourceInfo(x.getSource());
 
         p.print(CHARS_CONSTRUCTOR);
         printFunction(x);
 
         popSourceInfo();
+        popDeclaration();
     }
 
     // [static?] [get|set?] <declaration>
     private void printClassMember(@NotNull JsFunction x) {
+        pushDeclaration(x);
         pushSourceInfo(x.getSource());
 
         if (x.isStatic()) {
@@ -795,6 +800,7 @@ public class JsToStringGenerationVisitor extends JsVisitor {
         printFunction(x);
 
         popSourceInfo();
+        popDeclaration();
     }
 
     // [name|computedName](<params>) { <body> }
@@ -1728,6 +1734,10 @@ public class JsToStringGenerationVisitor extends JsVisitor {
         }
     }
 
+    private void pushDeclaration(@NotNull JsFunction declaration) {
+        sourceLocationConsumer.pushDeclarationInfo(declaration.getSource());
+    }
+
     private void printCommentsBeforeNode(JsNode x) {
        printComments(x.getCommentsBeforeNode(), false);
     }
@@ -1758,6 +1768,10 @@ public class JsToStringGenerationVisitor extends JsVisitor {
         if (!sourceInfoStack.isEmpty() && sourceInfoStack.remove(sourceInfoStack.size() - 1) != null) {
             sourceLocationConsumer.popSourceInfo();
         }
+    }
+
+    private void popDeclaration() {
+        sourceLocationConsumer.popDeclarationInfo();
     }
 
     private void printJsBlock(JsBlock x, boolean finalNewline, @Nullable JsLocationWithSource defaultClosingBraceLocation) {

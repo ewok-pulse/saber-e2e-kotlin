@@ -32,7 +32,7 @@ data class JsLocation @JvmOverloads constructor(
     override fun asSimpleLocation(): JsLocation = this
 
     companion object {
-        val Ignored = JsLocation("NATIVE_IMPLEMENTATIONS.kt", 0, 0, name = null)
+        val IGNORED = JsLocation("NATIVE_IMPLEMENTATIONS.kt", 0, 0, name = null)
     }
 }
 

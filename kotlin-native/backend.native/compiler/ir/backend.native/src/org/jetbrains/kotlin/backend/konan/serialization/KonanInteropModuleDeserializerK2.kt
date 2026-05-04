@@ -193,18 +193,18 @@ internal class KonanInteropModuleDeserializerK2(
 
     private fun findReferencedClass(className: ClassName): IrClassSymbol {
         require(!className.isLocalClassName()) { "Local/anonymous classes are not supported: $className" }
-        val pkgFqName = className.substringBeforeLast('/').replace("/", ".")
+        val pkgFqName = FqName(className.substringBeforeLast('/').replace("/", "."))
         val classFqName = className.substringAfterLast('/')
 
-        // At this point we don't know if the referenced class comes from C-interop or not. But IdSignature expects this information.
-        // So we try both options ¯\_(ツ)_/¯.
-        val cinteropFlag = IdSignature.Flags.IS_NATIVE_INTEROP_LIBRARY.encode(true)
-        val cinteropSignature = IdSignature.CommonSignature(pkgFqName, classFqName, null, cinteropFlag, null)
-        linker.tryDeserializeSymbol(cinteropSignature, BinarySymbolData.SymbolKind.CLASS_SYMBOL, this@KonanInteropModuleDeserializerK2)
-                .first?.let { return it as IrClassSymbol }
+        // A C-interop Klib may only reference classes from the Kotlin stdlib, itself, or other C-interop Klibs.
+        // Also, creating C-interop Klibs with package names used in stdlib (kotlin and kotlinx.cinterop) is prohibited (KT-85765).
+        // We use that to tell whether a referenced class comes from Kolin code (the stdlib) or from native code.
+        // This information is expected by IdSignature.
+        val isFromStdlib = pkgFqName.isSubpackageOf(FqName("kotlin")) || pkgFqName.isSubpackageOf(FqName("kotlinx.cinterop"))
+        val cinteropFlag = IdSignature.Flags.IS_NATIVE_INTEROP_LIBRARY.encode(!isFromStdlib)
+        val classSignature = IdSignature.CommonSignature(pkgFqName.asString(), classFqName, null, cinteropFlag, null)
 
-        val regularSignature = IdSignature.CommonSignature(pkgFqName, classFqName, null, 0, null)
-        return linker.deserializeOrReturnUnboundIrSymbolIfPartialLinkageEnabled(regularSignature, BinarySymbolData.SymbolKind.CLASS_SYMBOL,
+        return linker.deserializeOrReturnUnboundIrSymbolIfPartialLinkageEnabled(classSignature, BinarySymbolData.SymbolKind.CLASS_SYMBOL,
                 this@KonanInteropModuleDeserializerK2) as IrClassSymbol
     }
 

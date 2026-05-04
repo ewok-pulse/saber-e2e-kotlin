@@ -69,11 +69,11 @@ abstract class KotlinIrLinker(
 
     open val moduleDependencyTracker: IrModuleDependencyTracker get() = IrModuleDependencyTracker.DISABLED
 
-    fun tryDeserializeSymbol(
+    fun deserializeOrReturnUnboundIrSymbolIfPartialLinkageEnabled(
         idSignature: IdSignature,
         symbolKind: BinarySymbolData.SymbolKind,
         moduleDeserializer: IrModuleDeserializer
-    ): Pair<IrSymbol?, IrModuleDeserializer?> {
+    ): IrSymbol {
         val topLevelSignature: IdSignature = idSignature.topLevelSignature()
 
         // Note: The top-level symbol might be gone in newer version of dependency KLIB. Then the KLIB that was compiled against
@@ -90,19 +90,12 @@ abstract class KotlinIrLinker(
         // Note: It might happen that the top-level symbol still exists in KLIB, but nested symbol has been removed.
         // Then the `actualModuleDeserializer` will be non-null, but `actualModuleDeserializer.tryDeserializeIrSymbol()` call
         // might return null (like KonanInteropModuleDeserializer does) or non-null unbound symbol (like JsModuleDeserializer does).
-        return actualModuleDeserializer?.tryDeserializeIrSymbol(idSignature, symbolKind) to actualModuleDeserializer
-    }
+        val symbol: IrSymbol? = actualModuleDeserializer?.tryDeserializeIrSymbol(idSignature, symbolKind)
 
-    fun deserializeOrReturnUnboundIrSymbolIfPartialLinkageEnabled(
-        idSignature: IdSignature,
-        symbolKind: BinarySymbolData.SymbolKind,
-        moduleDeserializer: IrModuleDeserializer
-    ): IrSymbol {
-        val (symbol, actualModuleDeserializer) = tryDeserializeSymbol(idSignature, symbolKind, moduleDeserializer)
         if (symbol != null) {
             moduleDependencyTracker.trackDependency(
                 fromModule = moduleDeserializer.moduleFragment,
-                toModule = actualModuleDeserializer!!.moduleFragment
+                toModule = actualModuleDeserializer.moduleFragment
             )
 
             return symbol

@@ -389,17 +389,8 @@ abstract class FirDataFlowAnalyzer(
 
         context.variableAssignmentAnalyzer.exitFunction()
 
-        if (function is FirAnonymousFunction) {
-            val (functionExitNode, postponedLambdaExitNode, graph) = graphBuilder.exitAnonymousFunction(function)
-            functionExitNode.mergeIncomingFlow()
-            postponedLambdaExitNode?.mergeIncomingFlow()
-            resetSmartCastPosition() // roll back to state before function
-            return FirControlFlowGraphReferenceImpl(graph)
-        }
-
         val (node, graph) = graphBuilder.exitFunction(function)
         node.mergeIncomingFlow()
-        graph.completePostponedNodes()
         resetSmartCastPosition()
         return FirControlFlowGraphReferenceImpl(graph)
     }
@@ -425,7 +416,6 @@ abstract class FirDataFlowAnalyzer(
         } else {
             resetSmartCastPosition()
         }
-        graph?.completePostponedNodes()
         return graph
     }
 
@@ -446,7 +436,6 @@ abstract class FirDataFlowAnalyzer(
         } else {
             resetSmartCastPosition() // to state before class initialization
         }
-        graph?.completePostponedNodes()
         return graph
     }
 
@@ -463,7 +452,6 @@ abstract class FirDataFlowAnalyzer(
     fun exitScript(): ControlFlowGraph? {
         val (node, graph) = graphBuilder.exitScript()
         node?.mergeIncomingFlow()
-        graph?.completePostponedNodes()
         return graph
     }
 
@@ -489,7 +477,6 @@ abstract class FirDataFlowAnalyzer(
         context.variableAssignmentAnalyzer.exitCodeFragment(codeFragment)
         val (node, graph) = graphBuilder.exitCodeFragment()
         node.mergeIncomingFlow()
-        graph.completePostponedNodes()
         return graph
     }
 
@@ -505,7 +492,6 @@ abstract class FirDataFlowAnalyzer(
         val (innerNode, outerNode, graph) = graphBuilder.exitValueParameter(valueParameter) ?: return null
         innerNode.mergeIncomingFlow()
         outerNode.mergeIncomingFlow()
-        graph.completePostponedNodes()
         return graph
     }
 
@@ -518,7 +504,6 @@ abstract class FirDataFlowAnalyzer(
     fun exitProperty(property: FirProperty): ControlFlowGraph? {
         val (node, graph) = graphBuilder.exitProperty(property) ?: return null
         node.mergeIncomingFlow()
-        graph.completePostponedNodes()
         return graph
     }
 
@@ -531,7 +516,6 @@ abstract class FirDataFlowAnalyzer(
     fun exitField(field: FirField): ControlFlowGraph? {
         val (node, graph) = graphBuilder.exitField(field) ?: return null
         node.mergeIncomingFlow()
-        graph.completePostponedNodes()
         return graph
     }
 
@@ -542,7 +526,9 @@ abstract class FirDataFlowAnalyzer(
     }
 
     fun exitDelegateExpression(fir: FirExpression) {
-        graphBuilder.exitDelegateExpression(fir).mergeIncomingFlow()
+        val (exitNode, lambdaExitNodes) = graphBuilder.exitDelegateExpression(fir)
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
+        exitNode.mergeIncomingFlow()
     }
 
     // ----------------------------------- Block -----------------------------------
@@ -644,7 +630,9 @@ abstract class FirDataFlowAnalyzer(
     }
 
     fun exitEqualityOperatorCall(equalityOperatorCall: FirEqualityOperatorCall, callCompleted: Boolean) {
-        val (lhsExitNode, node) = graphBuilder.exitEqualityOperatorCall(equalityOperatorCall, callCompleted)
+        val (lhsExitNode, node, lambdaExitNodes) = graphBuilder.exitEqualityOperatorCall(equalityOperatorCall, callCompleted)
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
+
         val operation = equalityOperatorCall.operation
         val leftOperand = equalityOperatorCall.arguments[0]
         val rightOperand = equalityOperatorCall.arguments[1]
@@ -830,7 +818,9 @@ abstract class FirDataFlowAnalyzer(
     }
 
     fun exitCheckNotNullCall(checkNotNullCall: FirCheckNotNullCall, callCompleted: Boolean) {
-        graphBuilder.exitCheckNotNullCall(checkNotNullCall, callCompleted).mergeIncomingFlow { _, flow ->
+        val (exitNode, lambdaExitNodes) = graphBuilder.exitCheckNotNullCall(checkNotNullCall, callCompleted)
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
+        exitNode.mergeIncomingFlow { _, flow ->
             @OptIn(UnresolvedExpressionTypeAccess::class) // Lambdas can have unresolved type here, similar to KT-61837
             if (checkNotNullCall.argument.coneTypeOrNull is ConeDynamicType) return@mergeIncomingFlow
             val argumentVariable = flow.getVariableIfUsedOrReal(checkNotNullCall.argument) ?: return@mergeIncomingFlow
@@ -873,7 +863,8 @@ abstract class FirDataFlowAnalyzer(
     }
 
     fun exitWhenExpression(whenExpression: FirWhenExpression, callCompleted: Boolean) {
-        val (whenExitNode, syntheticElseNode) = graphBuilder.exitWhenExpression(whenExpression, callCompleted)
+        val (whenExitNode, syntheticElseNode, lambdaExitNodes) = graphBuilder.exitWhenExpression(whenExpression, callCompleted)
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
         syntheticElseNode?.mergeWhenBranchEntryFlow()
         whenExitNode.mergeIncomingFlow()
     }
@@ -1014,7 +1005,9 @@ abstract class FirDataFlowAnalyzer(
     }
 
     fun exitTryExpression(callCompleted: Boolean) {
-        graphBuilder.exitTryExpression(callCompleted).mergeIncomingFlow()
+        val (exitNode, lambdaExitNodes) = graphBuilder.exitTryExpression(callCompleted)
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
+        exitNode.mergeIncomingFlow()
     }
 
     // ----------------------------------- Resolvable call -----------------------------------
@@ -1038,7 +1031,8 @@ abstract class FirDataFlowAnalyzer(
     }
 
     fun exitSafeCall(safeCall: FirSafeCallExpression) {
-        val node = graphBuilder.exitSafeCall()
+        val (node, lambdaExitNodes) = graphBuilder.exitSafeCall()
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
         node.mergeIncomingFlow { path, flow ->
             // If there is only 1 previous node, then this is LHS of `a?.b ?: c`; then the null-case
             // edge from `a` goes directly to `c` and this node's flow already assumes `b` executed.
@@ -1120,7 +1114,8 @@ abstract class FirDataFlowAnalyzer(
 
     fun exitFunctionCall(functionCall: FirCall, callCompleted: Boolean) {
         context.variableAssignmentAnalyzer.exitFunctionCall(callCompleted)
-        val node = graphBuilder.exitFunctionCall(functionCall, callCompleted)
+        val (node, lambdaExitNodes) = graphBuilder.exitFunctionCall(functionCall, callCompleted)
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
         node.mergeIncomingFlow { _, flow ->
             val callArgsExit = node.previousNodes.singleOrNull { it is FunctionCallEnterNode }
             processConditionalContract(flow, functionCall, callArgsExit?.flow)
@@ -1137,7 +1132,9 @@ abstract class FirDataFlowAnalyzer(
 
     fun exitDelegatedConstructorCall(call: FirDelegatedConstructorCall, callCompleted: Boolean) {
         context.variableAssignmentAnalyzer.exitFunctionCall(callCompleted)
-        graphBuilder.exitDelegatedConstructorCall(call, callCompleted).mergeIncomingFlow()
+        val (node, lambdaExitNodes) = graphBuilder.exitDelegatedConstructorCall(call, callCompleted)
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
+        node.mergeIncomingFlow()
     }
 
     fun enterStringConcatenationCall() {
@@ -1145,7 +1142,9 @@ abstract class FirDataFlowAnalyzer(
     }
 
     fun exitStringConcatenationCall(call: FirStringConcatenationCall) {
-        graphBuilder.exitStringConcatenationCall(call).mergeIncomingFlow()
+        val (node, lambdaExitNodes) = graphBuilder.exitStringConcatenationCall(call)
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
+        node.mergeIncomingFlow()
     }
 
     /**
@@ -1592,7 +1591,6 @@ abstract class FirDataFlowAnalyzer(
         context.variableAssignmentAnalyzer.exitAnonymousInitializer(initBlock)
         val (node, controlFlowGraph) = graphBuilder.exitInitBlock()
         node.mergeIncomingFlow()
-        controlFlowGraph.completePostponedNodes()
         return controlFlowGraph
     }
 
@@ -1626,7 +1624,8 @@ abstract class FirDataFlowAnalyzer(
     }
 
     fun exitElvis(elvisExpression: FirElvisExpression, isLhsNotNull: Boolean, callCompleted: Boolean) {
-        val node = graphBuilder.exitElvis(isLhsNotNull, callCompleted)
+        val (node, lambdaExitNodes) = graphBuilder.exitElvis(isLhsNotNull, callCompleted)
+        lambdaExitNodes.forEach { it.mergeIncomingFlow() }
         node.mergeIncomingFlow { path, flow ->
             // If LHS is never null, then the edge from RHS is dead and this node's flow already contains
             // all statements from LHS unconditionally.
@@ -1687,11 +1686,12 @@ abstract class FirDataFlowAnalyzer(
 
         for (node in previousNodes) {
             val edge = edgeFrom(node)
-            if (!usedInDfa(edge)) continue
 
             // `MergePostponedLambdaExitsNode` nodes form a parallel data flow graph. We never compute
             // data flow for any of them until reaching a completed call.
-            if (node is MergePostponedLambdaExitsNode && !node.flowInitialized) node.mergeIncomingFlow()
+//            if (node is MergePostponedLambdaExitsNode && !node.flowInitialized) node.mergeIncomingFlow()
+
+            if (!usedInDfa(edge)) continue
 
             // For CFGNodes that are the end of alternate flows, use the alternate flow associated with the edge label.
             val flow = if (node is FinallyBlockExitNode) {
@@ -1814,17 +1814,6 @@ abstract class FirDataFlowAnalyzer(
         return when (path) {
             FlowPath.Default -> flow
             else -> getAlternateFlow(path) ?: error("no alternate flow for $path")
-        }
-    }
-
-    private fun ControlFlowGraph.completePostponedNodes() {
-        for (subGraph in subGraphs) {
-            subGraph.completePostponedNodes()
-        }
-        for (node in nodes) {
-            if (node !is ClassExitNode && !node.flowInitialized) {
-                node.mergeIncomingFlow()
-            }
         }
     }
 

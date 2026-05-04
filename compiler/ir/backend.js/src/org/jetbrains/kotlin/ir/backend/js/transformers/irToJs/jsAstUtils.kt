@@ -755,7 +755,7 @@ private fun IrClass?.canUseSuperRef(context: JsGenerationContext, superClass: Ir
     return currentFunctionsIncludingParents.none { it.isEs6ConstructorReplacement || it.shouldBeCompiledAsGenerator || it.isCoroutine() }
 }
 
-private val debugFriendlyOrigins = setOf(
+private val debugFriendlyOrigins: Set<IrDeclarationOrigin> = hashSetOf(
     IrDeclarationOrigin.DEFINED,
     IrDeclarationOrigin.LOCAL_FUNCTION,
     IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA,

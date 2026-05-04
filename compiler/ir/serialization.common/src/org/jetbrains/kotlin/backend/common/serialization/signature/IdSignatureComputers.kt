@@ -19,9 +19,11 @@ import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
-class PublicIdSignatureComputer(val mangler: KotlinMangler.IrMangler) : IdSignatureComputer {
-
-    private val publicSignatureBuilder = PublicIdSigBuilder()
+class PublicIdSignatureComputer(
+    val mangler: KotlinMangler.IrMangler,
+    markAllAsCInterop: Boolean = false,
+) : IdSignatureComputer {
+    private val publicSignatureBuilder = PublicIdSigBuilder(markAllAsCInterop)
 
     override fun computeSignature(declaration: IrDeclaration): IdSignature {
         return publicSignatureBuilder.buildSignature(declaration)
@@ -56,7 +58,9 @@ class PublicIdSignatureComputer(val mangler: KotlinMangler.IrMangler) : IdSignat
         scopeCounter = 0
     }
 
-    private inner class PublicIdSigBuilder : IdSignatureBuilder<IrDeclaration, KotlinMangler.IrMangler>() {
+    private inner class PublicIdSigBuilder(
+        private val markAllAsCInterop: Boolean
+    ) : IdSignatureBuilder<IrDeclaration, KotlinMangler.IrMangler>() {
 
         override val mangler: KotlinMangler.IrMangler
             get() = this@PublicIdSignatureComputer.mangler
@@ -84,6 +88,7 @@ class PublicIdSignatureComputer(val mangler: KotlinMangler.IrMangler) : IdSignat
                 }
                 setDescriptionIfLocalDeclaration(declaration)
                 setExpected(declaration.isExpect)
+                setCInterop()
             }
 
             override fun visitSimpleFunction(declaration: IrSimpleFunction) {
@@ -104,12 +109,14 @@ class PublicIdSignatureComputer(val mangler: KotlinMangler.IrMangler) : IdSignat
                     setDescriptionIfLocalDeclaration(declaration)
                 }
                 setExpected(declaration.isExpect)
+                setCInterop()
             }
 
             override fun visitConstructor(declaration: IrConstructor) {
                 collectParents(declaration)
                 setHashIdAndDescriptionFor(declaration, isPropertyAccessor = false)
                 setExpected(declaration.isExpect)
+                setCInterop()
             }
 
             override fun visitScript(declaration: IrScript) {
@@ -121,15 +128,18 @@ class PublicIdSignatureComputer(val mangler: KotlinMangler.IrMangler) : IdSignat
                 isTopLevelPrivate = isTopLevelPrivate || declaration.isTopLevelPrivate
                 setHashIdAndDescriptionFor(declaration, isPropertyAccessor = false)
                 setExpected(declaration.isExpect)
+                setCInterop()
             }
 
             override fun visitTypeAlias(declaration: IrTypeAlias) {
                 collectParents(declaration)
                 isTopLevelPrivate = isTopLevelPrivate || declaration.isTopLevelPrivate
+                setCInterop()
             }
 
             override fun visitEnumEntry(declaration: IrEnumEntry) {
                 collectParents(declaration)
+                setCInterop()
             }
 
             override fun visitTypeParameter(declaration: IrTypeParameter) {
@@ -147,7 +157,11 @@ class PublicIdSignatureComputer(val mangler: KotlinMangler.IrMangler) : IdSignat
                 } else {
                     classFqnSegments.add(MangleConstant.TYPE_PARAMETER_MARKER_NAME)
                 }
-                setHashIdAndDescription(declaration.index.toLong(), renderDeclarationForDescription(declaration), isPropertyAccessor = false)
+                setHashIdAndDescription(
+                    declaration.index.toLong(),
+                    renderDeclarationForDescription(declaration),
+                    isPropertyAccessor = false
+                )
             }
 
             override fun visitField(declaration: IrField) {
@@ -178,6 +192,17 @@ class PublicIdSignatureComputer(val mangler: KotlinMangler.IrMangler) : IdSignat
         }
 
         override fun renderDeclarationForDescription(declaration: IrDeclaration): String = declaration.render()
+
+        /**
+         * We need a way to distinguish interop declarations from usual ones
+         * to be able to link against them. We do it by marking them with
+         * [IdSignature.Flags.IS_NATIVE_INTEROP_LIBRARY] flag.
+         */
+        private fun setCInterop() {
+            if (markAllAsCInterop) {
+                mask = mask or IdSignature.Flags.IS_NATIVE_INTEROP_LIBRARY.encode(true)
+            }
+        }
     }
 }
 

@@ -7,9 +7,9 @@ import org.jetbrains.kotlin.backend.common.overrides.FakeOverrideChecker
 import org.jetbrains.kotlin.backend.common.phaser.KotlinBackendIrHolder
 import org.jetbrains.kotlin.backend.common.serialization.DescriptorByIdSignatureFinderImpl
 import org.jetbrains.kotlin.backend.common.serialization.IrModuleDeserializer
+import org.jetbrains.kotlin.backend.common.serialization.moduleDeserializer
 import org.jetbrains.kotlin.backend.konan.driver.NativeBackendPhaseContext
 import org.jetbrains.kotlin.backend.konan.ir.BackendNativeSymbols
-import org.jetbrains.kotlin.backend.konan.ir.interop.IrProviderForCEnumAndCStructStubs
 import org.jetbrains.kotlin.backend.konan.ir.konanLibrary
 import org.jetbrains.kotlin.backend.konan.serialization.*
 import org.jetbrains.kotlin.builtins.konan.KonanBuiltIns
@@ -18,7 +18,6 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.config.messageCollector
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.KtDiagnosticReporterWithImplicitIrBasedContext
@@ -26,8 +25,6 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.DescriptorMetadataSource
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.objcinterop.IrObjCOverridabilityCondition
-import org.jetbrains.kotlin.ir.util.DeclarationStubGenerator
-import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.ir.util.ReferenceSymbolTable
 import org.jetbrains.kotlin.ir.util.SymbolTable
 import org.jetbrains.kotlin.konan.config.fakeOverrideValidator
@@ -36,14 +33,15 @@ import org.jetbrains.kotlin.library.isHeader
 import org.jetbrains.kotlin.library.metadata.DeserializedKlibModuleOrigin
 import org.jetbrains.kotlin.library.metadata.KlibModuleOrigin
 import org.jetbrains.kotlin.library.metadata.impl.isForwardDeclarationModule
+import org.jetbrains.kotlin.library.metadata.kotlinLibrary
 import org.jetbrains.kotlin.library.uniqueName
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.psi2ir.Psi2IrConfiguration
 import org.jetbrains.kotlin.psi2ir.Psi2IrTranslator
 import org.jetbrains.kotlin.psi2ir.generators.DeclarationStubGeneratorImpl
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.CommonCompilerDeserializationConfiguration
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
+import org.jetbrains.kotlin.serialization.deserialization.DeserializationConfiguration
 import org.jetbrains.kotlin.utils.DFS
 import org.jetbrains.kotlin.utils.mapToSetOrEmpty
 
@@ -121,15 +119,14 @@ internal fun LinkKlibsContext.linkKlibs(
             generatorContext.irBuiltIns,
             this.config.configuration
     )
+    val deserializationConfiguration = CommonCompilerDeserializationConfiguration(config.configuration.languageVersionSettings)
 
     val irDeserializer = run {
         val exportedDependencies = (moduleDescriptor.getExportedDependencies(config) + libraryToCacheModule?.let { listOf(it) }.orEmpty()).distinct()
-        val irProviderForCEnumsAndCStructs =
-                IrProviderForCEnumAndCStructStubs(generatorContext, symbols)
         val cInteropModuleDeserializerFactory = KonanCInteropModuleDeserializerFactory(
+                deserializationConfiguration = deserializationConfiguration,
                 cachedLibraries = config.cachedLibraries,
-                cenumsProvider = irProviderForCEnumsAndCStructs,
-                stubGenerator = stubGenerator,
+                symbols = symbols,
         )
 
         // TODO Don't use file names in friend modules detection. Should be done in scope of KT-61096
@@ -197,13 +194,13 @@ internal fun LinkKlibsContext.linkKlibs(
                 dependenciesCount = dependencies.size
             }
 
-            // We need to run `buildAllEnumsAndStructsFrom` before `generateModuleFragment` because it adds references to symbolTable
-            // that should be bound.
-            if (libraryToCacheModule?.isFromCInteropLibrary() == true)
-                irProviderForCEnumsAndCStructs.referenceAllEnumsAndStructsFrom(libraryToCacheModule)
-
-            translator.addPostprocessingStep {
-                irProviderForCEnumsAndCStructs.generateBodies()
+            // When building a cache for a C-interop library, ensure all the C structs and enums defined there are loaded.
+            // This is because there is a synthetic implementation generated for them (see IrImplementationGeneratorForCStructsAndEnumsK2),
+            // which ends up being compiled into assembly code.
+            // We want to build a static cache for all such code per-CInterop-Klib, in the similar fasction to the regular (IR) Klibs.
+            if (libraryToCacheModule?.isFromCInteropLibrary() == true) {
+                val cinteropModule = linker.deserializeIrModuleHeader(libraryToCacheModule, libraryToCacheModule.kotlinLibrary, libraryToCacheModule.name.asString())
+                (cinteropModule.moduleDeserializer as? KonanInteropModuleDeserializerK2)?.deserializeAllCStructsAndEnums()
             }
         }
     }
@@ -261,17 +258,19 @@ internal fun LinkKlibsContext.linkKlibs(
 
 internal class KonanCInteropModuleDeserializerFactory(
         private val cachedLibraries: CachedLibraries,
-        private val cenumsProvider: IrProviderForCEnumAndCStructStubs,
-        private val stubGenerator: DeclarationStubGenerator,
+        private val deserializationConfiguration: DeserializationConfiguration,
+        private val symbols: BackendNativeSymbols,
 ) : CInteropModuleDeserializerFactory {
     override fun createIrModuleDeserializer(
             moduleDescriptor: ModuleDescriptor,
             klib: KotlinLibrary,
-    ): IrModuleDeserializer = KonanInteropModuleDeserializer(
+            linker: KonanIrLinker,
+    ): IrModuleDeserializer = KonanInteropModuleDeserializerK2(
+            deserializationConfiguration,
             moduleDescriptor,
             klib,
             cachedLibraries.isLibraryCached(klib),
-            cenumsProvider,
-            stubGenerator,
+            symbols,
+            linker,
     )
 }

@@ -39,6 +39,8 @@ dependencies {
     implementation(project(":native:binary-options"))
     implementation(project(":compiler:cli:cli-native-klib"))
     implementation(project(":native:native.config"))
+    implementation(project(":kotlinx-metadata-klib"))
+    compileOnly(project(":kotlin-metadata")) // Only to fix IDE reporting unresolved references.
 }
 
 tasks.withType<KotlinJvmCompile>().configureEach {

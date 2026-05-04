@@ -341,6 +341,7 @@ fun ProjectTestsExtension.nativeTestTask(
     maxMetaspaceSizeMb: Int = 512,
     allowUnsafe: Boolean = false,
     defineJDKEnvVariables: List<JdkMajorVersion> = emptyList(),
+    enableGroupingTestEngine: Boolean = false,
     body: Test.() -> Unit = {},
 ): TaskProvider<Test> = testTask(
     taskName = taskName,
@@ -348,6 +349,7 @@ fun ProjectTestsExtension.nativeTestTask(
     maxHeapSizeMb = 3072, // Extra heap space for Kotlin/Native compiler.
     maxMetaspaceSizeMb = maxMetaspaceSizeMb,
     defineJDKEnvVariables = defineJDKEnvVariables,
+    enableGroupingTestEngine = enableGroupingTestEngine,
     skipInLocalBuild = false,
 ) {
     val project = this@nativeTestTask.project

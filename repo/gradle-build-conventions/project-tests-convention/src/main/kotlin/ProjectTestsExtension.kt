@@ -137,6 +137,7 @@ abstract class ProjectTestsExtension(val project: Project) {
         maxMetaspaceSizeMb: Int = 512,
         reservedCodeCacheSizeMb: Int = 256,
         defineJDKEnvVariables: List<JdkMajorVersion> = emptyList(),
+        enableGroupingTestEngine: Boolean = false,
         body: Test.() -> Unit = {},
     ): TaskProvider<Test> {
         @Suppress("UNCHECKED_CAST")
@@ -149,6 +150,7 @@ abstract class ProjectTestsExtension(val project: Project) {
             maxMetaspaceSizeMb,
             reservedCodeCacheSizeMb,
             defineJDKEnvVariables,
+            enableGroupingTestEngine,
             skipInLocalBuild = false,
             body
         ) as TaskProvider<Test>
@@ -163,6 +165,7 @@ abstract class ProjectTestsExtension(val project: Project) {
         maxMetaspaceSizeMb: Int = 512,
         reservedCodeCacheSizeMb: Int = 256,
         defineJDKEnvVariables: List<JdkMajorVersion> = emptyList(),
+        enableGroupingTestEngine: Boolean = false,
         skipInLocalBuild: Boolean,
         body: Test.() -> Unit = {},
     ): TaskProvider<out Task> {
@@ -183,7 +186,11 @@ abstract class ProjectTestsExtension(val project: Project) {
             defineJDKEnvVariables,
         ) {
             if (jUnitMode == JUnitMode.JUnit5) {
-                useJUnitPlatform()
+                useJUnitPlatform {
+                    if (enableGroupingTestEngine) {
+                        includeEngines("kotlin-compiler-grouping-engine", "junit-jupiter")
+                    }
+                }
             }
             body()
         }

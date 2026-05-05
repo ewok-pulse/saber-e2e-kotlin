@@ -72,6 +72,8 @@ dependencies {
     // We use 'api' instead of 'implementation' because other modules might be using these jars indirectly
     testFixturesApi(project(":plugins:plugin-sandbox"))
     testFixturesApi(testFixtures(project(":plugins:plugin-sandbox")))
+
+    testImplementation(testFixtures(project(":compiler:psi:psi-api")))
 }
 
 sourceSets {
@@ -137,6 +139,8 @@ projectTests {
 
     @OptIn(KotlinCompilerDistUsage::class)
     withDist()
+
+    testCodebaseTask(dumpDirs = emptyList())
 }
 
 allprojects {

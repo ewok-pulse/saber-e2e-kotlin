@@ -41,6 +41,7 @@ dependencies {
     testFixturesApi(testFixtures(project(":analysis:analysis-test-framework")))
 
     testImplementation(testFixtures(project(":analysis:low-level-api-fir")))
+    testImplementation(testFixtures(project(":compiler:psi:psi-api")))
 
     testCompileOnly(toolsJarApi())
     testRuntimeOnly(toolsJar())
@@ -94,6 +95,8 @@ projectTests {
 
     @OptIn(KotlinCompilerDistUsage::class)
     withDist()
+
+    testCodebaseTask(dumpDirs = emptyList())
 }
 
 allprojects {

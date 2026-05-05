@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     kotlin("jvm")
     id("java-test-fixtures")
+    id("project-tests-convention")
+    id("test-inputs-check")
 }
 
 dependencies {
@@ -34,6 +36,9 @@ dependencies {
     testFixturesImplementation(testFixtures(project(":analysis:analysis-test-framework")))
     testFixturesImplementation(commonDependency("org.jetbrains.kotlin:kotlin-reflect")) { isTransitive = false }
     testFixturesCompileOnly(toolsJarApi())
+
+    testImplementation(testFixtures(project(":compiler:psi:psi-api")))
+    testImplementation(testFixtures(project(":compiler:tests-common")))
 }
 
 sourceSets {
@@ -55,4 +60,8 @@ tasks.withType<KotlinJvmCompile>().configureEach {
             "org.jetbrains.kotlin.analysis.api.KaSpiExtensionPoint",
         )
     )
+}
+
+projectTests {
+    testCodebaseTask(dumpDirs = emptyList())
 }

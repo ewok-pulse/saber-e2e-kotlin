@@ -315,6 +315,12 @@ public class FirStandaloneNormalAnalysisSourceModuleResolveCallByFileTestGenerat
   }
 
   @Test
+  @TestMetadata("typeShapes.kt")
+  public void testTypeShapes() {
+    run("typeShapes.kt");
+  }
+
+  @Test
   @TestMetadata("types.kt")
   public void testTypes() {
     run("types.kt");

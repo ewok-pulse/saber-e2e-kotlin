@@ -1285,6 +1285,24 @@ public class FirStandaloneNormalAnalysisSourceModuleResolveReferenceByFileTestGe
       run("qualifierWithTypeArgumentsProhibited.kt");
     }
 
+    @Test
+    @TestMetadata("typeParameterAsDelegatedSuperType.kt")
+    public void testTypeParameterAsDelegatedSuperType() {
+      run("typeParameterAsDelegatedSuperType.kt");
+    }
+
+    @Test
+    @TestMetadata("typeParameterAsSuperCall.kt")
+    public void testTypeParameterAsSuperCall() {
+      run("typeParameterAsSuperCall.kt");
+    }
+
+    @Test
+    @TestMetadata("typeParameterAsSuperType.kt")
+    public void testTypeParameterAsSuperType() {
+      run("typeParameterAsSuperType.kt");
+    }
+
     @Nested
     @TestMetadata("analysis/analysis-api/testData/components/resolver/allByPsi/withErrors/partiallyUnresolvedTypeQualifier")
     @TestDataPath("$PROJECT_ROOT")

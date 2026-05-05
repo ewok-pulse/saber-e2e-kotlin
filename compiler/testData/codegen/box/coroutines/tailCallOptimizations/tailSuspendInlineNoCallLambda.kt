@@ -1,4 +1,4 @@
-// TARGET_BACKEND: JVM
+// IGNORE_BACKEND: JS_IR, JS_IR_ES6, WASM_JS, WASM_WASI
 
 suspend inline fun lambdaAsParameterInline(c: suspend ()->Unit) { c() }
 suspend inline fun lambdaAsParameterInline2(c: suspend ()->Unit) { lambdaAsParameterInline(c) }

@@ -2,7 +2,7 @@
 // ISSUE: KT-83363
 
 // WITH_STDLIB
-// TARGET_BACKEND: JVM
+// IGNORE_BACKEND: JS_IR, JS_IR_ES6, WASM_JS, WASM_WASI
 
 import kotlin.coroutines.*
 

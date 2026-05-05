@@ -1694,7 +1694,7 @@ public abstract class org/jetbrains/kotlin/psi/KtFunctionNotStubbed : org/jetbra
 	public fun setTypeReference (Lorg/jetbrains/kotlin/psi/KtTypeReference;)Lorg/jetbrains/kotlin/psi/KtTypeReference;
 }
 
-public class org/jetbrains/kotlin/psi/KtFunctionType : org/jetbrains/kotlin/psi/KtElementImplStub, org/jetbrains/kotlin/psi/KtTypeElement {
+public class org/jetbrains/kotlin/psi/KtFunctionType : org/jetbrains/kotlin/psi/KtElementImplStub, org/jetbrains/kotlin/psi/KtTypeElement, org/jetbrains/kotlin/resolution/KtResolvable {
 	public static final field RETURN_TYPE_SEPARATOR Lorg/jetbrains/kotlin/lexer/KtToken;
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun <init> (Lorg/jetbrains/kotlin/psi/stubs/KotlinFunctionTypeStub;)V

@@ -1053,7 +1053,10 @@ KtTypeReference(1012,1027): '(Tuple) -> Unit'
   null
 
 KtFunctionType(1012,1027): '(Tuple) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(1012,1019): '(Tuple)'
   null

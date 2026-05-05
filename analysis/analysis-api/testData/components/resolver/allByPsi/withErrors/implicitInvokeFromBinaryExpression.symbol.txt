@@ -41,7 +41,10 @@ KtTypeReference(30,46): 'Int.(Int) -> Int'
   null
 
 KtFunctionType(30,46): 'Int.(Int) -> Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function2
+    ]
 
 KtFunctionTypeReceiver(30,33): 'Int'
   null

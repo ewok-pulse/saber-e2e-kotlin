@@ -392,7 +392,10 @@ KtTypeReference(419,443): '(Int, String) -> Boolean'
   null
 
 KtFunctionType(419,443): '(Int, String) -> Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function2
+    ]
 
 KtParameterList(419,432): '(Int, String)'
   null
@@ -455,7 +458,10 @@ KtTypeReference(448,474): '(Long, Unresolved) -> Unit'
   null
 
 KtFunctionType(448,474): '(Long, Unresolved) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function2
+    ]
 
 KtParameterList(448,466): '(Long, Unresolved)'
   null
@@ -525,7 +531,10 @@ KtTypeReference(505,515): '() -> Unit'
   null
 
 KtFunctionType(505,515): '() -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtParameterList(505,507): '()'
   null
@@ -561,7 +570,10 @@ KtTypeReference(553,573): 'Int.(String) -> Unit'
   null
 
 KtFunctionType(553,573): 'Int.(String) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function2
+    ]
 
 KtFunctionTypeReceiver(553,556): 'Int'
   null
@@ -636,7 +648,10 @@ KtDeclarationModifierList(606,613): 'suspend'
   null
 
 KtFunctionType(614,624): '() -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/coroutines/SuspendFunction0
+    ]
 
 KtParameterList(614,616): '()'
   null
@@ -672,7 +687,10 @@ KtTypeReference(661,703): 'context(Logger, Database) (String) -> Unit'
   null
 
 KtFunctionType(661,703): 'context(Logger, Database) (String) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function3
+    ]
 
 KtContextReceiverList(661,686): 'context(Logger, Database)'
   null
@@ -765,10 +783,16 @@ KtTypeReference(737,752): '((Int) -> Int)?'
   null
 
 KtNullableType(737,752): '((Int) -> Int)?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtFunctionType(738,750): '(Int) -> Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(738,743): '(Int)'
   null

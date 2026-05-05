@@ -29,7 +29,10 @@ KtTypeReference(44,57): '(Int) -> Unit'
   null
 
 KtFunctionType(44,57): '(Int) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(44,49): '(Int)'
   null
@@ -86,7 +89,10 @@ KtTypeReference(89,105): '(String) -> Unit'
   null
 
 KtFunctionType(89,105): '(String) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(89,97): '(String)'
   null
@@ -143,7 +149,10 @@ KtTypeReference(137,154): '(Boolean) -> Unit'
   null
 
 KtFunctionType(137,154): '(Boolean) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(137,146): '(Boolean)'
   null

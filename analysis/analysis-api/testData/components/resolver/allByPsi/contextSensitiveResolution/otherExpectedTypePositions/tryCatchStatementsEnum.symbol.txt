@@ -62,7 +62,10 @@ KtTypeReference(156,168): '() -> MyEnum'
   null
 
 KtFunctionType(156,168): '() -> MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtParameterList(156,158): '()'
   null
@@ -104,7 +107,10 @@ KtTypeReference(190,197): '() -> T'
   null
 
 KtFunctionType(190,197): '() -> T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtParameterList(190,192): '()'
   null

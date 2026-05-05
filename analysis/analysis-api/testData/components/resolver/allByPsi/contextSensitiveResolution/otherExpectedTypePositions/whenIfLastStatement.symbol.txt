@@ -197,7 +197,10 @@ KtTypeReference(390,397): '() -> T'
   null
 
 KtFunctionType(390,397): '() -> T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtParameterList(390,392): '()'
   null

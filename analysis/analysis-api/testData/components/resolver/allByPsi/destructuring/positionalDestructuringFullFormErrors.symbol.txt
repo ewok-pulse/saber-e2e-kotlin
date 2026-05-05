@@ -542,7 +542,10 @@ KtTypeReference(575,590): '(Tuple) -> Unit'
   null
 
 KtFunctionType(575,590): '(Tuple) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(575,582): '(Tuple)'
   null
@@ -596,7 +599,10 @@ KtTypeReference(610,632): '(NonDataTuple) -> Unit'
   null
 
 KtFunctionType(610,632): '(NonDataTuple) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(610,624): '(NonDataTuple)'
   null

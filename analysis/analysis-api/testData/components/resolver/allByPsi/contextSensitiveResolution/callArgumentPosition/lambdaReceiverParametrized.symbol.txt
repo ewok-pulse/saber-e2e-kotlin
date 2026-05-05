@@ -479,7 +479,10 @@ KtTypeReference(811,820): '(T)->Unit'
   null
 
 KtFunctionType(811,820): '(T)->Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(811,814): '(T)'
   null

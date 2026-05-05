@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.analysis.api.fir.references.FirReferenceResolveHelpe
 import org.jetbrains.kotlin.analysis.api.fir.references.FirReferenceResolveHelper.getSymbolsByResolvedImport
 import org.jetbrains.kotlin.analysis.api.fir.references.FirReferenceResolveHelper.getSymbolsForResolvedQualifier
 import org.jetbrains.kotlin.analysis.api.fir.references.FirReferenceResolveHelper.getSymbolsForResolvedTypeRef
+import org.jetbrains.kotlin.analysis.api.fir.references.FirReferenceResolveHelper.toTargetSymbol
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KaFirArrayOfSymbolProvider.arrayOfSymbol
 import org.jetbrains.kotlin.analysis.api.fir.utils.firSymbol
 import org.jetbrains.kotlin.analysis.api.fir.utils.processEqualsFunctions
@@ -254,7 +255,10 @@ internal class KaFirResolver(
     private fun FirElement.toKaSymbolResolutionAttempt(psi: KtElement): KaSymbolResolutionAttempt? = when (this) {
         is FirResolvedTypeRef if psi is KtSimpleNameExpression -> toKaSymbolResolutionAttempt(psi)
         is FirReference -> toKaSymbolResolutionAttempt(psi)
+
+        // IMPORTANT: all branches above must handle `FirDiagnosticHolder` manually
         is FirDiagnosticHolder -> toKaSymbolResolutionError()
+        is FirResolvedTypeRef if psi is KtFunctionType -> toKaSymbolResolutionAttemptForFunctionType()
         is FirResolvable -> toKaSymbolResolutionAttempt(psi)
         is FirReturnExpression -> toKaSymbolResolutionAttempt()
         is FirTypeParameter -> toKaSymbolResolutionAttempt()
@@ -442,6 +446,11 @@ internal class KaFirResolver(
             fir = this,
             session = analysisSession.firSession,
         ).ifNotEmpty(::KaBaseSymbolResolutionSuccess)
+    }
+
+    private fun FirResolvedTypeRef.toKaSymbolResolutionAttemptForFunctionType(): KaSymbolResolutionAttempt? {
+        val symbol = toTargetSymbol(analysisSession.firSession, firSymbolBuilder) ?: return null
+        return KaBaseSymbolResolutionSuccess(backingSymbol = symbol)
     }
 
     private fun FirResolvedTypeRef.toKaSymbolResolutionAttempt(psi: KtSimpleNameExpression): KaSymbolResolutionAttempt? {

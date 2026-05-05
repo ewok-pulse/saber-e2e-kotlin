@@ -134,7 +134,10 @@ KtTypeReference(217,231): '() -> MySealed'
   null
 
 KtFunctionType(217,231): '() -> MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtParameterList(217,219): '()'
   null
@@ -176,7 +179,10 @@ KtTypeReference(253,260): '() -> T'
   null
 
 KtFunctionType(253,260): '() -> T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtParameterList(253,255): '()'
   null

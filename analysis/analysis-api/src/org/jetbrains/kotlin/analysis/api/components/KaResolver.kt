@@ -550,6 +550,30 @@ public interface KaResolver : KaSessionComponent {
     public fun KtNullableType.resolveSymbol(): KaClassifierSymbol?
 
     /**
+     * Resolves the synthetic function class symbol referenced by the given [KtFunctionType].
+     *
+     * #### Example
+     *
+     * ```kotlin
+     * val a: (Int, String) -> Boolean = TODO()
+     * //     ^^^^^^^^^^^^^^^^^^^^^^^   resolves to `kotlin.Function2`
+     *
+     * val b: suspend () -> Unit = TODO()
+     * //     ^^^^^^^^^^^^^^^^^   resolves to `kotlin.coroutines.SuspendFunction0`
+     * ```
+     *
+     * Returns the [KaClassSymbol] of the corresponding `FunctionN`/`SuspendFunctionN` class (the receiver and
+     * context parameters count as parameters towards the arity), or `null` if resolution fails.
+     *
+     * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on function types
+     *
+     * @see tryResolveSymbols
+     * @see KtResolvable.resolveSymbol
+     */
+    @KaExperimentalApi
+    public fun KtFunctionType.resolveSymbol(): KaClassSymbol?
+
+    /**
      * Attempts to resolve the call for the given [KtResolvableCall].
      *
      * ### Usage Example:
@@ -1786,6 +1810,37 @@ public fun KtInstanceExpressionWithLabel.resolveSymbol(): KaDeclarationSymbol? {
 @KaContextParameterApi
 context(session: KaSession)
 public fun KtNullableType.resolveSymbol(): KaClassifierSymbol? {
+    return with(session) {
+        resolveSymbol()
+    }
+}
+
+/**
+ * Resolves the synthetic function class symbol referenced by the given [KtFunctionType].
+ *
+ * #### Example
+ *
+ * ```kotlin
+ * val a: (Int, String) -> Boolean = TODO()
+ * //     ^^^^^^^^^^^^^^^^^^^^^^^   resolves to `kotlin.Function2`
+ *
+ * val b: suspend () -> Unit = TODO()
+ * //     ^^^^^^^^^^^^^^^^^   resolves to `kotlin.coroutines.SuspendFunction0`
+ * ```
+ *
+ * Returns the [KaClassSymbol] of the corresponding `FunctionN`/`SuspendFunctionN` class (the receiver and
+ * context parameters count as parameters towards the arity), or `null` if resolution fails.
+ *
+ * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on function types
+ *
+ * @see tryResolveSymbols
+ * @see KtResolvable.resolveSymbol
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KtFunctionType.resolveSymbol(): KaClassSymbol? {
     return with(session) {
         resolveSymbol()
     }

@@ -1313,7 +1313,10 @@ KtTypeReference(1251,1264): 'T.(T) -> Unit'
   null
 
 KtFunctionType(1251,1264): 'T.(T) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function2
+    ]
 
 KtFunctionTypeReceiver(1251,1252): 'T'
   null

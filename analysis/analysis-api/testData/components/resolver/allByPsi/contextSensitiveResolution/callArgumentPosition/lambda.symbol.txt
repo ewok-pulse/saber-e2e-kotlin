@@ -473,7 +473,10 @@ KtTypeReference(800,822): '(arg: MyClass) -> Unit'
   null
 
 KtFunctionType(800,822): '(arg: MyClass) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(800,814): '(arg: MyClass)'
   null

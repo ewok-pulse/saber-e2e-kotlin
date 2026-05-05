@@ -20,7 +20,10 @@ KtTypeReference(16,26): '() -> Unit'
   null
 
 KtFunctionType(16,26): '() -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtParameterList(16,18): '()'
   null

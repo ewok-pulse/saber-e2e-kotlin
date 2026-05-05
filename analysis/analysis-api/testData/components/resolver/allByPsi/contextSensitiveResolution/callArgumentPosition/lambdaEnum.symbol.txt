@@ -74,7 +74,10 @@ KtTypeReference(247,268): '(arg: MyEnum) -> Unit'
   null
 
 KtFunctionType(247,268): '(arg: MyEnum) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(247,260): '(arg: MyEnum)'
   null
@@ -182,7 +185,10 @@ KtTypeReference(343,350): '() -> T'
   null
 
 KtFunctionType(343,350): '() -> T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtParameterList(343,345): '()'
   null

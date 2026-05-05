@@ -77,7 +77,10 @@ KtTypeReference(74,89): '(x: Int) -> Int'
   null
 
 KtFunctionType(74,89): '(x: Int) -> Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtParameterList(74,82): '(x: Int)'
   null

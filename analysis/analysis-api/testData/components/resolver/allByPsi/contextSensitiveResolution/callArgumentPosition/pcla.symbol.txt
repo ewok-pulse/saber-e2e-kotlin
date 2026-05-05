@@ -98,7 +98,10 @@ KtDeclarationModifierList(204,211): 'suspend'
   null
 
 KtFunctionType(212,236): 'Controller<S>.() -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/coroutines/SuspendFunction1
+    ]
 
 KtFunctionTypeReceiver(212,225): 'Controller<S>'
   null

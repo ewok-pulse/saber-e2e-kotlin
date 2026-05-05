@@ -92,7 +92,8 @@ class BatchingPackageInserter(testServices: TestServices) : ReversibleSourceFile
         // At this point we can't get `project` from `compilerConfigurationProvider`, as it will cause infinite recursion.
         val psiFactory = createPsiFactory()
         val additionalBasePackage = FqName(computePackage(testServices.testInfo))
-        val ktFiles = filesContent.mapValues { (file, content) -> psiFactory.createFile(file.name, content) }
+        val ktFiles = filesContent.filter { it.key.isKtFile }
+            .mapValues { (file, content) -> psiFactory.createFile(file.name, content) }
         ktFiles.values.map { it.packageFqName }.associateWithTo(packageMapping) { packageFqName ->
             additionalBasePackage.child(packageFqName)
         }

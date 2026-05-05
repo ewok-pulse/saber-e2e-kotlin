@@ -1238,6 +1238,12 @@ public class FirStandaloneNormalAnalysisSourceModuleResolveCandidatesByFileTestG
     }
 
     @Test
+    @TestMetadata("callableReferenceWithErrors.kt")
+    public void testCallableReferenceWithErrors() {
+      run("callableReferenceWithErrors.kt");
+    }
+
+    @Test
     @TestMetadata("classLiteralWithArguments.kt")
     public void testClassLiteralWithArguments() {
       run("classLiteralWithArguments.kt");

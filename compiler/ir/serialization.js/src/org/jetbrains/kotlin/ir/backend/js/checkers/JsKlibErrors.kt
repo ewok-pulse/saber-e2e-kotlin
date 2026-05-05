@@ -69,11 +69,11 @@ private object KtDefaultJsKlibErrorMessages : BaseDiagnosticRendererFactory() {
         )
         map.put(
             JsKlibErrors.JSCODE_CAN_NOT_VERIFY_JAVASCRIPT,
-            "Cannot verify JavaScript code because the argument is not a constant string"
+            "Cannot verify JavaScript code because the argument is not a constant string."
         )
         map.put(
             JsKlibErrors.JSCODE_NO_JAVASCRIPT_PRODUCED,
-            "An argument for the js() function must be non-empty JavaScript code"
+            "An argument for the js() function must be non-empty JavaScript code."
         )
         map.put(
             JsKlibErrors.JSCODE_ERROR,
@@ -87,7 +87,7 @@ private object KtDefaultJsKlibErrorMessages : BaseDiagnosticRendererFactory() {
         )
         map.put(
             JsKlibErrors.JS_CODE_CAPTURES_INLINABLE_FUNCTION,
-            "Illegal capturing of inline parameter ''{0}''. Add ''noinline'' modifier to the parameter declaration",
+            "Illegal capturing of inline parameter ''{0}''. Add ''noinline'' modifier to the parameter declaration.",
             IrDiagnosticRenderers.DECLARATION_NAME
         )
     }

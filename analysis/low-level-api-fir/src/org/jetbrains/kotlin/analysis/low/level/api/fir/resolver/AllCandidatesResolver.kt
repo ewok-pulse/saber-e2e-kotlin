@@ -102,7 +102,11 @@ class AllCandidatesResolver(private val firSession: FirSession) {
     ): List<OverloadCandidate> {
         initializeBodyResolveContext(resolutionFacade, element)
 
-        val constructedType = delegatedConstructorCall.constructedTypeRef.coneType.abbreviatedTypeOrSelf as ConeClassLikeType
+        val constructedType = delegatedConstructorCall.constructedTypeRef
+            .coneType
+            .abbreviatedTypeOrSelf as? ConeClassLikeType
+            ?: return emptyList()
+
         return run {
             val callInfo = bodyResolveComponents.callResolver.callInfoForDelegatingConstructorCall(
                 delegatedConstructorCall,

@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.defaultType
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
 import org.jetbrains.kotlin.fir.resolve.getContainingClassSymbol
+import org.jetbrains.kotlin.fir.resolve.toClassSymbol
 import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.scopes.overriddenFunctions
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
@@ -356,7 +357,12 @@ private object Checks {
     object EqualsOverridesEqualsOfAny : Check() {
         override fun check(function: FirNamedFunction, session: FirSession, scopeSession: ScopeSession?): OperatorDiagnostic? {
             if (scopeSession == null) return null
-            val containingClassSymbol = function.containingClassLookupTag()?.toRegularClassSymbol(session) ?: return null
+            val containingClassSymbol = function.containingClassLookupTag()?.run {
+                if (session.languageVersionSettings.supportsFeature(LanguageFeature.ForbidOperatorEqualsInEnumEntriesAndAnonymousObjects))
+                    toClassSymbol(session)
+                else
+                    toRegularClassSymbol(session)
+            } ?: return null
             val customEqualsSupported = session.languageVersionSettings.supportsFeature(LanguageFeature.CustomEqualsInValueClasses)
 
             if (function.symbol.overriddenFunctions(containingClassSymbol, session, scopeSession)

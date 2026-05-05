@@ -189,6 +189,9 @@ internal class KaFirResolver(
             is KtClassLiteralExpression -> psi.receiverExpression?.let(::performSymbolResolution)
             // A no-parens super-type entry (`class Foo : Bar`) resolves through its type reference.
             is KtSuperTypeEntry -> psi.typeReference?.let(::performSymbolResolution)
+            // A delegated super-type entry (`class Foo : Bar by baz`) resolves through its type reference;
+            // the `by` delegate expression is intentionally not the resolution target.
+            is KtDelegatedSuperTypeEntry -> psi.typeReference?.let(::performSymbolResolution)
             else -> analysisSession.cacheStorage.resolveSymbolCache.value.getOrPut(psi) {
                 resolveSymbol(psi)
             }

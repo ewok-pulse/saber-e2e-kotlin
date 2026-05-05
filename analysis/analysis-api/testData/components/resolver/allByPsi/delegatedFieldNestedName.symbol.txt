@@ -158,7 +158,10 @@ KtSuperTypeList(225,374): '@Anno(0 + outer) Base<@Anno(1 + outer) Base<@Anno(2 +
   null
 
 KtDelegatedSuperTypeEntry(225,304): '@Anno(0 + outer) Base<@Anno(1 + outer) Base<@Anno(2 + outer) Int>> by Companion'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Base
+    ]
 
 KtTypeReference(225,291): '@Anno(0 + outer) Base<@Anno(1 + outer) Base<@Anno(2 + outer) Int>>'
   KaSymbolResolutionSuccess:
@@ -413,7 +416,10 @@ KtNameReferenceExpression(295,304): 'Companion'
     ]
 
 KtDelegatedSuperTypeEntry(310,374): '@Anno(4 + outer) Second<@Anno(5 + outer) String> by NestedObject'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Second
+    ]
 
 KtTypeReference(310,358): '@Anno(4 + outer) Second<@Anno(5 + outer) String>'
   KaSymbolResolutionSuccess:

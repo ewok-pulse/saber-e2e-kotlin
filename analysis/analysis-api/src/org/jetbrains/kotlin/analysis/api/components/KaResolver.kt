@@ -655,6 +655,28 @@ public interface KaResolver : KaSessionComponent {
     public fun KtSuperTypeEntry.resolveSymbol(): KaClassifierSymbol?
 
     /**
+     * Resolves the classifier symbol referenced by the given [KtDelegatedSuperTypeEntry] (`class Foo : Bar by baz`).
+     *
+     * #### Example
+     *
+     * ```kotlin
+     * class Foo(b: Base) : Base by b
+     * //                   ^^^^      resolves to `Base`
+     * ```
+     *
+     * Resolution delegates to the entry's [KtDelegatedSuperTypeEntry.getTypeReference] — the supertype side of the
+     * `by` clause, not the delegate expression. Returns the underlying [KaClassifierSymbol] if resolution succeeds;
+     * otherwise, it returns `null`.
+     *
+     * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on delegated supertype entries
+     *
+     * @see tryResolveSymbols
+     * @see KtResolvable.resolveSymbol
+     */
+    @KaExperimentalApi
+    public fun KtDelegatedSuperTypeEntry.resolveSymbol(): KaClassifierSymbol?
+
+    /**
      * Attempts to resolve the call for the given [KtResolvableCall].
      *
      * ### Usage Example:
@@ -2024,6 +2046,35 @@ public fun KtClassLiteralExpression.resolveSymbol(): KaClassifierSymbol? {
 @KaContextParameterApi
 context(session: KaSession)
 public fun KtSuperTypeEntry.resolveSymbol(): KaClassifierSymbol? {
+    return with(session) {
+        resolveSymbol()
+    }
+}
+
+/**
+ * Resolves the classifier symbol referenced by the given [KtDelegatedSuperTypeEntry] (`class Foo : Bar by baz`).
+ *
+ * #### Example
+ *
+ * ```kotlin
+ * class Foo(b: Base) : Base by b
+ * //                   ^^^^      resolves to `Base`
+ * ```
+ *
+ * Resolution delegates to the entry's [KtDelegatedSuperTypeEntry.getTypeReference] — the supertype side of the
+ * `by` clause, not the delegate expression. Returns the underlying [KaClassifierSymbol] if resolution succeeds;
+ * otherwise, it returns `null`.
+ *
+ * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on delegated supertype entries
+ *
+ * @see tryResolveSymbols
+ * @see KtResolvable.resolveSymbol
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KtDelegatedSuperTypeEntry.resolveSymbol(): KaClassifierSymbol? {
     return with(session) {
         resolveSymbol()
     }

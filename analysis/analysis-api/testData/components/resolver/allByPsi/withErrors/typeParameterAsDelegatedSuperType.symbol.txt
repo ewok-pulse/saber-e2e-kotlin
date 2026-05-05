@@ -83,7 +83,11 @@ KtSuperTypeList(102,108): 'T by i'
   null
 
 KtDelegatedSuperTypeEntry(102,108): 'T by i'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      T
+    ]
+    diagnostic = ERROR<SUPERTYPE_NOT_A_CLASS_OR_INTERFACE: Supertype is not a class or interface.>
 
 KtTypeReference(102,103): 'T'
   KaSymbolResolutionError:

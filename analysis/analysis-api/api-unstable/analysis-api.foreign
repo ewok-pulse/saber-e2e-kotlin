@@ -45,6 +45,7 @@ org/jetbrains/kotlin/psi/KtConstructorDelegationReferenceExpression
 org/jetbrains/kotlin/psi/KtContextReceiver
 org/jetbrains/kotlin/psi/KtDeclaration
 org/jetbrains/kotlin/psi/KtDeclarationWithReturnType
+org/jetbrains/kotlin/psi/KtDelegatedSuperTypeEntry
 org/jetbrains/kotlin/psi/KtDestructuringDeclaration
 org/jetbrains/kotlin/psi/KtDestructuringDeclarationEntry
 org/jetbrains/kotlin/psi/KtDoubleColonExpression

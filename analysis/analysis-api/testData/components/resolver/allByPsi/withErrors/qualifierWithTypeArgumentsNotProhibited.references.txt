@@ -1,4 +1,4 @@
-KtCallExpression(42,56): 'JavaClass<Int>'
+KtCallExpression(43,57): 'JavaClass<Int>'
   KtInvokeFunctionReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -6,7 +6,7 @@ KtCallExpression(42,56): 'JavaClass<Int>'
     symbols:
       Nothing (Unresolved reference)
 
-KtNameReferenceExpression(42,51): 'JavaClass'
+KtNameReferenceExpression(43,52): 'JavaClass'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -14,7 +14,7 @@ KtNameReferenceExpression(42,51): 'JavaClass'
     symbols:
       (in ROOT) open class JavaClass<T : kotlin.Any!>
 
-KtNameReferenceExpression(52,55): 'Int'
+KtNameReferenceExpression(53,56): 'Int'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -22,7 +22,7 @@ KtNameReferenceExpression(52,55): 'Int'
     symbols:
       (in kotlin) class Int private constructor : kotlin.Number(), kotlin.Comparable<kotlin.Int>, java.io.Serializable
 
-KtNameReferenceExpression(57,68): 'staticField'
+KtNameReferenceExpression(58,69): 'staticField'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -30,7 +30,7 @@ KtNameReferenceExpression(57,68): 'staticField'
     symbols:
       (in JavaClass) var staticField: kotlin.Int!
 
-KtCallExpression(72,87): 'JavaClass<Long>'
+KtCallExpression(73,88): 'JavaClass<Long>'
   KtInvokeFunctionReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -38,7 +38,7 @@ KtCallExpression(72,87): 'JavaClass<Long>'
     symbols:
       Nothing (Unresolved reference)
 
-KtNameReferenceExpression(72,81): 'JavaClass'
+KtNameReferenceExpression(73,82): 'JavaClass'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -46,7 +46,7 @@ KtNameReferenceExpression(72,81): 'JavaClass'
     symbols:
       (in ROOT) open class JavaClass<T : kotlin.Any!>
 
-KtNameReferenceExpression(82,86): 'Long'
+KtNameReferenceExpression(83,87): 'Long'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -54,7 +54,7 @@ KtNameReferenceExpression(82,86): 'Long'
     symbols:
       (in kotlin) class Long private constructor : kotlin.Number(), kotlin.Comparable<kotlin.Long>, java.io.Serializable
 
-KtNameReferenceExpression(88,98): 'unresolved'
+KtNameReferenceExpression(89,99): 'unresolved'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -63,7 +63,7 @@ KtNameReferenceExpression(88,98): 'unresolved'
     symbols:
       Nothing (Unresolved reference)
 
-KtCallExpression(102,119): 'JavaClass<String>'
+KtCallExpression(103,120): 'JavaClass<String>'
   KtInvokeFunctionReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -71,7 +71,7 @@ KtCallExpression(102,119): 'JavaClass<String>'
     symbols:
       Nothing (Unresolved reference)
 
-KtNameReferenceExpression(102,111): 'JavaClass'
+KtNameReferenceExpression(103,112): 'JavaClass'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -79,7 +79,7 @@ KtNameReferenceExpression(102,111): 'JavaClass'
     symbols:
       (in ROOT) open class JavaClass<T : kotlin.Any!>
 
-KtNameReferenceExpression(112,118): 'String'
+KtNameReferenceExpression(113,119): 'String'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -87,7 +87,7 @@ KtNameReferenceExpression(112,118): 'String'
     symbols:
       (in kotlin) class String : kotlin.Comparable<kotlin.String>, kotlin.CharSequence, java.io.Serializable
 
-KtNameReferenceExpression(121,132): 'staticField'
+KtNameReferenceExpression(122,133): 'staticField'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -95,7 +95,7 @@ KtNameReferenceExpression(121,132): 'staticField'
     symbols:
       (in JavaClass) var staticField: kotlin.Int!
 
-KtCallExpression(136,154): 'JavaClass<Boolean>'
+KtCallExpression(137,155): 'JavaClass<Boolean>'
   KtInvokeFunctionReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -103,7 +103,7 @@ KtCallExpression(136,154): 'JavaClass<Boolean>'
     symbols:
       Nothing (Unresolved reference)
 
-KtNameReferenceExpression(136,145): 'JavaClass'
+KtNameReferenceExpression(137,146): 'JavaClass'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -111,7 +111,7 @@ KtNameReferenceExpression(136,145): 'JavaClass'
     symbols:
       (in ROOT) open class JavaClass<T : kotlin.Any!>
 
-KtNameReferenceExpression(146,153): 'Boolean'
+KtNameReferenceExpression(147,154): 'Boolean'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
@@ -119,10 +119,42 @@ KtNameReferenceExpression(146,153): 'Boolean'
     symbols:
       (in kotlin) class Boolean private constructor : kotlin.Comparable<kotlin.Boolean>, java.io.Serializable
 
-KtNameReferenceExpression(156,162): 'method'
+KtNameReferenceExpression(157,163): 'method'
   KtSimpleNameReference:
     isImplicitReferenceToCompanion: false
     usesContextSensitiveResolution: false
     attempt: KaSymbolResolutionSuccess
     symbols:
       (in JavaClass) open fun method()
+
+KtCallExpression(167,183): 'JavaClass<Short>'
+  KtInvokeFunctionReference:
+    isImplicitReferenceToCompanion: false
+    usesContextSensitiveResolution: false
+    attempt: null
+    symbols:
+      Nothing (Unresolved reference)
+
+KtNameReferenceExpression(167,176): 'JavaClass'
+  KtSimpleNameReference:
+    isImplicitReferenceToCompanion: false
+    usesContextSensitiveResolution: false
+    attempt: KaSymbolResolutionSuccess
+    symbols:
+      (in ROOT) open class JavaClass<T : kotlin.Any!>
+
+KtNameReferenceExpression(177,182): 'Short'
+  KtSimpleNameReference:
+    isImplicitReferenceToCompanion: false
+    usesContextSensitiveResolution: false
+    attempt: KaSymbolResolutionSuccess
+    symbols:
+      (in kotlin) class Short private constructor : kotlin.Number(), kotlin.Comparable<kotlin.Short>, java.io.Serializable
+
+KtNameReferenceExpression(185,197): 'staticMethod'
+  KtSimpleNameReference:
+    isImplicitReferenceToCompanion: false
+    usesContextSensitiveResolution: false
+    attempt: KaSymbolResolutionSuccess
+    symbols:
+      (in JavaClass) open fun staticMethod(): kotlin.String!

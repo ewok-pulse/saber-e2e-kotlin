@@ -7,19 +7,19 @@ KtPackageDirective(0,0): ''
 KtImportList(0,0): ''
   NO_CANDIDATES
 
-KtNamedFunction(5,68): '// FILE: main.kt'
+KtNamedFunction(6,105): '// FILE: main.kt'
   NO_CANDIDATES
 
-KtParameterList(30,32): '()'
+KtParameterList(31,33): '()'
   NO_CANDIDATES
 
-KtBlockExpression(33,68): '{'
+KtBlockExpression(34,105): '{'
   NO_CANDIDATES
 
-KtProperty(38,66): 'val p = JavaClass<Int>.field'
+KtProperty(39,67): 'val p = JavaClass<Int>.field'
   NO_CANDIDATES
 
-KtDotQualifiedExpression(46,66): 'JavaClass<Int>.field'
+KtDotQualifiedExpression(47,67): 'JavaClass<Int>.field'
   KaApplicableCallCandidate:
     candidate = KaSimpleVariableAccessCall:
       contextArguments = []
@@ -40,7 +40,7 @@ KtDotQualifiedExpression(46,66): 'JavaClass<Int>.field'
       typeArgumentsMapping = {}
     isInBestCandidates = true
 
-KtCallExpression(46,60): 'JavaClass<Int>'
+KtCallExpression(47,61): 'JavaClass<Int>'
   KaInapplicableCallCandidate:
     candidate = KaSimpleFunctionCall:
       contextArgumentMapping = {}
@@ -61,7 +61,7 @@ KtCallExpression(46,60): 'JavaClass<Int>'
     diagnostic = ERROR<OTHER_ERROR: Inapplicable candidate>
     isInBestCandidates = false
 
-KtNameReferenceExpression(46,55): 'JavaClass'
+KtNameReferenceExpression(47,56): 'JavaClass'
   KaInapplicableCallCandidate:
     candidate = KaSimpleFunctionCall:
       contextArgumentMapping = {}
@@ -82,22 +82,22 @@ KtNameReferenceExpression(46,55): 'JavaClass'
     diagnostic = ERROR<OTHER_ERROR: Inapplicable candidate>
     isInBestCandidates = false
 
-KtTypeArgumentList(55,60): '<Int>'
+KtTypeArgumentList(56,61): '<Int>'
   NO_CANDIDATES
 
-KtTypeProjection(56,59): 'Int'
+KtTypeProjection(57,60): 'Int'
   NO_CANDIDATES
 
-KtTypeReference(56,59): 'Int'
+KtTypeReference(57,60): 'Int'
   NO_CANDIDATES
 
-KtUserType(56,59): 'Int'
+KtUserType(57,60): 'Int'
   NO_CANDIDATES
 
-KtNameReferenceExpression(56,59): 'Int'
+KtNameReferenceExpression(57,60): 'Int'
   NO_CANDIDATES
 
-KtNameReferenceExpression(61,66): 'field'
+KtNameReferenceExpression(62,67): 'field'
   KaApplicableCallCandidate:
     candidate = KaSimpleVariableAccessCall:
       contextArguments = []
@@ -117,3 +117,129 @@ KtNameReferenceExpression(61,66): 'field'
         callableId = /JavaClass.field
       typeArgumentsMapping = {}
     isInBestCandidates = true
+
+KtProperty(71,103): 'val m = JavaClass<Long>.method()'
+  NO_CANDIDATES
+
+KtDotQualifiedExpression(79,103): 'JavaClass<Long>.method()'
+  KaApplicableCallCandidate:
+    candidate = KaSimpleFunctionCall:
+      contextArgumentMapping = {}
+      contextArguments = []
+      dispatchReceiver = KaExplicitReceiverValue:
+        expression = JavaClass<Long>
+        isSafeNavigation = false
+        type = kotlin.Unit
+      extensionReceiver = null
+      signature = KaFunctionSignature:
+        receiverType = null
+        returnType = kotlin.String!
+        symbol = /JavaClass.method(): kotlin.String!
+        valueParameters = []
+        contextParameters = []
+        callableId = /JavaClass.method
+      typeArgumentsMapping = {}
+      valueArgumentMapping = {}
+    isInBestCandidates = true
+
+KtCallExpression(79,94): 'JavaClass<Long>'
+  KaInapplicableCallCandidate:
+    candidate = KaSimpleFunctionCall:
+      contextArgumentMapping = {}
+      contextArguments = []
+      dispatchReceiver = null
+      extensionReceiver = null
+      signature = KaFunctionSignature:
+        receiverType = null
+        returnType = JavaClass<T>
+        symbol = <constructor>(): JavaClass<T>
+        valueParameters = []
+        contextParameters = []
+        callableId = null
+      typeArgumentsMapping = {
+        T -> (kotlin.Long)
+      }
+      valueArgumentMapping = {}
+    diagnostic = ERROR<OTHER_ERROR: Inapplicable candidate>
+    isInBestCandidates = false
+
+KtNameReferenceExpression(79,88): 'JavaClass'
+  KaInapplicableCallCandidate:
+    candidate = KaSimpleFunctionCall:
+      contextArgumentMapping = {}
+      contextArguments = []
+      dispatchReceiver = null
+      extensionReceiver = null
+      signature = KaFunctionSignature:
+        receiverType = null
+        returnType = JavaClass<T>
+        symbol = <constructor>(): JavaClass<T>
+        valueParameters = []
+        contextParameters = []
+        callableId = null
+      typeArgumentsMapping = {
+        T -> (kotlin.Long)
+      }
+      valueArgumentMapping = {}
+    diagnostic = ERROR<OTHER_ERROR: Inapplicable candidate>
+    isInBestCandidates = false
+
+KtTypeArgumentList(88,94): '<Long>'
+  NO_CANDIDATES
+
+KtTypeProjection(89,93): 'Long'
+  NO_CANDIDATES
+
+KtTypeReference(89,93): 'Long'
+  NO_CANDIDATES
+
+KtUserType(89,93): 'Long'
+  NO_CANDIDATES
+
+KtNameReferenceExpression(89,93): 'Long'
+  NO_CANDIDATES
+
+KtCallExpression(95,103): 'method()'
+  KaApplicableCallCandidate:
+    candidate = KaSimpleFunctionCall:
+      contextArgumentMapping = {}
+      contextArguments = []
+      dispatchReceiver = KaExplicitReceiverValue:
+        expression = JavaClass<Long>
+        isSafeNavigation = false
+        type = kotlin.Unit
+      extensionReceiver = null
+      signature = KaFunctionSignature:
+        receiverType = null
+        returnType = kotlin.String!
+        symbol = /JavaClass.method(): kotlin.String!
+        valueParameters = []
+        contextParameters = []
+        callableId = /JavaClass.method
+      typeArgumentsMapping = {}
+      valueArgumentMapping = {}
+    isInBestCandidates = true
+
+KtNameReferenceExpression(95,101): 'method'
+  KaApplicableCallCandidate:
+    candidate = KaSimpleFunctionCall:
+      contextArgumentMapping = {}
+      contextArguments = []
+      dispatchReceiver = KaExplicitReceiverValue:
+        expression = JavaClass<Long>
+        isSafeNavigation = false
+        type = kotlin.Unit
+      extensionReceiver = null
+      signature = KaFunctionSignature:
+        receiverType = null
+        returnType = kotlin.String!
+        symbol = /JavaClass.method(): kotlin.String!
+        valueParameters = []
+        contextParameters = []
+        callableId = /JavaClass.method
+      typeArgumentsMapping = {}
+      valueArgumentMapping = {}
+    isInBestCandidates = true
+
+KtValueArgumentList(101,103): '()'
+  NO_CANDIDATES

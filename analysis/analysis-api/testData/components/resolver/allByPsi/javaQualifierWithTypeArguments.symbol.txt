@@ -7,53 +7,104 @@ KtPackageDirective(0,0): ''
 KtImportList(0,0): ''
   null
 
-KtNamedFunction(5,68): '// FILE: main.kt'
+KtNamedFunction(6,105): '// FILE: main.kt'
   null
 
-KtParameterList(30,32): '()'
+KtParameterList(31,33): '()'
   null
 
-KtBlockExpression(33,68): '{'
+KtBlockExpression(34,105): '{'
   null
 
-KtProperty(38,66): 'val p = JavaClass<Int>.field'
+KtProperty(39,67): 'val p = JavaClass<Int>.field'
   null
 
-KtDotQualifiedExpression(46,66): 'JavaClass<Int>.field'
+KtDotQualifiedExpression(47,67): 'JavaClass<Int>.field'
   KaSymbolResolutionSuccess:
     symbols = [
       var field: kotlin.Int!
     ]
 
-KtCallExpression(46,60): 'JavaClass<Int>'
+KtCallExpression(47,61): 'JavaClass<Int>'
   null
 
-KtNameReferenceExpression(46,55): 'JavaClass'
+KtNameReferenceExpression(47,56): 'JavaClass'
   KaSymbolResolutionSuccess:
     symbols = [
       /JavaClass
     ]
 
-KtTypeArgumentList(55,60): '<Int>'
+KtTypeArgumentList(56,61): '<Int>'
   null
 
-KtTypeProjection(56,59): 'Int'
+KtTypeProjection(57,60): 'Int'
   null
 
-KtTypeReference(56,59): 'Int'
+KtTypeReference(57,60): 'Int'
   null
 
-KtUserType(56,59): 'Int'
+KtUserType(57,60): 'Int'
   null
 
-KtNameReferenceExpression(56,59): 'Int'
+KtNameReferenceExpression(57,60): 'Int'
   KaSymbolResolutionSuccess:
     symbols = [
       kotlin/Int
     ]
 
-KtNameReferenceExpression(61,66): 'field'
+KtNameReferenceExpression(62,67): 'field'
   KaSymbolResolutionSuccess:
     symbols = [
       var field: kotlin.Int!
     ]
+
+KtProperty(71,103): 'val m = JavaClass<Long>.method()'
+  null
+
+KtDotQualifiedExpression(79,103): 'JavaClass<Long>.method()'
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /JavaClass.method(): kotlin.String!
+    ]
+
+KtCallExpression(79,94): 'JavaClass<Long>'
+  null
+
+KtNameReferenceExpression(79,88): 'JavaClass'
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /JavaClass
+    ]
+
+KtTypeArgumentList(88,94): '<Long>'
+  null
+
+KtTypeProjection(89,93): 'Long'
+  null
+
+KtTypeReference(89,93): 'Long'
+  null
+
+KtUserType(89,93): 'Long'
+  null
+
+KtNameReferenceExpression(89,93): 'Long'
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Long
+    ]
+
+KtCallExpression(95,103): 'method()'
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /JavaClass.method(): kotlin.String!
+    ]
+
+KtNameReferenceExpression(95,101): 'method'
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /JavaClass.method(): kotlin.String!
+    ]
+
+KtValueArgumentList(101,103): '()'
+  null

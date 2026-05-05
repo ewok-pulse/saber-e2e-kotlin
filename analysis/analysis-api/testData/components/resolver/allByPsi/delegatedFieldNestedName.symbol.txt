@@ -32,7 +32,10 @@ KtConstructorCalleeExpression(32,38): 'Target'
     ]
 
 KtTypeReference(32,38): 'Target'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/annotation/Target
+    ]
 
 KtUserType(32,38): 'Target'
   KaSymbolResolutionSuccess:
@@ -80,7 +83,10 @@ KtParameter(84,94): 'val i: Int'
   null
 
 KtTypeReference(91,94): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(91,94): 'Int'
   KaSymbolResolutionSuccess:
@@ -155,7 +161,10 @@ KtDelegatedSuperTypeEntry(225,304): '@Anno(0 + outer) Base<@Anno(1 + outer) Base
   null
 
 KtTypeReference(225,291): '@Anno(0 + outer) Base<@Anno(1 + outer) Base<@Anno(2 + outer) Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Base
+    ]
 
 KtDeclarationModifierList(225,241): '@Anno(0 + outer)'
   null
@@ -173,7 +182,10 @@ KtConstructorCalleeExpression(226,230): 'Anno'
     ]
 
 KtTypeReference(226,230): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(226,230): 'Anno'
   KaSymbolResolutionSuccess:
@@ -233,7 +245,10 @@ KtTypeProjection(247,290): '@Anno(1 + outer) Base<@Anno(2 + outer) Int>'
   null
 
 KtTypeReference(247,290): '@Anno(1 + outer) Base<@Anno(2 + outer) Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Base
+    ]
 
 KtDeclarationModifierList(247,263): '@Anno(1 + outer)'
   null
@@ -251,7 +266,10 @@ KtConstructorCalleeExpression(248,252): 'Anno'
     ]
 
 KtTypeReference(248,252): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(248,252): 'Anno'
   KaSymbolResolutionSuccess:
@@ -311,7 +329,10 @@ KtTypeProjection(269,289): '@Anno(2 + outer) Int'
   null
 
 KtTypeReference(269,289): '@Anno(2 + outer) Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtDeclarationModifierList(269,285): '@Anno(2 + outer)'
   null
@@ -329,7 +350,10 @@ KtConstructorCalleeExpression(270,274): 'Anno'
     ]
 
 KtTypeReference(270,274): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(270,274): 'Anno'
   KaSymbolResolutionSuccess:
@@ -392,7 +416,10 @@ KtDelegatedSuperTypeEntry(310,374): '@Anno(4 + outer) Second<@Anno(5 + outer) St
   null
 
 KtTypeReference(310,358): '@Anno(4 + outer) Second<@Anno(5 + outer) String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Second
+    ]
 
 KtDeclarationModifierList(310,326): '@Anno(4 + outer)'
   null
@@ -410,7 +437,10 @@ KtConstructorCalleeExpression(311,315): 'Anno'
     ]
 
 KtTypeReference(311,315): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(311,315): 'Anno'
   KaSymbolResolutionSuccess:
@@ -470,7 +500,10 @@ KtTypeProjection(334,357): '@Anno(5 + outer) String'
   null
 
 KtTypeReference(334,357): '@Anno(5 + outer) String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtDeclarationModifierList(334,350): '@Anno(5 + outer)'
   null
@@ -488,7 +521,10 @@ KtConstructorCalleeExpression(335,339): 'Anno'
     ]
 
 KtTypeReference(335,339): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(335,339): 'Anno'
   KaSymbolResolutionSuccess:
@@ -563,7 +599,10 @@ KtSuperTypeEntry(400,466): '@Anno(6 + inner) Base<@Anno(7 + inner) Base<@Anno(8 
   null
 
 KtTypeReference(400,466): '@Anno(6 + inner) Base<@Anno(7 + inner) Base<@Anno(8 + inner) Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Base
+    ]
 
 KtDeclarationModifierList(400,416): '@Anno(6 + inner)'
   null
@@ -581,7 +620,10 @@ KtConstructorCalleeExpression(401,405): 'Anno'
     ]
 
 KtTypeReference(401,405): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(401,405): 'Anno'
   KaSymbolResolutionSuccess:
@@ -689,7 +731,10 @@ KtTypeProjection(422,465): '@Anno(7 + inner) Base<@Anno(8 + inner) Int>'
   null
 
 KtTypeReference(422,465): '@Anno(7 + inner) Base<@Anno(8 + inner) Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Base
+    ]
 
 KtDeclarationModifierList(422,438): '@Anno(7 + inner)'
   null
@@ -707,7 +752,10 @@ KtConstructorCalleeExpression(423,427): 'Anno'
     ]
 
 KtTypeReference(423,427): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(423,427): 'Anno'
   KaSymbolResolutionSuccess:
@@ -815,7 +863,10 @@ KtTypeProjection(444,464): '@Anno(8 + inner) Int'
   null
 
 KtTypeReference(444,464): '@Anno(8 + inner) Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtDeclarationModifierList(444,460): '@Anno(8 + inner)'
   null
@@ -833,7 +884,10 @@ KtConstructorCalleeExpression(445,449): 'Anno'
     ]
 
 KtTypeReference(445,449): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(445,449): 'Anno'
   KaSymbolResolutionSuccess:
@@ -965,7 +1019,10 @@ KtSuperTypeEntry(559,608): '@Anno(9 + inner) Second<@Anno(10 + inner) String>'
   null
 
 KtTypeReference(559,608): '@Anno(9 + inner) Second<@Anno(10 + inner) String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Second
+    ]
 
 KtDeclarationModifierList(559,575): '@Anno(9 + inner)'
   null
@@ -983,7 +1040,10 @@ KtConstructorCalleeExpression(560,564): 'Anno'
     ]
 
 KtTypeReference(560,564): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(560,564): 'Anno'
   KaSymbolResolutionSuccess:
@@ -1043,7 +1103,10 @@ KtTypeProjection(583,607): '@Anno(10 + inner) String'
   null
 
 KtTypeReference(583,607): '@Anno(10 + inner) String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtDeclarationModifierList(583,600): '@Anno(10 + inner)'
   null
@@ -1061,7 +1124,10 @@ KtConstructorCalleeExpression(584,588): 'Anno'
     ]
 
 KtTypeReference(584,588): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Anno
+    ]
 
 KtUserType(584,588): 'Anno'
   KaSymbolResolutionSuccess:

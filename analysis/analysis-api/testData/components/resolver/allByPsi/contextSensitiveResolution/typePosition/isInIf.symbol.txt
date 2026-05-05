@@ -32,7 +32,10 @@ KtParameter(137,160): 'val prop1: String = "1"'
   null
 
 KtTypeReference(148,154): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(148,154): 'String'
   KaSymbolResolutionSuccess:
@@ -68,7 +71,10 @@ KtConstructorCalleeExpression(163,174): 'SealedClass'
     ]
 
 KtTypeReference(163,174): 'SealedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass
+    ]
 
 KtUserType(163,174): 'SealedClass'
   KaSymbolResolutionSuccess:
@@ -98,7 +104,10 @@ KtParameter(204,222): 'val prop2: Int = 2'
   null
 
 KtTypeReference(215,218): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(215,218): 'Int'
   KaSymbolResolutionSuccess:
@@ -131,7 +140,10 @@ KtConstructorCalleeExpression(225,236): 'SealedClass'
     ]
 
 KtTypeReference(225,236): 'SealedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass
+    ]
 
 KtUserType(225,236): 'SealedClass'
   KaSymbolResolutionSuccess:
@@ -164,7 +176,10 @@ KtParameter(280,305): 'val prop3: Boolean = true'
   null
 
 KtTypeReference(291,298): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(291,298): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -197,7 +212,10 @@ KtConstructorCalleeExpression(308,319): 'SealedClass'
     ]
 
 KtTypeReference(308,319): 'SealedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass
+    ]
 
 KtUserType(308,319): 'SealedClass'
   KaSymbolResolutionSuccess:
@@ -233,7 +251,10 @@ KtConstructorCalleeExpression(358,374): 'SealedInheritor1'
     ]
 
 KtTypeReference(358,374): 'SealedInheritor1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.SealedInheritor1
+    ]
 
 KtUserType(358,374): 'SealedInheritor1'
   KaSymbolResolutionSuccess:
@@ -266,7 +287,10 @@ KtParameter(400,436): 'val innerProp: String = "inner prop"'
   null
 
 KtTypeReference(415,421): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(415,421): 'String'
   KaSymbolResolutionSuccess:
@@ -302,7 +326,10 @@ KtConstructorCalleeExpression(439,450): 'SealedClass'
     ]
 
 KtTypeReference(439,450): 'SealedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass
+    ]
 
 KtUserType(439,450): 'SealedClass'
   KaSymbolResolutionSuccess:
@@ -332,7 +359,10 @@ KtParameter(490,511): 'instance: SealedClass'
   null
 
 KtTypeReference(500,511): 'SealedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass
+    ]
 
 KtUserType(500,511): 'SealedClass'
   KaSymbolResolutionSuccess:
@@ -347,7 +377,10 @@ KtNameReferenceExpression(500,511): 'SealedClass'
     ]
 
 KtTypeReference(514,520): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(514,520): 'String'
   KaSymbolResolutionSuccess:
@@ -383,7 +416,10 @@ KtOperationReferenceExpression(540,542): 'is'
   null
 
 KtTypeReference(543,559): 'SealedInheritor1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.SealedInheritor1
+    ]
 
 KtUserType(543,559): 'SealedInheritor1'
   KaSymbolResolutionSuccess:
@@ -446,7 +482,10 @@ KtOperationReferenceExpression(617,619): 'is'
   null
 
 KtTypeReference(620,643): 'IndirectSealedInheritor'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.IndirectSealedInheritor
+    ]
 
 KtUserType(620,643): 'IndirectSealedInheritor'
   KaSymbolResolutionSuccess:
@@ -509,7 +548,10 @@ KtOperationReferenceExpression(701,703): 'is'
   null
 
 KtTypeReference(704,709): 'Inner'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.Inner
+    ]
 
 KtUserType(704,709): 'Inner'
   KaSymbolResolutionSuccess:
@@ -575,7 +617,10 @@ KtOperationReferenceExpression(771,774): '!is'
   null
 
 KtTypeReference(775,791): 'SealedInheritor1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.SealedInheritor1
+    ]
 
 KtUserType(775,791): 'SealedInheritor1'
   KaSymbolResolutionSuccess:
@@ -605,7 +650,10 @@ KtOperationReferenceExpression(804,807): '!is'
   null
 
 KtTypeReference(808,830): 'SealedSealedInheritor1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.SealedSealedInheritor1
+    ]
 
 KtUserType(808,830): 'SealedSealedInheritor1'
   KaSymbolResolutionSuccess:
@@ -644,7 +692,10 @@ KtOperationReferenceExpression(855,857): 'is'
   null
 
 KtTypeReference(858,874): 'SealedInheritor2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.SealedInheritor2
+    ]
 
 KtUserType(858,874): 'SealedInheritor2'
   KaSymbolResolutionSuccess:
@@ -707,7 +758,10 @@ KtOperationReferenceExpression(946,948): 'is'
   null
 
 KtTypeReference(949,971): 'SealedSealedInheritor1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.SealedSealedInheritor1
+    ]
 
 KtUserType(949,971): 'SealedSealedInheritor1'
   KaSymbolResolutionSuccess:
@@ -770,7 +824,9 @@ KtOperationReferenceExpression(1029,1031): 'is'
   null
 
 KtTypeReference(1032,1039): 'Nested1'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Nested1'.>
 
 KtUserType(1032,1039): 'Nested1'
   KaSymbolResolutionError:

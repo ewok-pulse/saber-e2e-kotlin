@@ -26,7 +26,10 @@ KtTypeAlias(102,124): 'typealias Other = Some'
   null
 
 KtTypeReference(120,124): 'Some'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Some
+    ]
 
 KtUserType(120,124): 'Some'
   KaSymbolResolutionSuccess:
@@ -50,7 +53,10 @@ KtParameter(134,142): 'o: Other'
   null
 
 KtTypeReference(137,142): 'Other'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Other
+    ]
 
 KtUserType(137,142): 'Other'
   KaSymbolResolutionSuccess:

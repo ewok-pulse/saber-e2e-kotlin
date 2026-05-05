@@ -95,7 +95,10 @@ KtParameter(156,164): 'f: First'
   null
 
 KtTypeReference(159,164): 'First'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      first/First
+    ]
 
 KtUserType(159,164): 'First'
   KaSymbolResolutionSuccess:
@@ -158,7 +161,10 @@ KtParameter(216,225): 's: Second'
   null
 
 KtTypeReference(219,225): 'Second'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Second
+    ]
 
 KtUserType(219,225): 'Second'
   KaSymbolResolutionSuccess:

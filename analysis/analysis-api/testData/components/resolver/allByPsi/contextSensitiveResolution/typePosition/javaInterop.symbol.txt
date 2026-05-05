@@ -17,7 +17,10 @@ KtParameter(68,84): 'instance: JClass'
   null
 
 KtTypeReference(78,84): 'JClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /JClass
+    ]
 
 KtUserType(78,84): 'JClass'
   KaSymbolResolutionSuccess:
@@ -32,7 +35,10 @@ KtNameReferenceExpression(78,84): 'JClass'
     ]
 
 KtTypeReference(87,90): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(87,90): 'Int'
   KaSymbolResolutionSuccess:
@@ -62,7 +68,9 @@ KtWhenConditionIsPattern(115,127): 'is JCOption1'
   null
 
 KtTypeReference(118,127): 'JCOption1'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'JCOption1'.>
 
 KtUserType(118,127): 'JCOption1'
   KaSymbolResolutionError:
@@ -97,7 +105,9 @@ KtWhenConditionIsPattern(151,163): 'is JCOption2'
   null
 
 KtTypeReference(154,163): 'JCOption2'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'JCOption2'.>
 
 KtUserType(154,163): 'JCOption2'
   KaSymbolResolutionError:
@@ -132,7 +142,9 @@ KtWhenConditionIsPattern(187,196): 'is Nested'
   null
 
 KtTypeReference(190,196): 'Nested'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Nested'.>
 
 KtUserType(190,196): 'Nested'
   KaSymbolResolutionError:
@@ -170,7 +182,10 @@ KtParameter(243,265): 'instance: SealedJClass'
   null
 
 KtTypeReference(253,265): 'SealedJClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass
+    ]
 
 KtUserType(253,265): 'SealedJClass'
   KaSymbolResolutionSuccess:
@@ -185,7 +200,10 @@ KtNameReferenceExpression(253,265): 'SealedJClass'
     ]
 
 KtTypeReference(268,271): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(268,271): 'Int'
   KaSymbolResolutionSuccess:
@@ -221,7 +239,10 @@ KtOperationReferenceExpression(291,293): 'is'
   null
 
 KtTypeReference(294,303): 'SCOption1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption1
+    ]
 
 KtUserType(294,303): 'SCOption1'
   KaSymbolResolutionSuccess:
@@ -284,7 +305,10 @@ KtOperationReferenceExpression(360,362): 'is'
   null
 
 KtTypeReference(363,372): 'SCOption2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption2
+    ]
 
 KtUserType(363,372): 'SCOption2'
   KaSymbolResolutionSuccess:
@@ -347,7 +371,10 @@ KtParameter(466,488): 'instance: SealedJClass'
   null
 
 KtTypeReference(476,488): 'SealedJClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass
+    ]
 
 KtUserType(476,488): 'SealedJClass'
   KaSymbolResolutionSuccess:
@@ -362,7 +389,10 @@ KtNameReferenceExpression(476,488): 'SealedJClass'
     ]
 
 KtTypeReference(491,494): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(491,494): 'Int'
   KaSymbolResolutionSuccess:
@@ -392,7 +422,10 @@ KtWhenConditionIsPattern(519,531): 'is SCOption1'
   null
 
 KtTypeReference(522,531): 'SCOption1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption1
+    ]
 
 KtUserType(522,531): 'SCOption1'
   KaSymbolResolutionSuccess:
@@ -431,7 +464,10 @@ KtWhenConditionIsPattern(554,566): 'is SCOption2'
   null
 
 KtTypeReference(557,566): 'SCOption2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption2
+    ]
 
 KtUserType(557,566): 'SCOption2'
   KaSymbolResolutionSuccess:
@@ -473,7 +509,10 @@ KtParameter(615,637): 'instance: SealedJClass'
   null
 
 KtTypeReference(625,637): 'SealedJClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass
+    ]
 
 KtUserType(625,637): 'SealedJClass'
   KaSymbolResolutionSuccess:
@@ -488,7 +527,10 @@ KtNameReferenceExpression(625,637): 'SealedJClass'
     ]
 
 KtTypeReference(640,643): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(640,643): 'Int'
   KaSymbolResolutionSuccess:
@@ -524,7 +566,10 @@ KtOperationReferenceExpression(666,668): 'is'
   null
 
 KtTypeReference(669,678): 'SCOption1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption1
+    ]
 
 KtUserType(669,678): 'SCOption1'
   KaSymbolResolutionSuccess:
@@ -575,7 +620,10 @@ KtOperationReferenceExpression(710,712): 'is'
   null
 
 KtTypeReference(713,722): 'SCOption2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption2
+    ]
 
 KtUserType(713,722): 'SCOption2'
   KaSymbolResolutionSuccess:

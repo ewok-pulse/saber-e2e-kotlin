@@ -11,7 +11,10 @@ KtTypeAlias(0,35): 'typealias StringList = List<String>'
   null
 
 KtTypeReference(23,35): 'List<String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtUserType(23,35): 'List<String>'
   KaSymbolResolutionSuccess:
@@ -32,7 +35,10 @@ KtTypeProjection(28,34): 'String'
   null
 
 KtTypeReference(28,34): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(28,34): 'String'
   KaSymbolResolutionSuccess:
@@ -71,7 +77,10 @@ KtParameter(119,128): 'x: String'
   null
 
 KtTypeReference(122,128): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(122,128): 'String'
   KaSymbolResolutionSuccess:
@@ -98,7 +107,10 @@ KtParameter(146,161): 'x: List<String>'
   null
 
 KtTypeReference(149,161): 'List<String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtUserType(149,161): 'List<String>'
   KaSymbolResolutionSuccess:
@@ -119,7 +131,10 @@ KtTypeProjection(154,160): 'String'
   null
 
 KtTypeReference(154,160): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(154,160): 'String'
   KaSymbolResolutionSuccess:
@@ -146,7 +161,10 @@ KtParameter(178,193): 'x: Outer.Nested'
   null
 
 KtTypeReference(181,193): 'Outer.Nested'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Outer.Nested
+    ]
 
 KtUserType(181,193): 'Outer.Nested'
   KaSymbolResolutionSuccess:
@@ -185,7 +203,10 @@ KtParameter(219,242): 'x: kotlin.Int.Companion'
   null
 
 KtTypeReference(222,242): 'kotlin.Int.Companion'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int.Companion
+    ]
 
 KtUserType(222,242): 'kotlin.Int.Companion'
   KaSymbolResolutionSuccess:
@@ -236,7 +257,10 @@ KtParameter(262,275): 'x: StringList'
   null
 
 KtTypeReference(265,275): 'StringList'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /StringList
+    ]
 
 KtUserType(265,275): 'StringList'
   KaSymbolResolutionSuccess:
@@ -269,7 +293,10 @@ KtParameter(303,307): 'x: T'
   null
 
 KtTypeReference(306,307): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(306,307): 'T'
   KaSymbolResolutionSuccess:
@@ -302,7 +329,10 @@ KtParameter(343,348): 'x: T?'
   null
 
 KtTypeReference(346,348): 'T?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNullableType(346,348): 'T?'
   KaSymbolResolutionSuccess:
@@ -335,7 +365,10 @@ KtParameter(367,377): 'x: String?'
   null
 
 KtTypeReference(370,377): 'String?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNullableType(370,377): 'String?'
   KaSymbolResolutionSuccess:
@@ -359,7 +392,9 @@ KtParameter(379,393): 'y: Unresolved?'
   null
 
 KtTypeReference(382,393): 'Unresolved?'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Unresolved'.>
 
 KtNullableType(382,393): 'Unresolved?'
   KaSymbolResolutionError:
@@ -389,7 +424,10 @@ KtParameter(416,443): 'x: (Int, String) -> Boolean'
   null
 
 KtTypeReference(419,443): '(Int, String) -> Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function2
+    ]
 
 KtFunctionType(419,443): '(Int, String) -> Boolean'
   KaSymbolResolutionSuccess:
@@ -404,7 +442,10 @@ KtParameter(420,423): 'Int'
   null
 
 KtTypeReference(420,423): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(420,423): 'Int'
   KaSymbolResolutionSuccess:
@@ -422,7 +463,10 @@ KtParameter(425,431): 'String'
   null
 
 KtTypeReference(425,431): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(425,431): 'String'
   KaSymbolResolutionSuccess:
@@ -437,7 +481,10 @@ KtNameReferenceExpression(425,431): 'String'
     ]
 
 KtTypeReference(436,443): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(436,443): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -455,7 +502,10 @@ KtParameter(445,474): 'y: (Long, Unresolved) -> Unit'
   null
 
 KtTypeReference(448,474): '(Long, Unresolved) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function2
+    ]
 
 KtFunctionType(448,474): '(Long, Unresolved) -> Unit'
   KaSymbolResolutionSuccess:
@@ -470,7 +520,10 @@ KtParameter(449,453): 'Long'
   null
 
 KtTypeReference(449,453): 'Long'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Long
+    ]
 
 KtUserType(449,453): 'Long'
   KaSymbolResolutionSuccess:
@@ -488,7 +541,9 @@ KtParameter(455,465): 'Unresolved'
   null
 
 KtTypeReference(455,465): 'Unresolved'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Unresolved'.>
 
 KtUserType(455,465): 'Unresolved'
   KaSymbolResolutionError:
@@ -501,7 +556,10 @@ KtNameReferenceExpression(455,465): 'Unresolved'
     diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Unresolved'.>
 
 KtTypeReference(470,474): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(470,474): 'Unit'
   KaSymbolResolutionSuccess:
@@ -528,7 +586,10 @@ KtParameter(502,515): 'x: () -> Unit'
   null
 
 KtTypeReference(505,515): '() -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtFunctionType(505,515): '() -> Unit'
   KaSymbolResolutionSuccess:
@@ -540,7 +601,10 @@ KtParameterList(505,507): '()'
   null
 
 KtTypeReference(511,515): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(511,515): 'Unit'
   KaSymbolResolutionSuccess:
@@ -567,7 +631,10 @@ KtParameter(550,573): 'x: Int.(String) -> Unit'
   null
 
 KtTypeReference(553,573): 'Int.(String) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function2
+    ]
 
 KtFunctionType(553,573): 'Int.(String) -> Unit'
   KaSymbolResolutionSuccess:
@@ -579,7 +646,10 @@ KtFunctionTypeReceiver(553,556): 'Int'
   null
 
 KtTypeReference(553,556): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(553,556): 'Int'
   KaSymbolResolutionSuccess:
@@ -600,7 +670,10 @@ KtParameter(558,564): 'String'
   null
 
 KtTypeReference(558,564): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(558,564): 'String'
   KaSymbolResolutionSuccess:
@@ -615,7 +688,10 @@ KtNameReferenceExpression(558,564): 'String'
     ]
 
 KtTypeReference(569,573): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(569,573): 'Unit'
   KaSymbolResolutionSuccess:
@@ -642,7 +718,10 @@ KtParameter(603,624): 'x: suspend () -> Unit'
   null
 
 KtTypeReference(606,624): 'suspend () -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/coroutines/SuspendFunction0
+    ]
 
 KtDeclarationModifierList(606,613): 'suspend'
   null
@@ -657,7 +736,10 @@ KtParameterList(614,616): '()'
   null
 
 KtTypeReference(620,624): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(620,624): 'Unit'
   KaSymbolResolutionSuccess:
@@ -684,7 +766,10 @@ KtParameter(658,703): 'x: context(Logger, Database) (String) -> Unit'
   null
 
 KtTypeReference(661,703): 'context(Logger, Database) (String) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function3
+    ]
 
 KtFunctionType(661,703): 'context(Logger, Database) (String) -> Unit'
   KaSymbolResolutionSuccess:
@@ -699,7 +784,10 @@ KtContextReceiver(669,675): 'Logger'
   null
 
 KtTypeReference(669,675): 'Logger'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Logger
+    ]
 
 KtUserType(669,675): 'Logger'
   KaSymbolResolutionSuccess:
@@ -717,7 +805,10 @@ KtContextReceiver(677,685): 'Database'
   null
 
 KtTypeReference(677,685): 'Database'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Database
+    ]
 
 KtUserType(677,685): 'Database'
   KaSymbolResolutionSuccess:
@@ -738,7 +829,10 @@ KtParameter(688,694): 'String'
   null
 
 KtTypeReference(688,694): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(688,694): 'String'
   KaSymbolResolutionSuccess:
@@ -753,7 +847,10 @@ KtNameReferenceExpression(688,694): 'String'
     ]
 
 KtTypeReference(699,703): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(699,703): 'Unit'
   KaSymbolResolutionSuccess:
@@ -780,7 +877,10 @@ KtParameter(734,752): 'x: ((Int) -> Int)?'
   null
 
 KtTypeReference(737,752): '((Int) -> Int)?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtNullableType(737,752): '((Int) -> Int)?'
   KaSymbolResolutionSuccess:
@@ -801,7 +901,10 @@ KtParameter(739,742): 'Int'
   null
 
 KtTypeReference(739,742): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(739,742): 'Int'
   KaSymbolResolutionSuccess:
@@ -816,7 +919,10 @@ KtNameReferenceExpression(739,742): 'Int'
     ]
 
 KtTypeReference(747,750): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(747,750): 'Int'
   KaSymbolResolutionSuccess:
@@ -855,7 +961,10 @@ KtIntersectionType(786,793): 'T & Any'
   null
 
 KtTypeReference(786,787): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(786,787): 'T'
   KaSymbolResolutionSuccess:
@@ -870,7 +979,10 @@ KtNameReferenceExpression(786,787): 'T'
     ]
 
 KtTypeReference(790,793): 'Any'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(790,793): 'Any'
   KaSymbolResolutionSuccess:
@@ -894,7 +1006,10 @@ KtParameterList(813,815): '()'
   null
 
 KtTypeReference(817,823): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(817,823): 'String'
   KaSymbolResolutionSuccess:
@@ -915,7 +1030,10 @@ KtProperty(830,859): 'val propertyType: String = ""'
   null
 
 KtTypeReference(848,854): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(848,854): 'String'
   KaSymbolResolutionSuccess:

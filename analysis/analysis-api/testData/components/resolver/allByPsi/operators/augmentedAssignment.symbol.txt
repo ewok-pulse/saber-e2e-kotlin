@@ -26,7 +26,10 @@ KtParameter(38,46): 'other: A'
   null
 
 KtTypeReference(45,46): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(45,46): 'A'
   KaSymbolResolutionSuccess:
@@ -56,7 +59,10 @@ KtParameter(80,88): 'other: A'
   null
 
 KtTypeReference(87,88): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(87,88): 'A'
   KaSymbolResolutionSuccess:
@@ -86,7 +92,10 @@ KtParameter(122,130): 'other: A'
   null
 
 KtTypeReference(129,130): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(129,130): 'A'
   KaSymbolResolutionSuccess:
@@ -116,7 +125,10 @@ KtParameter(162,170): 'other: A'
   null
 
 KtTypeReference(169,170): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(169,170): 'A'
   KaSymbolResolutionSuccess:
@@ -146,7 +158,10 @@ KtParameter(202,210): 'other: A'
   null
 
 KtTypeReference(209,210): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(209,210): 'A'
   KaSymbolResolutionSuccess:

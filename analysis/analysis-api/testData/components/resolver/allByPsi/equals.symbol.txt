@@ -26,7 +26,10 @@ KtParameter(40,51): 'other: Any?'
   null
 
 KtTypeReference(47,51): 'Any?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtNullableType(47,51): 'Any?'
   KaSymbolResolutionSuccess:
@@ -47,7 +50,10 @@ KtNameReferenceExpression(47,50): 'Any'
     ]
 
 KtTypeReference(54,61): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(54,61): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -137,7 +143,10 @@ KtConstructorCalleeExpression(142,149): 'Another'
     ]
 
 KtTypeReference(142,149): 'Another'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Another
+    ]
 
 KtUserType(142,149): 'Another'
   KaSymbolResolutionSuccess:
@@ -170,7 +179,10 @@ KtParameter(178,189): 'other: Any?'
   null
 
 KtTypeReference(185,189): 'Any?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtNullableType(185,189): 'Any?'
   KaSymbolResolutionSuccess:
@@ -191,7 +203,10 @@ KtNameReferenceExpression(185,188): 'Any'
     ]
 
 KtTypeReference(192,199): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(192,199): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -266,7 +281,10 @@ KtParameter(258,269): 'm1: MyClass'
   null
 
 KtTypeReference(262,269): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(262,269): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -284,7 +302,10 @@ KtParameter(271,282): 'm2: MyClass'
   null
 
 KtTypeReference(275,282): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(275,282): 'MyClass'
   KaSymbolResolutionSuccess:

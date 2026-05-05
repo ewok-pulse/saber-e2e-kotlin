@@ -26,7 +26,10 @@ KtProperty(125,177): 'val MyClass.Companion.bar: MyClass get() = MyClass()'
   null
 
 KtTypeReference(129,146): 'MyClass.Companion'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass.Companion
+    ]
 
 KtUserType(129,146): 'MyClass.Companion'
   KaSymbolResolutionSuccess:
@@ -53,7 +56,10 @@ KtNameReferenceExpression(137,146): 'Companion'
     ]
 
 KtTypeReference(152,159): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(152,159): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -98,7 +104,10 @@ KtParameter(195,205): 'a: MyClass'
   null
 
 KtTypeReference(198,205): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(198,205): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -203,7 +212,10 @@ KtProperty(302,357): 'val MyClass2.Companion.bar: MyClass2 get() = MyClass2()'
   null
 
 KtTypeReference(306,324): 'MyClass2.Companion'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass2.Companion
+    ]
 
 KtUserType(306,324): 'MyClass2.Companion'
   KaSymbolResolutionSuccess:
@@ -230,7 +242,10 @@ KtNameReferenceExpression(315,324): 'Companion'
     ]
 
 KtTypeReference(330,338): 'MyClass2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass2
+    ]
 
 KtUserType(330,338): 'MyClass2'
   KaSymbolResolutionSuccess:
@@ -275,7 +290,10 @@ KtParameter(368,379): 'a: MyClass2'
   null
 
 KtTypeReference(371,379): 'MyClass2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass2
+    ]
 
 KtUserType(371,379): 'MyClass2'
   KaSymbolResolutionSuccess:

@@ -20,7 +20,10 @@ KtParameter(89,106): 'val first: String'
   null
 
 KtTypeReference(100,106): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(100,106): 'String'
   KaSymbolResolutionSuccess:
@@ -38,7 +41,10 @@ KtParameter(108,123): 'val second: Int'
   null
 
 KtTypeReference(120,123): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(120,123): 'Int'
   KaSymbolResolutionSuccess:
@@ -62,7 +68,10 @@ KtParameter(142,150): 'x: Tuple'
   null
 
 KtTypeReference(145,150): 'Tuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Tuple
+    ]
 
 KtUserType(145,150): 'Tuple'
   KaSymbolResolutionSuccess:
@@ -206,7 +215,10 @@ KtDestructuringDeclarationEntry(295,308): 'first: String'
     ]
 
 KtTypeReference(302,308): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(302,308): 'String'
   KaSymbolResolutionSuccess:
@@ -284,7 +296,10 @@ KtDestructuringDeclarationEntry(392,410): 'aa: String = first'
     ]
 
 KtTypeReference(396,402): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(396,402): 'String'
   KaSymbolResolutionSuccess:
@@ -365,7 +380,10 @@ KtDestructuringDeclarationEntry(477,494): '_: String = first'
     ]
 
 KtTypeReference(480,486): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(480,486): 'String'
   KaSymbolResolutionSuccess:
@@ -398,7 +416,10 @@ KtParameter(514,528): 'x: List<Tuple>'
   null
 
 KtTypeReference(517,528): 'List<Tuple>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtUserType(517,528): 'List<Tuple>'
   KaSymbolResolutionSuccess:
@@ -419,7 +440,10 @@ KtTypeProjection(522,527): 'Tuple'
   null
 
 KtTypeReference(522,527): 'Tuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Tuple
+    ]
 
 KtUserType(522,527): 'Tuple'
   KaSymbolResolutionSuccess:
@@ -574,7 +598,10 @@ KtDestructuringDeclarationEntry(638,651): 'first: String'
     ]
 
 KtTypeReference(645,651): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(645,651): 'String'
   KaSymbolResolutionSuccess:
@@ -662,7 +689,10 @@ KtDestructuringDeclarationEntry(720,738): 'aa: String = first'
     ]
 
 KtTypeReference(724,730): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(724,730): 'String'
   KaSymbolResolutionSuccess:
@@ -753,7 +783,10 @@ KtDestructuringDeclarationEntry(789,806): '_: String = first'
     ]
 
 KtTypeReference(792,798): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(792,798): 'String'
   KaSymbolResolutionSuccess:
@@ -804,7 +837,10 @@ KtParameter(847,865): 'f: (Tuple) -> Unit'
   null
 
 KtTypeReference(850,865): '(Tuple) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtFunctionType(850,865): '(Tuple) -> Unit'
   KaSymbolResolutionSuccess:
@@ -819,7 +855,10 @@ KtParameter(851,856): 'Tuple'
   null
 
 KtTypeReference(851,856): 'Tuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Tuple
+    ]
 
 KtUserType(851,856): 'Tuple'
   KaSymbolResolutionSuccess:
@@ -834,7 +873,10 @@ KtNameReferenceExpression(851,856): 'Tuple'
     ]
 
 KtTypeReference(861,865): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(861,865): 'Unit'
   KaSymbolResolutionSuccess:
@@ -1017,7 +1059,10 @@ KtDestructuringDeclarationEntry(969,982): 'first: String'
     ]
 
 KtTypeReference(976,982): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(976,982): 'String'
   KaSymbolResolutionSuccess:
@@ -1113,7 +1158,10 @@ KtDestructuringDeclarationEntry(1045,1063): 'aa: String = first'
     ]
 
 KtTypeReference(1049,1055): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(1049,1055): 'String'
   KaSymbolResolutionSuccess:
@@ -1212,7 +1260,10 @@ KtDestructuringDeclarationEntry(1108,1125): '_: String = first'
     ]
 
 KtTypeReference(1111,1117): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(1111,1117): 'String'
   KaSymbolResolutionSuccess:

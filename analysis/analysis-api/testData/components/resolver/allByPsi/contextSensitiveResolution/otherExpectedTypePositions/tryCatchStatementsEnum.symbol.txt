@@ -32,7 +32,10 @@ KtParameter(118,127): 'a: MyEnum'
   null
 
 KtTypeReference(121,127): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(121,127): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -59,7 +62,10 @@ KtParameter(153,168): 'b: () -> MyEnum'
   null
 
 KtTypeReference(156,168): '() -> MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtFunctionType(156,168): '() -> MyEnum'
   KaSymbolResolutionSuccess:
@@ -71,7 +77,10 @@ KtParameterList(156,158): '()'
   null
 
 KtTypeReference(162,168): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(162,168): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -104,7 +113,10 @@ KtParameter(187,197): 'b: () -> T'
   null
 
 KtTypeReference(190,197): '() -> T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function0
+    ]
 
 KtFunctionType(190,197): '() -> T'
   KaSymbolResolutionSuccess:
@@ -116,7 +128,10 @@ KtParameterList(190,192): '()'
   null
 
 KtTypeReference(196,197): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(196,197): 'T'
   KaSymbolResolutionSuccess:
@@ -131,7 +146,10 @@ KtNameReferenceExpression(196,197): 'T'
     ]
 
 KtTypeReference(200,201): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(200,201): 'T'
   KaSymbolResolutionSuccess:
@@ -176,7 +194,10 @@ KtParameter(223,227): 'x: X'
   null
 
 KtTypeReference(226,227): 'X'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      X
+    ]
 
 KtUserType(226,227): 'X'
   KaSymbolResolutionSuccess:
@@ -191,7 +212,10 @@ KtNameReferenceExpression(226,227): 'X'
     ]
 
 KtTypeReference(230,231): 'X'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      X
+    ]
 
 KtUserType(230,231): 'X'
   KaSymbolResolutionSuccess:
@@ -230,7 +254,10 @@ KtParameter(251,261): 'b: Boolean'
   null
 
 KtTypeReference(254,261): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(254,261): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -248,7 +275,10 @@ KtParameter(263,269): 'i: Int'
   null
 
 KtTypeReference(266,269): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(266,269): 'Int'
   KaSymbolResolutionSuccess:
@@ -290,7 +320,10 @@ KtProperty(299,414): 'val m1: MyEnum = try {'
   null
 
 KtTypeReference(307,313): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(307,313): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -326,7 +359,10 @@ KtParameter(344,356): 'e: Exception'
   null
 
 KtTypeReference(347,356): 'Exception'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Exception
+    ]
 
 KtUserType(347,356): 'Exception'
   KaSymbolResolutionSuccess:
@@ -359,7 +395,10 @@ KtParameter(383,395): 't: Throwable'
   null
 
 KtTypeReference(386,395): 'Throwable'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Throwable
+    ]
 
 KtUserType(386,395): 'Throwable'
   KaSymbolResolutionSuccess:
@@ -386,7 +425,10 @@ KtProperty(420,656): 'val m2: MyEnum = try {'
   null
 
 KtTypeReference(428,434): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(428,434): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -422,7 +464,10 @@ KtParameter(465,477): 'e: Exception'
   null
 
 KtTypeReference(468,477): 'Exception'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Exception
+    ]
 
 KtUserType(468,477): 'Exception'
   KaSymbolResolutionSuccess:
@@ -461,7 +506,10 @@ KtParameter(525,537): 'e: Exception'
   null
 
 KtTypeReference(528,537): 'Exception'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Exception
+    ]
 
 KtUserType(528,537): 'Exception'
   KaSymbolResolutionSuccess:
@@ -494,7 +542,10 @@ KtParameter(572,584): 't: Throwable'
   null
 
 KtTypeReference(575,584): 'Throwable'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Throwable
+    ]
 
 KtUserType(575,584): 'Throwable'
   KaSymbolResolutionSuccess:
@@ -527,7 +578,10 @@ KtParameter(625,637): 't: Throwable'
   null
 
 KtTypeReference(628,637): 'Throwable'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Throwable
+    ]
 
 KtUserType(628,637): 'Throwable'
   KaSymbolResolutionSuccess:
@@ -590,7 +644,10 @@ KtParameter(711,723): 'e: Exception'
   null
 
 KtTypeReference(714,723): 'Exception'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Exception
+    ]
 
 KtUserType(714,723): 'Exception'
   KaSymbolResolutionSuccess:
@@ -623,7 +680,10 @@ KtParameter(758,770): 't: Throwable'
   null
 
 KtTypeReference(761,770): 'Throwable'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Throwable
+    ]
 
 KtUserType(761,770): 'Throwable'
   KaSymbolResolutionSuccess:
@@ -692,7 +752,10 @@ KtParameter(871,883): 'e: Exception'
   null
 
 KtTypeReference(874,883): 'Exception'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Exception
+    ]
 
 KtUserType(874,883): 'Exception'
   KaSymbolResolutionSuccess:
@@ -725,7 +788,10 @@ KtParameter(918,930): 't: Throwable'
   null
 
 KtTypeReference(921,930): 'Throwable'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Throwable
+    ]
 
 KtUserType(921,930): 'Throwable'
   KaSymbolResolutionSuccess:
@@ -767,7 +833,10 @@ KtTypeProjection(975,981): 'MyEnum'
   null
 
 KtTypeReference(975,981): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(975,981): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -815,7 +884,10 @@ KtParameter(1029,1041): 'e: Exception'
   null
 
 KtTypeReference(1032,1041): 'Exception'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Exception
+    ]
 
 KtUserType(1032,1041): 'Exception'
   KaSymbolResolutionSuccess:
@@ -848,7 +920,10 @@ KtParameter(1076,1088): 't: Throwable'
   null
 
 KtTypeReference(1079,1088): 'Throwable'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Throwable
+    ]
 
 KtUserType(1079,1088): 'Throwable'
   KaSymbolResolutionSuccess:

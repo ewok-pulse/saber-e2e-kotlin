@@ -35,7 +35,10 @@ KtConstructorCalleeExpression(128,135): 'MyClass'
     ]
 
 KtTypeReference(128,135): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(128,135): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -65,7 +68,10 @@ KtProperty(170,206): 'val myClassProp: MyClass = MyClass()'
   null
 
 KtTypeReference(187,194): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(187,194): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -98,7 +104,10 @@ KtProperty(215,242): 'val stringProp: String = ""'
   null
 
 KtTypeReference(231,237): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(231,237): 'String'
   KaSymbolResolutionSuccess:
@@ -143,7 +152,10 @@ KtParameter(318,322): 'e: T'
   null
 
 KtTypeReference(321,322): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(321,322): 'T'
   KaSymbolResolutionSuccess:
@@ -191,7 +203,10 @@ KtProperty(397,447): 'var i100: MyClass = NestedInheritor ?: myClassProp'
   null
 
 KtTypeReference(407,414): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(407,414): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -227,7 +242,10 @@ KtProperty(452,501): 'var i110: MyClass = NestedInheritor ?: stringProp'
   null
 
 KtTypeReference(462,469): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(462,469): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -263,7 +281,10 @@ KtProperty(506,565): 'var i120: MyClass = NestedInheritor ?: getNestedInheritor(
   null
 
 KtTypeReference(516,523): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(516,523): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -321,7 +342,10 @@ KtTypeProjection(579,586): 'MyClass'
   null
 
 KtTypeReference(579,586): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(579,586): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -380,7 +404,10 @@ KtTypeProjection(632,639): 'MyClass'
   null
 
 KtTypeReference(632,639): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(632,639): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -437,7 +464,10 @@ KtTypeProjection(684,691): 'MyClass'
   null
 
 KtTypeReference(684,691): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(684,691): 'MyClass'
   KaSymbolResolutionSuccess:

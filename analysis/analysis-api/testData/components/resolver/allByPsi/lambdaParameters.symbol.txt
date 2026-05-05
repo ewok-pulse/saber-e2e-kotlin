@@ -17,7 +17,10 @@ KtParameter(8,31): 'action1: Int.() -> Unit'
   null
 
 KtTypeReference(17,31): 'Int.() -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtFunctionType(17,31): 'Int.() -> Unit'
   KaSymbolResolutionSuccess:
@@ -29,7 +32,10 @@ KtFunctionTypeReceiver(17,20): 'Int'
   null
 
 KtTypeReference(17,20): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(17,20): 'Int'
   KaSymbolResolutionSuccess:
@@ -47,7 +53,10 @@ KtParameterList(21,23): '()'
   null
 
 KtTypeReference(27,31): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(27,31): 'Unit'
   KaSymbolResolutionSuccess:
@@ -65,7 +74,10 @@ KtParameter(33,55): 'action2: (Int) -> Unit'
   null
 
 KtTypeReference(42,55): '(Int) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtFunctionType(42,55): '(Int) -> Unit'
   KaSymbolResolutionSuccess:
@@ -80,7 +92,10 @@ KtParameter(43,46): 'Int'
   null
 
 KtTypeReference(43,46): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(43,46): 'Int'
   KaSymbolResolutionSuccess:
@@ -95,7 +110,10 @@ KtNameReferenceExpression(43,46): 'Int'
     ]
 
 KtTypeReference(51,55): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(51,55): 'Unit'
   KaSymbolResolutionSuccess:

@@ -35,7 +35,10 @@ KtParameter(41,51): 'val x: Int'
   null
 
 KtTypeReference(48,51): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(48,51): 'Int'
   KaSymbolResolutionSuccess:
@@ -62,7 +65,10 @@ KtParameter(65,71): 'x: Int'
   null
 
 KtTypeReference(68,71): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(68,71): 'Int'
   KaSymbolResolutionSuccess:
@@ -92,7 +98,10 @@ KtConstructorCalleeExpression(74,78): 'Base'
     ]
 
 KtTypeReference(74,78): 'Base'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      r/A.Base
+    ]
 
 KtUserType(74,78): 'Base'
   KaSymbolResolutionSuccess:

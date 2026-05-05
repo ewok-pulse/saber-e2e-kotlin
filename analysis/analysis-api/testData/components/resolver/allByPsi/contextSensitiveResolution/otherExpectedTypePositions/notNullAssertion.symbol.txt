@@ -62,7 +62,10 @@ KtConstructorCalleeExpression(176,183): 'MyClass'
     ]
 
 KtTypeReference(176,183): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(176,183): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -92,7 +95,10 @@ KtProperty(218,254): 'val myClassProp: MyClass = MyClass()'
   null
 
 KtTypeReference(235,242): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(235,242): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -125,7 +131,10 @@ KtProperty(263,290): 'val stringProp: String = ""'
   null
 
 KtTypeReference(279,285): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(279,285): 'String'
   KaSymbolResolutionSuccess:
@@ -170,7 +179,10 @@ KtParameter(366,370): 'e: T'
   null
 
 KtTypeReference(369,370): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(369,370): 'T'
   KaSymbolResolutionSuccess:
@@ -233,7 +245,10 @@ KtTypeProjection(464,471): 'MyClass'
   null
 
 KtTypeReference(464,471): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(464,471): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -284,7 +299,10 @@ KtTypeProjection(504,511): 'MyClass'
   null
 
 KtTypeReference(504,511): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(504,511): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -337,7 +355,10 @@ KtTypeProjection(540,547): 'MyClass'
   null
 
 KtTypeReference(540,547): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(540,547): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -388,7 +409,10 @@ KtTypeProjection(575,582): 'MyClass'
   null
 
 KtTypeReference(575,582): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(575,582): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -434,7 +458,10 @@ KtParameterList(630,632): '()'
   null
 
 KtTypeReference(634,638): 'Int?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNullableType(634,638): 'Int?'
   KaSymbolResolutionSuccess:
@@ -481,7 +508,10 @@ KtTypeProjection(661,668): 'MyClass'
   null
 
 KtTypeReference(661,668): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(661,668): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -499,7 +529,10 @@ KtTypeProjection(670,673): 'Int'
   null
 
 KtTypeReference(670,673): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(670,673): 'Int'
   KaSymbolResolutionSuccess:
@@ -795,7 +828,10 @@ KtProperty(953,997): 'val i150: KProperty<MyClass> = ::myClassProp'
   null
 
 KtTypeReference(963,981): 'KProperty<MyClass>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/reflect/KProperty
+    ]
 
 KtUserType(963,981): 'KProperty<MyClass>'
   KaSymbolResolutionSuccess:
@@ -816,7 +852,10 @@ KtTypeProjection(973,980): 'MyClass'
   null
 
 KtTypeReference(973,980): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(973,980): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -847,7 +886,10 @@ KtDeclarationModifierList(1001,1009): 'operator'
   null
 
 KtTypeReference(1014,1021): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(1014,1021): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -868,7 +910,10 @@ KtParameter(1030,1043): 'that: MyClass'
   null
 
 KtTypeReference(1036,1043): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(1036,1043): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -883,7 +928,10 @@ KtNameReferenceExpression(1036,1043): 'MyClass'
     ]
 
 KtTypeReference(1046,1079): 'ClosedFloatingPointRange<MyClass>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/ranges/ClosedFloatingPointRange
+    ]
 
 KtUserType(1046,1079): 'ClosedFloatingPointRange<MyClass>'
   KaSymbolResolutionSuccess:
@@ -904,7 +952,10 @@ KtTypeProjection(1071,1078): 'MyClass'
   null
 
 KtTypeReference(1071,1078): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(1071,1078): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -943,7 +994,10 @@ KtDeclarationModifierList(1102,1110): 'operator'
   null
 
 KtTypeReference(1115,1122): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(1115,1122): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -964,7 +1018,10 @@ KtParameter(1132,1145): 'that: MyClass'
   null
 
 KtTypeReference(1138,1145): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(1138,1145): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -979,7 +1036,10 @@ KtNameReferenceExpression(1138,1145): 'MyClass'
     ]
 
 KtTypeReference(1148,1155): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(1148,1155): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -1015,7 +1075,10 @@ KtParameter(1195,1201): 'a: Int'
   null
 
 KtTypeReference(1198,1201): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(1198,1201): 'Int'
   KaSymbolResolutionSuccess:
@@ -1036,7 +1099,10 @@ KtProperty(1209,1237): 'val a: MyClass = myClassProp'
   null
 
 KtTypeReference(1216,1223): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(1216,1223): 'MyClass'
   KaSymbolResolutionSuccess:

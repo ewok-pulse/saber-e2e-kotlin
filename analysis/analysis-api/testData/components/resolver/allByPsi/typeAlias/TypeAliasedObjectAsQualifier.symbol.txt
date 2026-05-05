@@ -32,7 +32,10 @@ KtProperty(59,81): 'val property: Int = 10'
   null
 
 KtTypeReference(73,76): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(73,76): 'Int'
   KaSymbolResolutionSuccess:
@@ -53,7 +56,10 @@ KtTypeAlias(85,113): 'typealias MyAlias = MyObject'
   null
 
 KtTypeReference(105,113): 'MyObject'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      test/MyObject
+    ]
 
 KtUserType(105,113): 'MyObject'
   KaSymbolResolutionSuccess:

@@ -47,7 +47,10 @@ KtConstructorCalleeExpression(166,173): 'MyClass'
     ]
 
 KtTypeReference(166,173): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(166,173): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -92,7 +95,10 @@ KtParameter(234,249): 'enumArg: MyEnum'
   null
 
 KtTypeReference(243,249): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(243,249): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -122,7 +128,10 @@ KtParameter(277,289): 'arg: MyClass'
   null
 
 KtTypeReference(282,289): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(282,289): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -149,7 +158,10 @@ KtParameter(314,331): 'i: OperatorHolder'
   null
 
 KtTypeReference(317,331): 'OperatorHolder'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OperatorHolder
+    ]
 
 KtUserType(317,331): 'OperatorHolder'
   KaSymbolResolutionSuccess:

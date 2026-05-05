@@ -35,7 +35,10 @@ KtParameter(36,51): 'val str: String'
   null
 
 KtTypeReference(45,51): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(45,51): 'String'
   KaSymbolResolutionSuccess:
@@ -74,7 +77,10 @@ KtParameter(94,116): 'val a: List<List<Int>>'
   null
 
 KtTypeReference(101,116): 'List<List<Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtUserType(101,116): 'List<List<Int>>'
   KaSymbolResolutionSuccess:
@@ -95,7 +101,10 @@ KtTypeProjection(106,115): 'List<Int>'
   null
 
 KtTypeReference(106,115): 'List<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtUserType(106,115): 'List<Int>'
   KaSymbolResolutionSuccess:
@@ -116,7 +125,10 @@ KtTypeProjection(111,114): 'Int'
   null
 
 KtTypeReference(111,114): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(111,114): 'Int'
   KaSymbolResolutionSuccess:
@@ -134,7 +146,10 @@ KtParameter(118,128): 'val b: Int'
   null
 
 KtTypeReference(125,128): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(125,128): 'Int'
   KaSymbolResolutionSuccess:
@@ -152,7 +167,10 @@ KtProperty(130,146): 'val pair: MyPair'
   null
 
 KtTypeReference(140,146): 'MyPair'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/MyPair
+    ]
 
 KtUserType(140,146): 'MyPair'
   KaSymbolResolutionSuccess:
@@ -176,7 +194,10 @@ KtDestructuringDeclarationEntry(153,234): 'left: @Anno(0 + constant) List<@Anno(
     ]
 
 KtTypeReference(159,234): '@Anno(0 + constant) List<@Anno(1 + constant) List<@Anno(2 + constant) Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtDeclarationModifierList(159,178): '@Anno(0 + constant)'
   null
@@ -196,7 +217,11 @@ KtConstructorCalleeExpression(160,164): 'Anno'
     diagnostic = ERROR<ARGUMENT_TYPE_MISMATCH: Argument type mismatch: actual type is 'Int', but 'String' was expected.>
 
 KtTypeReference(160,164): 'Anno'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      <constructor>(str: kotlin.String): util.Anno
+    ]
+    diagnostic = ERROR<ARGUMENT_TYPE_MISMATCH: Argument type mismatch: actual type is 'Int', but 'String' was expected.>
 
 KtUserType(160,164): 'Anno'
   KaSymbolResolutionError:
@@ -258,7 +283,10 @@ KtTypeProjection(184,233): '@Anno(1 + constant) List<@Anno(2 + constant) Int>'
   null
 
 KtTypeReference(184,233): '@Anno(1 + constant) List<@Anno(2 + constant) Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtDeclarationModifierList(184,203): '@Anno(1 + constant)'
   null
@@ -278,7 +306,11 @@ KtConstructorCalleeExpression(185,189): 'Anno'
     diagnostic = ERROR<ARGUMENT_TYPE_MISMATCH: Argument type mismatch: actual type is 'Int', but 'String' was expected.>
 
 KtTypeReference(185,189): 'Anno'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      <constructor>(str: kotlin.String): util.Anno
+    ]
+    diagnostic = ERROR<ARGUMENT_TYPE_MISMATCH: Argument type mismatch: actual type is 'Int', but 'String' was expected.>
 
 KtUserType(185,189): 'Anno'
   KaSymbolResolutionError:
@@ -340,7 +372,10 @@ KtTypeProjection(209,232): '@Anno(2 + constant) Int'
   null
 
 KtTypeReference(209,232): '@Anno(2 + constant) Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtDeclarationModifierList(209,228): '@Anno(2 + constant)'
   null
@@ -360,7 +395,11 @@ KtConstructorCalleeExpression(210,214): 'Anno'
     diagnostic = ERROR<ARGUMENT_TYPE_MISMATCH: Argument type mismatch: actual type is 'Int', but 'String' was expected.>
 
 KtTypeReference(210,214): 'Anno'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      <constructor>(str: kotlin.String): util.Anno
+    ]
+    diagnostic = ERROR<ARGUMENT_TYPE_MISMATCH: Argument type mismatch: actual type is 'Int', but 'String' was expected.>
 
 KtUserType(210,214): 'Anno'
   KaSymbolResolutionError:

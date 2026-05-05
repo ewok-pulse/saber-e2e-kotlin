@@ -20,7 +20,10 @@ KtParameter(17,23): 'n: Int'
   null
 
 KtTypeReference(20,23): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(20,23): 'Int'
   KaSymbolResolutionSuccess:
@@ -38,7 +41,10 @@ KtParameter(25,46): 'bar: Int.(Int) -> Int'
   null
 
 KtTypeReference(30,46): 'Int.(Int) -> Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function2
+    ]
 
 KtFunctionType(30,46): 'Int.(Int) -> Int'
   KaSymbolResolutionSuccess:
@@ -50,7 +56,10 @@ KtFunctionTypeReceiver(30,33): 'Int'
   null
 
 KtTypeReference(30,33): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(30,33): 'Int'
   KaSymbolResolutionSuccess:
@@ -71,7 +80,10 @@ KtParameter(35,38): 'Int'
   null
 
 KtTypeReference(35,38): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(35,38): 'Int'
   KaSymbolResolutionSuccess:
@@ -86,7 +98,10 @@ KtNameReferenceExpression(35,38): 'Int'
     ]
 
 KtTypeReference(43,46): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(43,46): 'Int'
   KaSymbolResolutionSuccess:
@@ -101,7 +116,10 @@ KtNameReferenceExpression(43,46): 'Int'
     ]
 
 KtTypeReference(49,52): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(49,52): 'Int'
   KaSymbolResolutionSuccess:

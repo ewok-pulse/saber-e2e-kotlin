@@ -574,6 +574,38 @@ public interface KaResolver : KaSessionComponent {
     public fun KtFunctionType.resolveSymbol(): KaClassSymbol?
 
     /**
+     * Resolves the classifier symbol referenced by the given [KtTypeReference].
+     *
+     * #### Example
+     *
+     * ```kotlin
+     * val a: String = ""
+     * //     ^^^^^^  resolves to `kotlin.String`
+     *
+     * val b: List<Int>? = null
+     * //     ^^^^^^^^^^  resolves to `kotlin.collections.List`
+     *
+     * val c: (Int) -> Int = { it }
+     * //     ^^^^^^^^^^^^  resolves to `kotlin.Function1`
+     * ```
+     *
+     * Resolution delegates to the inner [KtTypeReference.typeElement][org.jetbrains.kotlin.psi.KtTypeReference.typeElement]
+     * and returns the underlying [KaClassifierSymbol] (a class, type alias, or type parameter), or `null`
+     * for type elements that don't denote a single classifier (e.g. `dynamic` and intersection types).
+     *
+     * Unlike [KtUserType], a [KtTypeReference] never stands for the package portion of a qualified path:
+     * the inner qualifier chain is built from raw `KtUserType` nodes and is never wrapped in its own
+     * type reference, so the result is always a classifier when present.
+     *
+     * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on type references
+     *
+     * @see tryResolveSymbols
+     * @see KtResolvable.resolveSymbol
+     */
+    @KaExperimentalApi
+    public fun KtTypeReference.resolveSymbol(): KaClassifierSymbol?
+
+    /**
      * Attempts to resolve the call for the given [KtResolvableCall].
      *
      * ### Usage Example:
@@ -1841,6 +1873,45 @@ public fun KtNullableType.resolveSymbol(): KaClassifierSymbol? {
 @KaContextParameterApi
 context(session: KaSession)
 public fun KtFunctionType.resolveSymbol(): KaClassSymbol? {
+    return with(session) {
+        resolveSymbol()
+    }
+}
+
+/**
+ * Resolves the classifier symbol referenced by the given [KtTypeReference].
+ *
+ * #### Example
+ *
+ * ```kotlin
+ * val a: String = ""
+ * //     ^^^^^^  resolves to `kotlin.String`
+ *
+ * val b: List<Int>? = null
+ * //     ^^^^^^^^^^  resolves to `kotlin.collections.List`
+ *
+ * val c: (Int) -> Int = { it }
+ * //     ^^^^^^^^^^^^  resolves to `kotlin.Function1`
+ * ```
+ *
+ * Resolution delegates to the inner [KtTypeReference.typeElement][org.jetbrains.kotlin.psi.KtTypeReference.typeElement]
+ * and returns the underlying [KaClassifierSymbol] (a class, type alias, or type parameter), or `null`
+ * for type elements that don't denote a single classifier (e.g. `dynamic` and intersection types).
+ *
+ * Unlike [KtUserType], a [KtTypeReference] never stands for the package portion of a qualified path:
+ * the inner qualifier chain is built from raw `KtUserType` nodes and is never wrapped in its own
+ * type reference, so the result is always a classifier when present.
+ *
+ * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on type references
+ *
+ * @see tryResolveSymbols
+ * @see KtResolvable.resolveSymbol
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KtTypeReference.resolveSymbol(): KaClassifierSymbol? {
     return with(session) {
         resolveSymbol()
     }

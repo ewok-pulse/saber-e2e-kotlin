@@ -26,7 +26,10 @@ KtParameter(32,40): 'other: A'
   null
 
 KtTypeReference(39,40): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(39,40): 'A'
   KaSymbolResolutionSuccess:
@@ -41,7 +44,10 @@ KtNameReferenceExpression(39,40): 'A'
     ]
 
 KtTypeReference(43,44): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(43,44): 'A'
   KaSymbolResolutionSuccess:
@@ -80,7 +86,10 @@ KtParameter(75,83): 'other: A'
   null
 
 KtTypeReference(82,83): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(82,83): 'A'
   KaSymbolResolutionSuccess:
@@ -95,7 +104,10 @@ KtNameReferenceExpression(82,83): 'A'
     ]
 
 KtTypeReference(86,87): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(86,87): 'A'
   KaSymbolResolutionSuccess:
@@ -134,7 +146,10 @@ KtParameter(118,126): 'other: A'
   null
 
 KtTypeReference(125,126): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(125,126): 'A'
   KaSymbolResolutionSuccess:
@@ -149,7 +164,10 @@ KtNameReferenceExpression(125,126): 'A'
     ]
 
 KtTypeReference(129,130): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(129,130): 'A'
   KaSymbolResolutionSuccess:
@@ -188,7 +206,10 @@ KtParameter(159,167): 'other: A'
   null
 
 KtTypeReference(166,167): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(166,167): 'A'
   KaSymbolResolutionSuccess:
@@ -203,7 +224,10 @@ KtNameReferenceExpression(166,167): 'A'
     ]
 
 KtTypeReference(170,171): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(170,171): 'A'
   KaSymbolResolutionSuccess:
@@ -242,7 +266,10 @@ KtParameter(200,208): 'other: A'
   null
 
 KtTypeReference(207,208): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(207,208): 'A'
   KaSymbolResolutionSuccess:
@@ -257,7 +284,10 @@ KtNameReferenceExpression(207,208): 'A'
     ]
 
 KtTypeReference(211,212): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(211,212): 'A'
   KaSymbolResolutionSuccess:

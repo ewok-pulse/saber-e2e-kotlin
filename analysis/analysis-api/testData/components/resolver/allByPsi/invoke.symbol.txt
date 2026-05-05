@@ -65,7 +65,10 @@ KtParameterList(93,95): '()'
   null
 
 KtTypeReference(97,100): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(97,100): 'Int'
   KaSymbolResolutionSuccess:
@@ -86,7 +89,10 @@ KtProperty(105,133): 'val foo: MyClass = MyClass()'
   null
 
 KtTypeReference(114,121): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      r/MyClass
+    ]
 
 KtUserType(114,121): 'MyClass'
   KaSymbolResolutionSuccess:

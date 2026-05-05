@@ -65,7 +65,10 @@ KtProperty(193,223): 'val enumProp: MyEnum = Option1'
   null
 
 KtTypeReference(207,213): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(207,213): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -89,7 +92,10 @@ KtProperty(232,259): 'val stringProp: String = ""'
   null
 
 KtTypeReference(248,254): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(248,254): 'String'
   KaSymbolResolutionSuccess:
@@ -134,7 +140,10 @@ KtParameter(318,322): 'e: T'
   null
 
 KtTypeReference(321,322): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(321,322): 'T'
   KaSymbolResolutionSuccess:
@@ -185,7 +194,10 @@ KtProperty(398,425): 'var i10: MyEnum = Option1!!'
   null
 
 KtTypeReference(407,413): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(407,413): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -215,7 +227,10 @@ KtProperty(430,458): 'var i20: MyEnum = enumProp!!'
   null
 
 KtTypeReference(439,445): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(439,445): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -245,7 +260,10 @@ KtProperty(463,493): 'var i30: MyEnum = stringProp!!'
   null
 
 KtTypeReference(472,478): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(472,478): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -290,7 +308,10 @@ KtTypeProjection(507,513): 'MyEnum'
   null
 
 KtTypeReference(507,513): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(507,513): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -341,7 +362,10 @@ KtTypeProjection(538,544): 'MyEnum'
   null
 
 KtTypeReference(538,544): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(538,544): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -394,7 +418,10 @@ KtTypeProjection(570,576): 'MyEnum'
   null
 
 KtTypeReference(570,576): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(570,576): 'MyEnum'
   KaSymbolResolutionSuccess:

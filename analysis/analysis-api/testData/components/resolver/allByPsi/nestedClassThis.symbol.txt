@@ -32,7 +32,10 @@ KtParameter(33,43): 'val x: Int'
   null
 
 KtTypeReference(40,43): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(40,43): 'Int'
   KaSymbolResolutionSuccess:

@@ -28,7 +28,11 @@ KtConstructorCalleeExpression(29,45): 'MyJavaAnnotation'
     diagnostic = ERROR<NO_VALUE_FOR_PARAMETER: No value passed for parameter 'value'.>
 
 KtTypeReference(29,45): 'MyJavaAnnotation'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      <constructor>(value: kotlin.String, test: kotlin.Array<MyJavaEnum>): MyJavaAnnotation
+    ]
+    diagnostic = ERROR<NO_VALUE_FOR_PARAMETER: No value passed for parameter 'value'.>
 
 KtUserType(29,45): 'MyJavaAnnotation'
   KaSymbolResolutionError:

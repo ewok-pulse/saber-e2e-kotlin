@@ -32,7 +32,10 @@ KtParameter(112,116): 'a: A'
   null
 
 KtTypeReference(115,116): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(115,116): 'A'
   KaSymbolResolutionSuccess:

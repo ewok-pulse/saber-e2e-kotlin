@@ -17,7 +17,10 @@ KtParameter(9,15): 'a: Any'
   null
 
 KtTypeReference(12,15): 'Any'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(12,15): 'Any'
   KaSymbolResolutionSuccess:
@@ -47,7 +50,10 @@ KtOperationReferenceExpression(61,63): 'is'
   null
 
 KtTypeReference(64,70): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(64,70): 'String'
   KaSymbolResolutionSuccess:
@@ -74,7 +80,10 @@ KtOperationReferenceExpression(77,80): '!is'
   null
 
 KtTypeReference(81,87): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(81,87): 'String'
   KaSymbolResolutionSuccess:
@@ -101,7 +110,10 @@ KtOperationReferenceExpression(145,147): 'as'
   null
 
 KtTypeReference(148,154): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(148,154): 'String'
   KaSymbolResolutionSuccess:
@@ -128,7 +140,10 @@ KtOperationReferenceExpression(161,164): 'as?'
   null
 
 KtTypeReference(165,171): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(165,171): 'String'
   KaSymbolResolutionSuccess:

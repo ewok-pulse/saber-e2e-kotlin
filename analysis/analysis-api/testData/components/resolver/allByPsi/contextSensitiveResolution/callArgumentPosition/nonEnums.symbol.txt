@@ -29,7 +29,10 @@ KtProperty(82,107): 'val FOO: MyClass = TODO()'
   null
 
 KtTypeReference(91,98): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(91,98): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -83,7 +86,10 @@ KtConstructorCalleeExpression(167,174): 'MyClass'
     ]
 
 KtTypeReference(167,174): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(167,174): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -113,7 +119,10 @@ KtParameter(221,227): 'x: Int'
   null
 
 KtTypeReference(224,227): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(224,227): 'Int'
   KaSymbolResolutionSuccess:
@@ -140,7 +149,10 @@ KtParameter(251,261): 'x: MyClass'
   null
 
 KtTypeReference(254,261): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(254,261): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -173,7 +185,10 @@ KtParameter(278,282): 'x: X'
   null
 
 KtTypeReference(281,282): 'X'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      X
+    ]
 
 KtUserType(281,282): 'X'
   KaSymbolResolutionSuccess:
@@ -188,7 +203,10 @@ KtNameReferenceExpression(281,282): 'X'
     ]
 
 KtTypeReference(285,286): 'X'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      X
+    ]
 
 KtUserType(285,286): 'X'
   KaSymbolResolutionSuccess:
@@ -221,7 +239,10 @@ KtNamedFunction(297,640): 'fun MyClass.foo() {'
   null
 
 KtTypeReference(301,308): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(301,308): 'MyClass'
   KaSymbolResolutionSuccess:

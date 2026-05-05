@@ -17,7 +17,10 @@ KtDeclarationModifierList(12,20): 'operator'
   null
 
 KtTypeReference(25,29): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(25,29): 'Test'
   KaSymbolResolutionSuccess:
@@ -38,7 +41,10 @@ KtParameter(35,41): 'i: Int'
   null
 
 KtTypeReference(38,41): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(38,41): 'Int'
   KaSymbolResolutionSuccess:
@@ -53,7 +59,10 @@ KtNameReferenceExpression(38,41): 'Int'
     ]
 
 KtTypeReference(44,48): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(44,48): 'Test'
   KaSymbolResolutionSuccess:
@@ -128,7 +137,10 @@ KtDeclarationModifierList(56,64): 'operator'
   null
 
 KtTypeReference(69,73): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(69,73): 'Test'
   KaSymbolResolutionSuccess:
@@ -149,7 +161,10 @@ KtParameter(85,91): 'i: Int'
   null
 
 KtTypeReference(88,91): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(88,91): 'Int'
   KaSymbolResolutionSuccess:
@@ -164,7 +179,10 @@ KtNameReferenceExpression(88,91): 'Int'
     ]
 
 KtTypeReference(94,98): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(94,98): 'Unit'
   KaSymbolResolutionSuccess:
@@ -188,7 +206,10 @@ KtDeclarationModifierList(103,111): 'operator'
   null
 
 KtTypeReference(116,120): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(116,120): 'Test'
   KaSymbolResolutionSuccess:
@@ -209,7 +230,10 @@ KtParameter(127,133): 'i: Int'
   null
 
 KtTypeReference(130,133): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(130,133): 'Int'
   KaSymbolResolutionSuccess:
@@ -224,7 +248,10 @@ KtNameReferenceExpression(130,133): 'Int'
     ]
 
 KtTypeReference(136,140): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(136,140): 'Test'
   KaSymbolResolutionSuccess:
@@ -299,7 +326,10 @@ KtDeclarationModifierList(148,156): 'operator'
   null
 
 KtTypeReference(161,165): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(161,165): 'Test'
   KaSymbolResolutionSuccess:
@@ -320,7 +350,10 @@ KtParameter(178,184): 'i: Int'
   null
 
 KtTypeReference(181,184): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(181,184): 'Int'
   KaSymbolResolutionSuccess:
@@ -335,7 +368,10 @@ KtNameReferenceExpression(181,184): 'Int'
     ]
 
 KtTypeReference(187,191): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(187,191): 'Unit'
   KaSymbolResolutionSuccess:
@@ -359,7 +395,10 @@ KtDeclarationModifierList(196,204): 'operator'
   null
 
 KtTypeReference(209,213): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(209,213): 'Test'
   KaSymbolResolutionSuccess:
@@ -380,7 +419,10 @@ KtParameter(218,224): 'i: Int'
   null
 
 KtTypeReference(221,224): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(221,224): 'Int'
   KaSymbolResolutionSuccess:
@@ -395,7 +437,10 @@ KtNameReferenceExpression(221,224): 'Int'
     ]
 
 KtTypeReference(227,231): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(227,231): 'Test'
   KaSymbolResolutionSuccess:
@@ -470,7 +515,10 @@ KtDeclarationModifierList(239,247): 'operator'
   null
 
 KtTypeReference(252,256): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(252,256): 'Test'
   KaSymbolResolutionSuccess:
@@ -491,7 +539,10 @@ KtParameter(267,273): 'i: Int'
   null
 
 KtTypeReference(270,273): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(270,273): 'Int'
   KaSymbolResolutionSuccess:
@@ -506,7 +557,10 @@ KtNameReferenceExpression(270,273): 'Int'
     ]
 
 KtTypeReference(276,280): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(276,280): 'Unit'
   KaSymbolResolutionSuccess:
@@ -530,7 +584,10 @@ KtDeclarationModifierList(285,293): 'operator'
   null
 
 KtTypeReference(298,302): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(298,302): 'Test'
   KaSymbolResolutionSuccess:
@@ -551,7 +608,10 @@ KtParameter(309,315): 'i: Int'
   null
 
 KtTypeReference(312,315): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(312,315): 'Int'
   KaSymbolResolutionSuccess:
@@ -566,7 +626,10 @@ KtNameReferenceExpression(312,315): 'Int'
     ]
 
 KtTypeReference(318,322): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(318,322): 'Test'
   KaSymbolResolutionSuccess:
@@ -641,7 +704,10 @@ KtDeclarationModifierList(330,338): 'operator'
   null
 
 KtTypeReference(343,347): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(343,347): 'Test'
   KaSymbolResolutionSuccess:
@@ -662,7 +728,10 @@ KtParameter(360,366): 'i: Int'
   null
 
 KtTypeReference(363,366): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(363,366): 'Int'
   KaSymbolResolutionSuccess:
@@ -677,7 +746,10 @@ KtNameReferenceExpression(363,366): 'Int'
     ]
 
 KtTypeReference(369,373): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(369,373): 'Unit'
   KaSymbolResolutionSuccess:
@@ -701,7 +773,10 @@ KtDeclarationModifierList(378,386): 'operator'
   null
 
 KtTypeReference(391,395): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(391,395): 'Test'
   KaSymbolResolutionSuccess:
@@ -722,7 +797,10 @@ KtParameter(400,406): 'i: Int'
   null
 
 KtTypeReference(403,406): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(403,406): 'Int'
   KaSymbolResolutionSuccess:
@@ -737,7 +815,10 @@ KtNameReferenceExpression(403,406): 'Int'
     ]
 
 KtTypeReference(409,413): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(409,413): 'Test'
   KaSymbolResolutionSuccess:
@@ -812,7 +893,10 @@ KtDeclarationModifierList(421,429): 'operator'
   null
 
 KtTypeReference(434,438): 'Test'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Test
+    ]
 
 KtUserType(434,438): 'Test'
   KaSymbolResolutionSuccess:
@@ -833,7 +917,10 @@ KtParameter(449,455): 'i: Int'
   null
 
 KtTypeReference(452,455): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(452,455): 'Int'
   KaSymbolResolutionSuccess:
@@ -848,7 +935,10 @@ KtNameReferenceExpression(452,455): 'Int'
     ]
 
 KtTypeReference(458,462): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(458,462): 'Unit'
   KaSymbolResolutionSuccess:

@@ -44,7 +44,10 @@ KtParameter(159,163): 't: T'
   null
 
 KtTypeReference(162,163): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(162,163): 'T'
   KaSymbolResolutionSuccess:
@@ -59,7 +62,10 @@ KtNameReferenceExpression(162,163): 'T'
     ]
 
 KtTypeReference(166,173): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(166,173): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -92,7 +98,10 @@ KtParameter(201,236): 'g: suspend Controller<S>.() -> Unit'
   null
 
 KtTypeReference(204,236): 'suspend Controller<S>.() -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/coroutines/SuspendFunction1
+    ]
 
 KtDeclarationModifierList(204,211): 'suspend'
   null
@@ -107,7 +116,10 @@ KtFunctionTypeReceiver(212,225): 'Controller<S>'
   null
 
 KtTypeReference(212,225): 'Controller<S>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Controller
+    ]
 
 KtUserType(212,225): 'Controller<S>'
   KaSymbolResolutionSuccess:
@@ -128,7 +140,10 @@ KtTypeProjection(223,224): 'S'
   null
 
 KtTypeReference(223,224): 'S'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      S
+    ]
 
 KtUserType(223,224): 'S'
   KaSymbolResolutionSuccess:
@@ -146,7 +161,10 @@ KtParameterList(226,228): '()'
   null
 
 KtTypeReference(232,236): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(232,236): 'Unit'
   KaSymbolResolutionSuccess:
@@ -161,7 +179,10 @@ KtNameReferenceExpression(232,236): 'Unit'
     ]
 
 KtTypeReference(239,240): 'S'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      S
+    ]
 
 KtUserType(239,240): 'S'
   KaSymbolResolutionSuccess:
@@ -200,7 +221,10 @@ KtParameter(259,268): 'm: MyEnum'
   null
 
 KtTypeReference(262,268): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(262,268): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -365,7 +389,10 @@ KtProperty(388,437): 'val x: MyEnum = generate {'
   null
 
 KtTypeReference(395,401): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(395,401): 'MyEnum'
   KaSymbolResolutionSuccess:

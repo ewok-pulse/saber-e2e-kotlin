@@ -17,7 +17,10 @@ KtSuperTypeEntry(10,23): 'Comparable<A>'
   null
 
 KtTypeReference(10,23): 'Comparable<A>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Comparable
+    ]
 
 KtUserType(10,23): 'Comparable<A>'
   KaSymbolResolutionSuccess:
@@ -38,7 +41,10 @@ KtTypeProjection(21,22): 'A'
   null
 
 KtTypeReference(21,22): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(21,22): 'A'
   KaSymbolResolutionSuccess:
@@ -68,7 +74,10 @@ KtParameter(53,61): 'other: A'
   null
 
 KtTypeReference(60,61): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(60,61): 'A'
   KaSymbolResolutionSuccess:
@@ -83,7 +92,10 @@ KtNameReferenceExpression(60,61): 'A'
     ]
 
 KtTypeReference(64,67): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(64,67): 'Int'
   KaSymbolResolutionSuccess:
@@ -113,7 +125,10 @@ KtParameter(97,105): 'other: A'
   null
 
 KtTypeReference(104,105): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(104,105): 'A'
   KaSymbolResolutionSuccess:
@@ -128,7 +143,10 @@ KtNameReferenceExpression(104,105): 'A'
     ]
 
 KtTypeReference(108,122): 'ClosedRange<A>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/ranges/ClosedRange
+    ]
 
 KtUserType(108,122): 'ClosedRange<A>'
   KaSymbolResolutionSuccess:
@@ -149,7 +167,10 @@ KtTypeProjection(120,121): 'A'
   null
 
 KtTypeReference(120,121): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(120,121): 'A'
   KaSymbolResolutionSuccess:
@@ -191,7 +212,10 @@ KtParameter(160,168): 'other: A'
   null
 
 KtTypeReference(167,168): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(167,168): 'A'
   KaSymbolResolutionSuccess:
@@ -206,7 +230,10 @@ KtNameReferenceExpression(167,168): 'A'
     ]
 
 KtTypeReference(171,186): 'OpenEndRange<A>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/ranges/OpenEndRange
+    ]
 
 KtUserType(171,186): 'OpenEndRange<A>'
   KaSymbolResolutionSuccess:
@@ -227,7 +254,10 @@ KtTypeProjection(184,185): 'A'
   null
 
 KtTypeReference(184,185): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(184,185): 'A'
   KaSymbolResolutionSuccess:

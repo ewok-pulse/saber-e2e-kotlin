@@ -71,7 +71,10 @@ KtTypeParameter(66,86): 'B : Base.NestedClass'
   null
 
 KtTypeReference(70,86): 'Base.NestedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Base.NestedClass
+    ]
 
 KtUserType(70,86): 'Base.NestedClass'
   KaSymbolResolutionSuccess:
@@ -122,7 +125,10 @@ KtTypeParameter(154,182): 'C : one.two.Base.NestedClass'
   null
 
 KtTypeReference(158,182): 'one.two.Base.NestedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Base.NestedClass
+    ]
 
 KtUserType(158,182): 'one.two.Base.NestedClass'
   KaSymbolResolutionSuccess:
@@ -188,7 +194,10 @@ KtConstructorCalleeExpression(186,193): 'Base<C>'
     ]
 
 KtTypeReference(186,193): 'Base<C>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Base
+    ]
 
 KtUserType(186,193): 'Base<C>'
   KaSymbolResolutionSuccess:
@@ -209,7 +218,10 @@ KtTypeProjection(191,192): 'C'
   null
 
 KtTypeReference(191,192): 'C'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      C
+    ]
 
 KtUserType(191,192): 'C'
   KaSymbolResolutionSuccess:
@@ -236,7 +248,10 @@ KtParameterList(214,216): '()'
   null
 
 KtTypeReference(218,230): 'NestedClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Base.NestedClass
+    ]
 
 KtNullableType(218,230): 'NestedClass?'
   KaSymbolResolutionSuccess:
@@ -266,7 +281,10 @@ KtParameterList(264,266): '()'
   null
 
 KtTypeReference(268,270): 'C?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      C
+    ]
 
 KtNullableType(268,270): 'C?'
   KaSymbolResolutionSuccess:
@@ -299,7 +317,10 @@ KtParameter(291,313): 'c1: Child<NestedClass>'
   null
 
 KtTypeReference(295,313): 'Child<NestedClass>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Child
+    ]
 
 KtUserType(295,313): 'Child<NestedClass>'
   KaSymbolResolutionSuccess:
@@ -320,7 +341,10 @@ KtTypeProjection(301,312): 'NestedClass'
   null
 
 KtTypeReference(301,312): 'NestedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Base.NestedClass
+    ]
 
 KtUserType(301,312): 'NestedClass'
   KaSymbolResolutionSuccess:
@@ -338,7 +362,10 @@ KtParameter(315,358): 'c2: one.two.Child<one.two.Base.NestedClass>'
   null
 
 KtTypeReference(319,358): 'one.two.Child<one.two.Base.NestedClass>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Child
+    ]
 
 KtUserType(319,358): 'one.two.Child<one.two.Base.NestedClass>'
   KaSymbolResolutionSuccess:
@@ -383,7 +410,10 @@ KtTypeProjection(333,357): 'one.two.Base.NestedClass'
   null
 
 KtTypeReference(333,357): 'one.two.Base.NestedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Base.NestedClass
+    ]
 
 KtUserType(333,357): 'one.two.Base.NestedClass'
   KaSymbolResolutionSuccess:
@@ -440,7 +470,10 @@ KtProperty(366,405): 'val nested: NestedClass = NestedClass()'
   null
 
 KtTypeReference(378,389): 'NestedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Base.NestedClass
+    ]
 
 KtUserType(378,389): 'NestedClass'
   KaSymbolResolutionSuccess:

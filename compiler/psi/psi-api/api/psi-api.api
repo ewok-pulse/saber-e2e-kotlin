@@ -2843,7 +2843,7 @@ public class org/jetbrains/kotlin/psi/KtTypeProjection : org/jetbrains/kotlin/ps
 	public fun getTypeReference ()Lorg/jetbrains/kotlin/psi/KtTypeReference;
 }
 
-public final class org/jetbrains/kotlin/psi/KtTypeReference : org/jetbrains/kotlin/psi/KtModifierListOwnerStub, org/jetbrains/kotlin/psi/KtAnnotated, org/jetbrains/kotlin/psi/KtAnnotationsContainer {
+public final class org/jetbrains/kotlin/psi/KtTypeReference : org/jetbrains/kotlin/psi/KtModifierListOwnerStub, org/jetbrains/kotlin/psi/KtAnnotated, org/jetbrains/kotlin/psi/KtAnnotationsContainer, org/jetbrains/kotlin/resolution/KtResolvable {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun <init> (Lorg/jetbrains/kotlin/psi/stubs/KotlinPlaceHolderStub;)V
 	public fun accept (Lorg/jetbrains/kotlin/psi/KtVisitor;Ljava/lang/Object;)Ljava/lang/Object;

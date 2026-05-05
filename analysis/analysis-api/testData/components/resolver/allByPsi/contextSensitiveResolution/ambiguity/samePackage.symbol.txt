@@ -44,7 +44,10 @@ KtConstructorCalleeExpression(114,120): 'Sealed'
     ]
 
 KtTypeReference(114,120): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(114,120): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -77,7 +80,10 @@ KtParameter(140,150): 'val x: Int'
   null
 
 KtTypeReference(147,150): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(147,150): 'Int'
   KaSymbolResolutionSuccess:
@@ -107,7 +113,10 @@ KtConstructorCalleeExpression(154,160): 'Sealed'
     ]
 
 KtTypeReference(154,160): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(154,160): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -146,7 +155,10 @@ KtConstructorCalleeExpression(183,189): 'Sealed'
     ]
 
 KtTypeReference(183,189): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(183,189): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -179,7 +191,10 @@ KtParameter(209,219): 'val y: Int'
   null
 
 KtTypeReference(216,219): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(216,219): 'Int'
   KaSymbolResolutionSuccess:
@@ -209,7 +224,10 @@ KtConstructorCalleeExpression(223,229): 'Sealed'
     ]
 
 KtTypeReference(223,229): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(223,229): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -242,7 +260,10 @@ KtParameter(254,274): 'val t: kotlin.String'
   null
 
 KtTypeReference(261,274): 'kotlin.String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(261,274): 'kotlin.String'
   KaSymbolResolutionSuccess:
@@ -284,7 +305,10 @@ KtConstructorCalleeExpression(278,284): 'Sealed'
     ]
 
 KtTypeReference(278,284): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(278,284): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -317,7 +341,10 @@ KtParameter(319,328): 's: Sealed'
   null
 
 KtTypeReference(322,328): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(322,328): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -332,7 +359,10 @@ KtNameReferenceExpression(322,328): 'Sealed'
     ]
 
 KtTypeReference(331,334): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(331,334): 'Int'
   KaSymbolResolutionSuccess:
@@ -377,7 +407,10 @@ KtWhenConditionIsPattern(363,367): 'is B'
   null
 
 KtTypeReference(366,367): 'B'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/B
+    ]
 
 KtUserType(366,367): 'B'
   KaSymbolResolutionSuccess:
@@ -416,7 +449,10 @@ KtWhenConditionIsPattern(388,392): 'is D'
   null
 
 KtTypeReference(391,392): 'D'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed.D
+    ]
 
 KtUserType(391,392): 'D'
   KaSymbolResolutionSuccess:
@@ -440,7 +476,10 @@ KtWhenConditionIsPattern(402,411): 'is String'
   null
 
 KtTypeReference(405,411): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(405,411): 'String'
   KaSymbolResolutionSuccess:
@@ -473,7 +512,10 @@ KtParameter(453,462): 's: Sealed'
   null
 
 KtTypeReference(456,462): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(456,462): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -488,7 +530,10 @@ KtNameReferenceExpression(456,462): 'Sealed'
     ]
 
 KtTypeReference(465,468): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(465,468): 'Int'
   KaSymbolResolutionSuccess:
@@ -542,7 +587,10 @@ KtWhenConditionIsPattern(504,515): 'is Sealed.B'
   null
 
 KtTypeReference(507,515): 'Sealed.B'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed.B
+    ]
 
 KtUserType(507,515): 'Sealed.B'
   KaSymbolResolutionSuccess:
@@ -587,7 +635,10 @@ KtParameter(559,568): 's: Sealed'
   null
 
 KtTypeReference(562,568): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(562,568): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -602,7 +653,10 @@ KtNameReferenceExpression(562,568): 'Sealed'
     ]
 
 KtTypeReference(571,574): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(571,574): 'Int'
   KaSymbolResolutionSuccess:
@@ -656,7 +710,10 @@ KtWhenConditionIsPattern(607,615): 'is foo.B'
   null
 
 KtTypeReference(610,615): 'foo.B'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/B
+    ]
 
 KtUserType(610,615): 'foo.B'
   KaSymbolResolutionSuccess:
@@ -701,7 +758,10 @@ KtParameter(653,662): 's: Sealed'
   null
 
 KtTypeReference(656,662): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(656,662): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -716,7 +776,10 @@ KtNameReferenceExpression(656,662): 'Sealed'
     ]
 
 KtTypeReference(665,668): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(665,668): 'Int'
   KaSymbolResolutionSuccess:
@@ -746,7 +809,10 @@ KtOperationReferenceExpression(677,679): 'as'
   null
 
 KtTypeReference(680,681): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/A
+    ]
 
 KtUserType(680,681): 'A'
   KaSymbolResolutionSuccess:
@@ -779,7 +845,10 @@ KtParameter(713,722): 's: Sealed'
   null
 
 KtTypeReference(716,722): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(716,722): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -794,7 +863,10 @@ KtNameReferenceExpression(716,722): 'Sealed'
     ]
 
 KtTypeReference(725,728): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(725,728): 'Int'
   KaSymbolResolutionSuccess:
@@ -824,7 +896,10 @@ KtOperationReferenceExpression(737,739): 'as'
   null
 
 KtTypeReference(740,741): 'B'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/B
+    ]
 
 KtUserType(740,741): 'B'
   KaSymbolResolutionSuccess:
@@ -857,7 +932,10 @@ KtParameter(774,783): 's: Sealed'
   null
 
 KtTypeReference(777,783): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(777,783): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -872,7 +950,10 @@ KtNameReferenceExpression(777,783): 'Sealed'
     ]
 
 KtTypeReference(786,789): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(786,789): 'Int'
   KaSymbolResolutionSuccess:
@@ -902,7 +983,10 @@ KtOperationReferenceExpression(798,800): 'as'
   null
 
 KtTypeReference(801,809): 'Sealed.A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed.A
+    ]
 
 KtUserType(801,809): 'Sealed.A'
   KaSymbolResolutionSuccess:
@@ -947,7 +1031,10 @@ KtParameter(842,851): 's: Sealed'
   null
 
 KtTypeReference(845,851): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(845,851): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -962,7 +1049,10 @@ KtNameReferenceExpression(845,851): 'Sealed'
     ]
 
 KtTypeReference(854,857): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(854,857): 'Int'
   KaSymbolResolutionSuccess:
@@ -992,7 +1082,10 @@ KtOperationReferenceExpression(866,868): 'as'
   null
 
 KtTypeReference(869,877): 'Sealed.B'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed.B
+    ]
 
 KtUserType(869,877): 'Sealed.B'
   KaSymbolResolutionSuccess:
@@ -1037,7 +1130,10 @@ KtParameter(912,921): 's: Sealed'
   null
 
 KtTypeReference(915,921): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(915,921): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -1052,7 +1148,10 @@ KtNameReferenceExpression(915,921): 'Sealed'
     ]
 
 KtTypeReference(924,927): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(924,927): 'Int'
   KaSymbolResolutionSuccess:
@@ -1082,7 +1181,10 @@ KtOperationReferenceExpression(936,938): 'as'
   null
 
 KtTypeReference(939,944): 'foo.A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/A
+    ]
 
 KtUserType(939,944): 'foo.A'
   KaSymbolResolutionSuccess:
@@ -1127,7 +1229,10 @@ KtParameter(979,988): 's: Sealed'
   null
 
 KtTypeReference(982,988): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(982,988): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -1142,7 +1247,10 @@ KtNameReferenceExpression(982,988): 'Sealed'
     ]
 
 KtTypeReference(991,994): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(991,994): 'Int'
   KaSymbolResolutionSuccess:
@@ -1172,7 +1280,10 @@ KtOperationReferenceExpression(1003,1005): 'as'
   null
 
 KtTypeReference(1006,1011): 'foo.B'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/B
+    ]
 
 KtUserType(1006,1011): 'foo.B'
   KaSymbolResolutionSuccess:
@@ -1217,7 +1328,10 @@ KtParameter(1040,1049): 's: Sealed'
   null
 
 KtTypeReference(1043,1049): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(1043,1049): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -1232,7 +1346,10 @@ KtNameReferenceExpression(1043,1049): 'Sealed'
     ]
 
 KtTypeReference(1052,1055): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(1052,1055): 'Int'
   KaSymbolResolutionSuccess:
@@ -1262,7 +1379,10 @@ KtOperationReferenceExpression(1064,1066): 'as'
   null
 
 KtTypeReference(1067,1068): 'C'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed.C
+    ]
 
 KtUserType(1067,1068): 'C'
   KaSymbolResolutionSuccess:
@@ -1295,7 +1415,10 @@ KtParameter(1097,1106): 's: Sealed'
   null
 
 KtTypeReference(1100,1106): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(1100,1106): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -1310,7 +1433,10 @@ KtNameReferenceExpression(1100,1106): 'Sealed'
     ]
 
 KtTypeReference(1109,1112): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(1109,1112): 'Int'
   KaSymbolResolutionSuccess:
@@ -1340,7 +1466,10 @@ KtOperationReferenceExpression(1121,1123): 'as'
   null
 
 KtTypeReference(1124,1125): 'D'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed.D
+    ]
 
 KtUserType(1124,1125): 'D'
   KaSymbolResolutionSuccess:
@@ -1373,7 +1502,10 @@ KtParameter(1161,1170): 's: Sealed'
   null
 
 KtTypeReference(1164,1170): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(1164,1170): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -1388,7 +1520,10 @@ KtNameReferenceExpression(1164,1170): 'Sealed'
     ]
 
 KtTypeReference(1173,1180): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(1173,1180): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -1436,7 +1571,10 @@ KtParameter(1210,1219): 's: Sealed'
   null
 
 KtTypeReference(1213,1219): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(1213,1219): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -1451,7 +1589,10 @@ KtNameReferenceExpression(1213,1219): 'Sealed'
     ]
 
 KtTypeReference(1222,1229): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(1222,1229): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -1508,7 +1649,10 @@ KtParameter(1268,1277): 's: Sealed'
   null
 
 KtTypeReference(1271,1277): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(1271,1277): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -1523,7 +1667,10 @@ KtNameReferenceExpression(1271,1277): 'Sealed'
     ]
 
 KtTypeReference(1280,1287): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(1280,1287): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -1580,7 +1727,10 @@ KtParameter(1317,1326): 's: Sealed'
   null
 
 KtTypeReference(1320,1326): 'Sealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      foo/Sealed
+    ]
 
 KtUserType(1320,1326): 'Sealed'
   KaSymbolResolutionSuccess:
@@ -1595,7 +1745,10 @@ KtNameReferenceExpression(1320,1326): 'Sealed'
     ]
 
 KtTypeReference(1329,1336): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(1329,1336): 'Boolean'
   KaSymbolResolutionSuccess:

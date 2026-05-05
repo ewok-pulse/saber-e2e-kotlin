@@ -29,7 +29,10 @@ KtParameter(121,134): 'val x: String'
   null
 
 KtTypeReference(128,134): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(128,134): 'String'
   KaSymbolResolutionSuccess:
@@ -50,7 +53,10 @@ KtSuperTypeEntry(137,145): 'MySealed'
   null
 
 KtTypeReference(137,145): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtUserType(137,145): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -77,7 +83,10 @@ KtParameter(162,175): 'val y: String'
   null
 
 KtTypeReference(169,175): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(169,175): 'String'
   KaSymbolResolutionSuccess:
@@ -98,7 +107,10 @@ KtSuperTypeEntry(178,186): 'MySealed'
   null
 
 KtTypeReference(178,186): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtUserType(178,186): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -128,7 +140,10 @@ KtProperty(214,227): 'val z: String'
   null
 
 KtTypeReference(221,227): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(221,227): 'String'
   KaSymbolResolutionSuccess:
@@ -146,7 +161,10 @@ KtNamedFunction(231,323): 'fun MySealed.getOrElse() = when (this) {'
   null
 
 KtTypeReference(235,243): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtUserType(235,243): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -227,7 +245,11 @@ KtWhenConditionIsPattern(276,283): 'is Left'
   null
 
 KtTypeReference(279,283): 'Left'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      /Left
+    ]
+    diagnostic = ERROR<NO_TYPE_ARGUMENTS_ON_RHS: One type argument expected. Use 'Left<*>' if you do not intend to pass type arguments.>
 
 KtUserType(279,283): 'Left'
   KaSymbolResolutionError:
@@ -255,7 +277,10 @@ KtWhenConditionIsPattern(293,301): 'is Right'
   null
 
 KtTypeReference(296,301): 'Right'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Right
+    ]
 
 KtUserType(296,301): 'Right'
   KaSymbolResolutionSuccess:

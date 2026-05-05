@@ -47,7 +47,10 @@ KtParameter(94,107): 'val x: String'
   null
 
 KtTypeReference(101,107): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(101,107): 'String'
   KaSymbolResolutionSuccess:
@@ -68,7 +71,10 @@ KtSuperTypeEntry(110,118): 'MySealed'
   null
 
 KtTypeReference(110,118): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtUserType(110,118): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -95,7 +101,10 @@ KtParameter(135,148): 'val y: String'
   null
 
 KtTypeReference(142,148): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(142,148): 'String'
   KaSymbolResolutionSuccess:
@@ -116,7 +125,10 @@ KtSuperTypeEntry(151,159): 'MySealed'
   null
 
 KtTypeReference(151,159): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtUserType(151,159): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -134,7 +146,10 @@ KtNamedFunction(163,241): 'fun MySealed.getOrElse1() = when (this) {'
   null
 
 KtTypeReference(167,175): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtUserType(167,175): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -215,7 +230,14 @@ KtWhenConditionIsPattern(209,216): 'is Left'
   null
 
 KtTypeReference(212,216): 'Left'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      a/Left,
+      b/Left
+    ]
+    diagnostic = ERROR<OVERLOAD_RESOLUTION_AMBIGUITY: Overload resolution ambiguity between candidates:
+    class Left : Any
+    class Left : Any>
 
 KtUserType(212,216): 'Left'
   KaSymbolResolutionError:
@@ -249,7 +271,10 @@ KtWhenConditionIsPattern(226,234): 'is Right'
   null
 
 KtTypeReference(229,234): 'Right'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Right
+    ]
 
 KtUserType(229,234): 'Right'
   KaSymbolResolutionSuccess:
@@ -273,7 +298,10 @@ KtNamedFunction(243,316): 'fun Any.getOrElse2() = when (this) {'
   null
 
 KtTypeReference(247,250): 'Any'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(247,250): 'Any'
   KaSymbolResolutionSuccess:
@@ -354,7 +382,14 @@ KtWhenConditionIsPattern(284,291): 'is Left'
   null
 
 KtTypeReference(287,291): 'Left'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      a/Left,
+      b/Left
+    ]
+    diagnostic = ERROR<OVERLOAD_RESOLUTION_AMBIGUITY: Overload resolution ambiguity between candidates:
+    class Left : Any
+    class Left : Any>
 
 KtUserType(287,291): 'Left'
   KaSymbolResolutionError:
@@ -388,7 +423,9 @@ KtWhenConditionIsPattern(301,309): 'is Right'
   null
 
 KtTypeReference(304,309): 'Right'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Right'.>
 
 KtUserType(304,309): 'Right'
   KaSymbolResolutionError:

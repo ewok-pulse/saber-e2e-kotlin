@@ -26,7 +26,10 @@ KtSuperTypeEntry(120,126): 'Simple'
   null
 
 KtTypeReference(120,126): 'Simple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Simple
+    ]
 
 KtUserType(120,126): 'Simple'
   KaSymbolResolutionSuccess:
@@ -50,7 +53,10 @@ KtSuperTypeEntry(144,150): 'Simple'
   null
 
 KtTypeReference(144,150): 'Simple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Simple
+    ]
 
 KtUserType(144,150): 'Simple'
   KaSymbolResolutionSuccess:
@@ -74,7 +80,10 @@ KtParameter(174,183): 's: Simple'
   null
 
 KtTypeReference(177,183): 'Simple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Simple
+    ]
 
 KtUserType(177,183): 'Simple'
   KaSymbolResolutionSuccess:
@@ -104,7 +113,10 @@ KtWhenConditionIsPattern(201,209): '!is Left'
   null
 
 KtTypeReference(205,209): 'Left'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Simple.Left
+    ]
 
 KtUserType(205,209): 'Left'
   KaSymbolResolutionSuccess:
@@ -168,7 +180,9 @@ KtOperationReferenceExpression(250,253): '!is'
   null
 
 KtTypeReference(254,262): 'Right<!>'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Right'.>
 
 KtUserType(254,262): 'Right<!>'
   KaSymbolResolutionError:

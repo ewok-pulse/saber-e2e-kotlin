@@ -123,7 +123,10 @@ KtParameter(116,135): 'action: (T) -> Unit'
   null
 
 KtTypeReference(124,135): '(T) -> Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Function1
+    ]
 
 KtFunctionType(124,135): '(T) -> Unit'
   KaSymbolResolutionSuccess:
@@ -138,7 +141,10 @@ KtParameter(125,126): 'T'
   null
 
 KtTypeReference(125,126): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(125,126): 'T'
   KaSymbolResolutionSuccess:
@@ -153,7 +159,10 @@ KtNameReferenceExpression(125,126): 'T'
     ]
 
 KtTypeReference(131,135): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtUserType(131,135): 'Unit'
   KaSymbolResolutionSuccess:

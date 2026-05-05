@@ -47,7 +47,10 @@ KtConstructorCalleeExpression(166,173): 'MyClass'
     ]
 
 KtTypeReference(166,173): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(166,173): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -74,7 +77,10 @@ KtDeclarationModifierList(187,192): 'infix'
   null
 
 KtTypeReference(197,200): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(197,200): 'Int'
   KaSymbolResolutionSuccess:
@@ -95,7 +101,10 @@ KtParameter(219,230): 'arg: MyEnum'
   null
 
 KtTypeReference(224,230): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(224,230): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -119,7 +128,10 @@ KtDeclarationModifierList(234,239): 'infix'
   null
 
 KtTypeReference(244,247): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(244,247): 'Int'
   KaSymbolResolutionSuccess:
@@ -140,7 +152,10 @@ KtParameter(262,274): 'arg: MyClass'
   null
 
 KtTypeReference(267,274): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(267,274): 'MyClass'
   KaSymbolResolutionSuccess:

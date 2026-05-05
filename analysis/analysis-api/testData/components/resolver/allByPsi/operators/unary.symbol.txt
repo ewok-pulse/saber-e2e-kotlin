@@ -23,7 +23,10 @@ KtParameterList(36,38): '()'
   null
 
 KtTypeReference(40,41): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(40,41): 'A'
   KaSymbolResolutionSuccess:
@@ -59,7 +62,10 @@ KtParameterList(76,78): '()'
   null
 
 KtTypeReference(80,81): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(80,81): 'A'
   KaSymbolResolutionSuccess:
@@ -95,7 +101,10 @@ KtParameterList(109,111): '()'
   null
 
 KtTypeReference(113,120): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtUserType(113,120): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -122,7 +131,10 @@ KtParameterList(148,150): '()'
   null
 
 KtTypeReference(152,153): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(152,153): 'A'
   KaSymbolResolutionSuccess:
@@ -158,7 +170,10 @@ KtParameterList(181,183): '()'
   null
 
 KtTypeReference(185,186): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtUserType(185,186): 'A'
   KaSymbolResolutionSuccess:

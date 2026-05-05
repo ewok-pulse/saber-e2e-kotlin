@@ -57,7 +57,10 @@ KtTypeProjection(63,66): 'Int'
   null
 
 KtTypeReference(63,66): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(63,66): 'Int'
   KaSymbolResolutionSuccess:

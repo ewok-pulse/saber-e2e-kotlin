@@ -80,7 +80,10 @@ KtNamedFunction(146,265): 'fun one.two.TopLevelClass.foo(nestedClass: TopLevelCl
   null
 
 KtTypeReference(150,171): 'one.two.TopLevelClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/TopLevelClass
+    ]
 
 KtUserType(150,171): 'one.two.TopLevelClass'
   KaSymbolResolutionSuccess:
@@ -125,7 +128,10 @@ KtParameter(176,214): 'nestedClass: TopLevelClass.NestedClass'
   null
 
 KtTypeReference(189,214): 'TopLevelClass.NestedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/TopLevelClass.NestedClass
+    ]
 
 KtUserType(189,214): 'TopLevelClass.NestedClass'
   KaSymbolResolutionSuccess:
@@ -158,7 +164,10 @@ KtProperty(222,263): 'val innerClass: InnerAlias = InnerClass()'
   null
 
 KtTypeReference(238,248): 'InnerAlias'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/TopLevelClass.InnerClass
+    ]
 
 KtUserType(238,248): 'InnerAlias'
   KaSymbolResolutionSuccess:

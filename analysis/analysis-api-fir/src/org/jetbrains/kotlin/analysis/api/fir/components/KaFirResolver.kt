@@ -180,6 +180,10 @@ internal class KaFirResolver(
             is KtUserType -> psi.referenceExpression?.let(::performSymbolResolution)
             // A nullable type strips the nullability marker and resolves through its inner type element.
             is KtNullableType -> psi.innerType?.let(::performSymbolResolution)
+            // A type reference delegates to the inner type element. Dynamic and intersection types
+            // are not `KtResolvable`, so this redirect doesn't reach them — for those `typeElement`
+            // values, `performSymbolResolution` falls through and returns `null`.
+            is KtTypeReference -> psi.typeElement?.let(::performSymbolResolution)
             else -> analysisSession.cacheStorage.resolveSymbolCache.value.getOrPut(psi) {
                 resolveSymbol(psi)
             }

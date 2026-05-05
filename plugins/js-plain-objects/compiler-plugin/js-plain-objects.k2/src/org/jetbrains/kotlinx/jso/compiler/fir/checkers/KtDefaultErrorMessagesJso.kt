@@ -23,16 +23,16 @@ object KtDefaultErrorMessagesJsPlainObjects : BaseDiagnosticRendererFactory() {
         )
         map.put(
             FirJsPlainObjectsErrors.IMPLEMENTING_OF_JS_PLAIN_OBJECT_IS_NOT_SUPPORTED,
-            "[{0}] is marked as JsPlainObjects, so, it can not be used as a super-type for non-JsPlainObjects declarations",
+            "[{0}] is marked as JsPlainObjects, it can not be used as a super-type for non-JsPlainObjects declarations.",
             CommonRenderers.STRING
         )
         map.put(
             FirJsPlainObjectsErrors.METHODS_ARE_NOT_ALLOWED_INSIDE_JS_PLAIN_OBJECT,
-            "Methods are not allowed inside an interface marked with JsPlainObjects",
+            "Methods are not allowed inside an interface marked with JsPlainObjects.",
         )
         map.put(
             FirJsPlainObjectsErrors.JS_PLAIN_OBJECT_CAN_EXTEND_ONLY_OTHER_JS_PLAIN_OBJECTS,
-            "[{0}] is marked as JsPlainObjects, so, it can contain as supertypes only other interfaces marked with JsPlainObjects (or marker interfaces)",
+            "[{0}] is marked as JsPlainObjects, so it can only contain other interfaces marked with JsPlainObjects (or marker interfaces) as supertypes.",
             CommonRenderers.STRING
         )
     }

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.backend.jvm.intrinsics
 
 import org.jetbrains.kotlin.backend.jvm.JvmSymbols
+import org.jetbrains.kotlin.backend.jvm.intrinsics.specialization.*
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.ir.IrBuiltIns
@@ -79,6 +80,8 @@ class IrIntrinsicMethods(val irBuiltIns: IrBuiltIns, val symbols: JvmSymbols) {
                 symbols.throwIllegalAccessException.toKey()!! to ThrowException(Type.getObjectType("java/lang/IllegalAccessException")),
                 symbols.throwKotlinNothingValueException.toKey()!! to ThrowKotlinNothingValueException,
                 symbols.jvmIndyIntrinsic.toKey()!! to JvmInvokeDynamic,
+                symbols.jvmBoxMarkerIntrinsic.toKey()!! to JvmBoxMarker,
+                symbols.jvmUnboxMarkerIntrinsic.toKey()!! to JvmUnboxMarker,
                 symbols.jvmDebuggerInvokeSpecialIntrinsic.toKey()!! to JvmDebuggerInvokeSpecial,
                 symbols.getClassByDescriptor.toKey()!! to GetClassByDescriptor,
                 symbols.handleResultOfReflectiveAccess.toKey()!! to HandleResultOfReflectiveAccess,

@@ -68,7 +68,10 @@ KtSuperTypeList(85,89): 'Base'
   null
 
 KtSuperTypeEntry(85,89): 'Base'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Base
+    ]
 
 KtTypeReference(85,89): 'Base'
   KaSymbolResolutionSuccess:

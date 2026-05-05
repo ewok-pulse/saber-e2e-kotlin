@@ -596,7 +596,10 @@ KtSuperTypeList(400,466): '@Anno(6 + inner) Base<@Anno(7 + inner) Base<@Anno(8 +
   null
 
 KtSuperTypeEntry(400,466): '@Anno(6 + inner) Base<@Anno(7 + inner) Base<@Anno(8 + inner) Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Base
+    ]
 
 KtTypeReference(400,466): '@Anno(6 + inner) Base<@Anno(7 + inner) Base<@Anno(8 + inner) Int>>'
   KaSymbolResolutionSuccess:
@@ -1016,7 +1019,10 @@ KtSuperTypeList(559,608): '@Anno(9 + inner) Second<@Anno(10 + inner) String>'
   null
 
 KtSuperTypeEntry(559,608): '@Anno(9 + inner) Second<@Anno(10 + inner) String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      second/Second
+    ]
 
 KtTypeReference(559,608): '@Anno(9 + inner) Second<@Anno(10 + inner) String>'
   KaSymbolResolutionSuccess:

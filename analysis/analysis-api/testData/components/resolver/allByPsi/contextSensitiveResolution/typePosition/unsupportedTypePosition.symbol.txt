@@ -50,7 +50,10 @@ KtSuperTypeList(154,169): 'SealedInterface'
   null
 
 KtSuperTypeEntry(154,169): 'SealedInterface'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedInterface
+    ]
 
 KtTypeReference(154,169): 'SealedInterface'
   KaSymbolResolutionSuccess:
@@ -899,7 +902,10 @@ KtSuperTypeList(1373,1405): 'SealedInterface, NestedInheritor'
   null
 
 KtSuperTypeEntry(1373,1388): 'SealedInterface'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedInterface
+    ]
 
 KtTypeReference(1373,1388): 'SealedInterface'
   KaSymbolResolutionSuccess:
@@ -920,7 +926,9 @@ KtNameReferenceExpression(1373,1388): 'SealedInterface'
     ]
 
 KtSuperTypeEntry(1390,1405): 'NestedInheritor'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'NestedInheritor'.>
 
 KtTypeReference(1390,1405): 'NestedInheritor'
   KaSymbolResolutionError:

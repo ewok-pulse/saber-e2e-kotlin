@@ -101,7 +101,10 @@ KtSuperTypeList(113,126): 'Iterator<Int>'
   null
 
 KtSuperTypeEntry(113,126): 'Iterator<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/Iterator
+    ]
 
 KtTypeReference(113,126): 'Iterator<Int>'
   KaSymbolResolutionSuccess:

@@ -50,7 +50,10 @@ KtSuperTypeList(84,92): 'MySealed'
   null
 
 KtSuperTypeEntry(84,92): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtTypeReference(84,92): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -104,7 +107,10 @@ KtSuperTypeList(125,133): 'MySealed'
   null
 
 KtSuperTypeEntry(125,133): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtTypeReference(125,133): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -152,7 +158,10 @@ KtSuperTypeList(204,217): 'MyGeneric<E2>'
   null
 
 KtSuperTypeEntry(204,217): 'MyGeneric<E2>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyGeneric
+    ]
 
 KtTypeReference(204,217): 'MyGeneric<E2>'
   KaSymbolResolutionSuccess:
@@ -233,7 +242,10 @@ KtSuperTypeList(251,274): 'MyGenericSealed<String>'
   null
 
 KtSuperTypeEntry(251,274): 'MyGenericSealed<String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyGenericSealed
+    ]
 
 KtTypeReference(251,274): 'MyGenericSealed<String>'
   KaSymbolResolutionSuccess:
@@ -311,7 +323,10 @@ KtSuperTypeList(307,330): 'MyGenericSealed<String>'
   null
 
 KtSuperTypeEntry(307,330): 'MyGenericSealed<String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyGenericSealed
+    ]
 
 KtTypeReference(307,330): 'MyGenericSealed<String>'
   KaSymbolResolutionSuccess:

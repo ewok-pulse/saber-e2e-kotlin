@@ -248,7 +248,10 @@ KtSuperTypeList(290,315): 'ReadOnlyProperty<Any?, T>'
   null
 
 KtSuperTypeEntry(290,315): 'ReadOnlyProperty<Any?, T>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/properties/ReadOnlyProperty
+    ]
 
 KtTypeReference(290,315): 'ReadOnlyProperty<Any?, T>'
   KaSymbolResolutionSuccess:

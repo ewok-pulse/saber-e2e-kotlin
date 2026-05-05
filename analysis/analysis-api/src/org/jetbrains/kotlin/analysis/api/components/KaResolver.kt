@@ -631,6 +631,30 @@ public interface KaResolver : KaSessionComponent {
     public fun KtClassLiteralExpression.resolveSymbol(): KaClassifierSymbol?
 
     /**
+     * Resolves the classifier symbol referenced by the given [KtSuperTypeEntry] (the no-parens form `class Foo : Bar`).
+     *
+     * #### Example
+     *
+     * ```kotlin
+     * class Foo : Runnable
+     * //          ^^^^^^^^  resolves to `java.lang.Runnable`
+     * ```
+     *
+     * Resolution delegates to the entry's [KtSuperTypeEntry.getTypeReference]. Returns the underlying
+     * [KaClassifierSymbol] of the supertype if resolution succeeds; otherwise, it returns `null`.
+     *
+     * Companion to [KtSuperTypeCallEntry.resolveSymbol], which returns the [KaConstructorSymbol] for the
+     * `class Foo : Bar()` form.
+     *
+     * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on supertype entries
+     *
+     * @see tryResolveSymbols
+     * @see KtResolvable.resolveSymbol
+     */
+    @KaExperimentalApi
+    public fun KtSuperTypeEntry.resolveSymbol(): KaClassifierSymbol?
+
+    /**
      * Attempts to resolve the call for the given [KtResolvableCall].
      *
      * ### Usage Example:
@@ -1969,6 +1993,37 @@ public fun KtTypeReference.resolveSymbol(): KaClassifierSymbol? {
 @KaContextParameterApi
 context(session: KaSession)
 public fun KtClassLiteralExpression.resolveSymbol(): KaClassifierSymbol? {
+    return with(session) {
+        resolveSymbol()
+    }
+}
+
+/**
+ * Resolves the classifier symbol referenced by the given [KtSuperTypeEntry] (the no-parens form `class Foo : Bar`).
+ *
+ * #### Example
+ *
+ * ```kotlin
+ * class Foo : Runnable
+ * //          ^^^^^^^^  resolves to `java.lang.Runnable`
+ * ```
+ *
+ * Resolution delegates to the entry's [KtSuperTypeEntry.getTypeReference]. Returns the underlying
+ * [KaClassifierSymbol] of the supertype if resolution succeeds; otherwise, it returns `null`.
+ *
+ * Companion to [KtSuperTypeCallEntry.resolveSymbol], which returns the [KaConstructorSymbol] for the
+ * `class Foo : Bar()` form.
+ *
+ * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on supertype entries
+ *
+ * @see tryResolveSymbols
+ * @see KtResolvable.resolveSymbol
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KtSuperTypeEntry.resolveSymbol(): KaClassifierSymbol? {
     return with(session) {
         resolveSymbol()
     }

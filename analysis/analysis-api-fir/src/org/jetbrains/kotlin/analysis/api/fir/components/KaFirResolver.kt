@@ -187,6 +187,8 @@ internal class KaFirResolver(
             // A class literal expression (`Foo::class`) resolves to the classifier on its left-hand side.
             // The receiver is a name reference or qualified expression, both of which are already cached.
             is KtClassLiteralExpression -> psi.receiverExpression?.let(::performSymbolResolution)
+            // A no-parens super-type entry (`class Foo : Bar`) resolves through its type reference.
+            is KtSuperTypeEntry -> psi.typeReference?.let(::performSymbolResolution)
             else -> analysisSession.cacheStorage.resolveSymbolCache.value.getOrPut(psi) {
                 resolveSymbol(psi)
             }

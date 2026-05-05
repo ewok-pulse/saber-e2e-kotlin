@@ -50,7 +50,10 @@ KtSuperTypeList(111,126): 'SealedInterface'
   null
 
 KtSuperTypeEntry(111,126): 'SealedInterface'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedInterface
+    ]
 
 KtTypeReference(111,126): 'SealedInterface'
   KaSymbolResolutionSuccess:
@@ -107,7 +110,10 @@ KtSuperTypeList(186,201): 'SealedInterface'
   null
 
 KtSuperTypeEntry(186,201): 'SealedInterface'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedInterface
+    ]
 
 KtTypeReference(186,201): 'SealedInterface'
   KaSymbolResolutionSuccess:
@@ -1210,7 +1216,10 @@ KtSuperTypeList(1289,1320): 'ITestContravariant<SealedClass>'
   null
 
 KtSuperTypeEntry(1289,1320): 'ITestContravariant<SealedClass>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /ITestContravariant
+    ]
 
 KtTypeReference(1289,1320): 'ITestContravariant<SealedClass>'
   KaSymbolResolutionSuccess:

@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.KtStubBasedElementTypes;
 import org.jetbrains.kotlin.psi.stubs.KotlinPlaceHolderStub;
+import org.jetbrains.kotlin.resolution.KtResolvable;
 
 /**
  * Represents an interface type in the super type list (without a constructor call).
@@ -19,7 +20,7 @@ import org.jetbrains.kotlin.psi.stubs.KotlinPlaceHolderStub;
  * //          ^______^
  * }</pre>
  */
-public class KtSuperTypeEntry extends KtSuperTypeListEntry {
+public class KtSuperTypeEntry extends KtSuperTypeListEntry implements KtResolvable {
     public KtSuperTypeEntry(@NotNull ASTNode node) {
         super(node);
     }

@@ -53,7 +53,10 @@ KtSuperTypeList(159,174): 'SealedInterface'
   null
 
 KtSuperTypeEntry(159,174): 'SealedInterface'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedInterface
+    ]
 
 KtTypeReference(159,174): 'SealedInterface'
   KaSymbolResolutionSuccess:

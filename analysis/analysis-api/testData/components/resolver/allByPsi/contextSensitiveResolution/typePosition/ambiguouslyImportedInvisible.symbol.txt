@@ -68,7 +68,10 @@ KtSuperTypeList(110,118): 'MySealed'
   null
 
 KtSuperTypeEntry(110,118): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtTypeReference(110,118): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -122,7 +125,10 @@ KtSuperTypeList(151,159): 'MySealed'
   null
 
 KtSuperTypeEntry(151,159): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtTypeReference(151,159): 'MySealed'
   KaSymbolResolutionSuccess:

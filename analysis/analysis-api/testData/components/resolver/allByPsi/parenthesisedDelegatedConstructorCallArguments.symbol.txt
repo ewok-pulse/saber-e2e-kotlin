@@ -227,7 +227,10 @@ KtSuperTypeList(142,154): 'A<(((Int)))>'
   null
 
 KtSuperTypeEntry(142,154): 'A<(((Int)))>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtTypeReference(142,154): 'A<(((Int)))>'
   KaSymbolResolutionSuccess:

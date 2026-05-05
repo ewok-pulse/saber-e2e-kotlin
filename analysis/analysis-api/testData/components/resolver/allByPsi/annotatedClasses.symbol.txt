@@ -1097,7 +1097,10 @@ KtSuperTypeList(840,964): '@Anno("super type ref $prop") List<@Anno("nested supe
   null
 
 KtSuperTypeEntry(840,964): '@Anno("super type ref $prop") List<@Anno("nested super type ref $prop") List<@Anno("nested nested super type ref $prop") I>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtTypeReference(840,964): '@Anno("super type ref $prop") List<@Anno("nested super type ref $prop") List<@Anno("nested nested super type ref $prop") I>>'
   KaSymbolResolutionSuccess:

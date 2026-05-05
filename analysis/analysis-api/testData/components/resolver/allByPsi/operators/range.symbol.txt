@@ -14,7 +14,10 @@ KtSuperTypeList(10,23): 'Comparable<A>'
   null
 
 KtSuperTypeEntry(10,23): 'Comparable<A>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Comparable
+    ]
 
 KtTypeReference(10,23): 'Comparable<A>'
   KaSymbolResolutionSuccess:

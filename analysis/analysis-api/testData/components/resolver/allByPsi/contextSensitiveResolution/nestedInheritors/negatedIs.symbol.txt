@@ -23,7 +23,10 @@ KtSuperTypeList(120,126): 'Simple'
   null
 
 KtSuperTypeEntry(120,126): 'Simple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Simple
+    ]
 
 KtTypeReference(120,126): 'Simple'
   KaSymbolResolutionSuccess:
@@ -50,7 +53,10 @@ KtSuperTypeList(144,150): 'Simple'
   null
 
 KtSuperTypeEntry(144,150): 'Simple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Simple
+    ]
 
 KtTypeReference(144,150): 'Simple'
   KaSymbolResolutionSuccess:

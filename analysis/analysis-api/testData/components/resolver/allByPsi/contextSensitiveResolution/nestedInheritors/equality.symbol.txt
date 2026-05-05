@@ -26,7 +26,10 @@ KtSuperTypeList(138,146): 'Settings'
   null
 
 KtSuperTypeEntry(138,146): 'Settings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Settings
+    ]
 
 KtTypeReference(138,146): 'Settings'
   KaSymbolResolutionSuccess:
@@ -56,7 +59,10 @@ KtSuperTypeList(182,190): 'Settings'
   null
 
 KtSuperTypeEntry(182,190): 'Settings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Settings
+    ]
 
 KtTypeReference(182,190): 'Settings'
   KaSymbolResolutionSuccess:

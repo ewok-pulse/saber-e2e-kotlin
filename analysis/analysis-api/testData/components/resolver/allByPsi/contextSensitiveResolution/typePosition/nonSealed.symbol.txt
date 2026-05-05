@@ -47,7 +47,10 @@ KtSuperTypeList(131,140): 'NonSealed'
   null
 
 KtSuperTypeEntry(131,140): 'NonSealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /NonSealed
+    ]
 
 KtTypeReference(131,140): 'NonSealed'
   KaSymbolResolutionSuccess:
@@ -101,7 +104,10 @@ KtSuperTypeList(173,182): 'NonSealed'
   null
 
 KtSuperTypeEntry(173,182): 'NonSealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /NonSealed
+    ]
 
 KtTypeReference(173,182): 'NonSealed'
   KaSymbolResolutionSuccess:

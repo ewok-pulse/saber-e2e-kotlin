@@ -116,7 +116,10 @@ KtSuperTypeList(131,140): 'BaseClass'
   null
 
 KtSuperTypeEntry(131,140): 'BaseClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      r/BaseClass
+    ]
 
 KtTypeReference(131,140): 'BaseClass'
   KaSymbolResolutionSuccess:
@@ -425,7 +428,10 @@ KtSuperTypeList(405,423): 'ClassWithType<Int>'
   null
 
 KtSuperTypeEntry(405,423): 'ClassWithType<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      r/ClassWithType
+    ]
 
 KtTypeReference(405,423): 'ClassWithType<Int>'
   KaSymbolResolutionSuccess:

@@ -83,10 +83,6 @@ internal class KonanInteropModuleDeserializerK2(
     private val metadataReader = KlibMetadataReader(klib, moduleHeaderProto)
 
     private val deserializedClasses = mutableListOf<IrClass>()
-
-    // Already deserialized callable references. An alternative is to add functions to SymbolTable allowing to probe for existing symbol
-    // without creating a new one if doesn't exist.
-    private val deserializedCallableSymbols = hashMapOf<IdSignature, IrSymbol>()
     private val irPackagesByFqName = mutableMapOf<FqName, IrExternalPackageFragment>()
     private val typeDefinitionsFilesForPackage = mutableMapOf<IrExternalPackageFragment, IrFile>()
 
@@ -118,24 +114,16 @@ internal class KonanInteropModuleDeserializerK2(
             // Unfortunately, for those, there is no quick way to tell if they exist inside the interop Klib, because metadata does
             // not contain signatures. It's necessary to invoke the actual deserialization, which will compute the signatures on the fly
             // and match against the requested one.
-            return tryDeserializeIrSymbol(idSig, BinarySymbolData.SymbolKind.FUNCTION_SYMBOL) != null ||
-                    tryDeserializeIrSymbol(idSig, BinarySymbolData.SymbolKind.PROPERTY_SYMBOL) != null
+            return tryDeserializeIrSymbol(idSig, BinarySymbolData.SymbolKind.FUNCTION_SYMBOL)?.isBound == true ||
+                    tryDeserializeIrSymbol(idSig, BinarySymbolData.SymbolKind.PROPERTY_SYMBOL)?.isBound == true
         }
         return false
     }
 
     override fun tryDeserializeIrSymbol(idSig: IdSignature, symbolKind: BinarySymbolData.SymbolKind): IrSymbol? {
-        var classSymbol: IrClassSymbol? = null
-        if (symbolKind == BinarySymbolData.SymbolKind.CLASS_SYMBOL) {
-            // Class symbol must be created right-away because it may be referenced by members during deserialization of this very class.
-            classSymbol = symbolTable.referenceClass(idSig)
-            if (classSymbol.isBound) {
-                return classSymbol
-            }
-        } else {
-            deserializedCallableSymbols[idSig]?.let {
-                return it
-            }
+        val symbol = symbolTable.referenceSymbolByKind(idSig, symbolKind) ?: return null
+        if (symbol.isBound) {
+            return symbol
         }
 
         var searchForSymbolKind = symbolKind
@@ -148,11 +136,10 @@ internal class KonanInteropModuleDeserializerK2(
         }
         commonSig = commonSig as? IdSignature.CommonSignature ?: return null
 
-        val isClassMember = '.' in commonSig.declarationFqName
-        if (isClassMember) {
+        if ('.' in commonSig.declarationFqName) {
             // When looking for a class member, try to deserialize the (top-most) containing class instead.
             // Doing so will, in turn, deserialize everything declared inside that class (including nested classes, recursively).
-            // If the sought declaration is indeed defined somewhere inside this class, it will be linked.
+            // If the sought declaration is indeed defined somewhere inside this class, it will be linked to `symbol` in the process.
             val topLevelClassSig = commonSig.topLevelSignature()
             tryDeserializeIrSymbol(topLevelClassSig, BinarySymbolData.SymbolKind.CLASS_SYMBOL)
         } else {
@@ -184,25 +171,21 @@ internal class KonanInteropModuleDeserializerK2(
             }
         }
 
-        classSymbol?.let { return it }
-        deserializedCallableSymbols[idSig]?.let { return it }
-        if (isClassMember) {
-            // If a member was not found inside a class, it may be because the signature actually refers to a fake override.
-            // F/Os are not present in Klib and will be created later, but the symbol for it must be created here.
-            val overridableSymbol = when (symbolKind) {
-                BinarySymbolData.SymbolKind.FUNCTION_SYMBOL -> symbolTable.referenceSimpleFunction(idSig)
-                BinarySymbolData.SymbolKind.PROPERTY_SYMBOL -> symbolTable.referenceProperty(idSig)
-                else -> null
-            }
-            if (overridableSymbol != null) {
-                deserializedCallableSymbols[idSig] = overridableSymbol
-                return overridableSymbol
-            }
-        }
-        return null
+        return symbol
     }
 
     override fun deserializedSymbolNotFound(idSig: IdSignature): Nothing = error("No C-Interop symbol found for $idSig")
+
+    private fun SymbolTable.referenceSymbolByKind(idSig: IdSignature, symbolKind: BinarySymbolData.SymbolKind): IrSymbol? {
+        return when (symbolKind) {
+            BinarySymbolData.SymbolKind.CLASS_SYMBOL -> referenceClass(idSig)
+            BinarySymbolData.SymbolKind.CONSTRUCTOR_SYMBOL -> referenceConstructor(idSig)
+            BinarySymbolData.SymbolKind.FUNCTION_SYMBOL -> referenceSimpleFunction(idSig)
+            BinarySymbolData.SymbolKind.PROPERTY_SYMBOL -> referenceProperty(idSig)
+            BinarySymbolData.SymbolKind.ENUM_ENTRY_SYMBOL -> referenceEnumEntry(idSig)
+            else -> null
+        }
+    }
 
     private fun findReferencedClassifier(classifier: KmClassifier, typeParametersInScope: Map<Int, IrTypeParameter> = emptyMap()): IrClassifierSymbol {
         return when (classifier) {
@@ -273,14 +256,21 @@ internal class KonanInteropModuleDeserializerK2(
         }
 
         val signature = signatureComputer.computeSignature(declaration)
-        (declaration.symbol as IrSymbolWithSignature<*, *>).signature = signature
-        deserializedCallableSymbols[signature] = declaration.symbol
         when (declaration) {
-            // TODO: If two declarations would resolve the the same IdSignature, the following code would crash. Is it possible?
-            is IrSimpleFunction -> symbolTable.declareSimpleFunction(signature, { declaration.symbol }) { declaration }
-            is IrConstructor -> symbolTable.declareConstructor(signature, { declaration.symbol }) { declaration }
+            is IrSimpleFunction -> {
+                val newSymbol = symbolTable.referenceSimpleFunction(signature)
+                (declaration as IrFunctionWithLateBinding).acquireSymbol(newSymbol)
+                symbolTable.declareSimpleFunction(signature, { newSymbol }, { declaration })
+            }
+            is IrConstructor -> {
+                val newSymbol = symbolTable.referenceConstructor(signature)
+                (declaration as IrConstructorWithLateBinding).acquireSymbol(newSymbol)
+                symbolTable.declareConstructor(signature, { newSymbol }, { declaration })
+            }
             is IrProperty -> {
-                symbolTable.declareProperty(signature, { declaration.symbol }) { declaration }
+                val newSymbol = symbolTable.referenceProperty(signature)
+                (declaration as IrPropertyWithLateBinding).acquireSymbol(newSymbol)
+                symbolTable.declareProperty(signature, { newSymbol }, { declaration })
                 declaration.getter?.let(::computeSignatureAndRegisterInSymbolTable)
                 declaration.setter?.let(::computeSignatureAndRegisterInSymbolTable)
             }
@@ -431,19 +421,41 @@ internal class KonanInteropModuleDeserializerK2(
     }
 
     private fun generateSpecialEnumMembers(enumClass: IrClass): List<IrDeclarationWithName> = buildList {
-        this += IrFactoryImpl.buildFun {
-            name = StandardNames.ENUM_VALUES
-            origin = IrDeclarationOrigin.ENUM_CLASS_SPECIAL_MEMBER
-            returnType = builtIns.arrayClass.typeWith(enumClass.defaultType)
-        }.apply {
+        this += IrFactoryImpl.createFunctionWithLateBinding(
+                startOffset = UNDEFINED_OFFSET,
+                endOffset = UNDEFINED_OFFSET,
+                origin = IrDeclarationOrigin.ENUM_CLASS_SPECIAL_MEMBER,
+                name = StandardNames.ENUM_VALUES,
+                visibility = DescriptorVisibilities.PUBLIC,
+                modality = Modality.FINAL,
+                returnType = builtIns.arrayClass.typeWith(enumClass.defaultType),
+                isExpect = false,
+                isInfix = false,
+                isExternal = false,
+                isInline = false,
+                isTailrec = false,
+                isSuspend = false,
+                isOperator = false,
+        ).apply {
             body = IrSyntheticBodyImpl(SYNTHETIC_OFFSET, SYNTHETIC_OFFSET, IrSyntheticBodyKind.ENUM_VALUES)
         }
 
-        this += IrFactoryImpl.buildFun {
-            name = StandardNames.ENUM_VALUE_OF
-            origin = IrDeclarationOrigin.ENUM_CLASS_SPECIAL_MEMBER
-            returnType = enumClass.defaultType
-        }.apply {
+        this += IrFactoryImpl.createFunctionWithLateBinding(
+                startOffset = UNDEFINED_OFFSET,
+                endOffset = UNDEFINED_OFFSET,
+                origin = IrDeclarationOrigin.ENUM_CLASS_SPECIAL_MEMBER,
+                name = StandardNames.ENUM_VALUE_OF,
+                visibility = DescriptorVisibilities.PUBLIC,
+                modality = Modality.FINAL,
+                returnType = enumClass.defaultType,
+                isExpect = false,
+                isInfix = false,
+                isExternal = false,
+                isInline = false,
+                isTailrec = false,
+                isSuspend = false,
+                isOperator = false,
+        ).apply {
             addValueParameter {
                 name = Name.identifier("value")
                 type = builtIns.stringType
@@ -451,16 +463,37 @@ internal class KonanInteropModuleDeserializerK2(
             body = IrSyntheticBodyImpl(SYNTHETIC_OFFSET, SYNTHETIC_OFFSET, IrSyntheticBodyKind.ENUM_VALUEOF)
         }
 
-        this += IrFactoryImpl.buildProperty {
-            name = StandardNames.ENUM_ENTRIES
-            origin = IrDeclarationOrigin.ENUM_CLASS_SPECIAL_MEMBER
-        }.also { property ->
-            property.getter = IrFactoryImpl.buildFun {
-                name = Name.special("<get-${StandardNames.ENUM_ENTRIES}>")
-                origin = IrDeclarationOrigin.ENUM_CLASS_SPECIAL_MEMBER
-                returnType = symbols.enumEntriesInterface.typeWith(enumClass.defaultType)
-            }.apply {
-                correspondingPropertySymbol = property.symbol
+        this += IrFactoryImpl.createPropertyWithLateBinding(
+                startOffset = UNDEFINED_OFFSET,
+                endOffset = UNDEFINED_OFFSET,
+                origin = IrDeclarationOrigin.ENUM_CLASS_SPECIAL_MEMBER,
+                name = StandardNames.ENUM_ENTRIES,
+                visibility = DescriptorVisibilities.PUBLIC,
+                modality = Modality.FINAL,
+                isExpect = false,
+                isExternal = false,
+                isConst = false,
+                isLateinit = false,
+                isVar = false,
+                isDelegated = false,
+        ).also { property ->
+            property.getter = IrFactoryImpl.createFunctionWithLateBinding(
+                    startOffset = UNDEFINED_OFFSET,
+                    endOffset = UNDEFINED_OFFSET,
+                    origin = IrDeclarationOrigin.ENUM_CLASS_SPECIAL_MEMBER,
+                    name = Name.special("<get-${StandardNames.ENUM_ENTRIES}>"),
+                    visibility = DescriptorVisibilities.PUBLIC,
+                    modality = Modality.FINAL,
+                    returnType = symbols.enumEntriesInterface.typeWith(enumClass.defaultType),
+                    isExpect = false,
+                    isInfix = false,
+                    isExternal = false,
+                    isInline = false,
+                    isTailrec = false,
+                    isSuspend = false,
+                    isOperator = false,
+            ).apply {
+                //correspondingPropertySymbol = property.symbol
                 body = IrSyntheticBodyImpl(SYNTHETIC_OFFSET, SYNTHETIC_OFFSET, IrSyntheticBodyKind.ENUM_ENTRIES)
             }
         }
@@ -468,12 +501,11 @@ internal class KonanInteropModuleDeserializerK2(
 
     private fun deserializeFunction(kmFunction: KmFunction, parent: IrDeclarationParent): IrSimpleFunction {
         val typeParametersById = deserializeTypeParameters(kmFunction.typeParameters)
-        val function = IrFactoryImpl.createSimpleFunction(
+        val function = IrFactoryImpl.createFunctionWithLateBinding(
                 startOffset = UNDEFINED_OFFSET,
                 endOffset = UNDEFINED_OFFSET,
                 origin = IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB,
                 name = Name.identifier(kmFunction.name),
-                symbol = IrSimpleFunctionSymbolImpl(),
                 visibility = kmFunction.visibility.toDescriptorVisibility(),
                 modality = kmFunction.modality.toDescriptorModality(),
                 returnType = kmFunction.returnType.toIrType(typeParametersById),
@@ -484,7 +516,6 @@ internal class KonanInteropModuleDeserializerK2(
                 isTailrec = kmFunction.isTailrec,
                 isSuspend = kmFunction.isSuspend,
                 isOperator = kmFunction.isOperator,
-                containerSource = null,
         )
         function.parameters = buildList {
             if (parent is IrClass) {
@@ -511,7 +542,7 @@ internal class KonanInteropModuleDeserializerK2(
     }
 
     private fun deserializeConstructor(kmConstructor: KmConstructor, parent: IrClass): IrConstructor {
-        val constructor = IrFactoryImpl.createConstructor(
+        val constructor = IrFactoryImpl.createConstructorWithLateBinding(
                 startOffset = UNDEFINED_OFFSET,
                 endOffset = UNDEFINED_OFFSET,
                 origin = IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB,
@@ -523,7 +554,6 @@ internal class KonanInteropModuleDeserializerK2(
                 isExternal = false,
                 isInline = false,
                 isPrimary = !kmConstructor.isSecondary,
-                containerSource = null,
         )
         constructor.parameters = kmConstructor.valueParameters.map { deserializeRegularParameter(it, constructor, emptyMap()) }
         constructor.parameters.forEach { it.parent = constructor }
@@ -535,12 +565,11 @@ internal class KonanInteropModuleDeserializerK2(
     }
 
     private fun deserializeProperty(kmProperty: KmProperty, parent: IrDeclarationParent): IrProperty {
-        val property = IrFactoryImpl.createProperty(
+        val property = IrFactoryImpl.createPropertyWithLateBinding(
                 startOffset = UNDEFINED_OFFSET,
                 endOffset = UNDEFINED_OFFSET,
                 origin = IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB,
                 name = Name.identifier(kmProperty.name),
-                symbol = IrPropertySymbolImpl(),
                 visibility = kmProperty.visibility.toDescriptorVisibility(),
                 modality = kmProperty.modality.toDescriptorModality(),
                 isExpect = kmProperty.isExpect,
@@ -549,7 +578,6 @@ internal class KonanInteropModuleDeserializerK2(
                 isConst = kmProperty.isConst,
                 isLateinit = kmProperty.isLateinit,
                 isDelegated = kmProperty.isDelegated,
-                containerSource = null,
         )
         property.getter = deserializeAccessor(kmProperty.getter, false, property, kmProperty, parent)
         property.getter?.parent = parent
@@ -572,12 +600,11 @@ internal class KonanInteropModuleDeserializerK2(
 
     private fun deserializeAccessor(kmAccessor: KmPropertyAccessorAttributes, isSetter: Boolean, irProperty: IrProperty, kmProperty: KmProperty, parent: IrDeclarationParent): IrSimpleFunction {
         val propertyType = kmProperty.returnType.toIrType()
-        val accessor = IrFactoryImpl.createSimpleFunction(
+        val accessor = IrFactoryImpl.createFunctionWithLateBinding(
                 startOffset = UNDEFINED_OFFSET,
                 endOffset = UNDEFINED_OFFSET,
                 origin = IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB,
                 name = if (isSetter) Name.special("<set-${irProperty.name}>") else Name.special("<get-${irProperty.name}>"),
-                symbol = IrSimpleFunctionSymbolImpl(),
                 visibility = kmAccessor.visibility.toDescriptorVisibility(),
                 modality = kmAccessor.modality.toDescriptorModality(),
                 returnType = if (isSetter) builtIns.unitType else propertyType,
@@ -588,9 +615,7 @@ internal class KonanInteropModuleDeserializerK2(
                 isTailrec = false,
                 isSuspend = false,
                 isOperator = false,
-                containerSource = null,
         )
-        accessor.correspondingPropertySymbol = irProperty.symbol
         accessor.parameters = buildList {
             if (parent is IrClass) {
                 addIfNotNull(parent.thisReceiver?.copyTo(accessor))

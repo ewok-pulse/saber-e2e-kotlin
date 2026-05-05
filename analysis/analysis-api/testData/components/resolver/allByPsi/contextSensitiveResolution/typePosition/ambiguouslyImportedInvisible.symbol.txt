@@ -50,7 +50,10 @@ KtTypeReference(101,107): 'String'
   null
 
 KtUserType(101,107): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(101,107): 'String'
   KaSymbolResolutionSuccess:
@@ -68,7 +71,10 @@ KtTypeReference(110,118): 'MySealed'
   null
 
 KtUserType(110,118): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(110,118): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -92,7 +98,10 @@ KtTypeReference(142,148): 'String'
   null
 
 KtUserType(142,148): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(142,148): 'String'
   KaSymbolResolutionSuccess:
@@ -110,7 +119,10 @@ KtTypeReference(151,159): 'MySealed'
   null
 
 KtUserType(151,159): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(151,159): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -125,7 +137,10 @@ KtTypeReference(167,175): 'MySealed'
   null
 
 KtUserType(167,175): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(167,175): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -203,7 +218,10 @@ KtTypeReference(212,216): 'Left'
   null
 
 KtUserType(212,216): 'Left'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Left
+    ]
 
 KtNameReferenceExpression(212,216): 'Left'
   KaSymbolResolutionSuccess:
@@ -227,7 +245,10 @@ KtTypeReference(229,234): 'Right'
   null
 
 KtUserType(229,234): 'Right'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Right
+    ]
 
 KtNameReferenceExpression(229,234): 'Right'
   KaSymbolResolutionSuccess:
@@ -248,7 +269,10 @@ KtTypeReference(247,250): 'Any'
   null
 
 KtUserType(247,250): 'Any'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtNameReferenceExpression(247,250): 'Any'
   KaSymbolResolutionSuccess:
@@ -326,7 +350,18 @@ KtTypeReference(287,291): 'Left'
   null
 
 KtUserType(287,291): 'Left'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      a/Left,
+      b/Left
+    ]
+    diagnostic = ERROR<NONE_APPLICABLE: None of the following candidates is applicable:
+
+    class Left : Any:
+      Cannot access 'class Left : Any': it is private in file.
+
+    class Left : Any:
+      Cannot access 'class Left : Any': it is private in file.>
 
 KtNameReferenceExpression(287,291): 'Left'
   KaSymbolResolutionError:
@@ -357,7 +392,9 @@ KtTypeReference(304,309): 'Right'
   null
 
 KtUserType(304,309): 'Right'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Right'.>
 
 KtNameReferenceExpression(304,309): 'Right'
   KaSymbolResolutionError:

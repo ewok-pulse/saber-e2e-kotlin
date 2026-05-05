@@ -20,7 +20,10 @@ KtTypeReference(44,52): 'JavaEnum'
   null
 
 KtUserType(44,52): 'JavaEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /JavaEnum
+    ]
 
 KtNameReferenceExpression(44,52): 'JavaEnum'
   KaSymbolResolutionSuccess:

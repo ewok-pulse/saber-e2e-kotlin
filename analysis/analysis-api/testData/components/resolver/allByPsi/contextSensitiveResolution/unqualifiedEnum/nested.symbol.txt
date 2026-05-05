@@ -50,7 +50,10 @@ KtTypeReference(151,156): 'Outer'
   null
 
 KtUserType(151,156): 'Outer'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Outer
+    ]
 
 KtNameReferenceExpression(151,156): 'Outer'
   KaSymbolResolutionSuccess:
@@ -65,7 +68,10 @@ KtTypeReference(161,166): 'Inner'
   null
 
 KtUserType(161,166): 'Inner'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Inner
+    ]
 
 KtNameReferenceExpression(161,166): 'Inner'
   KaSymbolResolutionSuccess:
@@ -77,7 +83,10 @@ KtTypeReference(169,172): 'Int'
   null
 
 KtUserType(169,172): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(169,172): 'Int'
   KaSymbolResolutionSuccess:
@@ -182,7 +191,10 @@ KtTypeReference(322,327): 'Outer'
   null
 
 KtUserType(322,327): 'Outer'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Outer
+    ]
 
 KtNameReferenceExpression(322,327): 'Outer'
   KaSymbolResolutionSuccess:
@@ -197,7 +209,10 @@ KtTypeReference(332,337): 'Inner'
   null
 
 KtUserType(332,337): 'Inner'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Inner
+    ]
 
 KtNameReferenceExpression(332,337): 'Inner'
   KaSymbolResolutionSuccess:
@@ -209,7 +224,10 @@ KtTypeReference(340,343): 'Int'
   null
 
 KtUserType(340,343): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(340,343): 'Int'
   KaSymbolResolutionSuccess:
@@ -275,7 +293,10 @@ KtTypeReference(430,433): 'Int'
   null
 
 KtUserType(430,433): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(430,433): 'Int'
   KaSymbolResolutionSuccess:

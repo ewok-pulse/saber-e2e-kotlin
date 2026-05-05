@@ -29,7 +29,10 @@ KtTypeReference(49,55): 'String'
   null
 
 KtUserType(49,55): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(49,55): 'String'
   KaSymbolResolutionSuccess:
@@ -47,7 +50,10 @@ KtTypeReference(75,82): 'MyClass'
   null
 
 KtUserType(75,82): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(75,82): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -83,7 +89,10 @@ KtNullableType(119,127): 'MyClass?'
   null
 
 KtUserType(119,126): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(119,126): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -128,7 +137,10 @@ KtNullableType(167,175): 'MyClass?'
   null
 
 KtUserType(167,174): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(167,174): 'MyClass'
   KaSymbolResolutionSuccess:

@@ -32,13 +32,21 @@ KtUserType(53,65): 'Foo.Bar.Baz.'
   null
 
 KtUserType(53,64): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(53,60): 'Foo.Bar'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo.Bar
+    ]
 
 KtUserType(53,56): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(53,56): 'Foo'
   KaSymbolResolutionSuccess:
@@ -76,13 +84,21 @@ KtUserType(104,116): 'Foo.Bar.Baz.'
   null
 
 KtUserType(104,115): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(104,111): 'Foo.Bar'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo.Bar
+    ]
 
 KtUserType(104,107): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(104,107): 'Foo'
   KaSymbolResolutionSuccess:
@@ -132,7 +148,10 @@ KtTypeReference(142,143): 'T'
   null
 
 KtUserType(142,143): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(142,143): 'T'
   KaSymbolResolutionSuccess:
@@ -144,7 +163,10 @@ KtTypeReference(148,152): 'Unit'
   null
 
 KtUserType(148,152): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(148,152): 'Unit'
   KaSymbolResolutionSuccess:
@@ -194,13 +216,21 @@ KtUserType(193,205): 'Foo.Bar.Baz.'
   null
 
 KtUserType(193,204): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(193,200): 'Foo.Bar'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo.Bar
+    ]
 
 KtUserType(193,196): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(193,196): 'Foo'
   KaSymbolResolutionSuccess:

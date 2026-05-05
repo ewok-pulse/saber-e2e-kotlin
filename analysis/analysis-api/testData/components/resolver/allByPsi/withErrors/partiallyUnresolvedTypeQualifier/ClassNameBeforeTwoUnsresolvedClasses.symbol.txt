@@ -23,13 +23,20 @@ KtTypeReference(36,47): 'Foo.Bar.Baz'
   null
 
 KtUserType(36,47): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Bar'.>
 
 KtUserType(36,43): 'Foo.Bar'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Bar'.>
 
 KtUserType(36,39): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(36,39): 'Foo'
   KaSymbolResolutionSuccess:
@@ -63,13 +70,20 @@ KtTypeReference(86,97): 'Foo.Bar.Baz'
   null
 
 KtUserType(86,97): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Bar'.>
 
 KtUserType(86,93): 'Foo.Bar'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Bar'.>
 
 KtUserType(86,89): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(86,89): 'Foo'
   KaSymbolResolutionSuccess:
@@ -118,7 +132,10 @@ KtTypeReference(123,124): 'T'
   null
 
 KtUserType(123,124): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(123,124): 'T'
   KaSymbolResolutionSuccess:
@@ -130,7 +147,10 @@ KtTypeReference(129,133): 'Unit'
   null
 
 KtUserType(129,133): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(129,133): 'Unit'
   KaSymbolResolutionSuccess:
@@ -177,13 +197,20 @@ KtTypeReference(174,185): 'Foo.Bar.Baz'
   null
 
 KtUserType(174,185): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(174,181): 'Foo.Bar'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(174,177): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(174,177): 'Foo'
   KaSymbolResolutionSuccess:

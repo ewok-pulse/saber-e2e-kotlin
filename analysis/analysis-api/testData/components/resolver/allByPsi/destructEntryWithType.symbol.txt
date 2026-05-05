@@ -38,7 +38,10 @@ KtTypeReference(45,51): 'String'
   null
 
 KtUserType(45,51): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(45,51): 'String'
   KaSymbolResolutionSuccess:
@@ -74,7 +77,10 @@ KtTypeReference(101,116): 'List<List<Int>>'
   null
 
 KtUserType(101,116): 'List<List<Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(101,105): 'List'
   KaSymbolResolutionSuccess:
@@ -92,7 +98,10 @@ KtTypeReference(106,115): 'List<Int>'
   null
 
 KtUserType(106,115): 'List<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(106,110): 'List'
   KaSymbolResolutionSuccess:
@@ -110,7 +119,10 @@ KtTypeReference(111,114): 'Int'
   null
 
 KtUserType(111,114): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(111,114): 'Int'
   KaSymbolResolutionSuccess:
@@ -125,7 +137,10 @@ KtTypeReference(125,128): 'Int'
   null
 
 KtUserType(125,128): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(125,128): 'Int'
   KaSymbolResolutionSuccess:
@@ -140,7 +155,10 @@ KtTypeReference(140,146): 'MyPair'
   null
 
 KtUserType(140,146): 'MyPair'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/MyPair
+    ]
 
 KtNameReferenceExpression(140,146): 'MyPair'
   KaSymbolResolutionSuccess:
@@ -181,7 +199,11 @@ KtTypeReference(160,164): 'Anno'
   null
 
 KtUserType(160,164): 'Anno'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      <constructor>(str: kotlin.String): util.Anno
+    ]
+    diagnostic = ERROR<ARGUMENT_TYPE_MISMATCH: Argument type mismatch: actual type is 'Int', but 'String' was expected.>
 
 KtNameReferenceExpression(160,164): 'Anno'
   KaSymbolResolutionError:
@@ -218,7 +240,10 @@ KtNameReferenceExpression(169,177): 'constant'
     ]
 
 KtUserType(179,234): 'List<@Anno(1 + constant) List<@Anno(2 + constant) Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(179,183): 'List'
   KaSymbolResolutionSuccess:
@@ -256,7 +281,11 @@ KtTypeReference(185,189): 'Anno'
   null
 
 KtUserType(185,189): 'Anno'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      <constructor>(str: kotlin.String): util.Anno
+    ]
+    diagnostic = ERROR<ARGUMENT_TYPE_MISMATCH: Argument type mismatch: actual type is 'Int', but 'String' was expected.>
 
 KtNameReferenceExpression(185,189): 'Anno'
   KaSymbolResolutionError:
@@ -293,7 +322,10 @@ KtNameReferenceExpression(194,202): 'constant'
     ]
 
 KtUserType(204,233): 'List<@Anno(2 + constant) Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(204,208): 'List'
   KaSymbolResolutionSuccess:
@@ -331,7 +363,11 @@ KtTypeReference(210,214): 'Anno'
   null
 
 KtUserType(210,214): 'Anno'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      <constructor>(str: kotlin.String): util.Anno
+    ]
+    diagnostic = ERROR<ARGUMENT_TYPE_MISMATCH: Argument type mismatch: actual type is 'Int', but 'String' was expected.>
 
 KtNameReferenceExpression(210,214): 'Anno'
   KaSymbolResolutionError:
@@ -368,7 +404,10 @@ KtNameReferenceExpression(219,227): 'constant'
     ]
 
 KtUserType(229,232): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(229,232): 'Int'
   KaSymbolResolutionSuccess:

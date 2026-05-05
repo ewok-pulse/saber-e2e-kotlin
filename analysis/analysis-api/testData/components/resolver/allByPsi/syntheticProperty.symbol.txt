@@ -14,7 +14,10 @@ KtTypeReference(36,45): 'JavaClass'
   null
 
 KtUserType(36,45): 'JavaClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /JavaClass
+    ]
 
 KtNameReferenceExpression(36,45): 'JavaClass'
   KaSymbolResolutionSuccess:
@@ -32,7 +35,10 @@ KtTypeReference(61,70): 'JavaClass'
   null
 
 KtUserType(61,70): 'JavaClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /JavaClass
+    ]
 
 KtNameReferenceExpression(61,70): 'JavaClass'
   KaSymbolResolutionSuccess:

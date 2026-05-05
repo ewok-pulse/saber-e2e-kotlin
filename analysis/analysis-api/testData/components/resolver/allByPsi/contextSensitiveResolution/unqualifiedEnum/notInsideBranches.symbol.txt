@@ -35,7 +35,10 @@ KtTypeReference(113,117): 'Some'
   null
 
 KtUserType(113,117): 'Some'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Some
+    ]
 
 KtNameReferenceExpression(113,117): 'Some'
   KaSymbolResolutionSuccess:

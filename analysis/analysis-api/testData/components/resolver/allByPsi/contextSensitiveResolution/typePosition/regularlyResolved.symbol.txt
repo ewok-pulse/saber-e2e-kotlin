@@ -32,7 +32,10 @@ KtTypeReference(128,134): 'String'
   null
 
 KtUserType(128,134): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(128,134): 'String'
   KaSymbolResolutionSuccess:
@@ -50,7 +53,10 @@ KtTypeReference(137,145): 'MySealed'
   null
 
 KtUserType(137,145): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(137,145): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -74,7 +80,10 @@ KtTypeReference(169,175): 'String'
   null
 
 KtUserType(169,175): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(169,175): 'String'
   KaSymbolResolutionSuccess:
@@ -92,7 +101,10 @@ KtTypeReference(178,186): 'MySealed'
   null
 
 KtUserType(178,186): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(178,186): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -113,7 +125,10 @@ KtTypeReference(218,224): 'String'
   null
 
 KtUserType(218,224): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(218,224): 'String'
   KaSymbolResolutionSuccess:
@@ -128,7 +143,10 @@ KtTypeReference(232,240): 'MySealed'
   null
 
 KtUserType(232,240): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(232,240): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -206,7 +224,10 @@ KtTypeReference(276,280): 'Left'
   null
 
 KtUserType(276,280): 'Left'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Left
+    ]
 
 KtNameReferenceExpression(276,280): 'Left'
   KaSymbolResolutionSuccess:
@@ -230,7 +251,10 @@ KtTypeReference(293,298): 'Right'
   null
 
 KtUserType(293,298): 'Right'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Right
+    ]
 
 KtNameReferenceExpression(293,298): 'Right'
   KaSymbolResolutionSuccess:

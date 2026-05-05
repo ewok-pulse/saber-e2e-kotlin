@@ -29,7 +29,10 @@ KtTypeReference(122,128): 'String'
   null
 
 KtUserType(122,128): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(122,128): 'String'
   KaSymbolResolutionSuccess:
@@ -47,7 +50,10 @@ KtTypeReference(131,140): 'NonSealed'
   null
 
 KtUserType(131,140): 'NonSealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /NonSealed
+    ]
 
 KtNameReferenceExpression(131,140): 'NonSealed'
   KaSymbolResolutionSuccess:
@@ -71,7 +77,10 @@ KtTypeReference(164,170): 'String'
   null
 
 KtUserType(164,170): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(164,170): 'String'
   KaSymbolResolutionSuccess:
@@ -89,7 +98,10 @@ KtTypeReference(173,182): 'NonSealed'
   null
 
 KtUserType(173,182): 'NonSealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /NonSealed
+    ]
 
 KtNameReferenceExpression(173,182): 'NonSealed'
   KaSymbolResolutionSuccess:
@@ -104,7 +116,10 @@ KtTypeReference(190,199): 'NonSealed'
   null
 
 KtUserType(190,199): 'NonSealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /NonSealed
+    ]
 
 KtNameReferenceExpression(190,199): 'NonSealed'
   KaSymbolResolutionSuccess:
@@ -182,7 +197,9 @@ KtTypeReference(235,239): 'Left'
   null
 
 KtUserType(235,239): 'Left'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Left'.>
 
 KtNameReferenceExpression(235,239): 'Left'
   KaSymbolResolutionError:
@@ -204,7 +221,9 @@ KtTypeReference(252,257): 'Right'
   null
 
 KtUserType(252,257): 'Right'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Right'.>
 
 KtNameReferenceExpression(252,257): 'Right'
   KaSymbolResolutionError:

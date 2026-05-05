@@ -26,10 +26,15 @@ KtUserType(36,44): 'Foo.Bar.'
   null
 
 KtUserType(36,43): 'Foo.Bar'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Bar'.>
 
 KtUserType(36,39): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(36,39): 'Foo'
   KaSymbolResolutionSuccess:
@@ -61,10 +66,15 @@ KtUserType(83,91): 'Foo.Bar.'
   null
 
 KtUserType(83,90): 'Foo.Bar'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Bar'.>
 
 KtUserType(83,86): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(83,86): 'Foo'
   KaSymbolResolutionSuccess:
@@ -108,7 +118,10 @@ KtTypeReference(117,118): 'T'
   null
 
 KtUserType(117,118): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(117,118): 'T'
   KaSymbolResolutionSuccess:
@@ -120,7 +133,10 @@ KtTypeReference(123,127): 'Unit'
   null
 
 KtUserType(123,127): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(123,127): 'Unit'
   KaSymbolResolutionSuccess:
@@ -170,10 +186,15 @@ KtUserType(168,176): 'Foo.Bar.'
   null
 
 KtUserType(168,175): 'Foo.Bar'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Bar'.>
 
 KtUserType(168,171): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(168,171): 'Foo'
   KaSymbolResolutionSuccess:

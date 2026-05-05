@@ -23,7 +23,10 @@ KtTypeReference(131,137): 'String'
   null
 
 KtUserType(131,137): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(131,137): 'String'
   KaSymbolResolutionSuccess:
@@ -74,7 +77,10 @@ KtTypeReference(218,225): 'MyClass'
   null
 
 KtUserType(218,225): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(218,225): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -95,7 +101,10 @@ KtTypeReference(248,254): 'String'
   null
 
 KtUserType(248,254): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(248,254): 'String'
   KaSymbolResolutionSuccess:
@@ -128,7 +137,10 @@ KtTypeReference(293,300): 'MyClass'
   null
 
 KtUserType(293,300): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(293,300): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -149,7 +161,10 @@ KtTypeReference(323,329): 'String'
   null
 
 KtUserType(323,329): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(323,329): 'String'
   KaSymbolResolutionSuccess:
@@ -188,7 +203,10 @@ KtTypeReference(389,394): 'Super'
   null
 
 KtUserType(389,394): 'Super'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Super
+    ]
 
 KtNameReferenceExpression(389,394): 'Super'
   KaSymbolResolutionSuccess:
@@ -209,7 +227,10 @@ KtTypeReference(424,431): 'MyClass'
   null
 
 KtUserType(424,431): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(424,431): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -239,7 +260,10 @@ KtTypeReference(473,487): 'InheritorClass'
   null
 
 KtUserType(473,487): 'InheritorClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass.InheritorClass
+    ]
 
 KtNameReferenceExpression(473,487): 'InheritorClass'
   KaSymbolResolutionSuccess:
@@ -269,7 +293,10 @@ KtTypeReference(540,555): 'InheritorObject'
   null
 
 KtUserType(540,555): 'InheritorObject'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass.InheritorObject
+    ]
 
 KtNameReferenceExpression(540,555): 'InheritorObject'
   KaSymbolResolutionSuccess:
@@ -290,7 +317,10 @@ KtTypeReference(592,598): 'String'
   null
 
 KtUserType(592,598): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(592,598): 'String'
   KaSymbolResolutionSuccess:
@@ -311,7 +341,10 @@ KtTypeReference(633,639): 'String'
   null
 
 KtUserType(633,639): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(633,639): 'String'
   KaSymbolResolutionSuccess:
@@ -329,7 +362,10 @@ KtTypeReference(667,673): 'String'
   null
 
 KtUserType(667,673): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(667,673): 'String'
   KaSymbolResolutionSuccess:
@@ -380,7 +416,10 @@ KtTypeReference(707,714): 'MyClass'
   null
 
 KtUserType(707,714): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(707,714): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -434,7 +473,10 @@ KtTypeReference(800,807): 'MyClass'
   null
 
 KtUserType(800,807): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(800,807): 'MyClass'
   KaSymbolResolutionSuccess:

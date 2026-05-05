@@ -59,7 +59,10 @@ KtTypeReference(94,97): 'Int'
   null
 
 KtUserType(94,97): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(94,97): 'Int'
   KaSymbolResolutionSuccess:
@@ -77,7 +80,10 @@ KtTypeReference(125,128): 'Int'
   null
 
 KtUserType(125,128): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(125,128): 'Int'
   KaSymbolResolutionSuccess:
@@ -110,7 +116,10 @@ KtTypeReference(150,157): 'MyClass'
   null
 
 KtUserType(150,157): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/MyClass
+    ]
 
 KtNameReferenceExpression(150,157): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -149,7 +158,10 @@ KtNullableType(218,220): 'T?'
   null
 
 KtUserType(218,219): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(218,219): 'T'
   KaSymbolResolutionSuccess:
@@ -170,7 +182,10 @@ KtNullableType(253,255): 'T?'
   null
 
 KtUserType(253,254): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(253,254): 'T'
   KaSymbolResolutionSuccess:
@@ -221,7 +236,10 @@ KtTypeReference(352,374): 'ClassWithType<MyClass>'
   null
 
 KtUserType(352,374): 'ClassWithType<MyClass>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/ClassWithType
+    ]
 
 KtNameReferenceExpression(352,365): 'ClassWithType'
   KaSymbolResolutionSuccess:
@@ -239,7 +257,10 @@ KtTypeReference(366,373): 'MyClass'
   null
 
 KtUserType(366,373): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/MyClass
+    ]
 
 KtNameReferenceExpression(366,373): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -263,7 +284,10 @@ KtTypeReference(402,405): 'Int'
   null
 
 KtUserType(402,405): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(402,405): 'Int'
   KaSymbolResolutionSuccess:
@@ -287,7 +311,10 @@ KtTypeReference(441,448): 'MyClass'
   null
 
 KtUserType(441,448): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/MyClass
+    ]
 
 KtNameReferenceExpression(441,448): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -302,7 +329,10 @@ KtTypeReference(470,476): 'String'
   null
 
 KtUserType(470,476): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(470,476): 'String'
   KaSymbolResolutionSuccess:
@@ -323,7 +353,10 @@ KtTypeReference(489,496): 'MyClass'
   null
 
 KtUserType(489,496): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/MyClass
+    ]
 
 KtNameReferenceExpression(489,496): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -335,7 +368,10 @@ KtTypeReference(516,522): 'String'
   null
 
 KtUserType(516,522): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(516,522): 'String'
   KaSymbolResolutionSuccess:
@@ -365,7 +401,10 @@ KtTypeReference(564,571): 'MyClass'
   null
 
 KtUserType(564,571): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/MyClass
+    ]
 
 KtNameReferenceExpression(564,571): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -804,7 +843,10 @@ KtTypeReference(1087,1093): 'Number'
   null
 
 KtUserType(1087,1093): 'Number'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Number
+    ]
 
 KtNameReferenceExpression(1087,1093): 'Number'
   KaSymbolResolutionSuccess:
@@ -822,7 +864,10 @@ KtTypeReference(1120,1136): 'ClassWithType<T>'
   null
 
 KtUserType(1120,1136): 'ClassWithType<T>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/ClassWithType
+    ]
 
 KtNameReferenceExpression(1120,1133): 'ClassWithType'
   KaSymbolResolutionSuccess:
@@ -840,7 +885,10 @@ KtTypeReference(1134,1135): 'T'
   null
 
 KtUserType(1134,1135): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(1134,1135): 'T'
   KaSymbolResolutionSuccess:
@@ -897,7 +945,10 @@ KtNullableType(1221,1240): 'ClassWithType<Int>?'
   null
 
 KtUserType(1221,1239): 'ClassWithType<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/ClassWithType
+    ]
 
 KtNameReferenceExpression(1221,1234): 'ClassWithType'
   KaSymbolResolutionSuccess:
@@ -915,7 +966,10 @@ KtTypeReference(1235,1238): 'Int'
   null
 
 KtUserType(1235,1238): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(1235,1238): 'Int'
   KaSymbolResolutionSuccess:
@@ -1014,7 +1068,10 @@ KtTypeReference(1357,1363): 'String'
   null
 
 KtUserType(1357,1363): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(1357,1363): 'String'
   KaSymbolResolutionSuccess:
@@ -1101,7 +1158,10 @@ KtTypeReference(1429,1432): 'Int'
   null
 
 KtUserType(1429,1432): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(1429,1432): 'Int'
   KaSymbolResolutionSuccess:
@@ -1188,7 +1248,10 @@ KtTypeReference(1498,1501): 'Int'
   null
 
 KtUserType(1498,1501): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(1498,1501): 'Int'
   KaSymbolResolutionSuccess:
@@ -1269,7 +1332,10 @@ KtTypeReference(1562,1566): 'Long'
   null
 
 KtUserType(1562,1566): 'Long'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Long
+    ]
 
 KtNameReferenceExpression(1562,1566): 'Long'
   KaSymbolResolutionSuccess:
@@ -1308,7 +1374,10 @@ KtTypeReference(1603,1610): 'Boolean'
   null
 
 KtUserType(1603,1610): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(1603,1610): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -1347,7 +1416,10 @@ KtTypeReference(1647,1654): 'Boolean'
   null
 
 KtUserType(1647,1654): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(1647,1654): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -1368,7 +1440,10 @@ KtTypeReference(1679,1761): 'KFunction1<ClassWithType<Boolean>, ClassWithType<Bo
   null
 
 KtUserType(1679,1761): 'KFunction1<ClassWithType<Boolean>, ClassWithType<Boolean>.InnerClassWithType<Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/reflect/KFunction1
+    ]
 
 KtNameReferenceExpression(1679,1689): 'KFunction1'
   KaSymbolResolutionSuccess:
@@ -1386,7 +1461,10 @@ KtTypeReference(1690,1712): 'ClassWithType<Boolean>'
   null
 
 KtUserType(1690,1712): 'ClassWithType<Boolean>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/ClassWithType
+    ]
 
 KtNameReferenceExpression(1690,1703): 'ClassWithType'
   KaSymbolResolutionSuccess:
@@ -1404,7 +1482,10 @@ KtTypeReference(1704,1711): 'Boolean'
   null
 
 KtUserType(1704,1711): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(1704,1711): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -1419,10 +1500,16 @@ KtTypeReference(1714,1760): 'ClassWithType<Boolean>.InnerClassWithType<Int>'
   null
 
 KtUserType(1714,1760): 'ClassWithType<Boolean>.InnerClassWithType<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/ClassWithType.InnerClassWithType
+    ]
 
 KtUserType(1714,1736): 'ClassWithType<Boolean>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/ClassWithType
+    ]
 
 KtNameReferenceExpression(1714,1727): 'ClassWithType'
   KaSymbolResolutionSuccess:
@@ -1440,7 +1527,10 @@ KtTypeReference(1728,1735): 'Boolean'
   null
 
 KtUserType(1728,1735): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(1728,1735): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -1464,7 +1554,10 @@ KtTypeReference(1756,1759): 'Int'
   null
 
 KtUserType(1756,1759): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(1756,1759): 'Int'
   KaSymbolResolutionSuccess:
@@ -1497,7 +1590,10 @@ KtTypeReference(1784,1791): 'Boolean'
   null
 
 KtUserType(1784,1791): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(1784,1791): 'Boolean'
   KaSymbolResolutionSuccess:

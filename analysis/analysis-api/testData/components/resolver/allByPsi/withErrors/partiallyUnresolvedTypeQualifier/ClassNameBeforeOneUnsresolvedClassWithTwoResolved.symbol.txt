@@ -29,13 +29,21 @@ KtTypeReference(54,65): 'Foo.Bar.Baz'
   null
 
 KtUserType(54,65): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(54,61): 'Foo.Bar'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo.Bar
+    ]
 
 KtUserType(54,57): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(54,57): 'Foo'
   KaSymbolResolutionSuccess:
@@ -70,13 +78,21 @@ KtTypeReference(104,115): 'Foo.Bar.Baz'
   null
 
 KtUserType(104,115): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(104,111): 'Foo.Bar'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo.Bar
+    ]
 
 KtUserType(104,107): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(104,107): 'Foo'
   KaSymbolResolutionSuccess:
@@ -126,7 +142,10 @@ KtTypeReference(141,142): 'T'
   null
 
 KtUserType(141,142): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(141,142): 'T'
   KaSymbolResolutionSuccess:
@@ -138,7 +157,10 @@ KtTypeReference(147,151): 'Unit'
   null
 
 KtUserType(147,151): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(147,151): 'Unit'
   KaSymbolResolutionSuccess:
@@ -185,13 +207,21 @@ KtTypeReference(192,203): 'Foo.Bar.Baz'
   null
 
 KtUserType(192,203): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(192,199): 'Foo.Bar'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo.Bar
+    ]
 
 KtUserType(192,195): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(192,195): 'Foo'
   KaSymbolResolutionSuccess:

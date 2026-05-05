@@ -38,7 +38,10 @@ KtTypeReference(130,137): 'MyClass'
   null
 
 KtUserType(130,137): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(130,137): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -62,7 +65,10 @@ KtTypeReference(165,172): 'MyClass'
   null
 
 KtUserType(165,172): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(165,172): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -86,7 +92,10 @@ KtTypeReference(193,200): 'Boolean'
   null
 
 KtUserType(193,200): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(193,200): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -101,7 +110,10 @@ KtTypeReference(211,218): 'MyClass'
   null
 
 KtUserType(211,218): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(211,218): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -173,7 +185,10 @@ KtTypeReference(352,359): 'Boolean'
   null
 
 KtUserType(352,359): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(352,359): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -188,10 +203,16 @@ KtTypeReference(371,394): 'MyClass.NestedInheritor'
   null
 
 KtUserType(371,394): 'MyClass.NestedInheritor'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass.NestedInheritor
+    ]
 
 KtUserType(371,378): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(371,378): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -269,7 +290,10 @@ KtTypeReference(530,537): 'Boolean'
   null
 
 KtUserType(530,537): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(530,537): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -284,7 +308,10 @@ KtTypeReference(543,550): 'Boolean'
   null
 
 KtUserType(543,550): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(543,550): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -299,10 +326,16 @@ KtTypeReference(562,585): 'MyClass.NestedInheritor'
   null
 
 KtUserType(562,585): 'MyClass.NestedInheritor'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass.NestedInheritor
+    ]
 
 KtUserType(562,569): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(562,569): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -418,7 +451,10 @@ KtTypeReference(791,801): 'OtherClass'
   null
 
 KtUserType(791,801): 'OtherClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OtherClass
+    ]
 
 KtNameReferenceExpression(791,801): 'OtherClass'
   KaSymbolResolutionSuccess:
@@ -451,7 +487,10 @@ KtTypeReference(819,823): 'Base'
   null
 
 KtUserType(819,823): 'Base'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OtherClass.Base
+    ]
 
 KtNameReferenceExpression(819,823): 'Base'
   KaSymbolResolutionSuccess:
@@ -484,7 +523,10 @@ KtTypeReference(840,844): 'Base'
   null
 
 KtUserType(840,844): 'Base'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OtherClass.Base
+    ]
 
 KtNameReferenceExpression(840,844): 'Base'
   KaSymbolResolutionSuccess:
@@ -517,7 +559,10 @@ KtTypeReference(863,873): 'OtherClass'
   null
 
 KtUserType(863,873): 'OtherClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OtherClass
+    ]
 
 KtNameReferenceExpression(863,873): 'OtherClass'
   KaSymbolResolutionSuccess:
@@ -541,7 +586,10 @@ KtTypeReference(904,914): 'OtherClass'
   null
 
 KtUserType(904,914): 'OtherClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OtherClass
+    ]
 
 KtNameReferenceExpression(904,914): 'OtherClass'
   KaSymbolResolutionSuccess:
@@ -565,7 +613,10 @@ KtTypeReference(934,941): 'Boolean'
   null
 
 KtUserType(934,941): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(934,941): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -580,7 +631,10 @@ KtTypeReference(947,954): 'Boolean'
   null
 
 KtUserType(947,954): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(947,954): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -595,10 +649,16 @@ KtTypeReference(967,979): 'OtherClass.A'
   null
 
 KtUserType(967,979): 'OtherClass.A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OtherClass.A
+    ]
 
 KtUserType(967,977): 'OtherClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OtherClass
+    ]
 
 KtNameReferenceExpression(967,977): 'OtherClass'
   KaSymbolResolutionSuccess:
@@ -619,10 +679,16 @@ KtTypeReference(992,1004): 'OtherClass.B'
   null
 
 KtUserType(992,1004): 'OtherClass.B'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OtherClass.B
+    ]
 
 KtUserType(992,1002): 'OtherClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OtherClass
+    ]
 
 KtNameReferenceExpression(992,1002): 'OtherClass'
   KaSymbolResolutionSuccess:
@@ -736,7 +802,10 @@ KtTypeReference(1206,1215): 'OpenClass'
   null
 
 KtUserType(1206,1215): 'OpenClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenClass
+    ]
 
 KtNameReferenceExpression(1206,1215): 'OpenClass'
   KaSymbolResolutionSuccess:
@@ -760,7 +829,10 @@ KtTypeReference(1245,1254): 'OpenClass'
   null
 
 KtUserType(1245,1254): 'OpenClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenClass
+    ]
 
 KtNameReferenceExpression(1245,1254): 'OpenClass'
   KaSymbolResolutionSuccess:
@@ -784,7 +856,10 @@ KtTypeReference(1273,1280): 'Boolean'
   null
 
 KtUserType(1273,1280): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(1273,1280): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -799,7 +874,10 @@ KtTypeReference(1293,1302): 'OpenClass'
   null
 
 KtUserType(1293,1302): 'OpenClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenClass
+    ]
 
 KtNameReferenceExpression(1293,1302): 'OpenClass'
   KaSymbolResolutionSuccess:
@@ -871,7 +949,10 @@ KtTypeReference(1449,1456): 'Boolean'
   null
 
 KtUserType(1449,1456): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(1449,1456): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -886,10 +967,16 @@ KtTypeReference(1468,1504): 'OpenClass.NestedInheritorOfOpenClass'
   null
 
 KtUserType(1468,1504): 'OpenClass.NestedInheritorOfOpenClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenClass.NestedInheritorOfOpenClass
+    ]
 
 KtUserType(1468,1477): 'OpenClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenClass
+    ]
 
 KtNameReferenceExpression(1468,1477): 'OpenClass'
   KaSymbolResolutionSuccess:

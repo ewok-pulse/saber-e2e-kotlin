@@ -38,7 +38,10 @@ KtTypeReference(143,150): 'MyClass'
   null
 
 KtUserType(143,150): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(143,150): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -74,7 +77,10 @@ KtTypeReference(211,217): 'MyEnum'
   null
 
 KtUserType(211,217): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtNameReferenceExpression(211,217): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -101,7 +107,10 @@ KtTypeReference(245,252): 'MyClass'
   null
 
 KtUserType(245,252): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(245,252): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -158,7 +167,10 @@ KtTypeReference(311,317): 'MyEnum'
   null
 
 KtUserType(311,317): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtNameReferenceExpression(311,317): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -233,7 +245,10 @@ KtTypeReference(394,400): 'MyEnum'
   null
 
 KtUserType(394,400): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtNameReferenceExpression(394,400): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -347,7 +362,10 @@ KtTypeReference(549,555): 'MyEnum'
   null
 
 KtUserType(549,555): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtNameReferenceExpression(549,555): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -395,7 +413,10 @@ KtTypeReference(604,610): 'MyEnum'
   null
 
 KtUserType(604,610): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtNameReferenceExpression(604,610): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -410,7 +431,10 @@ KtTypeReference(615,621): 'String'
   null
 
 KtUserType(615,621): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(615,621): 'String'
   KaSymbolResolutionSuccess:

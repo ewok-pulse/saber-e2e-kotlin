@@ -26,7 +26,10 @@ KtTypeReference(87,93): 'String'
   null
 
 KtUserType(87,93): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(87,93): 'String'
   KaSymbolResolutionSuccess:
@@ -41,7 +44,10 @@ KtTypeReference(107,110): 'Int'
   null
 
 KtUserType(107,110): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(107,110): 'Int'
   KaSymbolResolutionSuccess:
@@ -65,7 +71,10 @@ KtTypeReference(142,148): 'String'
   null
 
 KtUserType(142,148): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(142,148): 'String'
   KaSymbolResolutionSuccess:
@@ -80,7 +89,10 @@ KtTypeReference(162,165): 'Int'
   null
 
 KtUserType(162,165): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(162,165): 'Int'
   KaSymbolResolutionSuccess:
@@ -101,7 +113,10 @@ KtTypeReference(187,192): 'Tuple'
   null
 
 KtUserType(187,192): 'Tuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Tuple
+    ]
 
 KtNameReferenceExpression(187,192): 'Tuple'
   KaSymbolResolutionSuccess:
@@ -116,7 +131,10 @@ KtTypeReference(197,209): 'NonDataTuple'
   null
 
 KtUserType(197,209): 'NonDataTuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /NonDataTuple
+    ]
 
 KtNameReferenceExpression(197,209): 'NonDataTuple'
   KaSymbolResolutionSuccess:
@@ -161,7 +179,10 @@ KtTypeReference(249,255): 'String'
   null
 
 KtUserType(249,255): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(249,255): 'String'
   KaSymbolResolutionSuccess:
@@ -203,7 +224,10 @@ KtTypeReference(292,295): 'Int'
   null
 
 KtUserType(292,295): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(292,295): 'Int'
   KaSymbolResolutionSuccess:
@@ -282,7 +306,10 @@ KtTypeReference(382,393): 'List<Tuple>'
   null
 
 KtUserType(382,393): 'List<Tuple>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(382,386): 'List'
   KaSymbolResolutionSuccess:
@@ -300,7 +327,10 @@ KtTypeReference(387,392): 'Tuple'
   null
 
 KtUserType(387,392): 'Tuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Tuple
+    ]
 
 KtNameReferenceExpression(387,392): 'Tuple'
   KaSymbolResolutionSuccess:
@@ -315,7 +345,10 @@ KtTypeReference(398,410): 'NonDataTuple'
   null
 
 KtUserType(398,410): 'NonDataTuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /NonDataTuple
+    ]
 
 KtNameReferenceExpression(398,410): 'NonDataTuple'
   KaSymbolResolutionSuccess:
@@ -356,7 +389,10 @@ KtTypeReference(439,445): 'String'
   null
 
 KtUserType(439,445): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(439,445): 'String'
   KaSymbolResolutionSuccess:
@@ -403,7 +439,10 @@ KtTypeReference(474,477): 'Int'
   null
 
 KtUserType(474,477): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(474,477): 'Int'
   KaSymbolResolutionSuccess:
@@ -455,7 +494,10 @@ KtTypeReference(505,511): 'String'
   null
 
 KtUserType(505,511): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(505,511): 'String'
   KaSymbolResolutionSuccess:
@@ -512,7 +554,10 @@ KtTypeReference(556,561): 'Tuple'
   null
 
 KtUserType(556,561): 'Tuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Tuple
+    ]
 
 KtNameReferenceExpression(556,561): 'Tuple'
   KaSymbolResolutionSuccess:
@@ -524,7 +569,10 @@ KtTypeReference(566,570): 'Unit'
   null
 
 KtUserType(566,570): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(566,570): 'Unit'
   KaSymbolResolutionSuccess:
@@ -560,7 +608,10 @@ KtTypeReference(591,603): 'NonDataTuple'
   null
 
 KtUserType(591,603): 'NonDataTuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /NonDataTuple
+    ]
 
 KtNameReferenceExpression(591,603): 'NonDataTuple'
   KaSymbolResolutionSuccess:
@@ -572,7 +623,10 @@ KtTypeReference(608,612): 'Unit'
   null
 
 KtUserType(608,612): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(608,612): 'Unit'
   KaSymbolResolutionSuccess:
@@ -629,7 +683,10 @@ KtTypeReference(644,650): 'String'
   null
 
 KtUserType(644,650): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(644,650): 'String'
   KaSymbolResolutionSuccess:
@@ -680,7 +737,10 @@ KtTypeReference(676,679): 'Int'
   null
 
 KtUserType(676,679): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(676,679): 'Int'
   KaSymbolResolutionSuccess:

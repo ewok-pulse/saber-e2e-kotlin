@@ -29,7 +29,10 @@ KtTypeReference(43,46): 'Int'
   null
 
 KtUserType(43,46): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(43,46): 'Int'
   KaSymbolResolutionSuccess:
@@ -44,7 +47,10 @@ KtTypeReference(57,60): 'Int'
   null
 
 KtUserType(57,60): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(57,60): 'Int'
   KaSymbolResolutionSuccess:
@@ -62,7 +68,10 @@ KtTypeReference(76,90): 'IntProgression'
   null
 
 KtUserType(76,90): 'IntProgression'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      f/IntProgression
+    ]
 
 KtNameReferenceExpression(76,90): 'IntProgression'
   KaSymbolResolutionSuccess:
@@ -89,7 +98,10 @@ KtTypeReference(113,126): 'Iterator<Int>'
   null
 
 KtUserType(113,126): 'Iterator<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/Iterator
+    ]
 
 KtNameReferenceExpression(113,121): 'Iterator'
   KaSymbolResolutionSuccess:
@@ -107,7 +119,10 @@ KtTypeReference(122,125): 'Int'
   null
 
 KtUserType(122,125): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(122,125): 'Int'
   KaSymbolResolutionSuccess:
@@ -311,7 +326,10 @@ KtTypeReference(250,253): 'Int'
   null
 
 KtUserType(250,253): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(250,253): 'Int'
   KaSymbolResolutionSuccess:

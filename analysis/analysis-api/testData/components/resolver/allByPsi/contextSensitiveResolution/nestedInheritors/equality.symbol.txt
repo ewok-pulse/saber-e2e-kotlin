@@ -32,7 +32,10 @@ KtTypeReference(138,146): 'Settings'
   null
 
 KtUserType(138,146): 'Settings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Settings
+    ]
 
 KtNameReferenceExpression(138,146): 'Settings'
   KaSymbolResolutionSuccess:
@@ -56,7 +59,10 @@ KtTypeReference(182,190): 'Settings'
   null
 
 KtUserType(182,190): 'Settings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Settings
+    ]
 
 KtNameReferenceExpression(182,190): 'Settings'
   KaSymbolResolutionSuccess:
@@ -77,7 +83,10 @@ KtTypeReference(212,218): 'String'
   null
 
 KtUserType(212,218): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(212,218): 'String'
   KaSymbolResolutionSuccess:
@@ -101,7 +110,10 @@ KtTypeReference(245,253): 'Settings'
   null
 
 KtUserType(245,253): 'Settings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Settings
+    ]
 
 KtNameReferenceExpression(245,253): 'Settings'
   KaSymbolResolutionSuccess:
@@ -116,10 +128,16 @@ KtTypeReference(270,292): 'Settings.BasicSettings'
   null
 
 KtUserType(270,292): 'Settings.BasicSettings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Settings.BasicSettings
+    ]
 
 KtUserType(270,278): 'Settings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Settings
+    ]
 
 KtNameReferenceExpression(270,278): 'Settings'
   KaSymbolResolutionSuccess:
@@ -350,7 +368,10 @@ KtTypeReference(540,552): 'OpenSettings'
   null
 
 KtUserType(540,552): 'OpenSettings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenSettings
+    ]
 
 KtNameReferenceExpression(540,552): 'OpenSettings'
   KaSymbolResolutionSuccess:
@@ -386,7 +407,10 @@ KtTypeReference(594,606): 'OpenSettings'
   null
 
 KtUserType(594,606): 'OpenSettings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenSettings
+    ]
 
 KtNameReferenceExpression(594,606): 'OpenSettings'
   KaSymbolResolutionSuccess:
@@ -410,7 +434,10 @@ KtTypeReference(636,648): 'OpenSettings'
   null
 
 KtUserType(636,648): 'OpenSettings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenSettings
+    ]
 
 KtNameReferenceExpression(636,648): 'OpenSettings'
   KaSymbolResolutionSuccess:
@@ -425,10 +452,16 @@ KtTypeReference(665,695): 'OpenSettings.OpenBasicSettings'
   null
 
 KtUserType(665,695): 'OpenSettings.OpenBasicSettings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenSettings.OpenBasicSettings
+    ]
 
 KtUserType(665,677): 'OpenSettings'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OpenSettings
+    ]
 
 KtNameReferenceExpression(665,677): 'OpenSettings'
   KaSymbolResolutionSuccess:

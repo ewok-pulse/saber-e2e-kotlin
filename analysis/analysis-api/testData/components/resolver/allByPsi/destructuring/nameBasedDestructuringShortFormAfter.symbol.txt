@@ -23,7 +23,10 @@ KtTypeReference(100,106): 'String'
   null
 
 KtUserType(100,106): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(100,106): 'String'
   KaSymbolResolutionSuccess:
@@ -38,7 +41,10 @@ KtTypeReference(120,123): 'Int'
   null
 
 KtUserType(120,123): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(120,123): 'Int'
   KaSymbolResolutionSuccess:
@@ -59,7 +65,10 @@ KtTypeReference(145,150): 'Tuple'
   null
 
 KtUserType(145,150): 'Tuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Tuple
+    ]
 
 KtNameReferenceExpression(145,150): 'Tuple'
   KaSymbolResolutionSuccess:
@@ -200,7 +209,10 @@ KtTypeReference(302,308): 'String'
   null
 
 KtUserType(302,308): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(302,308): 'String'
   KaSymbolResolutionSuccess:
@@ -275,7 +287,10 @@ KtTypeReference(396,402): 'String'
   null
 
 KtUserType(396,402): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(396,402): 'String'
   KaSymbolResolutionSuccess:
@@ -353,7 +368,10 @@ KtTypeReference(480,486): 'String'
   null
 
 KtUserType(480,486): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(480,486): 'String'
   KaSymbolResolutionSuccess:
@@ -383,7 +401,10 @@ KtTypeReference(517,528): 'List<Tuple>'
   null
 
 KtUserType(517,528): 'List<Tuple>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(517,521): 'List'
   KaSymbolResolutionSuccess:
@@ -401,7 +422,10 @@ KtTypeReference(522,527): 'Tuple'
   null
 
 KtUserType(522,527): 'Tuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Tuple
+    ]
 
 KtNameReferenceExpression(522,527): 'Tuple'
   KaSymbolResolutionSuccess:
@@ -553,7 +577,10 @@ KtTypeReference(645,651): 'String'
   null
 
 KtUserType(645,651): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(645,651): 'String'
   KaSymbolResolutionSuccess:
@@ -638,7 +665,10 @@ KtTypeReference(724,730): 'String'
   null
 
 KtUserType(724,730): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(724,730): 'String'
   KaSymbolResolutionSuccess:
@@ -726,7 +756,10 @@ KtTypeReference(792,798): 'String'
   null
 
 KtUserType(792,798): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(792,798): 'String'
   KaSymbolResolutionSuccess:
@@ -786,7 +819,10 @@ KtTypeReference(851,856): 'Tuple'
   null
 
 KtUserType(851,856): 'Tuple'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Tuple
+    ]
 
 KtNameReferenceExpression(851,856): 'Tuple'
   KaSymbolResolutionSuccess:
@@ -798,7 +834,10 @@ KtTypeReference(861,865): 'Unit'
   null
 
 KtUserType(861,865): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(861,865): 'Unit'
   KaSymbolResolutionSuccess:
@@ -978,7 +1017,10 @@ KtTypeReference(976,982): 'String'
   null
 
 KtUserType(976,982): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(976,982): 'String'
   KaSymbolResolutionSuccess:
@@ -1071,7 +1113,10 @@ KtTypeReference(1049,1055): 'String'
   null
 
 KtUserType(1049,1055): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(1049,1055): 'String'
   KaSymbolResolutionSuccess:
@@ -1167,7 +1212,10 @@ KtTypeReference(1111,1117): 'String'
   null
 
 KtUserType(1111,1117): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(1111,1117): 'String'
   KaSymbolResolutionSuccess:

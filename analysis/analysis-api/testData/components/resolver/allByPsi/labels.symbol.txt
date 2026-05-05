@@ -29,7 +29,10 @@ KtTypeReference(22,26): 'Unit'
   null
 
 KtUserType(22,26): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(22,26): 'Unit'
   KaSymbolResolutionSuccess:

@@ -50,7 +50,10 @@ KtTypeReference(156,162): 'MyEnum'
   null
 
 KtUserType(156,162): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtNameReferenceExpression(156,162): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -150,7 +153,10 @@ KtTypeReference(216,225): 'DslMarker'
   null
 
 KtUserType(216,225): 'DslMarker'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/DslMarker
+    ]
 
 KtNameReferenceExpression(216,225): 'DslMarker'
   KaSymbolResolutionSuccess:
@@ -180,7 +186,10 @@ KtTypeReference(251,256): 'MyDsl'
   null
 
 KtUserType(251,256): 'MyDsl'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyDsl
+    ]
 
 KtNameReferenceExpression(251,256): 'MyDsl'
   KaSymbolResolutionSuccess:
@@ -210,7 +219,10 @@ KtTypeReference(267,272): 'MyDsl'
   null
 
 KtUserType(267,272): 'MyDsl'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyDsl
+    ]
 
 KtNameReferenceExpression(267,272): 'MyDsl'
   KaSymbolResolutionSuccess:
@@ -225,7 +237,10 @@ KtTypeReference(286,287): 'A'
   null
 
 KtUserType(286,287): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(286,287): 'A'
   KaSymbolResolutionSuccess:
@@ -237,7 +252,10 @@ KtTypeReference(291,297): 'String'
   null
 
 KtUserType(291,297): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(291,297): 'String'
   KaSymbolResolutionSuccess:
@@ -261,7 +279,10 @@ KtTypeReference(314,315): 'A'
   null
 
 KtUserType(314,315): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(314,315): 'A'
   KaSymbolResolutionSuccess:
@@ -282,7 +303,10 @@ KtTypeReference(332,333): 'B'
   null
 
 KtUserType(332,333): 'B'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /B
+    ]
 
 KtNameReferenceExpression(332,333): 'B'
   KaSymbolResolutionSuccess:

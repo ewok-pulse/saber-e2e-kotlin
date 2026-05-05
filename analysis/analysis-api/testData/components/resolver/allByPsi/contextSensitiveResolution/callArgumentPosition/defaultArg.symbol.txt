@@ -50,7 +50,10 @@ KtTypeReference(166,173): 'MyClass'
   null
 
 KtUserType(166,173): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(166,173): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -80,7 +83,10 @@ KtTypeReference(220,227): 'MyClass'
   null
 
 KtUserType(220,227): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(220,227): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -116,7 +122,10 @@ KtTypeReference(282,288): 'MyEnum'
   null
 
 KtUserType(282,288): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtNameReferenceExpression(282,288): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -137,7 +146,10 @@ KtTypeReference(318,325): 'MyClass'
   null
 
 KtUserType(318,325): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(318,325): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -158,7 +170,10 @@ KtTypeReference(361,368): 'MyClass'
   null
 
 KtUserType(361,368): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(361,368): 'MyClass'
   KaSymbolResolutionSuccess:

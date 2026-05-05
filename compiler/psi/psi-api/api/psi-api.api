@@ -2864,7 +2864,7 @@ public abstract class org/jetbrains/kotlin/psi/KtUnaryExpression : org/jetbrains
 	public fun getOperationToken ()Lcom/intellij/psi/tree/IElementType;
 }
 
-public class org/jetbrains/kotlin/psi/KtUserType : org/jetbrains/kotlin/psi/KtElementImplStub, org/jetbrains/kotlin/psi/KtTypeElement {
+public class org/jetbrains/kotlin/psi/KtUserType : org/jetbrains/kotlin/psi/KtElementImplStub, org/jetbrains/kotlin/psi/KtTypeElement, org/jetbrains/kotlin/resolution/KtResolvable {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun <init> (Lorg/jetbrains/kotlin/psi/stubs/KotlinUserTypeStub;)V
 	public fun accept (Lorg/jetbrains/kotlin/psi/KtVisitor;Ljava/lang/Object;)Ljava/lang/Object;

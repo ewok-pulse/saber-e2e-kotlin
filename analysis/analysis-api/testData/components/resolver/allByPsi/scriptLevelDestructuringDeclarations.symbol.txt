@@ -38,7 +38,10 @@ KtTypeReference(45,51): 'String'
   null
 
 KtUserType(45,51): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(45,51): 'String'
   KaSymbolResolutionSuccess:
@@ -95,7 +98,10 @@ KtTypeReference(102,106): 'Anno'
   null
 
 KtUserType(102,106): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(102,106): 'Anno'
   KaSymbolResolutionSuccess:
@@ -128,7 +134,10 @@ KtNullableType(127,225): 'List<@Anno("a nested type $constant") Collection<@Anno
   null
 
 KtUserType(127,224): 'List<@Anno("a nested type $constant") Collection<@Anno("a nested nested type $constant") String>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(127,131): 'List'
   KaSymbolResolutionSuccess:
@@ -164,7 +173,10 @@ KtTypeReference(133,137): 'Anno'
   null
 
 KtUserType(133,137): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(133,137): 'Anno'
   KaSymbolResolutionSuccess:
@@ -194,7 +206,10 @@ KtNameReferenceExpression(154,162): 'constant'
     ]
 
 KtUserType(165,223): 'Collection<@Anno("a nested nested type $constant") String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/Collection
+    ]
 
 KtNameReferenceExpression(165,175): 'Collection'
   KaSymbolResolutionSuccess:
@@ -230,7 +245,10 @@ KtTypeReference(177,181): 'Anno'
   null
 
 KtUserType(177,181): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(177,181): 'Anno'
   KaSymbolResolutionSuccess:
@@ -260,7 +278,10 @@ KtNameReferenceExpression(205,213): 'constant'
     ]
 
 KtUserType(216,222): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(216,222): 'String'
   KaSymbolResolutionSuccess:
@@ -293,7 +314,10 @@ KtTypeReference(235,239): 'Anno'
   null
 
 KtUserType(235,239): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(235,239): 'Anno'
   KaSymbolResolutionSuccess:
@@ -326,7 +350,10 @@ KtNullableType(260,350): 'Array<@Anno("b nested type $constant") List<@Anno("b n
   null
 
 KtUserType(260,349): 'Array<@Anno("b nested type $constant") List<@Anno("b nested nested type $constant") Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Array
+    ]
 
 KtNameReferenceExpression(260,265): 'Array'
   KaSymbolResolutionSuccess:
@@ -362,7 +389,10 @@ KtTypeReference(267,271): 'Anno'
   null
 
 KtUserType(267,271): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(267,271): 'Anno'
   KaSymbolResolutionSuccess:
@@ -392,7 +422,10 @@ KtNameReferenceExpression(288,296): 'constant'
     ]
 
 KtUserType(299,348): 'List<@Anno("b nested nested type $constant") Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(299,303): 'List'
   KaSymbolResolutionSuccess:
@@ -428,7 +461,10 @@ KtTypeReference(305,309): 'Anno'
   null
 
 KtUserType(305,309): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(305,309): 'Anno'
   KaSymbolResolutionSuccess:
@@ -458,7 +494,10 @@ KtNameReferenceExpression(333,341): 'constant'
     ]
 
 KtUserType(344,347): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(344,347): 'Int'
   KaSymbolResolutionSuccess:
@@ -500,7 +539,10 @@ KtTypeReference(377,381): 'Anno'
   null
 
 KtUserType(377,381): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(377,381): 'Anno'
   KaSymbolResolutionSuccess:
@@ -554,7 +596,10 @@ KtTypeReference(405,409): 'Anno'
   null
 
 KtUserType(405,409): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(405,409): 'Anno'
   KaSymbolResolutionSuccess:
@@ -608,7 +653,10 @@ KtTypeReference(425,429): 'Anno'
   null
 
 KtUserType(425,429): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(425,429): 'Anno'
   KaSymbolResolutionSuccess:
@@ -686,7 +734,10 @@ KtTypeReference(465,469): 'Anno'
   null
 
 KtUserType(465,469): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(465,469): 'Anno'
   KaSymbolResolutionSuccess:
@@ -740,7 +791,10 @@ KtTypeReference(493,497): 'Anno'
   null
 
 KtUserType(493,497): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(493,497): 'Anno'
   KaSymbolResolutionSuccess:
@@ -794,7 +848,10 @@ KtTypeReference(513,517): 'Anno'
   null
 
 KtUserType(513,517): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      util/Anno
+    ]
 
 KtNameReferenceExpression(513,517): 'Anno'
   KaSymbolResolutionSuccess:

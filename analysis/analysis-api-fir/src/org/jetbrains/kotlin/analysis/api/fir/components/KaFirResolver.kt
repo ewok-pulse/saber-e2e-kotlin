@@ -173,8 +173,13 @@ internal class KaFirResolver(
     }
 
     override fun performSymbolResolution(psi: KtElement): KaSymbolResolutionAttempt? = wrapError(psi) {
-        analysisSession.cacheStorage.resolveSymbolCache.value.getOrPut(psi) {
-            resolveSymbol(psi)
+        when (psi) {
+            // A user type redirects to its inner reference expression, which is cached on its own,
+            // so we don't store a duplicate cache entry for the user type itself.
+            is KtUserType -> psi.referenceExpression?.let(::performSymbolResolution)
+            else -> analysisSession.cacheStorage.resolveSymbolCache.value.getOrPut(psi) {
+                resolveSymbol(psi)
+            }
         }
     }
 

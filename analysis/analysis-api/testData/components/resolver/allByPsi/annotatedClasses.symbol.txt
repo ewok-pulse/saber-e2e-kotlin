@@ -29,7 +29,10 @@ KtTypeReference(16,22): 'Target'
   null
 
 KtUserType(16,22): 'Target'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/annotation/Target
+    ]
 
 KtNameReferenceExpression(16,22): 'Target'
   KaSymbolResolutionSuccess:
@@ -74,7 +77,10 @@ KtTypeReference(82,88): 'String'
   null
 
 KtUserType(82,88): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(82,88): 'String'
   KaSymbolResolutionSuccess:
@@ -131,7 +137,10 @@ KtTypeReference(149,153): 'Anno'
   null
 
 KtUserType(149,153): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(149,153): 'Anno'
   KaSymbolResolutionSuccess:
@@ -161,7 +170,10 @@ KtNameReferenceExpression(171,175): 'prop'
     ]
 
 KtUserType(178,283): 'List<@Anno("nested parameter type $prop") Collection<@Anno("nested nested parameter type $prop") String>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(178,182): 'List'
   KaSymbolResolutionSuccess:
@@ -197,7 +209,10 @@ KtTypeReference(184,188): 'Anno'
   null
 
 KtUserType(184,188): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(184,188): 'Anno'
   KaSymbolResolutionSuccess:
@@ -227,7 +242,10 @@ KtNameReferenceExpression(213,217): 'prop'
     ]
 
 KtUserType(220,282): 'Collection<@Anno("nested nested parameter type $prop") String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/Collection
+    ]
 
 KtNameReferenceExpression(220,230): 'Collection'
   KaSymbolResolutionSuccess:
@@ -263,7 +281,10 @@ KtTypeReference(232,236): 'Anno'
   null
 
 KtUserType(232,236): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(232,236): 'Anno'
   KaSymbolResolutionSuccess:
@@ -293,7 +314,10 @@ KtNameReferenceExpression(268,272): 'prop'
     ]
 
 KtUserType(275,281): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(275,281): 'String'
   KaSymbolResolutionSuccess:
@@ -323,7 +347,10 @@ KtTypeReference(287,291): 'Anno'
   null
 
 KtUserType(287,291): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(287,291): 'Anno'
   KaSymbolResolutionSuccess:
@@ -380,7 +407,10 @@ KtTypeReference(322,326): 'Anno'
   null
 
 KtUserType(322,326): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(322,326): 'Anno'
   KaSymbolResolutionSuccess:
@@ -410,7 +440,10 @@ KtNameReferenceExpression(362,366): 'prop'
     ]
 
 KtUserType(369,372): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(369,372): 'Int'
   KaSymbolResolutionSuccess:
@@ -440,7 +473,10 @@ KtTypeReference(376,380): 'Anno'
   null
 
 KtUserType(376,380): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(376,380): 'Anno'
   KaSymbolResolutionSuccess:
@@ -470,7 +506,10 @@ KtNameReferenceExpression(413,417): 'prop'
     ]
 
 KtUserType(420,423): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(420,423): 'Int'
   KaSymbolResolutionSuccess:
@@ -545,7 +584,10 @@ KtTypeReference(481,485): 'Anno'
   null
 
 KtUserType(481,485): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(481,485): 'Anno'
   KaSymbolResolutionSuccess:
@@ -575,7 +617,10 @@ KtNameReferenceExpression(504,508): 'prop'
     ]
 
 KtUserType(511,616): 'AbstractClass<@Anno("nested super type ref $prop") List<@Anno("nested nested super type ref $prop") Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /AbstractClass
+    ]
 
 KtNameReferenceExpression(511,524): 'AbstractClass'
   KaSymbolResolutionSuccess:
@@ -611,7 +656,10 @@ KtTypeReference(526,530): 'Anno'
   null
 
 KtUserType(526,530): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(526,530): 'Anno'
   KaSymbolResolutionSuccess:
@@ -641,7 +689,10 @@ KtNameReferenceExpression(555,559): 'prop'
     ]
 
 KtUserType(562,615): 'List<@Anno("nested nested super type ref $prop") Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(562,566): 'List'
   KaSymbolResolutionSuccess:
@@ -677,7 +728,10 @@ KtTypeReference(568,572): 'Anno'
   null
 
 KtUserType(568,572): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(568,572): 'Anno'
   KaSymbolResolutionSuccess:
@@ -707,7 +761,10 @@ KtNameReferenceExpression(604,608): 'prop'
     ]
 
 KtUserType(611,614): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(611,614): 'Int'
   KaSymbolResolutionSuccess:
@@ -764,7 +821,10 @@ KtTypeReference(654,658): 'Anno'
   null
 
 KtUserType(654,658): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(654,658): 'Anno'
   KaSymbolResolutionSuccess:
@@ -794,7 +854,10 @@ KtNameReferenceExpression(677,681): 'prop'
     ]
 
 KtUserType(684,789): 'AbstractClass<@Anno("nested super type ref $prop") List<@Anno("nested nested super type ref $prop") Int>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /AbstractClass
+    ]
 
 KtNameReferenceExpression(684,697): 'AbstractClass'
   KaSymbolResolutionSuccess:
@@ -830,7 +893,10 @@ KtTypeReference(699,703): 'Anno'
   null
 
 KtUserType(699,703): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(699,703): 'Anno'
   KaSymbolResolutionSuccess:
@@ -860,7 +926,10 @@ KtNameReferenceExpression(728,732): 'prop'
     ]
 
 KtUserType(735,788): 'List<@Anno("nested nested super type ref $prop") Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(735,739): 'List'
   KaSymbolResolutionSuccess:
@@ -896,7 +965,10 @@ KtTypeReference(741,745): 'Anno'
   null
 
 KtUserType(741,745): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(741,745): 'Anno'
   KaSymbolResolutionSuccess:
@@ -926,7 +998,10 @@ KtNameReferenceExpression(777,781): 'prop'
     ]
 
 KtUserType(784,787): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(784,787): 'Int'
   KaSymbolResolutionSuccess:
@@ -971,7 +1046,10 @@ KtTypeReference(841,845): 'Anno'
   null
 
 KtUserType(841,845): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(841,845): 'Anno'
   KaSymbolResolutionSuccess:
@@ -1001,7 +1079,10 @@ KtNameReferenceExpression(863,867): 'prop'
     ]
 
 KtUserType(870,964): 'List<@Anno("nested super type ref $prop") List<@Anno("nested nested super type ref $prop") I>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(870,874): 'List'
   KaSymbolResolutionSuccess:
@@ -1037,7 +1118,10 @@ KtTypeReference(876,880): 'Anno'
   null
 
 KtUserType(876,880): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(876,880): 'Anno'
   KaSymbolResolutionSuccess:
@@ -1067,7 +1151,10 @@ KtNameReferenceExpression(905,909): 'prop'
     ]
 
 KtUserType(912,963): 'List<@Anno("nested nested super type ref $prop") I>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtNameReferenceExpression(912,916): 'List'
   KaSymbolResolutionSuccess:
@@ -1103,7 +1190,10 @@ KtTypeReference(918,922): 'Anno'
   null
 
 KtUserType(918,922): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(918,922): 'Anno'
   KaSymbolResolutionSuccess:
@@ -1133,7 +1223,10 @@ KtNameReferenceExpression(954,958): 'prop'
     ]
 
 KtUserType(961,962): 'I'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /I
+    ]
 
 KtNameReferenceExpression(961,962): 'I'
   KaSymbolResolutionSuccess:

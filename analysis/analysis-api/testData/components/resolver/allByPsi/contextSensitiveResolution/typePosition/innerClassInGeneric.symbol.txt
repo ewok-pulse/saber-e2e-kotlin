@@ -47,7 +47,10 @@ KtTypeReference(119,128): 'A<String>'
   null
 
 KtUserType(119,128): 'A<String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(119,120): 'A'
   KaSymbolResolutionSuccess:
@@ -65,7 +68,10 @@ KtTypeReference(121,127): 'String'
   null
 
 KtUserType(121,127): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(121,127): 'String'
   KaSymbolResolutionSuccess:
@@ -89,7 +95,10 @@ KtTypeReference(152,153): 'T'
   null
 
 KtUserType(152,153): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(152,153): 'T'
   KaSymbolResolutionSuccess:
@@ -137,7 +146,10 @@ KtTypeReference(191,200): 'A<String>'
   null
 
 KtUserType(191,200): 'A<String>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(191,192): 'A'
   KaSymbolResolutionSuccess:
@@ -155,7 +167,10 @@ KtTypeReference(193,199): 'String'
   null
 
 KtUserType(193,199): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(193,199): 'String'
   KaSymbolResolutionSuccess:
@@ -179,7 +194,10 @@ KtTypeReference(224,225): 'T'
   null
 
 KtUserType(224,225): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(224,225): 'T'
   KaSymbolResolutionSuccess:
@@ -224,7 +242,10 @@ KtTypeReference(255,261): 'A<Int>'
   null
 
 KtUserType(255,261): 'A<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(255,256): 'A'
   KaSymbolResolutionSuccess:
@@ -242,7 +263,10 @@ KtTypeReference(257,260): 'Int'
   null
 
 KtUserType(257,260): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(257,260): 'Int'
   KaSymbolResolutionSuccess:
@@ -266,7 +290,10 @@ KtTypeReference(278,284): 'A<Int>'
   null
 
 KtUserType(278,284): 'A<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(278,279): 'A'
   KaSymbolResolutionSuccess:
@@ -284,7 +311,10 @@ KtTypeReference(280,283): 'Int'
   null
 
 KtUserType(280,283): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(280,283): 'Int'
   KaSymbolResolutionSuccess:
@@ -320,10 +350,16 @@ KtTypeReference(312,319): 'A<*>.B1'
   null
 
 KtUserType(312,319): 'A<*>.B1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A.B1
+    ]
 
 KtUserType(312,316): 'A<*>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(312,313): 'A'
   KaSymbolResolutionSuccess:
@@ -368,10 +404,16 @@ KtTypeReference(339,348): 'A<Int>.B2'
   null
 
 KtUserType(339,348): 'A<Int>.B2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A.B2
+    ]
 
 KtUserType(339,345): 'A<Int>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(339,340): 'A'
   KaSymbolResolutionSuccess:
@@ -389,7 +431,10 @@ KtTypeReference(341,344): 'Int'
   null
 
 KtUserType(341,344): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(341,344): 'Int'
   KaSymbolResolutionSuccess:
@@ -428,10 +473,16 @@ KtTypeReference(368,371): 'A.C'
   null
 
 KtUserType(368,371): 'A.C'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A.C
+    ]
 
 KtUserType(368,369): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(368,369): 'A'
   KaSymbolResolutionSuccess:
@@ -473,7 +524,9 @@ KtTypeReference(409,411): 'B1'
   null
 
 KtUserType(409,411): 'B1'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'B1'.>
 
 KtNameReferenceExpression(409,411): 'B1'
   KaSymbolResolutionError:
@@ -505,7 +558,9 @@ KtTypeReference(431,433): 'B2'
   null
 
 KtUserType(431,433): 'B2'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'B2'.>
 
 KtNameReferenceExpression(431,433): 'B2'
   KaSymbolResolutionError:
@@ -537,7 +592,10 @@ KtTypeReference(453,454): 'C'
   null
 
 KtUserType(453,454): 'C'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A.C
+    ]
 
 KtNameReferenceExpression(453,454): 'C'
   KaSymbolResolutionSuccess:

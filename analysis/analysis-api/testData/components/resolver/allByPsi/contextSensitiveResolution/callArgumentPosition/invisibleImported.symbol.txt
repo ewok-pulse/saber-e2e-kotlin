@@ -53,7 +53,10 @@ KtTypeReference(93,99): 'MyEnum'
   null
 
 KtUserType(93,99): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      b/MyEnum
+    ]
 
 KtNameReferenceExpression(93,99): 'MyEnum'
   KaSymbolResolutionSuccess:

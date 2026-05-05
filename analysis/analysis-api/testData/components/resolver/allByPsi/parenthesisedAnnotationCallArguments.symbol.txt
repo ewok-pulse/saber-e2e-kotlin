@@ -26,7 +26,10 @@ KtTypeReference(35,41): 'String'
   null
 
 KtUserType(35,41): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(35,41): 'String'
   KaSymbolResolutionSuccess:
@@ -56,7 +59,10 @@ KtTypeReference(91,97): 'String'
   null
 
 KtUserType(91,97): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(91,97): 'String'
   KaSymbolResolutionSuccess:
@@ -83,13 +89,22 @@ KtTypeReference(140,164): 'kotlin.reflect.KClass<*>'
   null
 
 KtUserType(140,164): 'kotlin.reflect.KClass<*>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/reflect/KClass
+    ]
 
 KtUserType(140,154): 'kotlin.reflect'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin.reflect
+    ]
 
 KtUserType(140,146): 'kotlin'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin
+    ]
 
 KtNameReferenceExpression(140,146): 'kotlin'
   KaSymbolResolutionSuccess:
@@ -137,7 +152,10 @@ KtTypeReference(168,174): 'MyAnno'
   null
 
 KtUserType(168,174): 'MyAnno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyAnno
+    ]
 
 KtNameReferenceExpression(168,174): 'MyAnno'
   KaSymbolResolutionSuccess:
@@ -191,7 +209,10 @@ KtTypeReference(200,206): 'MyAnno'
   null
 
 KtUserType(200,206): 'MyAnno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyAnno
+    ]
 
 KtNameReferenceExpression(200,206): 'MyAnno'
   KaSymbolResolutionSuccess:
@@ -254,7 +275,10 @@ KtTypeReference(240,246): 'MyAnno'
   null
 
 KtUserType(240,246): 'MyAnno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyAnno
+    ]
 
 KtNameReferenceExpression(240,246): 'MyAnno'
   KaSymbolResolutionSuccess:
@@ -296,7 +320,10 @@ KtTypeReference(260,266): 'String'
   null
 
 KtUserType(260,266): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(260,266): 'String'
   KaSymbolResolutionSuccess:
@@ -332,7 +359,10 @@ KtTypeReference(286,298): 'MyAnnoVararg'
   null
 
 KtUserType(286,298): 'MyAnnoVararg'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyAnnoVararg
+    ]
 
 KtNameReferenceExpression(286,298): 'MyAnnoVararg'
   KaSymbolResolutionSuccess:
@@ -446,7 +476,10 @@ KtTypeReference(358,370): 'MyAnnoVararg'
   null
 
 KtUserType(358,370): 'MyAnnoVararg'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyAnnoVararg
+    ]
 
 KtNameReferenceExpression(358,370): 'MyAnnoVararg'
   KaSymbolResolutionSuccess:
@@ -539,7 +572,10 @@ KtTypeReference(420,432): 'MyAnnoKClass'
   null
 
 KtUserType(420,432): 'MyAnnoKClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyAnnoKClass
+    ]
 
 KtNameReferenceExpression(420,432): 'MyAnnoKClass'
   KaSymbolResolutionSuccess:

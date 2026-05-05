@@ -20,7 +20,10 @@ KtTypeReference(78,84): 'JClass'
   null
 
 KtUserType(78,84): 'JClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /JClass
+    ]
 
 KtNameReferenceExpression(78,84): 'JClass'
   KaSymbolResolutionSuccess:
@@ -32,7 +35,10 @@ KtTypeReference(87,90): 'Int'
   null
 
 KtUserType(87,90): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(87,90): 'Int'
   KaSymbolResolutionSuccess:
@@ -59,7 +65,9 @@ KtTypeReference(118,127): 'JCOption1'
   null
 
 KtUserType(118,127): 'JCOption1'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'JCOption1'.>
 
 KtNameReferenceExpression(118,127): 'JCOption1'
   KaSymbolResolutionError:
@@ -92,7 +100,9 @@ KtTypeReference(154,163): 'JCOption2'
   null
 
 KtUserType(154,163): 'JCOption2'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'JCOption2'.>
 
 KtNameReferenceExpression(154,163): 'JCOption2'
   KaSymbolResolutionError:
@@ -125,7 +135,9 @@ KtTypeReference(190,196): 'Nested'
   null
 
 KtUserType(190,196): 'Nested'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Nested'.>
 
 KtNameReferenceExpression(190,196): 'Nested'
   KaSymbolResolutionError:
@@ -161,7 +173,10 @@ KtTypeReference(253,265): 'SealedJClass'
   null
 
 KtUserType(253,265): 'SealedJClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass
+    ]
 
 KtNameReferenceExpression(253,265): 'SealedJClass'
   KaSymbolResolutionSuccess:
@@ -173,7 +188,10 @@ KtTypeReference(268,271): 'Int'
   null
 
 KtUserType(268,271): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(268,271): 'Int'
   KaSymbolResolutionSuccess:
@@ -206,7 +224,10 @@ KtTypeReference(294,303): 'SCOption1'
   null
 
 KtUserType(294,303): 'SCOption1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption1
+    ]
 
 KtNameReferenceExpression(294,303): 'SCOption1'
   KaSymbolResolutionSuccess:
@@ -266,7 +287,10 @@ KtTypeReference(363,372): 'SCOption2'
   null
 
 KtUserType(363,372): 'SCOption2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption2
+    ]
 
 KtNameReferenceExpression(363,372): 'SCOption2'
   KaSymbolResolutionSuccess:
@@ -326,7 +350,10 @@ KtTypeReference(476,488): 'SealedJClass'
   null
 
 KtUserType(476,488): 'SealedJClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass
+    ]
 
 KtNameReferenceExpression(476,488): 'SealedJClass'
   KaSymbolResolutionSuccess:
@@ -338,7 +365,10 @@ KtTypeReference(491,494): 'Int'
   null
 
 KtUserType(491,494): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(491,494): 'Int'
   KaSymbolResolutionSuccess:
@@ -365,7 +395,10 @@ KtTypeReference(522,531): 'SCOption1'
   null
 
 KtUserType(522,531): 'SCOption1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption1
+    ]
 
 KtNameReferenceExpression(522,531): 'SCOption1'
   KaSymbolResolutionSuccess:
@@ -401,7 +434,10 @@ KtTypeReference(557,566): 'SCOption2'
   null
 
 KtUserType(557,566): 'SCOption2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption2
+    ]
 
 KtNameReferenceExpression(557,566): 'SCOption2'
   KaSymbolResolutionSuccess:
@@ -440,7 +476,10 @@ KtTypeReference(625,637): 'SealedJClass'
   null
 
 KtUserType(625,637): 'SealedJClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass
+    ]
 
 KtNameReferenceExpression(625,637): 'SealedJClass'
   KaSymbolResolutionSuccess:
@@ -452,7 +491,10 @@ KtTypeReference(640,643): 'Int'
   null
 
 KtUserType(640,643): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(640,643): 'Int'
   KaSymbolResolutionSuccess:
@@ -485,7 +527,10 @@ KtTypeReference(669,678): 'SCOption1'
   null
 
 KtUserType(669,678): 'SCOption1'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption1
+    ]
 
 KtNameReferenceExpression(669,678): 'SCOption1'
   KaSymbolResolutionSuccess:
@@ -533,7 +578,10 @@ KtTypeReference(713,722): 'SCOption2'
   null
 
 KtUserType(713,722): 'SCOption2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedJClass.SCOption2
+    ]
 
 KtNameReferenceExpression(713,722): 'SCOption2'
   KaSymbolResolutionSuccess:

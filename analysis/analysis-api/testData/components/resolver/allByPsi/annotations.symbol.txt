@@ -62,7 +62,10 @@ KtTypeReference(60,70): 'Repeatable'
   null
 
 KtUserType(60,70): 'Repeatable'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/annotation/Repeatable
+    ]
 
 KtNameReferenceExpression(60,70): 'Repeatable'
   KaSymbolResolutionSuccess:
@@ -83,7 +86,10 @@ KtTypeReference(111,119): 'IntArray'
   null
 
 KtUserType(111,119): 'IntArray'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/IntArray
+    ]
 
 KtNameReferenceExpression(111,119): 'IntArray'
   KaSymbolResolutionSuccess:
@@ -113,7 +119,10 @@ KtTypeReference(123,133): 'Repeatable'
   null
 
 KtUserType(123,133): 'Repeatable'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/annotation/Repeatable
+    ]
 
 KtNameReferenceExpression(123,133): 'Repeatable'
   KaSymbolResolutionSuccess:
@@ -134,7 +143,10 @@ KtTypeReference(173,182): 'KClass<*>'
   null
 
 KtUserType(173,182): 'KClass<*>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/reflect/KClass
+    ]
 
 KtNameReferenceExpression(173,179): 'KClass'
   KaSymbolResolutionSuccess:
@@ -170,7 +182,10 @@ KtTypeReference(186,196): 'Repeatable'
   null
 
 KtUserType(186,196): 'Repeatable'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/annotation/Repeatable
+    ]
 
 KtNameReferenceExpression(186,196): 'Repeatable'
   KaSymbolResolutionSuccess:
@@ -191,7 +206,10 @@ KtTypeReference(243,259): 'Array<KClass<*>>'
   null
 
 KtUserType(243,259): 'Array<KClass<*>>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Array
+    ]
 
 KtNameReferenceExpression(243,248): 'Array'
   KaSymbolResolutionSuccess:
@@ -209,7 +227,10 @@ KtTypeReference(249,258): 'KClass<*>'
   null
 
 KtUserType(249,258): 'KClass<*>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/reflect/KClass
+    ]
 
 KtNameReferenceExpression(249,255): 'KClass'
   KaSymbolResolutionSuccess:
@@ -242,7 +263,10 @@ KtTypeReference(318,338): 'Array<AnnoWithArray>'
   null
 
 KtUserType(318,338): 'Array<AnnoWithArray>'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Array
+    ]
 
 KtNameReferenceExpression(318,323): 'Array'
   KaSymbolResolutionSuccess:
@@ -260,7 +284,10 @@ KtTypeReference(324,337): 'AnnoWithArray'
   null
 
 KtUserType(324,337): 'AnnoWithArray'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithArray
+    ]
 
 KtNameReferenceExpression(324,337): 'AnnoWithArray'
   KaSymbolResolutionSuccess:
@@ -287,7 +314,10 @@ KtTypeReference(382,388): 'String'
   null
 
 KtUserType(382,388): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(382,388): 'String'
   KaSymbolResolutionSuccess:
@@ -329,7 +359,10 @@ KtTypeReference(424,437): 'AnnoWithArray'
   null
 
 KtUserType(424,437): 'AnnoWithArray'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithArray
+    ]
 
 KtNameReferenceExpression(424,437): 'AnnoWithArray'
   KaSymbolResolutionSuccess:
@@ -374,7 +407,10 @@ KtTypeReference(450,463): 'AnnoWithArray'
   null
 
 KtUserType(450,463): 'AnnoWithArray'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithArray
+    ]
 
 KtNameReferenceExpression(450,463): 'AnnoWithArray'
   KaSymbolResolutionSuccess:
@@ -428,7 +464,10 @@ KtTypeReference(482,495): 'AnnoWithArray'
   null
 
 KtUserType(482,495): 'AnnoWithArray'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithArray
+    ]
 
 KtNameReferenceExpression(482,495): 'AnnoWithArray'
   KaSymbolResolutionSuccess:
@@ -491,7 +530,10 @@ KtTypeReference(518,532): 'AnnoWithKClass'
   null
 
 KtUserType(518,532): 'AnnoWithKClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithKClass
+    ]
 
 KtNameReferenceExpression(518,532): 'AnnoWithKClass'
   KaSymbolResolutionSuccess:
@@ -533,7 +575,10 @@ KtTypeReference(558,572): 'AnnoWithKClass'
   null
 
 KtUserType(558,572): 'AnnoWithKClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithKClass
+    ]
 
 KtNameReferenceExpression(558,572): 'AnnoWithKClass'
   KaSymbolResolutionSuccess:
@@ -581,7 +626,10 @@ KtTypeReference(602,623): 'AnnoWithArrayOfKClass'
   null
 
 KtUserType(602,623): 'AnnoWithArrayOfKClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithArrayOfKClass
+    ]
 
 KtNameReferenceExpression(602,623): 'AnnoWithArrayOfKClass'
   KaSymbolResolutionSuccess:
@@ -644,7 +692,10 @@ KtTypeReference(677,702): 'AnnoWithAnotherAnnotation'
   null
 
 KtUserType(677,702): 'AnnoWithAnotherAnnotation'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithAnotherAnnotation
+    ]
 
 KtNameReferenceExpression(677,702): 'AnnoWithAnotherAnnotation'
   KaSymbolResolutionSuccess:
@@ -791,7 +842,10 @@ KtTypeReference(785,799): 'AnnoWithString'
   null
 
 KtUserType(785,799): 'AnnoWithString'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithString
+    ]
 
 KtNameReferenceExpression(785,799): 'AnnoWithString'
   KaSymbolResolutionSuccess:

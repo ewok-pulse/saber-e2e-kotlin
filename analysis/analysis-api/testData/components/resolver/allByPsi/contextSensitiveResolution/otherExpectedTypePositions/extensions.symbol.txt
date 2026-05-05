@@ -29,10 +29,16 @@ KtTypeReference(129,146): 'MyClass.Companion'
   null
 
 KtUserType(129,146): 'MyClass.Companion'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass.Companion
+    ]
 
 KtUserType(129,136): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(129,136): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -50,7 +56,10 @@ KtTypeReference(152,159): 'MyClass'
   null
 
 KtUserType(152,159): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(152,159): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -92,7 +101,10 @@ KtTypeReference(198,205): 'MyClass'
   null
 
 KtUserType(198,205): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(198,205): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -194,10 +206,16 @@ KtTypeReference(306,324): 'MyClass2.Companion'
   null
 
 KtUserType(306,324): 'MyClass2.Companion'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass2.Companion
+    ]
 
 KtUserType(306,314): 'MyClass2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass2
+    ]
 
 KtNameReferenceExpression(306,314): 'MyClass2'
   KaSymbolResolutionSuccess:
@@ -215,7 +233,10 @@ KtTypeReference(330,338): 'MyClass2'
   null
 
 KtUserType(330,338): 'MyClass2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass2
+    ]
 
 KtNameReferenceExpression(330,338): 'MyClass2'
   KaSymbolResolutionSuccess:
@@ -257,7 +278,10 @@ KtTypeReference(371,379): 'MyClass2'
   null
 
 KtUserType(371,379): 'MyClass2'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass2
+    ]
 
 KtNameReferenceExpression(371,379): 'MyClass2'
   KaSymbolResolutionSuccess:

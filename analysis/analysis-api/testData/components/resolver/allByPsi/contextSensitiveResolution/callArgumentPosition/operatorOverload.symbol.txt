@@ -50,7 +50,10 @@ KtTypeReference(166,173): 'MyClass'
   null
 
 KtUserType(166,173): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(166,173): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -92,7 +95,10 @@ KtTypeReference(243,249): 'MyEnum'
   null
 
 KtUserType(243,249): 'MyEnum'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtNameReferenceExpression(243,249): 'MyEnum'
   KaSymbolResolutionSuccess:
@@ -119,7 +125,10 @@ KtTypeReference(282,289): 'MyClass'
   null
 
 KtUserType(282,289): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(282,289): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -143,7 +152,10 @@ KtTypeReference(317,331): 'OperatorHolder'
   null
 
 KtUserType(317,331): 'OperatorHolder'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /OperatorHolder
+    ]
 
 KtNameReferenceExpression(317,331): 'OperatorHolder'
   KaSymbolResolutionSuccess:

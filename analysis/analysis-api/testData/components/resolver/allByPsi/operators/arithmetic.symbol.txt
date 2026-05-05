@@ -29,7 +29,10 @@ KtTypeReference(39,40): 'A'
   null
 
 KtUserType(39,40): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(39,40): 'A'
   KaSymbolResolutionSuccess:
@@ -41,7 +44,10 @@ KtTypeReference(43,44): 'A'
   null
 
 KtUserType(43,44): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(43,44): 'A'
   KaSymbolResolutionSuccess:
@@ -77,7 +83,10 @@ KtTypeReference(82,83): 'A'
   null
 
 KtUserType(82,83): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(82,83): 'A'
   KaSymbolResolutionSuccess:
@@ -89,7 +98,10 @@ KtTypeReference(86,87): 'A'
   null
 
 KtUserType(86,87): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(86,87): 'A'
   KaSymbolResolutionSuccess:
@@ -125,7 +137,10 @@ KtTypeReference(125,126): 'A'
   null
 
 KtUserType(125,126): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(125,126): 'A'
   KaSymbolResolutionSuccess:
@@ -137,7 +152,10 @@ KtTypeReference(129,130): 'A'
   null
 
 KtUserType(129,130): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(129,130): 'A'
   KaSymbolResolutionSuccess:
@@ -173,7 +191,10 @@ KtTypeReference(166,167): 'A'
   null
 
 KtUserType(166,167): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(166,167): 'A'
   KaSymbolResolutionSuccess:
@@ -185,7 +206,10 @@ KtTypeReference(170,171): 'A'
   null
 
 KtUserType(170,171): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(170,171): 'A'
   KaSymbolResolutionSuccess:
@@ -221,7 +245,10 @@ KtTypeReference(207,208): 'A'
   null
 
 KtUserType(207,208): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(207,208): 'A'
   KaSymbolResolutionSuccess:
@@ -233,7 +260,10 @@ KtTypeReference(211,212): 'A'
   null
 
 KtUserType(211,212): 'A'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /A
+    ]
 
 KtNameReferenceExpression(211,212): 'A'
   KaSymbolResolutionSuccess:

@@ -83,13 +83,22 @@ KtTypeReference(150,171): 'one.two.TopLevelClass'
   null
 
 KtUserType(150,171): 'one.two.TopLevelClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/TopLevelClass
+    ]
 
 KtUserType(150,157): 'one.two'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one.two
+    ]
 
 KtUserType(150,153): 'one'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one
+    ]
 
 KtNameReferenceExpression(150,153): 'one'
   KaSymbolResolutionSuccess:
@@ -119,10 +128,16 @@ KtTypeReference(189,214): 'TopLevelClass.NestedClass'
   null
 
 KtUserType(189,214): 'TopLevelClass.NestedClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/TopLevelClass.NestedClass
+    ]
 
 KtUserType(189,202): 'TopLevelClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/TopLevelClass
+    ]
 
 KtNameReferenceExpression(189,202): 'TopLevelClass'
   KaSymbolResolutionSuccess:
@@ -146,7 +161,10 @@ KtTypeReference(238,248): 'InnerAlias'
   null
 
 KtUserType(238,248): 'InnerAlias'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/TopLevelClass.InnerClass
+    ]
 
 KtNameReferenceExpression(238,248): 'InnerAlias'
   KaSymbolResolutionSuccess:

@@ -32,7 +32,10 @@ KtNullableType(41,45): 'Any?'
   null
 
 KtUserType(41,44): 'Any'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtNameReferenceExpression(41,44): 'Any'
   KaSymbolResolutionSuccess:
@@ -44,7 +47,10 @@ KtTypeReference(48,55): 'Boolean'
   null
 
 KtUserType(48,55): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(48,55): 'Boolean'
   KaSymbolResolutionSuccess:

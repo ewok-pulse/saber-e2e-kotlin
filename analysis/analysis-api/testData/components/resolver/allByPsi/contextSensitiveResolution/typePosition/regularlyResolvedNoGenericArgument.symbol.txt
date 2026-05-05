@@ -32,7 +32,10 @@ KtTypeReference(128,134): 'String'
   null
 
 KtUserType(128,134): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(128,134): 'String'
   KaSymbolResolutionSuccess:
@@ -50,7 +53,10 @@ KtTypeReference(137,145): 'MySealed'
   null
 
 KtUserType(137,145): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(137,145): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -74,7 +80,10 @@ KtTypeReference(169,175): 'String'
   null
 
 KtUserType(169,175): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(169,175): 'String'
   KaSymbolResolutionSuccess:
@@ -92,7 +101,10 @@ KtTypeReference(178,186): 'MySealed'
   null
 
 KtUserType(178,186): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(178,186): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -119,7 +131,10 @@ KtTypeReference(221,227): 'String'
   null
 
 KtUserType(221,227): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(221,227): 'String'
   KaSymbolResolutionSuccess:
@@ -134,7 +149,10 @@ KtTypeReference(235,243): 'MySealed'
   null
 
 KtUserType(235,243): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(235,243): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -212,7 +230,11 @@ KtTypeReference(279,283): 'Left'
   null
 
 KtUserType(279,283): 'Left'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      /Left
+    ]
+    diagnostic = ERROR<NO_TYPE_ARGUMENTS_ON_RHS: One type argument expected. Use 'Left<*>' if you do not intend to pass type arguments.>
 
 KtNameReferenceExpression(279,283): 'Left'
   KaSymbolResolutionError:
@@ -236,7 +258,10 @@ KtTypeReference(296,301): 'Right'
   null
 
 KtUserType(296,301): 'Right'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Right
+    ]
 
 KtNameReferenceExpression(296,301): 'Right'
   KaSymbolResolutionSuccess:

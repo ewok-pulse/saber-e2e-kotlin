@@ -41,7 +41,10 @@ KtTypeReference(45,48): 'Int'
   null
 
 KtUserType(45,48): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(45,48): 'Int'
   KaSymbolResolutionSuccess:
@@ -53,7 +56,10 @@ KtTypeReference(53,57): 'Unit'
   null
 
 KtUserType(53,57): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(53,57): 'Unit'
   KaSymbolResolutionSuccess:
@@ -92,7 +98,10 @@ KtTypeReference(90,96): 'String'
   null
 
 KtUserType(90,96): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(90,96): 'String'
   KaSymbolResolutionSuccess:
@@ -104,7 +113,10 @@ KtTypeReference(101,105): 'Unit'
   null
 
 KtUserType(101,105): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(101,105): 'Unit'
   KaSymbolResolutionSuccess:
@@ -143,7 +155,10 @@ KtTypeReference(138,145): 'Boolean'
   null
 
 KtUserType(138,145): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(138,145): 'Boolean'
   KaSymbolResolutionSuccess:
@@ -155,7 +170,10 @@ KtTypeReference(150,154): 'Unit'
   null
 
 KtUserType(150,154): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(150,154): 'Unit'
   KaSymbolResolutionSuccess:
@@ -359,7 +377,10 @@ KtTypeReference(450,456): 'String'
   null
 
 KtUserType(450,456): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(450,456): 'String'
   KaSymbolResolutionSuccess:

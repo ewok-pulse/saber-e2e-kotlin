@@ -32,7 +32,10 @@ KtTypeReference(128,134): 'String'
   null
 
 KtUserType(128,134): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(128,134): 'String'
   KaSymbolResolutionSuccess:
@@ -50,7 +53,10 @@ KtTypeReference(137,145): 'MySealed'
   null
 
 KtUserType(137,145): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(137,145): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -74,7 +80,10 @@ KtTypeReference(169,175): 'String'
   null
 
 KtUserType(169,175): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(169,175): 'String'
   KaSymbolResolutionSuccess:
@@ -92,7 +101,10 @@ KtTypeReference(178,186): 'MySealed'
   null
 
 KtUserType(178,186): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(178,186): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -116,7 +128,10 @@ KtTypeReference(222,228): 'String'
   null
 
 KtUserType(222,228): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(222,228): 'String'
   KaSymbolResolutionSuccess:
@@ -131,7 +146,10 @@ KtTypeReference(237,245): 'MySealed'
   null
 
 KtUserType(237,245): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(237,245): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -209,7 +227,10 @@ KtTypeReference(281,285): 'Left'
   null
 
 KtUserType(281,285): 'Left'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Left
+    ]
 
 KtNameReferenceExpression(281,285): 'Left'
   KaSymbolResolutionSuccess:
@@ -233,7 +254,10 @@ KtTypeReference(298,303): 'Right'
   null
 
 KtUserType(298,303): 'Right'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Right
+    ]
 
 KtNameReferenceExpression(298,303): 'Right'
   KaSymbolResolutionSuccess:
@@ -257,7 +281,9 @@ KtTypeReference(316,333): 'NonSealedSubclass'
   null
 
 KtUserType(316,333): 'NonSealedSubclass'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'NonSealedSubclass'.>
 
 KtNameReferenceExpression(316,333): 'NonSealedSubclass'
   KaSymbolResolutionError:

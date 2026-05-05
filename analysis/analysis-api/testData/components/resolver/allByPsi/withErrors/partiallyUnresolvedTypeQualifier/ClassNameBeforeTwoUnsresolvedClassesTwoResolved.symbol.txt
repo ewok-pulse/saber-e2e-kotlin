@@ -29,16 +29,26 @@ KtTypeReference(54,72): 'Foo.Bar.Baz.Bazzzz'
   null
 
 KtUserType(54,72): 'Foo.Bar.Baz.Bazzzz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(54,65): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(54,61): 'Foo.Bar'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo.Bar
+    ]
 
 KtUserType(54,57): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(54,57): 'Foo'
   KaSymbolResolutionSuccess:
@@ -78,16 +88,26 @@ KtTypeReference(111,129): 'Foo.Bar.Baz.Bazzzz'
   null
 
 KtUserType(111,129): 'Foo.Bar.Baz.Bazzzz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(111,122): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Baz'.>
 
 KtUserType(111,118): 'Foo.Bar'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo.Bar
+    ]
 
 KtUserType(111,114): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(111,114): 'Foo'
   KaSymbolResolutionSuccess:
@@ -142,7 +162,10 @@ KtTypeReference(155,156): 'T'
   null
 
 KtUserType(155,156): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(155,156): 'T'
   KaSymbolResolutionSuccess:
@@ -154,7 +177,10 @@ KtTypeReference(161,165): 'Unit'
   null
 
 KtUserType(161,165): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(161,165): 'Unit'
   KaSymbolResolutionSuccess:
@@ -201,16 +227,26 @@ KtTypeReference(206,224): 'Foo.Bar.Baz.Bazzzz'
   null
 
 KtUserType(206,224): 'Foo.Bar.Baz.Bazzzz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Bazzzz'.>
 
 KtUserType(206,217): 'Foo.Bar.Baz'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Bazzzz'.>
 
 KtUserType(206,213): 'Foo.Bar'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo.Bar
+    ]
 
 KtUserType(206,209): 'Foo'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Foo
+    ]
 
 KtNameReferenceExpression(206,209): 'Foo'
   KaSymbolResolutionSuccess:

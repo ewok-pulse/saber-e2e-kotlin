@@ -32,7 +32,10 @@ KtTypeReference(37,40): 'Int'
   null
 
 KtUserType(37,40): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(37,40): 'Int'
   KaSymbolResolutionSuccess:
@@ -71,7 +74,10 @@ KtTypeReference(70,71): 'T'
   null
 
 KtUserType(70,71): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(70,71): 'T'
   KaSymbolResolutionSuccess:
@@ -89,7 +95,10 @@ KtTypeReference(86,89): 'Int'
   null
 
 KtUserType(86,89): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(86,89): 'Int'
   KaSymbolResolutionSuccess:
@@ -101,7 +110,10 @@ KtTypeReference(92,99): 'Boolean'
   null
 
 KtUserType(92,99): 'Boolean'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Boolean
+    ]
 
 KtNameReferenceExpression(92,99): 'Boolean'
   KaSymbolResolutionSuccess:

@@ -497,7 +497,10 @@ KtTypeReference(583,590): 'MyClass'
   null
 
 KtUserType(583,590): 'MyClass'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/MyClass
+    ]
 
 KtNameReferenceExpression(583,590): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -515,7 +518,10 @@ KtTypeReference(595,601): 'String'
   null
 
 KtUserType(595,601): 'String'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(595,601): 'String'
   KaSymbolResolutionSuccess:
@@ -1286,7 +1292,10 @@ KtTypeReference(1236,1237): 'T'
   null
 
 KtUserType(1236,1237): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(1236,1237): 'T'
   KaSymbolResolutionSuccess:
@@ -1313,7 +1322,10 @@ KtTypeReference(1251,1252): 'T'
   null
 
 KtUserType(1251,1252): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(1251,1252): 'T'
   KaSymbolResolutionSuccess:
@@ -1331,7 +1343,10 @@ KtTypeReference(1254,1255): 'T'
   null
 
 KtUserType(1254,1255): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(1254,1255): 'T'
   KaSymbolResolutionSuccess:
@@ -1343,7 +1358,10 @@ KtTypeReference(1260,1264): 'Unit'
   null
 
 KtUserType(1260,1264): 'Unit'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Unit
+    ]
 
 KtNameReferenceExpression(1260,1264): 'Unit'
   KaSymbolResolutionSuccess:

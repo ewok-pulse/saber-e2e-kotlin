@@ -44,7 +44,10 @@ KtTypeReference(57,60): 'Int'
   null
 
 KtUserType(57,60): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(57,60): 'Int'
   KaSymbolResolutionSuccess:
@@ -86,7 +89,10 @@ KtTypeReference(89,93): 'Long'
   null
 
 KtUserType(89,93): 'Long'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Long
+    ]
 
 KtNameReferenceExpression(89,93): 'Long'
   KaSymbolResolutionSuccess:

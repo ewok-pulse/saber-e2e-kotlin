@@ -14,10 +14,16 @@ KtTypeReference(27,40): 'Hidden.Nested'
   null
 
 KtUserType(27,40): 'Hidden.Nested'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = [
+      /Hidden.Nested
+    ]
+    diagnostic = ERROR<INVISIBLE_REFERENCE: Cannot access 'class Nested : Any': it is private in 'Hidden'.>
 
 KtUserType(27,33): 'Hidden'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<INVISIBLE_REFERENCE: Cannot access 'class Nested : Any': it is private in 'Hidden'.>
 
 KtNameReferenceExpression(27,33): 'Hidden'
   KaSymbolResolutionError:

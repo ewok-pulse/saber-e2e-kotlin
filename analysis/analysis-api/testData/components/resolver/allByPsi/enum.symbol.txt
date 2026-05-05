@@ -26,7 +26,10 @@ KtTypeReference(38,41): 'Int'
   null
 
 KtUserType(38,41): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(38,41): 'Int'
   KaSymbolResolutionSuccess:
@@ -59,7 +62,10 @@ KtTypeReference(54,54): ''
   null
 
 KtUserType(54,54): ''
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      <constructor>(i: kotlin.Int): EnumWithConstructor
+    ]
 
 KtEnumEntrySuperclassReferenceExpression(54,54): ''
   KaSymbolResolutionSuccess:
@@ -98,7 +104,10 @@ KtTypeReference(76,76): ''
   null
 
 KtUserType(76,76): ''
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      <constructor>(i: kotlin.Int): EnumWithConstructor
+    ]
 
 KtEnumEntrySuperclassReferenceExpression(76,76): ''
   KaSymbolResolutionSuccess:
@@ -206,7 +215,10 @@ KtTypeReference(280,299): 'EnumWithConstructor'
   null
 
 KtUserType(280,299): 'EnumWithConstructor'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /EnumWithConstructor
+    ]
 
 KtNameReferenceExpression(280,299): 'EnumWithConstructor'
   KaSymbolResolutionSuccess:

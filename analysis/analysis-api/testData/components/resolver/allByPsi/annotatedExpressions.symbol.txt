@@ -38,7 +38,10 @@ KtTypeReference(39,45): 'Target'
   null
 
 KtUserType(39,45): 'Target'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/annotation/Target
+    ]
 
 KtNameReferenceExpression(39,45): 'Target'
   KaSymbolResolutionSuccess:
@@ -86,7 +89,10 @@ KtTypeReference(76,85): 'Retention'
   null
 
 KtUserType(76,85): 'Retention'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/annotation/Retention
+    ]
 
 KtNameReferenceExpression(76,85): 'Retention'
   KaSymbolResolutionSuccess:
@@ -131,7 +137,10 @@ KtTypeReference(148,151): 'Int'
   null
 
 KtUserType(148,151): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(148,151): 'Int'
   KaSymbolResolutionSuccess:
@@ -167,7 +176,10 @@ KtTypeReference(173,177): 'Anno'
   null
 
 KtUserType(173,177): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(173,177): 'Anno'
   KaSymbolResolutionSuccess:
@@ -230,7 +242,10 @@ KtTypeReference(193,197): 'Anno'
   null
 
 KtUserType(193,197): 'Anno'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /Anno
+    ]
 
 KtNameReferenceExpression(193,197): 'Anno'
   KaSymbolResolutionSuccess:

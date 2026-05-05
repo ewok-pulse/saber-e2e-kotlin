@@ -38,7 +38,10 @@ KtTypeReference(46,49): 'Int'
   null
 
 KtUserType(46,49): 'Int'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtNameReferenceExpression(46,49): 'Int'
   KaSymbolResolutionSuccess:

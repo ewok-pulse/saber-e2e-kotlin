@@ -41,7 +41,10 @@ KtTypeReference(122,130): 'MySealed'
   null
 
 KtUserType(122,130): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(122,130): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -86,7 +89,10 @@ KtTypeReference(178,186): 'MySealed'
   null
 
 KtUserType(178,186): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(178,186): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -116,7 +122,10 @@ KtTypeReference(206,207): 'X'
   null
 
 KtUserType(206,207): 'X'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      X
+    ]
 
 KtNameReferenceExpression(206,207): 'X'
   KaSymbolResolutionSuccess:
@@ -128,7 +137,10 @@ KtTypeReference(210,211): 'X'
   null
 
 KtUserType(210,211): 'X'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      X
+    ]
 
 KtNameReferenceExpression(210,211): 'X'
   KaSymbolResolutionSuccess:
@@ -164,7 +176,10 @@ KtTypeReference(231,239): 'MySealed'
   null
 
 KtUserType(231,239): 'MySealed'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed
+    ]
 
 KtNameReferenceExpression(231,239): 'MySealed'
   KaSymbolResolutionSuccess:
@@ -182,7 +197,10 @@ KtTypeReference(248,249): 'T'
   null
 
 KtUserType(248,249): 'T'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(248,249): 'T'
   KaSymbolResolutionSuccess:
@@ -533,7 +551,10 @@ KtTypeReference(465,472): 'Derived'
   null
 
 KtUserType(465,472): 'Derived'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Derived
+    ]
 
 KtNameReferenceExpression(465,472): 'Derived'
   KaSymbolResolutionSuccess:
@@ -587,7 +608,10 @@ KtTypeReference(494,501): 'Derived'
   null
 
 KtUserType(494,501): 'Derived'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Derived
+    ]
 
 KtNameReferenceExpression(494,501): 'Derived'
   KaSymbolResolutionSuccess:
@@ -933,7 +957,10 @@ KtTypeReference(1079,1086): 'Derived'
   null
 
 KtUserType(1079,1086): 'Derived'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Derived
+    ]
 
 KtNameReferenceExpression(1079,1086): 'Derived'
   KaSymbolResolutionSuccess:
@@ -1029,7 +1056,10 @@ KtTypeReference(1182,1189): 'Derived'
   null
 
 KtUserType(1182,1189): 'Derived'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Derived
+    ]
 
 KtNameReferenceExpression(1182,1189): 'Derived'
   KaSymbolResolutionSuccess:
@@ -1101,7 +1131,10 @@ KtTypeReference(1272,1279): 'Derived'
   null
 
 KtUserType(1272,1279): 'Derived'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MySealed.Derived
+    ]
 
 KtNameReferenceExpression(1272,1279): 'Derived'
   KaSymbolResolutionSuccess:

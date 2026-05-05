@@ -83,6 +83,12 @@ public class SourceLikeResolveCandidatesByFileFirTreeConsistencyTestGenerated ex
   }
 
   @Test
+  @TestMetadata("classLiterals.kt")
+  public void testClassLiterals() {
+    run("classLiterals.kt");
+  }
+
+  @Test
   @TestMetadata("compare.kt")
   public void testCompare() {
     run("compare.kt");

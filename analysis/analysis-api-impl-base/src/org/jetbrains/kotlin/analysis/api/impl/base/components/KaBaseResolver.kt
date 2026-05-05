@@ -56,9 +56,11 @@ abstract class KaBaseResolver<T : KaSession> : KaBaseSessionComponent<T>(), KaRe
      * effectively reused at all entry points into the resolver API
      */
     private fun KtResolvableCall.tryResolveSymbolsForResolvableCall(): KaSymbolResolutionAttempt? = when (this) {
-        // Name reference expressions are special since they might represent not only calls but types as well.
-        // Also, in some cases the result is more specific for symbols (e.g., it prefers classes to constructors)
-        is KtNameReferenceExpression -> tryResolveSymbolsForElement()
+        // Both reference kinds may stand in either type or call positions, and in some cases the symbol-based
+        // result is more specific (e.g., it prefers classes to constructors).
+        // For enum entry super-type references this also means the enclosing enum class is returned instead of
+        // the synthetic constructor of the call form.
+        is KtNameReferenceExpression, is KtEnumEntrySuperclassReferenceExpression -> tryResolveSymbolsForElement()
         else -> null
     } ?: when (val callAttempt = tryResolveCall()) {
         is KaSingleCallResolutionAttempt -> callAttempt.toSingleSymbolResolutionAttempt()
@@ -122,7 +124,7 @@ abstract class KaBaseResolver<T : KaSession> : KaBaseSessionComponent<T>(), KaRe
     final override fun KtCallableReferenceExpression.resolveSymbol(): KaCallableSymbol? = resolveSymbolSafe()
     final override fun KtArrayAccessExpression.resolveSymbol(): KaNamedFunctionSymbol? = resolveSymbolSafe()
     final override fun KtCollectionLiteralExpression.resolveSymbol(): KaNamedFunctionSymbol? = resolveSymbolSafe()
-    final override fun KtEnumEntrySuperclassReferenceExpression.resolveSymbol(): KaConstructorSymbol? = resolveSymbolSafe()
+    final override fun KtEnumEntrySuperclassReferenceExpression.resolveSymbol(): KaNamedClassSymbol? = resolveSymbolSafe()
     final override fun KtLabelReferenceExpression.resolveSymbol(): KaDeclarationSymbol? = resolveSymbolSafe()
     final override fun KtReturnExpression.resolveSymbol(): KaFunctionSymbol? = resolveSymbolSafe()
     final override fun KtWhenConditionInRange.resolveSymbol(): KaNamedFunctionSymbol? = resolveSymbolSafe()

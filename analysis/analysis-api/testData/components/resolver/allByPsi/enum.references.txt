@@ -12,7 +12,7 @@ KtEnumEntrySuperclassReferenceExpression(54,54): ''
     usesContextSensitiveResolution: false
     attempt: KaSymbolResolutionSuccess
     symbols:
-      (in EnumWithConstructor) constructor(i: kotlin.Int)
+      (in ROOT) enum class EnumWithConstructor(i: kotlin.Int)
 
 KtEnumEntrySuperclassReferenceExpression(76,76): ''
   KtSimpleNameReference:
@@ -20,7 +20,7 @@ KtEnumEntrySuperclassReferenceExpression(76,76): ''
     usesContextSensitiveResolution: false
     attempt: KaSymbolResolutionSuccess
     symbols:
-      (in EnumWithConstructor) constructor(i: kotlin.Int)
+      (in ROOT) enum class EnumWithConstructor(i: kotlin.Int)
 
 KtNameReferenceExpression(114,115): 'i'
   KtSimpleNameReference:

@@ -382,7 +382,7 @@ internal class KaFirResolver(
         }
 
         val symbol = when (val symbol = firSymbolToBuild?.buildSymbol(firSymbolBuilder)) {
-            is KaConstructorSymbol if psi is KtNameReferenceExpression -> with(analysisSession) {
+            is KaConstructorSymbol if (psi is KtNameReferenceExpression || psi is KtEnumEntrySuperclassReferenceExpression) -> with(analysisSession) {
                 // Callee reference for a constructor call is supposed to refer to the class
                 // while the entire call refers to the constructor.
                 // `KaSymbol` instead of `FirSymbol` is checked intentionally to properly support

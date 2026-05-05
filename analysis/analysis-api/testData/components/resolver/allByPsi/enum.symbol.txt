@@ -64,13 +64,13 @@ KtTypeReference(54,54): ''
 KtUserType(54,54): ''
   KaSymbolResolutionSuccess:
     symbols = [
-      <constructor>(i: kotlin.Int): EnumWithConstructor
+      /EnumWithConstructor
     ]
 
 KtEnumEntrySuperclassReferenceExpression(54,54): ''
   KaSymbolResolutionSuccess:
     symbols = [
-      <constructor>(i: kotlin.Int): EnumWithConstructor
+      /EnumWithConstructor
     ]
 
 KtValueArgumentList(54,57): '(1)'
@@ -106,13 +106,13 @@ KtTypeReference(76,76): ''
 KtUserType(76,76): ''
   KaSymbolResolutionSuccess:
     symbols = [
-      <constructor>(i: kotlin.Int): EnumWithConstructor
+      /EnumWithConstructor
     ]
 
 KtEnumEntrySuperclassReferenceExpression(76,76): ''
   KaSymbolResolutionSuccess:
     symbols = [
-      <constructor>(i: kotlin.Int): EnumWithConstructor
+      /EnumWithConstructor
     ]
 
 KtValueArgumentList(76,79): '(2)'

@@ -301,28 +301,30 @@ public interface KaResolver : KaSessionComponent {
     public fun KtCollectionLiteralExpression.resolveSymbol(): KaNamedFunctionSymbol?
 
     /**
-     * Resolves the constructor symbol referenced by the given [KtEnumEntrySuperclassReferenceExpression].
+     * Resolves the enum class symbol referenced by the given [KtEnumEntrySuperclassReferenceExpression].
      *
      * #### Example
      *
      * ```kotlin
      * enum class EnumWithConstructor(val x: Int) {
      *     Entry(1)
-     * //      ^ resolves to the constructor of `EnumWithConstructor`
+     * //      ^ resolves to the enum class `EnumWithConstructor`
      * }
      * ```
      *
-     * Calling `resolveSymbol()` on a [KtEnumEntrySuperclassReferenceExpression] (``) returns the
-     * [KaConstructorSymbol] of the enum class constructor if resolution succeeds; otherwise, it returns `null`
-     * (e.g., when unresolved or ambiguous).
+     * Calling `resolveSymbol()` on a [KtEnumEntrySuperclassReferenceExpression] returns the [KaNamedClassSymbol] of
+     * the enclosing enum class if resolution succeeds; otherwise, it returns `null` (e.g., when unresolved or ambiguous).
      *
-     * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on enum entry superclass constructor calls
+     * Mirrors how [KtNameReferenceExpression] prefers the class over the constructor: while the surrounding
+     * super-type call ([resolveCall]) maps to the constructor, the reference itself denotes the class.
+     *
+     * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on enum entry super-type references
      *
      * @see tryResolveSymbols
      * @see KtResolvable.resolveSymbol
      */
     @KaExperimentalApi
-    public fun KtEnumEntrySuperclassReferenceExpression.resolveSymbol(): KaConstructorSymbol?
+    public fun KtEnumEntrySuperclassReferenceExpression.resolveSymbol(): KaNamedClassSymbol?
 
     /**
      * Resolves the declaration symbol targeted by the given [KtLabelReferenceExpression].
@@ -1453,22 +1455,24 @@ public fun KtCollectionLiteralExpression.resolveSymbol(): KaNamedFunctionSymbol?
 }
 
 /**
- * Resolves the constructor symbol referenced by the given [KtEnumEntrySuperclassReferenceExpression].
+ * Resolves the enum class symbol referenced by the given [KtEnumEntrySuperclassReferenceExpression].
  *
  * #### Example
  *
  * ```kotlin
  * enum class EnumWithConstructor(val x: Int) {
  *     Entry(1)
- * //      ^ resolves to the constructor of `EnumWithConstructor`
+ * //      ^ resolves to the enum class `EnumWithConstructor`
  * }
  * ```
  *
- * Calling `resolveSymbol()` on a [KtEnumEntrySuperclassReferenceExpression] (``) returns the
- * [KaConstructorSymbol] of the enum class constructor if resolution succeeds; otherwise, it returns `null`
- * (e.g., when unresolved or ambiguous).
+ * Calling `resolveSymbol()` on a [KtEnumEntrySuperclassReferenceExpression] returns the [KaNamedClassSymbol] of
+ * the enclosing enum class if resolution succeeds; otherwise, it returns `null` (e.g., when unresolved or ambiguous).
  *
- * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on enum entry superclass constructor calls
+ * Mirrors how [KtNameReferenceExpression] prefers the class over the constructor: while the surrounding
+ * super-type call ([resolveCall]) maps to the constructor, the reference itself denotes the class.
+ *
+ * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on enum entry super-type references
  *
  * @see tryResolveSymbols
  * @see KtResolvable.resolveSymbol
@@ -1477,7 +1481,7 @@ public fun KtCollectionLiteralExpression.resolveSymbol(): KaNamedFunctionSymbol?
 @KaExperimentalApi
 @KaContextParameterApi
 context(session: KaSession)
-public fun KtEnumEntrySuperclassReferenceExpression.resolveSymbol(): KaConstructorSymbol? {
+public fun KtEnumEntrySuperclassReferenceExpression.resolveSymbol(): KaNamedClassSymbol? {
     return with(session) {
         resolveSymbol()
     }

@@ -295,7 +295,7 @@ class BatchingPackageInserter(testServices: TestServices) : ReversibleSourceFile
                         .getChildOfType<KtProperty>()!!
                         .getChildOfType<KtDotQualifiedExpression>()!!
 
-                    dotQualifiedExpression.replace(newDotQualifiedExpression) as KtDotQualifiedExpression
+                    dotQualifiedExpression.rawReplace(newDotQualifiedExpression) as KtDotQualifiedExpression
                 } ?: dotQualifiedExpression
 
             super.visitDotQualifiedExpression(newDotQualifiedExpression, accessibleDeclarationNames)

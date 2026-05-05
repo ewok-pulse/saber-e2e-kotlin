@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.test.grouping
 
-import com.intellij.util.containers.orNull
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -68,13 +67,13 @@ class CompilerTestGroupingTestEngine : TestEngine {
             workerPool = Executors.newFixedThreadPool(parallelism)
             dispatcher = workerPool.asCoroutineDispatcher()
 
-            val numberOfActiveClasses = params.get(SIMULTANEOUS_METHODS_GROUPS_PROP).orNull()?.toInt()?.also {
+            val numberOfActiveClasses = params.get(SIMULTANEOUS_METHODS_GROUPS_PROP).orElse(null)?.toInt()?.also {
                 require(it > 0) { "Number of simultaneous method groups must be positive, but was $it" }
             } ?: DEFAULT_SIMULTANEOUS_METHODS_GROUPS
 
             activeClasses = Semaphore(permits = numberOfActiveClasses)
 
-            methodsChunkSize = params.get(SIMULTANEOUS_METHODS_GROUP_SIZE_PROP).orNull()?.toInt()?.also {
+            methodsChunkSize = params.get(SIMULTANEOUS_METHODS_GROUP_SIZE_PROP).orElse(null)?.toInt()?.also {
                 require(it > 0) { "Number of methods in a group must be positive, but was $it" }
             } ?: DEFAULT_SIMULTANEOUS_METHODS_GROUP_SIZE
         }

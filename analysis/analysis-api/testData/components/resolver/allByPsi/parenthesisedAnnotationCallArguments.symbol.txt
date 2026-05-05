@@ -629,7 +629,10 @@ KtParenthesizedExpression(435,450): '(String::class)'
   null
 
 KtClassLiteralExpression(436,449): 'String::class'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(436,442): 'String'
   KaSymbolResolutionSuccess:

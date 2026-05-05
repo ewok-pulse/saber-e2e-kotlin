@@ -184,6 +184,9 @@ internal class KaFirResolver(
             // are not `KtResolvable`, so this redirect doesn't reach them — for those `typeElement`
             // values, `performSymbolResolution` falls through and returns `null`.
             is KtTypeReference -> psi.typeElement?.let(::performSymbolResolution)
+            // A class literal expression (`Foo::class`) resolves to the classifier on its left-hand side.
+            // The receiver is a name reference or qualified expression, both of which are already cached.
+            is KtClassLiteralExpression -> psi.receiverExpression?.let(::performSymbolResolution)
             else -> analysisSession.cacheStorage.resolveSymbolCache.value.getOrPut(psi) {
                 resolveSymbol(psi)
             }

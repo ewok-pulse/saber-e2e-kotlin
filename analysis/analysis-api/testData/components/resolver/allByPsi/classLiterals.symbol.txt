@@ -50,7 +50,10 @@ KtBlockExpression(58,139): '{'
   null
 
 KtClassLiteralExpression(63,71): 'T::class'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtNameReferenceExpression(63,64): 'T'
   KaSymbolResolutionSuccess:
@@ -59,7 +62,10 @@ KtNameReferenceExpression(63,64): 'T'
     ]
 
 KtClassLiteralExpression(75,89): 'MyAlias::class'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyAlias
+    ]
 
 KtNameReferenceExpression(75,82): 'MyAlias'
   KaSymbolResolutionSuccess:
@@ -68,7 +74,10 @@ KtNameReferenceExpression(75,82): 'MyAlias'
     ]
 
 KtClassLiteralExpression(93,106): 'String::class'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtNameReferenceExpression(93,99): 'String'
   KaSymbolResolutionSuccess:

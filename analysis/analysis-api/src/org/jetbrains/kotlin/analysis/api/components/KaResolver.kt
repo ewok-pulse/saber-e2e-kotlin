@@ -606,6 +606,31 @@ public interface KaResolver : KaSessionComponent {
     public fun KtTypeReference.resolveSymbol(): KaClassifierSymbol?
 
     /**
+     * Resolves the classifier symbol referenced by the given [KtClassLiteralExpression] (`Foo::class`).
+     *
+     * #### Example
+     *
+     * ```kotlin
+     * val a = String::class
+     * //      ^^^^^^^^^^^^^   resolves to `kotlin.String`
+     *
+     * val b = kotlin.String::class
+     * //      ^^^^^^^^^^^^^^^^^^^^   resolves to `kotlin.String`
+     * ```
+     *
+     * Resolution delegates to the receiver expression on the left of `::class`. Returns the underlying
+     * [KaClassifierSymbol] of the referenced class, type alias, or type parameter if resolution succeeds;
+     * otherwise, it returns `null` (e.g., when unresolved or ambiguous).
+     *
+     * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on class literal expressions
+     *
+     * @see tryResolveSymbols
+     * @see KtResolvable.resolveSymbol
+     */
+    @KaExperimentalApi
+    public fun KtClassLiteralExpression.resolveSymbol(): KaClassifierSymbol?
+
+    /**
      * Attempts to resolve the call for the given [KtResolvableCall].
      *
      * ### Usage Example:
@@ -1912,6 +1937,38 @@ public fun KtFunctionType.resolveSymbol(): KaClassSymbol? {
 @KaContextParameterApi
 context(session: KaSession)
 public fun KtTypeReference.resolveSymbol(): KaClassifierSymbol? {
+    return with(session) {
+        resolveSymbol()
+    }
+}
+
+/**
+ * Resolves the classifier symbol referenced by the given [KtClassLiteralExpression] (`Foo::class`).
+ *
+ * #### Example
+ *
+ * ```kotlin
+ * val a = String::class
+ * //      ^^^^^^^^^^^^^   resolves to `kotlin.String`
+ *
+ * val b = kotlin.String::class
+ * //      ^^^^^^^^^^^^^^^^^^^^   resolves to `kotlin.String`
+ * ```
+ *
+ * Resolution delegates to the receiver expression on the left of `::class`. Returns the underlying
+ * [KaClassifierSymbol] of the referenced class, type alias, or type parameter if resolution succeeds;
+ * otherwise, it returns `null` (e.g., when unresolved or ambiguous).
+ *
+ * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on class literal expressions
+ *
+ * @see tryResolveSymbols
+ * @see KtResolvable.resolveSymbol
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KtClassLiteralExpression.resolveSymbol(): KaClassifierSymbol? {
     return with(session) {
         resolveSymbol()
     }

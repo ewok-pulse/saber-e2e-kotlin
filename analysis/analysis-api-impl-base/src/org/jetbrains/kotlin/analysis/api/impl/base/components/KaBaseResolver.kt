@@ -135,6 +135,7 @@ abstract class KaBaseResolver<T : KaSession> : KaBaseSessionComponent<T>(), KaRe
     final override fun KtNullableType.resolveSymbol(): KaClassifierSymbol? = resolveSymbolSafe()
     final override fun KtFunctionType.resolveSymbol(): KaClassSymbol? = resolveSymbolSafe()
     final override fun KtTypeReference.resolveSymbol(): KaClassifierSymbol? = resolveSymbolSafe()
+    final override fun KtClassLiteralExpression.resolveSymbol(): KaClassifierSymbol? = resolveSymbolSafe()
 
     final override fun KtReference.resolveToSymbol(): KaSymbol? = withPsiValidityAssertion(element) {
         return resolveToSymbols().singleOrNull()

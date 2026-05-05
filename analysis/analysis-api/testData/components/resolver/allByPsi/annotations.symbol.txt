@@ -590,7 +590,10 @@ KtValueArgument(533,554): 'AnnoWithKClass::class'
   null
 
 KtClassLiteralExpression(533,554): 'AnnoWithKClass::class'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithKClass
+    ]
 
 KtNameReferenceExpression(533,547): 'AnnoWithKClass'
   KaSymbolResolutionSuccess:
@@ -698,7 +701,10 @@ KtCollectionLiteralExpression(624,674): '[AnnoWithKClass::class, one.AnnoWithKCl
     ]
 
 KtClassLiteralExpression(625,646): 'AnnoWithKClass::class'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/AnnoWithKClass
+    ]
 
 KtNameReferenceExpression(625,639): 'AnnoWithKClass'
   KaSymbolResolutionSuccess:

@@ -26,7 +26,10 @@ KtBlockExpression(30,76): '{'
   null
 
 KtClassLiteralExpression(36,50): 'MyClass::class'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtNameReferenceExpression(36,43): 'MyClass'
   KaSymbolResolutionSuccess:

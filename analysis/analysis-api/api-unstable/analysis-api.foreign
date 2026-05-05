@@ -35,6 +35,7 @@ org/jetbrains/kotlin/psi/KtBackingField
 org/jetbrains/kotlin/psi/KtCallElement
 org/jetbrains/kotlin/psi/KtCallableReferenceExpression
 org/jetbrains/kotlin/psi/KtClassInitializer
+org/jetbrains/kotlin/psi/KtClassLiteralExpression
 org/jetbrains/kotlin/psi/KtClassOrObject
 org/jetbrains/kotlin/psi/KtCollectionLiteralExpression
 org/jetbrains/kotlin/psi/KtConstructor

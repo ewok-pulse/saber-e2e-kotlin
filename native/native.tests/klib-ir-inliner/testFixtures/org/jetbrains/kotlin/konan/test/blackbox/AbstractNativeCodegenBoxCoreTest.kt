@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.konan.test.KlibSerializerNativeCliFacade
 import org.jetbrains.kotlin.konan.test.configuration.commonConfigurationForNativeCodegenTest
 import org.jetbrains.kotlin.konan.test.configuration.setupStepsForNativeFirstStageUpToSerialization
+import org.jetbrains.kotlin.konan.test.handlers.FileCheckHandler
 import org.jetbrains.kotlin.konan.test.handlers.NativeBoxRunnerGroupingPhase
 import org.jetbrains.kotlin.konan.test.klib.NativeCompilerSecondStageFacade
 import org.jetbrains.kotlin.konan.test.klib.currentCustomNativeCompilerSettings
@@ -106,7 +107,7 @@ abstract class AbstractNativeCodegenBoxCoreTest : AbstractTwoPhaseNativeCoreTest
 
             facadeStep(NativeCompilerSecondStageFacade::Grouping.bind(currentCustomNativeCompilerSettings))
             handlersStep(ArtifactKinds.Native, CompilationStage.SECOND) {
-                useHandlers(::NativeBoxRunnerGroupingPhase)
+                useHandlers(::NativeBoxRunnerGroupingPhase, ::FileCheckHandler)
             }
         }
     }

@@ -3,9 +3,11 @@
 
 package org.jetbrains.kotlin.buildtools.api.arguments
 
+import java.nio.`file`.Path
 import kotlin.Array
 import kotlin.Int
 import kotlin.String
+import kotlin.collections.List
 import kotlin.jvm.JvmField
 import org.jetbrains.kotlin.buildtools.api.KotlinReleaseVersion
 import org.jetbrains.kotlin.buildtools.api.arguments.enums.MetadataTargetPlatform
@@ -64,7 +66,7 @@ public interface MetadataArguments : CommonCompilerArguments {
      */
     @JvmField
     @ExperimentalCompilerArgument
-    public val X_FRIEND_PATHS: MetadataArgument<Array<String>?> =
+    public val X_FRIEND_PATHS: MetadataArgument<List<Path>> =
         MetadataArgument("X_FRIEND_PATHS", KotlinReleaseVersion(1, 3, 71))
 
     /**
@@ -84,7 +86,7 @@ public interface MetadataArguments : CommonCompilerArguments {
      */
     @JvmField
     @ExperimentalCompilerArgument
-    public val X_REFINES_PATHS: MetadataArgument<Array<String>?> =
+    public val X_REFINES_PATHS: MetadataArgument<List<Path>> =
         MetadataArgument("X_REFINES_PATHS", KotlinReleaseVersion(1, 4, 0))
 
     /**
@@ -101,7 +103,7 @@ public interface MetadataArguments : CommonCompilerArguments {
      * List of directories and JAR/ZIP archives to search for user .kotlin_metadata files.
      */
     @JvmField
-    public val CLASSPATH: MetadataArgument<String?> =
+    public val CLASSPATH: MetadataArgument<List<Path>?> =
         MetadataArgument("CLASSPATH", KotlinReleaseVersion(1, 1, 0))
 
     /**

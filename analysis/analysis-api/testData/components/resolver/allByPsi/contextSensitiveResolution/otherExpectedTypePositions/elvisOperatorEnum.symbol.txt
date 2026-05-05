@@ -197,7 +197,10 @@ KtTypeReference(404,411): 'MyEnum?'
   null
 
 KtNullableType(404,411): 'MyEnum?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyEnum
+    ]
 
 KtUserType(404,410): 'MyEnum'
   KaSymbolResolutionSuccess:

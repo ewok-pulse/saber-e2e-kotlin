@@ -86,7 +86,10 @@ KtTypeReference(116,124): 'MyClass?'
   null
 
 KtNullableType(116,124): 'MyClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(116,123): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -134,7 +137,10 @@ KtTypeReference(164,172): 'MyClass?'
   null
 
 KtNullableType(164,172): 'MyClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(164,171): 'MyClass'
   KaSymbolResolutionSuccess:

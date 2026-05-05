@@ -1229,7 +1229,10 @@ KtNameReferenceExpression(895,899): 'prop'
     ]
 
 KtNullableType(902,956): 'Collection<@Anno("nested constraint type $prop") Int>?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/Collection
+    ]
 
 KtUserType(902,955): 'Collection<@Anno("nested constraint type $prop") Int>'
   KaSymbolResolutionSuccess:

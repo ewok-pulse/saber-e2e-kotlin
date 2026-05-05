@@ -525,6 +525,31 @@ public interface KaResolver : KaSessionComponent {
     public fun KtInstanceExpressionWithLabel.resolveSymbol(): KaDeclarationSymbol?
 
     /**
+     * Resolves the classifier symbol referenced by the given [KtNullableType].
+     *
+     * #### Example
+     *
+     * ```kotlin
+     * val name: String? = null
+     * //        ^^^^^^^  resolves to `kotlin.String`
+     * ```
+     *
+     * Resolution unwraps the nullability marker and recurses into the inner type element. The result is the
+     * [KaClassifierSymbol] of the underlying class, type alias, or type parameter if resolution succeeds;
+     * otherwise, it returns `null` (e.g., when unresolved or when the inner element has no single classifier).
+     *
+     * Unlike [KtUserType], a [KtNullableType] cannot stand for a package qualifier, so the result is always a
+     * classifier when present.
+     *
+     * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on nullable types
+     *
+     * @see tryResolveSymbols
+     * @see KtResolvable.resolveSymbol
+     */
+    @KaExperimentalApi
+    public fun KtNullableType.resolveSymbol(): KaClassifierSymbol?
+
+    /**
      * Attempts to resolve the call for the given [KtResolvableCall].
      *
      * ### Usage Example:
@@ -1729,6 +1754,38 @@ public fun KtConstructorCalleeExpression.resolveSymbol(): KaConstructorSymbol? {
 @KaContextParameterApi
 context(session: KaSession)
 public fun KtInstanceExpressionWithLabel.resolveSymbol(): KaDeclarationSymbol? {
+    return with(session) {
+        resolveSymbol()
+    }
+}
+
+/**
+ * Resolves the classifier symbol referenced by the given [KtNullableType].
+ *
+ * #### Example
+ *
+ * ```kotlin
+ * val name: String? = null
+ * //        ^^^^^^^  resolves to `kotlin.String`
+ * ```
+ *
+ * Resolution unwraps the nullability marker and recurses into the inner type element. The result is the
+ * [KaClassifierSymbol] of the underlying class, type alias, or type parameter if resolution succeeds;
+ * otherwise, it returns `null` (e.g., when unresolved or when the inner element has no single classifier).
+ *
+ * Unlike [KtUserType], a [KtNullableType] cannot stand for a package qualifier, so the result is always a
+ * classifier when present.
+ *
+ * This is a specialized counterpart of [KtResolvable.resolveSymbol] focused specifically on nullable types
+ *
+ * @see tryResolveSymbols
+ * @see KtResolvable.resolveSymbol
+ */
+// Auto-generated bridge. DO NOT EDIT MANUALLY!
+@KaExperimentalApi
+@KaContextParameterApi
+context(session: KaSession)
+public fun KtNullableType.resolveSymbol(): KaClassifierSymbol? {
     return with(session) {
         resolveSymbol()
     }

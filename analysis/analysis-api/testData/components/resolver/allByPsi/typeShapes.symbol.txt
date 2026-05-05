@@ -305,7 +305,10 @@ KtTypeReference(346,348): 'T?'
   null
 
 KtNullableType(346,348): 'T?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(346,347): 'T'
   KaSymbolResolutionSuccess:
@@ -335,7 +338,10 @@ KtTypeReference(370,377): 'String?'
   null
 
 KtNullableType(370,377): 'String?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(370,376): 'String'
   KaSymbolResolutionSuccess:
@@ -356,7 +362,9 @@ KtTypeReference(382,393): 'Unresolved?'
   null
 
 KtNullableType(382,393): 'Unresolved?'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'Unresolved'.>
 
 KtUserType(382,392): 'Unresolved'
   KaSymbolResolutionError:

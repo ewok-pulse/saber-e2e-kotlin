@@ -155,7 +155,10 @@ KtTypeReference(218,220): 'T?'
   null
 
 KtNullableType(218,220): 'T?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(218,219): 'T'
   KaSymbolResolutionSuccess:
@@ -179,7 +182,10 @@ KtTypeReference(253,255): 'T?'
   null
 
 KtNullableType(253,255): 'T?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      T
+    ]
 
 KtUserType(253,254): 'T'
   KaSymbolResolutionSuccess:
@@ -942,7 +948,10 @@ KtTypeReference(1221,1240): 'ClassWithType<Int>?'
   null
 
 KtNullableType(1221,1240): 'ClassWithType<Int>?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      pack/ClassWithType
+    ]
 
 KtUserType(1221,1239): 'ClassWithType<Int>'
   KaSymbolResolutionSuccess:

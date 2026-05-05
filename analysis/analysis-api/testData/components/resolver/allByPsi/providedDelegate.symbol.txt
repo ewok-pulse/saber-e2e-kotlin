@@ -95,7 +95,10 @@ KtTypeReference(172,176): 'Any?'
   null
 
 KtNullableType(172,176): 'Any?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(172,175): 'Any'
   KaSymbolResolutionSuccess:
@@ -158,7 +161,10 @@ KtTypeReference(220,224): 'Any?'
   null
 
 KtNullableType(220,224): 'Any?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(220,223): 'Any'
   KaSymbolResolutionSuccess:
@@ -254,7 +260,10 @@ KtTypeReference(307,311): 'Any?'
   null
 
 KtNullableType(307,311): 'Any?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(307,310): 'Any'
   KaSymbolResolutionSuccess:
@@ -305,7 +314,10 @@ KtTypeReference(353,357): 'Any?'
   null
 
 KtNullableType(353,357): 'Any?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(353,356): 'Any'
   KaSymbolResolutionSuccess:

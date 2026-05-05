@@ -140,7 +140,10 @@ KtTypeReference(40,44): 'Int?'
   null
 
 KtNullableType(40,44): 'Int?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(40,43): 'Int'
   KaSymbolResolutionSuccess:

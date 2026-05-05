@@ -239,7 +239,10 @@ KtTypeReference(218,230): 'NestedClass?'
   null
 
 KtNullableType(218,230): 'NestedClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      one/two/Base.NestedClass
+    ]
 
 KtUserType(218,229): 'NestedClass'
   KaSymbolResolutionSuccess:
@@ -266,7 +269,10 @@ KtTypeReference(268,270): 'C?'
   null
 
 KtNullableType(268,270): 'C?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      C
+    ]
 
 KtUserType(268,269): 'C'
   KaSymbolResolutionSuccess:

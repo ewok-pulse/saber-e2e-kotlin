@@ -437,7 +437,10 @@ KtTypeReference(634,638): 'Int?'
   null
 
 KtNullableType(634,638): 'Int?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Int
+    ]
 
 KtUserType(634,637): 'Int'
   KaSymbolResolutionSuccess:

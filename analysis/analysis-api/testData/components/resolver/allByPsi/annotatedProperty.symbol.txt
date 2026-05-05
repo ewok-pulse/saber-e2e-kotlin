@@ -725,7 +725,10 @@ KtNameReferenceExpression(621,625): 'prop'
     ]
 
 KtNullableType(628,725): 'Collection<@Anno("nested return type $prop") List<@Anno("nested nested return type $prop") Int>>?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/Collection
+    ]
 
 KtUserType(628,724): 'Collection<@Anno("nested return type $prop") List<@Anno("nested nested return type $prop") Int>>'
   KaSymbolResolutionSuccess:

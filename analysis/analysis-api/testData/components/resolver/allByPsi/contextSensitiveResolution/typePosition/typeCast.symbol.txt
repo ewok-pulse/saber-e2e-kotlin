@@ -1439,7 +1439,10 @@ KtTypeReference(1602,1614): 'SealedClass?'
   null
 
 KtNullableType(1602,1614): 'SealedClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass
+    ]
 
 KtUserType(1602,1613): 'SealedClass'
   KaSymbolResolutionSuccess:
@@ -1521,7 +1524,9 @@ KtTypeReference(1679,1696): 'SealedInheritor1?'
   null
 
 KtNullableType(1679,1696): 'SealedInheritor1?'
-  null
+  KaSymbolResolutionError:
+    candidateSymbols = []
+    diagnostic = ERROR<UNRESOLVED_REFERENCE: Unresolved reference 'SealedInheritor1'.>
 
 KtUserType(1679,1695): 'SealedInheritor1'
   KaSymbolResolutionError:
@@ -1616,7 +1621,10 @@ KtTypeReference(1761,1773): 'SealedClass?'
   null
 
 KtNullableType(1761,1773): 'SealedClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass
+    ]
 
 KtUserType(1761,1772): 'SealedClass'
   KaSymbolResolutionSuccess:
@@ -1685,7 +1693,10 @@ KtTypeReference(1811,1840): 'SealedClass.SealedInheritor1?'
   null
 
 KtNullableType(1811,1840): 'SealedClass.SealedInheritor1?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.SealedInheritor1
+    ]
 
 KtUserType(1811,1839): 'SealedClass.SealedInheritor1'
   KaSymbolResolutionSuccess:
@@ -1766,7 +1777,10 @@ KtTypeReference(1878,1907): 'SealedClass.SealedInheritor2?'
   null
 
 KtNullableType(1878,1907): 'SealedClass.SealedInheritor2?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass.SealedInheritor2
+    ]
 
 KtUserType(1878,1906): 'SealedClass.SealedInheritor2'
   KaSymbolResolutionSuccess:

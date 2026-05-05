@@ -177,6 +177,8 @@ internal class KaFirResolver(
             // A user type redirects to its inner reference expression, which is cached on its own,
             // so we don't store a duplicate cache entry for the user type itself.
             is KtUserType -> psi.referenceExpression?.let(::performSymbolResolution)
+            // A nullable type strips the nullability marker and resolves through its inner type element.
+            is KtNullableType -> psi.innerType?.let(::performSymbolResolution)
             else -> analysisSession.cacheStorage.resolveSymbolCache.value.getOrPut(psi) {
                 resolveSymbol(psi)
             }

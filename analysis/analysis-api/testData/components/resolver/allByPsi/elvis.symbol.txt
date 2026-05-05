@@ -29,7 +29,10 @@ KtTypeReference(47,51): 'Any?'
   null
 
 KtNullableType(47,51): 'Any?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(47,50): 'Any'
   KaSymbolResolutionSuccess:
@@ -131,7 +134,10 @@ KtTypeReference(130,138): 'MyClass?'
   null
 
 KtNullableType(130,138): 'MyClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(130,137): 'MyClass'
   KaSymbolResolutionSuccess:
@@ -152,7 +158,10 @@ KtTypeReference(144,152): 'MyClass?'
   null
 
 KtNullableType(144,152): 'MyClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /MyClass
+    ]
 
 KtUserType(144,151): 'MyClass'
   KaSymbolResolutionSuccess:

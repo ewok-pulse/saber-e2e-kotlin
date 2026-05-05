@@ -898,7 +898,10 @@ KtTypeReference(1038,1050): 'SealedClass?'
   null
 
 KtNullableType(1038,1050): 'SealedClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass
+    ]
 
 KtUserType(1038,1049): 'SealedClass'
   KaSymbolResolutionSuccess:
@@ -1270,7 +1273,10 @@ KtTypeReference(1477,1489): 'SealedClass?'
   null
 
 KtNullableType(1477,1489): 'SealedClass?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      /SealedClass
+    ]
 
 KtUserType(1477,1488): 'SealedClass'
   KaSymbolResolutionSuccess:

@@ -29,7 +29,10 @@ KtTypeReference(47,51): 'Any?'
   null
 
 KtNullableType(47,51): 'Any?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(47,50): 'Any'
   KaSymbolResolutionSuccess:
@@ -170,7 +173,10 @@ KtTypeReference(185,189): 'Any?'
   null
 
 KtNullableType(185,189): 'Any?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Any
+    ]
 
 KtUserType(185,188): 'Any'
   KaSymbolResolutionSuccess:

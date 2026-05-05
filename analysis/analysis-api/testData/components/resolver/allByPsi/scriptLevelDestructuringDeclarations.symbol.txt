@@ -131,7 +131,10 @@ KtNameReferenceExpression(116,124): 'constant'
     ]
 
 KtNullableType(127,225): 'List<@Anno("a nested type $constant") Collection<@Anno("a nested nested type $constant") String>>?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/collections/List
+    ]
 
 KtUserType(127,224): 'List<@Anno("a nested type $constant") Collection<@Anno("a nested nested type $constant") String>>'
   KaSymbolResolutionSuccess:
@@ -347,7 +350,10 @@ KtNameReferenceExpression(249,257): 'constant'
     ]
 
 KtNullableType(260,350): 'Array<@Anno("b nested type $constant") List<@Anno("b nested nested type $constant") Int>>?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/Array
+    ]
 
 KtUserType(260,349): 'Array<@Anno("b nested type $constant") List<@Anno("b nested nested type $constant") Int>>'
   KaSymbolResolutionSuccess:

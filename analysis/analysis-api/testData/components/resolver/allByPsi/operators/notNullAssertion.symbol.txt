@@ -20,7 +20,10 @@ KtTypeReference(12,19): 'String?'
   null
 
 KtNullableType(12,19): 'String?'
-  null
+  KaSymbolResolutionSuccess:
+    symbols = [
+      kotlin/String
+    ]
 
 KtUserType(12,18): 'String'
   KaSymbolResolutionSuccess:

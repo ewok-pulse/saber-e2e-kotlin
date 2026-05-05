@@ -70,6 +70,7 @@ object JvmDeclarationCheckers : DeclarationCheckers() {
     override val typeParameterCheckers: Set<FirTypeParameterChecker>
         get() = setOf(
             FirUpperBoundsChecker,
+            FirJvmSpecializeTypeParameterChecker,
         )
 
     override val simpleFunctionCheckers: Set<FirSimpleFunctionChecker>

@@ -5882,6 +5882,11 @@ internal class ConflictVersionAndJvmOverloadsAnnotationImpl(
     token: KaLifetimeToken,
 ) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.ConflictVersionAndJvmOverloadsAnnotation
 
+internal class JvmSpecializeNotSupportedHereImpl(
+    firDiagnostic: KtPsiDiagnostic,
+    token: KaLifetimeToken,
+) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.JvmSpecializeNotSupportedHere
+
 internal class JavaTypeMismatchImpl(
     override val expectedType: KaType,
     override val actualType: KaType,

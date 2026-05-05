@@ -11,7 +11,7 @@ fun <T> id(x: T) = x
 fun testAssignment() {
     var value = A()
     value <!ASSIGN_OPERATOR_AMBIGUITY!>+=<!> id {
-        unresolved()
+        <!UNRESOLVED_REFERENCE!>unresolved<!>()
         A()
     }
 }

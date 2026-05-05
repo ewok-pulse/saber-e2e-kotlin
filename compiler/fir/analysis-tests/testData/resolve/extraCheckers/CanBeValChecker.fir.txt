@@ -44,7 +44,7 @@ FILE: CanBeValChecker.kt
         lval c: R|C| = R|/C.C|()
         R|<local>/c|.R|/plusAssign|(String())
         lvar c1: R|C| = R|/C.C|()
-        ERROR_EXPR(Operator overload ambiguity. Compatible candidates: [/plus, /plusAssign])
+        R|<local>/c1|.<Operator overload ambiguity. Compatible candidates: [/plus, /plusAssign]>#(String())
         lvar a: R|kotlin/Int| = Int(1)
         R|<local>/a| = R|<local>/a|.R|kotlin/Int.plus|(Int(12))
         R|<local>/a| = R|<local>/a|.R|kotlin/Int.minus|(Int(10))

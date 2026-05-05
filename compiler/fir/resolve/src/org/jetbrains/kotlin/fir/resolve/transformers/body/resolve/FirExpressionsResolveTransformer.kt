@@ -980,7 +980,7 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
         val lhsVariable = lhsSymbol?.fir
         val lhsIsVar = lhsVariable?.isVar == true
 
-        fun chooseAssign(): FirStatement {
+        fun chooseAssign(): FirFunctionCall {
             dataFlowAnalyzer.enterFunctionCall(resolvedAssignCall)
             callCompleter.completeCall(resolvedAssignCall, ContextIndependent)
             dataFlowAnalyzer.exitFunctionCall(resolvedAssignCall, callCompleted = true)
@@ -1045,9 +1045,12 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
         fun reportAmbiguity(): FirStatement {
             val operatorCallCandidate = requireNotNull(operatorCallReference?.candidate)
             val assignmentCallCandidate = requireNotNull(assignCallReference?.candidate)
-            return buildErrorExpression {
-                source = augmentedAssignment.source
-                diagnostic = ConeOperatorAmbiguityError(listOf(operatorCallCandidate, assignmentCallCandidate))
+            return chooseAssign().also {
+                val errorReference = buildErrorNamedReferenceWithNoName(
+                    ConeOperatorAmbiguityError(listOf(operatorCallCandidate, assignmentCallCandidate)),
+                    source = augmentedAssignment.source
+                )
+                it.replaceCalleeReference(errorReference)
             }
         }
 

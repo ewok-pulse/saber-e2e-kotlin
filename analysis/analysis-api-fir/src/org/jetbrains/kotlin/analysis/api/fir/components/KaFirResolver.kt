@@ -9,7 +9,6 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.psi.util.parentOfType
 import org.jetbrains.kotlin.KtFakeSourceElementKind
 import org.jetbrains.kotlin.KtSourceElement
-import org.jetbrains.kotlin.analysis.api.KaNonPublicApi
 import org.jetbrains.kotlin.analysis.api.diagnostics.KaDiagnostic
 import org.jetbrains.kotlin.analysis.api.fir.*
 import org.jetbrains.kotlin.analysis.api.fir.references.*
@@ -28,7 +27,6 @@ import org.jetbrains.kotlin.analysis.api.impl.base.components.withPsiValidityAss
 import org.jetbrains.kotlin.analysis.api.impl.base.resolution.*
 import org.jetbrains.kotlin.analysis.api.impl.base.util.KaNonBoundToPsiErrorDiagnostic
 import org.jetbrains.kotlin.analysis.api.impl.base.util.withPsiEntry
-import org.jetbrains.kotlin.analysis.api.lifetime.withValidityAssertion
 import org.jetbrains.kotlin.analysis.api.resolution.*
 import org.jetbrains.kotlin.analysis.api.signatures.KaCallableSignature
 import org.jetbrains.kotlin.analysis.api.signatures.KaFunctionSignature
@@ -73,7 +71,6 @@ import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.fir.utils.exceptions.withFirEntry
 import org.jetbrains.kotlin.fir.utils.exceptions.withFirSymbolEntry
-import org.jetbrains.kotlin.idea.references.KDocReference
 import org.jetbrains.kotlin.idea.references.KtReference
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
@@ -163,19 +160,6 @@ internal class KaFirResolver(
                 }
             }
         }
-
-    @KaNonPublicApi
-    override fun KDocReference.resolveToSymbolWithClassicKDocResolver(): KaSymbol? = withValidityAssertion {
-        val element = this.element
-        val fullFqName = generateSequence(element) { it.parent as? KDocName }.last().getQualifiedNameAsFqName()
-        val selectedFqName = element.getQualifiedNameAsFqName()
-        return ClassicKDocReferenceResolver.resolveKdocFqName(
-            analysisSession,
-            selectedFqName,
-            fullFqName,
-            element,
-        ).firstOrNull()
-    }
 
     override fun performSymbolResolution(psi: KtElement): KaSymbolResolutionAttempt? = wrapError(psi) {
         analysisSession.cacheStorage.resolveSymbolCache.value.getOrPut(psi) {

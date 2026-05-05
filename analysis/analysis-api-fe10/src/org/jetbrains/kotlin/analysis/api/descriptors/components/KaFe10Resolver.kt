@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.analysis.api.descriptors.components
 
 import com.intellij.psi.util.parentOfType
 import com.intellij.psi.util.parents
-import org.jetbrains.kotlin.analysis.api.KaNonPublicApi
 import org.jetbrains.kotlin.analysis.api.descriptors.Fe10AnalysisFacade.AnalysisMode
 import org.jetbrains.kotlin.analysis.api.descriptors.KaFe10Session
 import org.jetbrains.kotlin.analysis.api.descriptors.components.base.KaFe10SessionComponent
@@ -23,7 +22,6 @@ import org.jetbrains.kotlin.analysis.api.impl.base.components.KaBaseResolver
 import org.jetbrains.kotlin.analysis.api.impl.base.components.withPsiValidityAssertion
 import org.jetbrains.kotlin.analysis.api.impl.base.resolution.*
 import org.jetbrains.kotlin.analysis.api.impl.base.util.KaNonBoundToPsiErrorDiagnostic
-import org.jetbrains.kotlin.analysis.api.lifetime.withValidityAssertion
 import org.jetbrains.kotlin.analysis.api.resolution.*
 import org.jetbrains.kotlin.analysis.api.signatures.KaCallableSignature
 import org.jetbrains.kotlin.analysis.api.signatures.KaFunctionSignature
@@ -32,7 +30,6 @@ import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.types.KaType
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.diagnostics.*
-import org.jetbrains.kotlin.idea.references.KDocReference
 import org.jetbrains.kotlin.idea.references.KtReference
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
@@ -90,11 +87,6 @@ internal class KaFe10Resolver(
 
     override val KtReference.usesContextSensitiveResolution: Boolean
         get() = withPsiValidityAssertion(element) { false }
-
-    @KaNonPublicApi
-    override fun KDocReference.resolveToSymbolWithClassicKDocResolver(): KaSymbol = withValidityAssertion {
-        error("Not supported")
-    }
 
     @OptIn(KtExperimentalApi::class)
     override fun performSymbolResolution(reference: KtReference): KaSymbolResolutionAttempt? = when (reference) {

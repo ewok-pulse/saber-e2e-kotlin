@@ -453,8 +453,7 @@ KtDotQualifiedExpression(590,631): 'MyClass::memberFunction.invoke(MyClass())'
 
 KtCallableReferenceExpression(590,613): 'MyClass::memberFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -466,15 +465,13 @@ KtCallableReferenceExpression(590,613): 'MyClass::memberFunction'
         contextParameters = []
         callableId = pack/MyClass.memberFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtNameReferenceExpression(590,597): 'MyClass'
   null
 
 KtNameReferenceExpression(599,613): 'memberFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -486,7 +483,6 @@ KtNameReferenceExpression(599,613): 'memberFunction'
         contextParameters = []
         callableId = pack/MyClass.memberFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallExpression(614,631): 'invoke(MyClass())'
   KaCallResolutionSuccess:
@@ -625,12 +621,10 @@ KtDotQualifiedExpression(635,663): 'MyClass::memberProperty.name'
 
 KtCallableReferenceExpression(635,658): 'MyClass::memberProperty'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = memberProperty
         receiverType = null
@@ -645,12 +639,10 @@ KtNameReferenceExpression(635,642): 'MyClass'
 
 KtNameReferenceExpression(644,658): 'memberProperty'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = memberProperty
         receiverType = null
@@ -718,8 +710,7 @@ KtDotQualifiedExpression(668,705): 'Child::memberFunction.invoke(Child())'
 
 KtCallableReferenceExpression(668,689): 'Child::memberFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -731,15 +722,13 @@ KtCallableReferenceExpression(668,689): 'Child::memberFunction'
         contextParameters = []
         callableId = pack/MyClass.memberFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtNameReferenceExpression(668,673): 'Child'
   null
 
 KtNameReferenceExpression(675,689): 'memberFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -751,7 +740,6 @@ KtNameReferenceExpression(675,689): 'memberFunction'
         contextParameters = []
         callableId = pack/MyClass.memberFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallExpression(690,705): 'invoke(Child())'
   KaCallResolutionSuccess:
@@ -890,12 +878,10 @@ KtDotQualifiedExpression(709,735): 'Child::memberProperty.name'
 
 KtCallableReferenceExpression(709,730): 'Child::memberProperty'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = memberProperty
         receiverType = null
@@ -910,12 +896,10 @@ KtNameReferenceExpression(709,714): 'Child'
 
 KtNameReferenceExpression(716,730): 'memberProperty'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = memberProperty
         receiverType = null
@@ -950,8 +934,7 @@ KtProperty(740,779): 'val f = pack.MyClass::extensionFunction'
 
 KtCallableReferenceExpression(748,779): 'pack.MyClass::extensionFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -963,7 +946,6 @@ KtCallableReferenceExpression(748,779): 'pack.MyClass::extensionFunction'
         contextParameters = []
         callableId = pack/extensionFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtDotQualifiedExpression(748,760): 'pack.MyClass'
   null
@@ -976,8 +958,7 @@ KtNameReferenceExpression(753,760): 'MyClass'
 
 KtNameReferenceExpression(762,779): 'extensionFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -989,19 +970,16 @@ KtNameReferenceExpression(762,779): 'extensionFunction'
         contextParameters = []
         callableId = pack/extensionFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtProperty(783,817): 'val p = MyClass::extensionProperty'
   null
 
 KtCallableReferenceExpression(791,817): 'MyClass::extensionProperty'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = extensionProperty
         receiverType = pack.MyClass
@@ -1016,12 +994,10 @@ KtNameReferenceExpression(791,798): 'MyClass'
 
 KtNameReferenceExpression(800,817): 'extensionProperty'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = extensionProperty
         receiverType = pack.MyClass
@@ -1036,8 +1012,7 @@ KtProperty(822,855): 'val cF = Child::extensionFunction'
 
 KtCallableReferenceExpression(831,855): 'Child::extensionFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -1049,15 +1024,13 @@ KtCallableReferenceExpression(831,855): 'Child::extensionFunction'
         contextParameters = []
         callableId = pack/extensionFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtNameReferenceExpression(831,836): 'Child'
   null
 
 KtNameReferenceExpression(838,855): 'extensionFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -1069,19 +1042,16 @@ KtNameReferenceExpression(838,855): 'extensionFunction'
         contextParameters = []
         callableId = pack/extensionFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtProperty(859,897): 'val cP = pack.Child::extensionProperty'
   null
 
 KtCallableReferenceExpression(868,897): 'pack.Child::extensionProperty'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = extensionProperty
         receiverType = pack.MyClass
@@ -1102,12 +1072,10 @@ KtNameReferenceExpression(873,878): 'Child'
 
 KtNameReferenceExpression(880,897): 'extensionProperty'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = extensionProperty
         receiverType = pack.MyClass
@@ -1139,8 +1107,7 @@ KtDotQualifiedExpression(902,938): 'ChildWithType::functionWithType.name'
 
 KtCallableReferenceExpression(902,933): 'ChildWithType::functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -1152,15 +1119,13 @@ KtCallableReferenceExpression(902,933): 'ChildWithType::functionWithType'
         contextParameters = []
         callableId = pack/ChildWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtNameReferenceExpression(902,915): 'ChildWithType'
   null
 
 KtNameReferenceExpression(917,933): 'functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -1172,7 +1137,6 @@ KtNameReferenceExpression(917,933): 'functionWithType'
         contextParameters = []
         callableId = pack/ChildWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtNameReferenceExpression(934,938): 'name'
   KaCallResolutionSuccess:
@@ -1232,12 +1196,10 @@ KtDotQualifiedExpression(942,997): 'ChildWithType::propertyWithType.invoke(Child
 
 KtCallableReferenceExpression(942,973): 'ChildWithType::propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -1252,12 +1214,10 @@ KtNameReferenceExpression(942,955): 'ChildWithType'
 
 KtNameReferenceExpression(957,973): 'propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -1384,8 +1344,7 @@ KtValueArgumentList(994,996): '()'
 
 KtCallableReferenceExpression(1002,1020): '::topLevelFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -1405,12 +1364,10 @@ KtCallableReferenceExpression(1002,1020): '::topLevelFunction'
         contextParameters = []
         callableId = pack/topLevelFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtNameReferenceExpression(1004,1020): 'topLevelFunction'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -1430,16 +1387,13 @@ KtNameReferenceExpression(1004,1020): 'topLevelFunction'
         contextParameters = []
         callableId = pack/topLevelFunction
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallableReferenceExpression(1024,1042): '::topLevelVariable'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = topLevelVariable
         receiverType = null
@@ -1451,12 +1405,10 @@ KtCallableReferenceExpression(1024,1042): '::topLevelVariable'
 
 KtNameReferenceExpression(1026,1042): 'topLevelVariable'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = topLevelVariable
         receiverType = null
@@ -1473,12 +1425,10 @@ KtDotQualifiedExpression(1047,1074): '::lateinitVar.isInitialized'
 
 KtCallableReferenceExpression(1047,1060): '::lateinitVar'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = lateinitVar
         receiverType = null
@@ -1490,12 +1440,10 @@ KtCallableReferenceExpression(1047,1060): '::lateinitVar'
 
 KtNameReferenceExpression(1049,1060): 'lateinitVar'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = lateinitVar
         receiverType = null
@@ -1563,8 +1511,7 @@ KtBlockExpression(1138,1299): '{'
 
 KtCallableReferenceExpression(1143,1174): 'classWithType::functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = classWithType
@@ -1579,7 +1526,6 @@ KtCallableReferenceExpression(1143,1174): 'classWithType::functionWithType'
         contextParameters = []
         callableId = pack/ClassWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtNameReferenceExpression(1143,1156): 'classWithType'
   KaCallResolutionSuccess:
@@ -1600,8 +1546,7 @@ KtNameReferenceExpression(1143,1156): 'classWithType'
 
 KtNameReferenceExpression(1158,1174): 'functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = classWithType
@@ -1616,19 +1561,16 @@ KtNameReferenceExpression(1158,1174): 'functionWithType'
         contextParameters = []
         callableId = pack/ClassWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallableReferenceExpression(1178,1209): 'classWithType::propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = classWithType
         isSafeNavigation = false
         type = pack.ClassWithType<T>
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -1657,15 +1599,13 @@ KtNameReferenceExpression(1178,1191): 'classWithType'
 
 KtNameReferenceExpression(1193,1209): 'propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = classWithType
         isSafeNavigation = false
         type = pack.ClassWithType<T>
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -1710,8 +1650,7 @@ KtConstantExpression(1243,1247): 'null'
 
 KtCallableReferenceExpression(1251,1272): 't!!::functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = t!!
@@ -1726,7 +1665,6 @@ KtCallableReferenceExpression(1251,1272): 't!!::functionWithType'
         contextParameters = []
         callableId = pack/ClassWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtPostfixExpression(1251,1254): 't!!'
   null
@@ -1753,8 +1691,7 @@ KtOperationReferenceExpression(1252,1254): '!!'
 
 KtNameReferenceExpression(1256,1272): 'functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = t!!
@@ -1769,19 +1706,16 @@ KtNameReferenceExpression(1256,1272): 'functionWithType'
         contextParameters = []
         callableId = pack/ClassWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallableReferenceExpression(1276,1297): 't!!::propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = t!!
         isSafeNavigation = false
         type = pack.ClassWithType<kotlin.Int>
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -1816,15 +1750,13 @@ KtOperationReferenceExpression(1277,1279): '!!'
 
 KtNameReferenceExpression(1281,1297): 'propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = t!!
         isSafeNavigation = false
         type = pack.ClassWithType<kotlin.Int>
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -1881,8 +1813,7 @@ KtDotQualifiedExpression(1343,1406): 'ClassWithType<String>::functionWithType.in
 
 KtCallableReferenceExpression(1343,1382): 'ClassWithType<String>::functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -1894,7 +1825,6 @@ KtCallableReferenceExpression(1343,1382): 'ClassWithType<String>::functionWithTy
         contextParameters = []
         callableId = pack/ClassWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallExpression(1343,1364): 'ClassWithType<String>'
   null
@@ -1919,8 +1849,7 @@ KtNameReferenceExpression(1357,1363): 'String'
 
 KtNameReferenceExpression(1366,1382): 'functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -1932,7 +1861,6 @@ KtNameReferenceExpression(1366,1382): 'functionWithType'
         contextParameters = []
         callableId = pack/ClassWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallExpression(1383,1406): 'invoke(ClassWithType())'
   KaCallResolutionSuccess:
@@ -2091,12 +2019,10 @@ KtDotQualifiedExpression(1410,1475): 'pack.ClassWithType<Int>::propertyWithType.
 
 KtCallableReferenceExpression(1410,1451): 'pack.ClassWithType<Int>::propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -2135,12 +2061,10 @@ KtNameReferenceExpression(1429,1432): 'Int'
 
 KtNameReferenceExpression(1435,1451): 'propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -2307,8 +2231,7 @@ KtDotQualifiedExpression(1479,1538): 'pack.ClassWithType<Int>::InnerClass.invoke
 
 KtCallableReferenceExpression(1479,1514): 'pack.ClassWithType<Int>::InnerClass'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -2320,7 +2243,6 @@ KtCallableReferenceExpression(1479,1514): 'pack.ClassWithType<Int>::InnerClass'
         contextParameters = []
         callableId = null
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtDotQualifiedExpression(1479,1502): 'pack.ClassWithType<Int>'
   null
@@ -2351,8 +2273,7 @@ KtNameReferenceExpression(1498,1501): 'Int'
 
 KtNameReferenceExpression(1504,1514): 'InnerClass'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -2364,7 +2285,6 @@ KtNameReferenceExpression(1504,1514): 'InnerClass'
         contextParameters = []
         callableId = null
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallExpression(1515,1538): 'invoke(ClassWithType())'
   KaCallResolutionSuccess:
@@ -2487,8 +2407,7 @@ KtValueArgumentList(1535,1537): '()'
 
 KtCallableReferenceExpression(1543,1585): 'pack.ClassWithType<Long>::functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -2500,7 +2419,6 @@ KtCallableReferenceExpression(1543,1585): 'pack.ClassWithType<Long>::functionWit
         contextParameters = []
         callableId = pack/ClassWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtDotQualifiedExpression(1543,1567): 'pack.ClassWithType<Long>'
   null
@@ -2531,8 +2449,7 @@ KtNameReferenceExpression(1562,1566): 'Long'
 
 KtNameReferenceExpression(1569,1585): 'functionWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -2544,16 +2461,13 @@ KtNameReferenceExpression(1569,1585): 'functionWithType'
         contextParameters = []
         callableId = pack/ClassWithType.functionWithType
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallableReferenceExpression(1589,1629): 'ClassWithType<Boolean>::propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -2586,12 +2500,10 @@ KtNameReferenceExpression(1603,1610): 'Boolean'
 
 KtNameReferenceExpression(1613,1629): 'propertyWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = propertyWithType
         receiverType = null
@@ -2603,8 +2515,7 @@ KtNameReferenceExpression(1613,1629): 'propertyWithType'
 
 KtCallableReferenceExpression(1633,1667): 'ClassWithType<Boolean>::InnerClass'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -2616,7 +2527,6 @@ KtCallableReferenceExpression(1633,1667): 'ClassWithType<Boolean>::InnerClass'
         contextParameters = []
         callableId = null
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallExpression(1633,1655): 'ClassWithType<Boolean>'
   null
@@ -2641,8 +2551,7 @@ KtNameReferenceExpression(1647,1654): 'Boolean'
 
 KtNameReferenceExpression(1657,1667): 'InnerClass'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -2654,7 +2563,6 @@ KtNameReferenceExpression(1657,1667): 'InnerClass'
         contextParameters = []
         callableId = null
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtProperty(1672,1812): 'val e: KFunction1<ClassWithType<Boolean>, ClassWithType<Boolean>.InnerClassWithType<Int>> ='
   null
@@ -2748,8 +2656,7 @@ KtNameReferenceExpression(1756,1759): 'Int'
 
 KtCallableReferenceExpression(1770,1812): 'ClassWithType<Boolean>::InnerClassWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -2763,7 +2670,6 @@ KtCallableReferenceExpression(1770,1812): 'ClassWithType<Boolean>::InnerClassWit
       typeArgumentsMapping = {
         D -> (kotlin.Int)
       }
-      valueArgumentMapping = {}
 
 KtCallExpression(1770,1792): 'ClassWithType<Boolean>'
   null
@@ -2788,8 +2694,7 @@ KtNameReferenceExpression(1784,1791): 'Boolean'
 
 KtNameReferenceExpression(1794,1812): 'InnerClassWithType'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -2803,4 +2708,3 @@ KtNameReferenceExpression(1794,1812): 'InnerClassWithType'
       typeArgumentsMapping = {
         D -> (kotlin.Int)
       }
-      valueArgumentMapping = {}

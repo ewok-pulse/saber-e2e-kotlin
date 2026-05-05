@@ -1,7 +1,6 @@
 KtNameReferenceExpression(134,141): 'MyAlias'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -23,4 +22,3 @@ KtNameReferenceExpression(134,141): 'MyAlias'
       typeArgumentsMapping = {
         TT -> (kotlin.String)
       }
-      valueArgumentMapping = {}

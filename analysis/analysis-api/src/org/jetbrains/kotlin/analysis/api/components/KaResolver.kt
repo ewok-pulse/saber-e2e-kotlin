@@ -726,7 +726,7 @@ public interface KaResolver : KaSessionComponent {
      * //        ^^^^^^
      * ```
      *
-     * Returns the corresponding [KaSingleCall] if resolution succeeds;
+     * Returns the corresponding [KaCallableReferenceCall] if resolution succeeds;
      * otherwise, it returns `null` (e.g., when unresolved or ambiguous).
      *
      * This is a specialized counterpart of [KtResolvableCall.resolveCall] focused specifically on callable reference expressions
@@ -735,7 +735,7 @@ public interface KaResolver : KaSessionComponent {
      * @see KtResolvableCall.resolveCall
      */
     @KaExperimentalApi
-    public fun KtCallableReferenceExpression.resolveCall(): KaSingleCall<*, *>?
+    public fun KtCallableReferenceExpression.resolveCall(): KaCallableReferenceCall<*, *>?
 
     /**
      * Resolves the given [KtArrayAccessExpression] to a simple function call representing `get`/`set` operator invocation.
@@ -1997,7 +1997,7 @@ public fun KtCallElement.resolveCall(): KaFunctionCall<*>? {
  * //        ^^^^^^
  * ```
  *
- * Returns the corresponding [KaSingleCall] if resolution succeeds;
+ * Returns the corresponding [KaCallableReferenceCall] if resolution succeeds;
  * otherwise, it returns `null` (e.g., when unresolved or ambiguous).
  *
  * This is a specialized counterpart of [KtResolvableCall.resolveCall] focused specifically on callable reference expressions
@@ -2009,7 +2009,7 @@ public fun KtCallElement.resolveCall(): KaFunctionCall<*>? {
 @KaExperimentalApi
 @KaContextParameterApi
 context(session: KaSession)
-public fun KtCallableReferenceExpression.resolveCall(): KaSingleCall<*, *>? {
+public fun KtCallableReferenceExpression.resolveCall(): KaCallableReferenceCall<*, *>? {
     return with(session) {
         resolveCall()
     }

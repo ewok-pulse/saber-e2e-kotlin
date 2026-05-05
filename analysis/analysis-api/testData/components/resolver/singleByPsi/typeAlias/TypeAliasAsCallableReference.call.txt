@@ -1,7 +1,6 @@
 KtNameReferenceExpression(88,95): 'MyAlias'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -13,4 +12,3 @@ KtNameReferenceExpression(88,95): 'MyAlias'
         contextParameters = []
         callableId = null
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}

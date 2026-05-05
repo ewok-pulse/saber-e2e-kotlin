@@ -180,15 +180,13 @@ KtNameReferenceExpression(88,98): 'unresolved'
 
 KtCallableReferenceExpression(102,132): 'JavaClass<String>::staticField'
   KaApplicableCallCandidate:
-    candidate = KaSimpleVariableAccessCall:
+    candidate = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = JavaClass<String>
         isSafeNavigation = false
         type = kotlin.Unit
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = staticField
         receiverType = null
@@ -258,15 +256,13 @@ KtNameReferenceExpression(112,118): 'String'
 
 KtNameReferenceExpression(121,132): 'staticField'
   KaApplicableCallCandidate:
-    candidate = KaSimpleVariableAccessCall:
+    candidate = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = JavaClass<String>
         isSafeNavigation = false
         type = kotlin.Unit
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = staticField
         receiverType = null
@@ -279,8 +275,7 @@ KtNameReferenceExpression(121,132): 'staticField'
 
 KtCallableReferenceExpression(136,162): 'JavaClass<Boolean>::method'
   KaApplicableCallCandidate:
-    candidate = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    candidate = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -292,7 +287,6 @@ KtCallableReferenceExpression(136,162): 'JavaClass<Boolean>::method'
         contextParameters = []
         callableId = /JavaClass.method
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
     isInBestCandidates = true
 
 KtCallExpression(136,154): 'JavaClass<Boolean>'
@@ -354,8 +348,7 @@ KtNameReferenceExpression(146,153): 'Boolean'
 
 KtNameReferenceExpression(156,162): 'method'
   KaApplicableCallCandidate:
-    candidate = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    candidate = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = null
       extensionReceiver = null
@@ -367,5 +360,4 @@ KtNameReferenceExpression(156,162): 'method'
         contextParameters = []
         callableId = /JavaClass.method
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
     isInBestCandidates = true

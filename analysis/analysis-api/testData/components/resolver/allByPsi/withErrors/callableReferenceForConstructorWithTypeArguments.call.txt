@@ -49,8 +49,7 @@ KtBlockExpression(121,271): '{'
 KtCallableReferenceExpression(127,177): 'ClassWithType<Boolean>::InnerClassWithType<String>'
   KaCallResolutionError:
     candidateCalls = [
-      KaSimpleFunctionCall:
-        contextArgumentMapping = {}
+      KaCallableReferenceCall:
         contextArguments = []
         dispatchReceiver = null
         extensionReceiver = null
@@ -62,7 +61,6 @@ KtCallableReferenceExpression(127,177): 'ClassWithType<Boolean>::InnerClassWithT
           contextParameters = []
           callableId = null
         typeArgumentsMapping = {}
-        valueArgumentMapping = {}
     ]
     diagnostic = ERROR<OTHER_ERROR: CS errors: _synthetic/ACCEPT_SPECIFIC_TYPE_CALL>
 
@@ -90,8 +88,7 @@ KtNameReferenceExpression(141,148): 'Boolean'
 KtNameReferenceExpression(151,169): 'InnerClassWithType'
   KaCallResolutionError:
     candidateCalls = [
-      KaSimpleFunctionCall:
-        contextArgumentMapping = {}
+      KaCallableReferenceCall:
         contextArguments = []
         dispatchReceiver = null
         extensionReceiver = null
@@ -103,7 +100,6 @@ KtNameReferenceExpression(151,169): 'InnerClassWithType'
           contextParameters = []
           callableId = null
         typeArgumentsMapping = {}
-        valueArgumentMapping = {}
     ]
     diagnostic = ERROR<OTHER_ERROR: CS errors: _synthetic/ACCEPT_SPECIFIC_TYPE_CALL>
 

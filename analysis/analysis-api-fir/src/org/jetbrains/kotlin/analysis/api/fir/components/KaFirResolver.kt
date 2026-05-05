@@ -1248,8 +1248,12 @@ internal class KaFirResolver(
                 )
             }
 
+            is FirCallableReferenceAccess -> KaBaseCallableReferenceCall(
+                backingPartiallyAppliedSymbol = partiallyAppliedSymbol,
+                backingTypeArgumentsMapping = typeArgumentsMapping,
+            )
+
             is FirPropertyAccessExpression,
-            is FirCallableReferenceAccess,
             is FirFunctionCall,
             is FirErrorExpression,
             is FirResolvedErrorReference,

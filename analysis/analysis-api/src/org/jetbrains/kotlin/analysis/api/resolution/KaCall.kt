@@ -278,6 +278,37 @@ public interface KaSimpleVariableAccessCall : KaVariableAccessCall {
 }
 
 /**
+ * A [callable reference](https://kotlinlang.org/docs/reflection.html#function-references) to a function,
+ * a property, or a constructor.
+ *
+ * #### Example
+ *
+ * ```kotlin
+ * class A { fun foo() {} }
+ *
+ * val unbound = A::foo            // unbound reference to a member function
+ * val bound = A()::foo            // bound reference with a dispatch receiver
+ * fun topLevel() {}
+ * val topLevelRef = ::topLevel    // reference to a top-level function
+ * val ctor = ::A                  // reference to a constructor
+ * ```
+ *
+ * Each of the references above is represented as a [KaCallableReferenceCall].
+ *
+ * Unlike [KaFunctionCall] or [KaVariableAccessCall], a callable reference does not actually invoke
+ * the callable, so it has no value-argument mapping nor a read/write access kind — only the
+ * [signature][KaSingleCall.signature] of the referenced callable, the bound
+ * [dispatch][KaSingleCall.dispatchReceiver]/[extension][KaSingleCall.extensionReceiver]/[context][KaSingleCall.contextArguments]
+ * receivers, and the [type-argument mapping][KaSingleCall.typeArgumentsMapping].
+ *
+ * @see org.jetbrains.kotlin.analysis.api.components.KaResolver
+ * @see org.jetbrains.kotlin.psi.KtCallableReferenceExpression
+ */
+@KaExperimentalApi
+@SubclassOptInRequired(KaImplementationDetail::class)
+public interface KaCallableReferenceCall<S : KaCallableSymbol, C : KaCallableSignature<S>> : KaSingleCall<S, C>
+
+/**
  * A compound access of a [variable][KaCompoundVariableAccessCall] or an [array][KaCompoundArrayAccessCall].
  */
 @SubclassOptInRequired(KaImplementationDetail::class)

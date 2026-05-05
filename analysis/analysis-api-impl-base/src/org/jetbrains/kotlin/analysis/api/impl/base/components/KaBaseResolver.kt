@@ -29,8 +29,6 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.jetbrains.kotlin.utils.exceptions.ExceptionAttachmentBuilder
 import org.jetbrains.kotlin.utils.exceptions.checkWithAttachment
 import org.jetbrains.kotlin.utils.exceptions.withPsiEntry
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 @KaImplementationDetail
 @OptIn(KtExperimentalApi::class)
@@ -197,7 +195,7 @@ abstract class KaBaseResolver<T : KaSession> : KaBaseSessionComponent<T>(), KaRe
     final override fun KtConstructorDelegationCall.resolveCall(): KaDelegatedConstructorCall? = resolveSingleCallSafe()
     final override fun KtConstructorDelegationReferenceExpression.resolveCall(): KaDelegatedConstructorCall? = resolveSingleCallSafe()
     final override fun KtCallElement.resolveCall(): KaFunctionCall<*>? = resolveCallSafe()
-    final override fun KtCallableReferenceExpression.resolveCall(): KaSingleCall<*, *>? = resolveCallSafe()
+    final override fun KtCallableReferenceExpression.resolveCall(): KaCallableReferenceCall<*, *>? = resolveCallSafe()
     final override fun KtArrayAccessExpression.resolveCall(): KaFunctionCall<KaNamedFunctionSymbol>? = resolveSingleCallSafe()
     final override fun KtCollectionLiteralExpression.resolveCall(): KaFunctionCall<KaNamedFunctionSymbol>? = resolveSingleCallSafe()
     final override fun KtEnumEntrySuperclassReferenceExpression.resolveCall(): KaDelegatedConstructorCall? = resolveSingleCallSafe()
@@ -226,15 +224,34 @@ abstract class KaBaseResolver<T : KaSession> : KaBaseSessionComponent<T>(), KaRe
     }
 
     /**
-     * All implementations of KaSingleOrMultiCall are also KaCall
-     * */
-    @OptIn(ExperimentalContracts::class)
-    protected fun KaSingleOrMultiCall.asKaCall(): KaCall {
-        contract {
-            returns() implies (this@asKaCall is KaCall)
-        }
+     * Returns the legacy [KaCall] view of [this] [KaSingleOrMultiCall]. Most resolution result types
+     * implement [KaCall] directly. The exception is [KaCallableReferenceCall], which is part of the
+     * new resolution API and intentionally does not extend the deprecated [KaCall] hierarchy. For
+     * that case we emulate a legacy [KaCall] by re-encoding the reference as the corresponding
+     * [KaSimpleFunctionCall] / [KaSimpleVariableAccessCall] view.
+     */
+    protected fun KaSingleOrMultiCall.asKaCall(): KaCall = when (this) {
+        is KaBaseCallableReferenceCall<*, *> -> asLegacyKaCall()
+        else -> this as KaCall
+    }
 
-        return this as KaCall
+    @Suppress("UNCHECKED_CAST")
+    private fun KaBaseCallableReferenceCall<*, *>.asLegacyKaCall(): KaCall {
+        val partiallyAppliedSymbol = backingPartiallyAppliedSymbol
+        return when (partiallyAppliedSymbol.symbol) {
+            is KaFunctionSymbol -> KaBaseSimpleFunctionCall(
+                backingPartiallyAppliedSymbol = partiallyAppliedSymbol as KaPartiallyAppliedFunctionSymbol<KaFunctionSymbol>,
+                backingArgumentMapping = emptyMap(),
+                backingTypeArgumentsMapping = typeArgumentsMapping,
+            )
+
+            is KaVariableSymbol -> KaBaseSimpleVariableAccessCall(
+                backingPartiallyAppliedSymbol = partiallyAppliedSymbol as KaPartiallyAppliedVariableSymbol<KaVariableSymbol>,
+                backingTypeArgumentsMapping = typeArgumentsMapping,
+                backingKind = KaBaseVariableReadAccess,
+                backingIsContextSensitive = false,
+            )
+        }
     }
 
     protected inline val KaCallResolutionSuccess.kaCall: KaCall

@@ -172,8 +172,7 @@ KtNameReferenceExpression(164,172): 'property'
 
 KtCallableReferenceExpression(178,195): 'MyAlias::function'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = MyAlias
@@ -188,15 +187,13 @@ KtCallableReferenceExpression(178,195): 'MyAlias::function'
         contextParameters = []
         callableId = test/MyObject.function
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtNameReferenceExpression(178,185): 'MyAlias'
   null
 
 KtNameReferenceExpression(187,195): 'function'
   KaCallResolutionSuccess:
-    call = KaSimpleFunctionCall:
-      contextArgumentMapping = {}
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = MyAlias
@@ -211,19 +208,16 @@ KtNameReferenceExpression(187,195): 'function'
         contextParameters = []
         callableId = test/MyObject.function
       typeArgumentsMapping = {}
-      valueArgumentMapping = {}
 
 KtCallableReferenceExpression(200,217): 'MyAlias::property'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = MyAlias
         isSafeNavigation = false
         type = test.MyObject
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = property
         receiverType = null
@@ -238,15 +232,13 @@ KtNameReferenceExpression(200,207): 'MyAlias'
 
 KtNameReferenceExpression(209,217): 'property'
   KaCallResolutionSuccess:
-    call = KaSimpleVariableAccessCall:
+    call = KaCallableReferenceCall:
       contextArguments = []
       dispatchReceiver = KaExplicitReceiverValue:
         expression = MyAlias
         isSafeNavigation = false
         type = test.MyObject
       extensionReceiver = null
-      isContextSensitive = false
-      kind = Read
       signature = KaVariableSignature:
         name = property
         receiverType = null

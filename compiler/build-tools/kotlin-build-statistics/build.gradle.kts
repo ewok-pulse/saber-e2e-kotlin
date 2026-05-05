@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm")
     id("gradle-plugin-published-compiler-dependency-configuration")
     id("test-inputs-check")
+    id("project-tests-convention")
 }
 
 dependencies {
@@ -17,7 +18,8 @@ dependencies {
     implementation(project(":compiler:build-tools:kotlin-build-tools-api"))
     implementation(commonDependency("com.google.code.gson:gson"))
 
-    testImplementation(kotlinTest("junit"))
+    testImplementation(kotlinTest("junit5"))
+    testRuntimeOnly(commonDependency("org.jetbrains.kotlin:kotlin-reflect"))
 }
 
 sourceSets {
@@ -28,3 +30,7 @@ sourceSets {
 publish()
 
 standardPublicJars()
+
+projectTests {
+    testTask(jUnitMode = JUnitMode.JUnit5)
+}

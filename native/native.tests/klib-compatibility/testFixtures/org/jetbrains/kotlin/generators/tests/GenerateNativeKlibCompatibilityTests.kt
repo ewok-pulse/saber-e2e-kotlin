@@ -87,7 +87,10 @@ fun main(args: Array<String>) {
                     provider<UseDummyTestCaseGroupProvider>(),
                 )
             ) {
-                model()
+                model(
+                    // only on Linux/x86: ld.lld: error: undefined symbol: stat unsupported: function is defined in a header file
+                    excludedPattern = "^(1|statbuf)\\.kt\$",
+                )
             }
         }
     }

@@ -1393,7 +1393,7 @@ public abstract interface class org/jetbrains/kotlin/psi/KtDeclarationWithReturn
 	public abstract fun getTypeReference ()Lorg/jetbrains/kotlin/psi/KtTypeReference;
 }
 
-public class org/jetbrains/kotlin/psi/KtDelegatedSuperTypeEntry : org/jetbrains/kotlin/psi/KtSuperTypeListEntry, org/jetbrains/kotlin/resolution/KtResolvable {
+public class org/jetbrains/kotlin/psi/KtDelegatedSuperTypeEntry : org/jetbrains/kotlin/psi/KtSuperTypeListEntry {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun <init> (Lorg/jetbrains/kotlin/psi/stubs/KotlinPlaceHolderStub;)V
 	public fun accept (Lorg/jetbrains/kotlin/psi/KtVisitor;Ljava/lang/Object;)Ljava/lang/Object;
@@ -2688,7 +2688,7 @@ public class org/jetbrains/kotlin/psi/KtSuperTypeCallEntry : org/jetbrains/kotli
 	public fun getValueArguments ()Ljava/util/List;
 }
 
-public class org/jetbrains/kotlin/psi/KtSuperTypeEntry : org/jetbrains/kotlin/psi/KtSuperTypeListEntry, org/jetbrains/kotlin/resolution/KtResolvable {
+public class org/jetbrains/kotlin/psi/KtSuperTypeEntry : org/jetbrains/kotlin/psi/KtSuperTypeListEntry {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun <init> (Lorg/jetbrains/kotlin/psi/stubs/KotlinPlaceHolderStub;)V
 	public fun accept (Lorg/jetbrains/kotlin/psi/KtVisitor;Ljava/lang/Object;)Ljava/lang/Object;
@@ -2706,7 +2706,7 @@ public class org/jetbrains/kotlin/psi/KtSuperTypeList : org/jetbrains/kotlin/psi
 	public fun subtreeChanged ()V
 }
 
-public class org/jetbrains/kotlin/psi/KtSuperTypeListEntry : org/jetbrains/kotlin/psi/KtElementImplStub {
+public class org/jetbrains/kotlin/psi/KtSuperTypeListEntry : org/jetbrains/kotlin/psi/KtElementImplStub, org/jetbrains/kotlin/resolution/KtResolvable {
 	public static field ARRAY_FACTORY Lcom/intellij/util/ArrayFactory;
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun <init> (Lorg/jetbrains/kotlin/psi/stubs/KotlinPlaceHolderStub;Lcom/intellij/psi/stubs/IStubElementType;)V

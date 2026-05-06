@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.KtStubBasedElementTypes;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.stubs.KotlinPlaceHolderStub;
-import org.jetbrains.kotlin.resolution.KtResolvable;
 
 /**
  * Represents an interface delegation in the super type list using the {@code by} keyword.
@@ -22,7 +21,7 @@ import org.jetbrains.kotlin.resolution.KtResolvable;
  * //                   ^_______^
  * }</pre>
  */
-public class KtDelegatedSuperTypeEntry extends KtSuperTypeListEntry implements KtResolvable {
+public class KtDelegatedSuperTypeEntry extends KtSuperTypeListEntry {
     public KtDelegatedSuperTypeEntry(@NotNull ASTNode node) {
         super(node);
     }

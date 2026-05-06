@@ -31,8 +31,7 @@ import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.util.OperatorNameConventions
 
 sealed class OperatorDiagnostic {
-    class IllegalOperatorDiagnostic(val message: String) : OperatorDiagnostic()
-    class DeprecatedOperatorDiagnostic(val message: String, val feature: LanguageFeature) : OperatorDiagnostic()
+    class IllegalOperatorDiagnostic(val message: String, val deprecatingFeature: LanguageFeature? = null) : OperatorDiagnostic()
     class Unsupported(val feature: LanguageFeature) : OperatorDiagnostic()
     class ReturnTypeMismatchWithOuterClass(
         val outer: FirRegularClassSymbol,
@@ -241,8 +240,7 @@ private object Checks {
 
                 val message = "must have at most $n value parameter" + (if (n > 1) "s" else "")
 
-                if (feature != null) OperatorDiagnostic.DeprecatedOperatorDiagnostic(message, feature)
-                else OperatorDiagnostic.IllegalOperatorDiagnostic(message)
+                OperatorDiagnostic.IllegalOperatorDiagnostic(message, feature)
             }
 
         val single = simple("must have a single value parameter") { function, _ ->
@@ -378,10 +376,7 @@ private object Checks {
                     append(" or define 'equals(other: ${expectedParameterTypeRendered}): Boolean'")
                 }
             }
-            return if (deprecatingFeature != null)
-                OperatorDiagnostic.DeprecatedOperatorDiagnostic(message, deprecatingFeature)
-            else
-                OperatorDiagnostic.IllegalOperatorDiagnostic(message)
+            return OperatorDiagnostic.IllegalOperatorDiagnostic(message, deprecatingFeature)
         }
     }
 

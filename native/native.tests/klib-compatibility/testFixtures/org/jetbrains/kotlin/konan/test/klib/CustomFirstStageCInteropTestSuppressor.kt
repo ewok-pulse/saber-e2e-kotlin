@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.test.model.TestFailureSuppressor
 import org.jetbrains.kotlin.test.services.TestServices
 
 /*
- * Suppresses errors of earlier versions of cinterop tool while compiling newer tests for newer platformlibs
+ * Suppresses errors of earlier versions of cinterop tool while compiling newer tests for newer platformlibs or using newer cli options
  */
 class CustomFirstStageCInteropTestSuppressor(
     testServices: TestServices,
@@ -23,17 +23,10 @@ class CustomFirstStageCInteropTestSuppressor(
         get() = listOf(CustomKlibCompilerTestDirectives)
 
     override fun suppressIfNeeded(failedAssertions: List<WrappedException>): List<WrappedException> {
-        return failedAssertions.mapNotNull { wrappedException ->
-            if (customNativeCompilerSettings.defaultLanguageVersion < LATEST_STABLE
-                && wrappedException is WrappedException.FromFacade
-                && wrappedException.facade is ObjCInteropFacade
-            ) {
-                val exceptionString = wrappedException.cause.toString()
-                if (exceptionString.contains("Unknown option -Xccall-mode")
-                    || exceptionString.contains("could not build module")
-                    || exceptionString.contains("error: unknown type name 'va_list'")
-                ) null else wrappedException
-            } else wrappedException
+        return failedAssertions.filterNot {
+            customNativeCompilerSettings.defaultLanguageVersion < LATEST_STABLE
+                    && it is WrappedException.FromFacade
+                    && it.facade is ObjCInteropFacade
         }
     }
 

@@ -63,5 +63,10 @@ tasks.withType<KotlinJvmCompile>().configureEach {
 }
 
 projectTests {
-    testCodebaseTask(dumpDirs = emptyList())
+    testCodebaseTask(dumpDirs = emptyList()) {
+        // Forward the source-code-update flag (used by the `analysis-api-mark-internal-apis` skill) from a Gradle property to the test
+        // JVM. Combine with `-Pkotlin.test.instrumentation.disable.inputs.check=true` so the test can write to source files.
+        val updateSourceCode = "kotlin.analysis.codebaseTest.internalApi.updateSourceCode"
+        systemProperty(updateSourceCode, project.providers.gradleProperty(updateSourceCode).orElse("false").get())
+    }
 }

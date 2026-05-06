@@ -55,6 +55,7 @@ class KaBaseContractConditionalContractEffectDeclaration(
 
 @KaImplementationDetail
 object KaBaseContractReturnsContractEffectDeclarations {
+    @KaImplementationDetail
     class KaBaseContractReturnsNotNullEffectDeclaration(
         override val token: KaLifetimeToken,
     ) : KaContractReturnsNotNullEffectDeclaration {
@@ -62,6 +63,7 @@ object KaBaseContractReturnsContractEffectDeclarations {
         override fun hashCode(): Int = javaClass.hashCode()
     }
 
+    @KaImplementationDetail
     class KaBaseContractReturnsSpecificValueEffectDeclaration(
         private val backingValue: KaContractConstantValue,
     ) : KaContractReturnsSpecificValueEffectDeclaration {
@@ -78,6 +80,7 @@ object KaBaseContractReturnsContractEffectDeclarations {
         override fun hashCode(): Int = backingValue.hashCode()
     }
 
+    @KaImplementationDetail
     class KaBaseContractReturnsSuccessfullyEffectDeclaration(
         override val token: KaLifetimeToken,
     ) : KaContractReturnsSuccessfullyEffectDeclaration {

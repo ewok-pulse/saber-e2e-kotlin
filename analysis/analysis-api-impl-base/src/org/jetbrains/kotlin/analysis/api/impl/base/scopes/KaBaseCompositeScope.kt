@@ -92,6 +92,7 @@ class KaBaseCompositeScope private constructor(
         subScopes.any { it.mayContainName(name) }
     }
 
+    @KaImplementationDetail
     companion object {
         fun create(subScopes: List<KaScope>, token: KaLifetimeToken): KaScope =
             when (subScopes.size) {

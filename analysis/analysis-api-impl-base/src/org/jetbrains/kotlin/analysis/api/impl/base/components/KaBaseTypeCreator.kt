@@ -97,12 +97,14 @@ sealed class KaBaseClassTypeBuilder : KaClassTypeBuilder {
         backingArguments += KaBaseTypeArgumentWithVariance(type, variance, type.token)
     }
 
+    @KaImplementationDetail
     class ByClassId(classId: ClassId, override val token: KaLifetimeToken) : KaBaseClassTypeBuilder() {
         private val backingClassId: ClassId = classId
 
         val classId: ClassId get() = withValidityAssertion { backingClassId }
     }
 
+    @KaImplementationDetail
     class BySymbol(symbol: KaClassLikeSymbol, override val token: KaLifetimeToken) : KaBaseClassTypeBuilder() {
         private val backingSymbol: KaClassLikeSymbol = symbol
 
@@ -110,8 +112,7 @@ sealed class KaBaseClassTypeBuilder : KaClassTypeBuilder {
     }
 }
 
-@KaImplementationDetail
-sealed class KaBaseArrayTypeBuilder : KaArrayTypeBuilder {
+internal sealed class KaBaseArrayTypeBuilder : KaArrayTypeBuilder {
     override var isMarkedNullable: Boolean = false
         get() = withValidityAssertion { field }
         set(value) {
@@ -167,6 +168,7 @@ sealed class KaBaseTypeParameterTypeBuilder : KaTypeParameterTypeBuilder {
             }
         }
 
+    @KaImplementationDetail
     class BySymbol(symbol: KaTypeParameterSymbol, override val token: KaLifetimeToken) : KaBaseTypeParameterTypeBuilder() {
         private val backingSymbol: KaTypeParameterSymbol = symbol
 

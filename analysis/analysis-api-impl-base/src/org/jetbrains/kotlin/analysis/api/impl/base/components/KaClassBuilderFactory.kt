@@ -16,6 +16,7 @@ class KaClassBuilderFactory private constructor(
     private val delegateFactory: ClassBuilderFactory,
     private val compiledClassHandler: KaCompiledClassHandler
 ) : DelegatingClassBuilderFactory(delegateFactory) {
+    @KaImplementationDetail
     companion object {
         fun create(delegateFactory: ClassBuilderFactory, compiledClassHandler: KaCompiledClassHandler?): ClassBuilderFactory {
             return if (compiledClassHandler != null) {

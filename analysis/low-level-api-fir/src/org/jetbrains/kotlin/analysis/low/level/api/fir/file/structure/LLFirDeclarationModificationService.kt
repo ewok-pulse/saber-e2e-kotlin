@@ -333,6 +333,7 @@ class LLFirDeclarationModificationService(val project: Project) : Disposable {
 
     override fun dispose() {}
 
+    @KaImplementationDetail
     companion object {
         fun getInstance(project: Project): LLFirDeclarationModificationService =
             project.getService(LLFirDeclarationModificationService::class.java)

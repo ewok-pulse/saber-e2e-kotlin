@@ -92,6 +92,7 @@ object ContextCollector {
         val smartCasts: List<SmartCast>,
     )
 
+    @KaImplementationDetail
     class SmartCast(
         val realVariable: RealVariable,
         val upperTypes: Set<ConeKotlinType>,

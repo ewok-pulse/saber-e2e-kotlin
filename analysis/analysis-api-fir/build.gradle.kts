@@ -69,7 +69,7 @@ projectTests {
         useJUnitPlatform()
 
         @OptIn(TemporaryTestFederationApi::class)
-        smokeTestConfig = SmokeTestConfig.RunAllTests
+        smokeTestConfig = SmokeTestConfig.Enabled(autoSmokeTestPercentage = 5)
 
         testInputsCheck {
             allowFlightRecorder = true

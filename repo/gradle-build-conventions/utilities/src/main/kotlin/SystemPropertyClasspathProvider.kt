@@ -59,6 +59,13 @@ fun Test.addClasspathProperty(classpath: Provider<out FileCollection>, property:
     jvmArgumentProviders.add(classpathProvider)
 }
 
+fun Test.addClasspathProperty(property: String, configureClasspath: ConfigurableFileCollection.() -> Unit) {
+    val classpathProvider = project.objects.newInstance(SystemPropertyClasspathProvider::class.java)
+    classpathProvider.classpath.configureClasspath()
+    classpathProvider.property.set(property)
+    jvmArgumentProviders.add(classpathProvider)
+}
+
 fun Test.addClasspathProperty(classpath: FileCollection, property: String) {
     val classpathProvider = project.objects.newInstance(SystemPropertyClasspathProvider::class.java)
     classpathProvider.classpath.from(classpath)

@@ -68,10 +68,9 @@ javadocJar()
 
 projectTests {
     testTask(jUnitMode = JUnitMode.JUnit5) {
-        jvmArgumentProviders.add(project.objects.newInstance(SystemPropertyClasspathProvider::class.java).apply {
-            classpath.from(tasks.jar.map { it.archiveFile })
-            property.set("kotlin.jvm.abi.jar.path")
-        })
+        addClasspathProperty("kotlin.jvm.abi.jar.path") {
+            from(tasks.jar.map { it.archiveFile.get() })
+        }
     }
 
     testGenerator("org.jetbrains.kotlin.jvm.abi.TestGeneratorKt")

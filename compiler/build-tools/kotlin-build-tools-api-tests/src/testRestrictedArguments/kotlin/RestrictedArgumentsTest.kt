@@ -18,11 +18,7 @@ import org.jetbrains.kotlin.buildtools.tests.compilation.BaseCompilationTest
 import org.jetbrains.kotlin.buildtools.tests.compilation.assertions.assertLogContainsLines
 import org.jetbrains.kotlin.buildtools.tests.compilation.assertions.assertLogContainsPatterns
 import org.jetbrains.kotlin.buildtools.tests.compilation.assertions.assertLogDoesNotContainPatterns
-import org.jetbrains.kotlin.buildtools.tests.compilation.model.BtaV2StrategyAgnosticCompilationTest
-import org.jetbrains.kotlin.buildtools.tests.compilation.model.CompilationOutcome
-import org.jetbrains.kotlin.buildtools.tests.compilation.model.LogLevel
-import org.jetbrains.kotlin.buildtools.tests.compilation.model.Module
-import org.jetbrains.kotlin.buildtools.tests.compilation.model.jvmProject
+import org.jetbrains.kotlin.buildtools.tests.compilation.model.*
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
@@ -215,7 +211,10 @@ class RestrictedArgumentsTest : BaseCompilationTest() {
                 @OptIn(ExperimentalCompilerArgument::class)
                 assertEquals(it.compilerArguments[X_ASSERTIONS], AssertionsMode.JVM)
             }) {
-                assertLogContainsLines(LogLevel.WARN, "Case mismatch for -Xassertions: expected 'jvm', got 'jVm'.")
+                assertLogContainsLines(
+                    LogLevel.WARN,
+                    "Case mismatch for -Xassertions: expected 'jvm', got 'jVm'. This will become an error in Kotlin compiler version 2.6.0"
+                )
             }
         }
     }

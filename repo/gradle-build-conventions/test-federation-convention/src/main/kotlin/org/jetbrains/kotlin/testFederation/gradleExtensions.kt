@@ -39,14 +39,9 @@ internal val Project.testFederationAffectedDomains: Provider<Set<Domain>>
     }
 
 
-private const val IS_SMOKE_TEST_KEY = "org.jetbrains.kotlin.testFederation.isSmokeTest"
+internal const val SMOKE_TEST_CONFIG_KEY = "org.jetbrains.kotlin.testFederation.smokeTestConfig"
 
-/**
- * `true`: Marks the entire test task as 'smoke test'. All tests will always run
- * `false`: Marks the entire test task as 'not smoke test'; Never runs in smoke test mode
- * `null`: Default value; The test can be executed in regular (full) and smoke test modes
- */
 @TemporaryTestFederationApi
-var Test.isSmokeTest: Boolean?
-    set(value) = extensions.extraProperties.set(IS_SMOKE_TEST_KEY, value)
-    get() = if (extensions.extraProperties.has(IS_SMOKE_TEST_KEY)) extensions.extraProperties.get(IS_SMOKE_TEST_KEY) as Boolean else null
+var Test.smokeTestConfig: SmokeTestConfig?
+    set(value) = extensions.extraProperties.set(SMOKE_TEST_CONFIG_KEY, value)
+    get() = if (extensions.extraProperties.has(SMOKE_TEST_CONFIG_KEY)) extensions.extraProperties.get(SMOKE_TEST_CONFIG_KEY) as SmokeTestConfig? else null

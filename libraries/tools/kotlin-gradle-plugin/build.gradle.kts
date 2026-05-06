@@ -6,8 +6,9 @@ import org.jetbrains.kotlin.build.androidsdkprovisioner.ProvisioningType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinWithJavaCompilation
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.testFederation.SmokeTestConfig
 import org.jetbrains.kotlin.testFederation.TemporaryTestFederationApi
-import org.jetbrains.kotlin.testFederation.isSmokeTest
+import org.jetbrains.kotlin.testFederation.smokeTestConfig
 
 plugins {
     id("gradle-plugin-common-configuration")
@@ -660,7 +661,7 @@ tasks.register<Test>("functionalTest") {
     useJUnitPlatform()
 
     @OptIn(TemporaryTestFederationApi::class)
-    isSmokeTest = true
+    smokeTestConfig = SmokeTestConfig.RunAllTests
 }
 
 val acceptLicensesTask = with(androidSdkProvisioner) {

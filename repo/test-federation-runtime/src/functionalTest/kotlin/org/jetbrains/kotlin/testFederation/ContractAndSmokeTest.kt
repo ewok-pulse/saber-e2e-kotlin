@@ -79,8 +79,8 @@ class ContractAndSmokeTest {
      * If the test task is marked as 'isSmokeTest', then we expect all tests to be executed, always
      */
     @Test
-    fun `test - mark task with isSmokeTest true`() {
-        val result = runTestBuild(TestFederationMode.Smoke, isSmokeTestTask = true)
+    fun `test - smokeTestConfig 'RunAllTests'`() {
+        val result = runTestBuild(TestFederationMode.Smoke, smokeTestConfig = "RunAllTests")
         assertEquals(
             setOf(
                 TestResult("PseudoTest", "domain test"),
@@ -97,8 +97,8 @@ class ContractAndSmokeTest {
      * If the test task is marked as 'isSmokeTest = false', then we expect it to be skipped in smoke test mode.
      */
     @Test
-    fun `test - mark task with isSmokeTest false`() {
-        val result = runTestBuild(TestFederationMode.Smoke, isSmokeTestTask = false)
+    fun `test - smokeTestConfig 'Disabled'`() {
+        val result = runTestBuild(TestFederationMode.Smoke, smokeTestConfig = "Disabled")
         assertEquals(
             emptySet(),
             result.executedTests
@@ -121,7 +121,7 @@ private data class TestBuildResult(
  * Executes all tests in ':repo:test-federation-runtime:test' with the given [mode] and [affected] domains.
  * All executed tests are parsed and returned in [TestBuildResult.executedTests].
  */
-private fun runTestBuild(mode: TestFederationMode, vararg affected: Domain, isSmokeTestTask: Boolean? = null): TestBuildResult {
+private fun runTestBuild(mode: TestFederationMode, vararg affected: Domain, smokeTestConfig: String? = null): TestBuildResult {
     val builder = ProcessBuilder(
         "./gradlew", ":repo:test-federation-runtime:test", "--rerun", "--no-daemon",
         "-P$TEST_FEDERATION_ENABLED_KEY=true",
@@ -130,8 +130,8 @@ private fun runTestBuild(mode: TestFederationMode, vararg affected: Domain, isSm
 
     builder.environment()[TEST_FEDERATION_MODE_ENV_KEY] = mode.name
 
-    if (isSmokeTestTask != null) {
-        builder.environment()["_PSEUDO_TEST_isSmokeTest"] = isSmokeTestTask.toString()
+    if (smokeTestConfig != null) {
+        builder.environment()["_PSEUDO_TEST_"] = smokeTestConfig
     }
 
     if (affected.isNotEmpty()) {
@@ -181,7 +181,13 @@ private fun runTestBuild(mode: TestFederationMode, vararg affected: Domain, isSm
     }
 
     val exitCode = process.exitValue()
-    if (exitCode != 0) error("Build failed with exit code $exitCode")
+    if (exitCode != 0) error(buildString {
+        appendLine("Build failed with exit code $exitCode\n")
+        appendLine("Stdout:")
+        output.forEach { appendLine(it) }
+        appendLine("Stderr:")
+        error.forEach { appendLine(it) }
+    })
 
     return TestBuildResult(output, error, tests.toSet())
 }

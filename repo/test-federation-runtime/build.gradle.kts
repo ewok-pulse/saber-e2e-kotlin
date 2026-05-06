@@ -3,8 +3,9 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.testFederation.GenerateTestFederationRuntimeCodeTask
+import org.jetbrains.kotlin.testFederation.SmokeTestConfig
 import org.jetbrains.kotlin.testFederation.TemporaryTestFederationApi
-import org.jetbrains.kotlin.testFederation.isSmokeTest
+import org.jetbrains.kotlin.testFederation.smokeTestConfig
 
 plugins {
     kotlin("jvm")
@@ -31,8 +32,12 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 
     /* Used by the ContractAndSmokeTest and 'PseudoTest' for testing the test federations behavior */
-    providers.environmentVariable("_PSEUDO_TEST_isSmokeTest").orNull?.let {
-        isSmokeTest = it.toBoolean()
+    providers.environmentVariable("_PSEUDO_TEST_").orNull?.let { value ->
+        smokeTestConfig = when (value) {
+            "RunAllTests" -> SmokeTestConfig.RunAllTests
+            "Disabled" -> SmokeTestConfig.Disabled
+            else -> error("Unknown _PSEUDO_TEST_ configuration")
+        }
     }
 
     testLogging {
@@ -68,9 +73,7 @@ val functionalTest = tasks.register<Test>("functionalTest") {
         showStandardStreams = true
     }
 
-    @OptIn(TemporaryTestFederationApi::class)
-    isSmokeTest = true
-
+    smokeTestConfig = SmokeTestConfig.RunAllTests
 }
 
 dependencies {

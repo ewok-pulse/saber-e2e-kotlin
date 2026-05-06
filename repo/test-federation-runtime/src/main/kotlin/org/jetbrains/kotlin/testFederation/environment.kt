@@ -11,6 +11,8 @@ internal const val TEST_FEDERATION_MODE_KEY = "test.federation.mode"
 internal const val TEST_FEDERATION_MODE_ENV_KEY = "TEST_FEDERATION_MODE"
 internal const val TEST_FEDERATION_AFFECTED_DOMAINS_KEY = "test.federation.affected.domains"
 internal const val TEST_FEDERATION_AFFECTED_DOMAINS_ENV_KEY = "TEST_FEDERATION_AFFECTED_DOMAINS"
+const val TEST_FEDERATION_AUTO_SMOKE_TEST_PERCENTAGE_KEY = "test.federation.auto.smoke.test.percentage"
+const val TEST_FEDERATION_AUTO_SMOKE_TEST_PERCENTAGE_ENV_KEY = "TEST_FEDERATION_AUTO_SMOKE_TEST_PERCENTAGE"
 
 /**
  * @return true: If the test federation is enabled (typically only on CI environments)
@@ -43,6 +45,10 @@ val testFederationAffectedDomains: Set<Domain>?
             }
         }.sorted().toSet()
     }
+
+internal val autoSmokeTestPercentage: Int = run {
+    resolve(TEST_FEDERATION_AUTO_SMOKE_TEST_PERCENTAGE_KEY, TEST_FEDERATION_AUTO_SMOKE_TEST_PERCENTAGE_ENV_KEY)?.toInt() ?: -1
+}
 
 private fun resolve(key: String, envKey: String): String? =
     System.getProperty(key) ?: System.getenv(envKey)

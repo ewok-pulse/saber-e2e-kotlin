@@ -26,7 +26,7 @@ class AbiValidationJvmNonTestCompilationsIT : KGPBaseTest() {
         project(
             "base-kotlin-jvm-library",
             gradleVersion,
-        ).run {
+        ) {
             abiValidation {
                 binariesSource.set(BinariesSource.NON_TEST_COMPILATIONS)
             }

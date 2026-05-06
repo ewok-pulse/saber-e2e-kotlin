@@ -26,7 +26,7 @@ class AbiValidationKmpMavenPublicationsIT : KGPBaseTest() {
         project(
             "base-kotlin-multiplatform-library",
             gradleVersion,
-        ).run {
+        ) {
             buildScriptInjection {
                 with(kotlinMultiplatform) {
                     jvm()

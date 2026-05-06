@@ -89,11 +89,11 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
     fun testClassifierArtifactsAreIgnored(
         gradleVersion: GradleVersion,
     ) {
-        val compilationsDump: String
+        var compilationsDump = ""
         project(
             "base-kotlin-jvm-library",
             gradleVersion,
-        ).run {
+        ) {
             abiValidation()
             addSampleSource()
 
@@ -101,11 +101,11 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
             compilationsDump = referenceJvmDumpFile().readText()
         }
 
-        val dumpFromPublication: String
+        var dumpFromPublication = ""
         project(
             "base-kotlin-jvm-library",
             gradleVersion,
-        ).run {
+        ) {
             plugins {
                 id("org.gradle.maven-publish")
             }
@@ -148,11 +148,11 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
     fun testFatJarDependencyClassFiltering(
         gradleVersion: GradleVersion,
     ) {
-        val compilationsDump: String
+        var compilationsDump = ""
         project(
             "base-kotlin-jvm-library",
             gradleVersion,
-        ).run {
+        ) {
             abiValidation()
             buildScriptInjection {
                 project.dependencies.add("implementation", "org.apache.commons:commons-lang3:3.17.0")
@@ -167,7 +167,7 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
         project(
             "base-kotlin-jvm-library",
             gradleVersion,
-        ).run {
+        ) {
             plugins {
                 id("org.gradle.maven-publish")
             }
@@ -207,11 +207,11 @@ class AbiValidationJvmMavenPublicationsIT : KGPBaseTest() {
         }
 
         // Pair used in public API: fat jar publication dump must include the Pair class
-        val dumpPublicApi: String
+        var dumpPublicApi = ""
         project(
             "base-kotlin-jvm-library",
             gradleVersion,
-        ).run {
+        ) {
             plugins {
                 id("org.gradle.maven-publish")
             }

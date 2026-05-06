@@ -1,3 +1,7 @@
+// IGNORE_KLIB_BACKEND_ERRORS_WITH_CUSTOM_FIRST_STAGE: Wasm-JS:2.0,2.1
+// ^^^ Not clear, which change in v2.2 has broken klib's ABI back to v2.1, see error below
+//     CompileError: WebAssembly.Module(): Compiling function #3801:"C$<get-appendDigit1>.invoke" failed: call[0] expected type (ref null 994), found struct.new of type (ref 694) @+330409
+
 inline operator fun Double.provideDelegate(thisRef: Any?, kProp: Any?) = this.toLong()
 
 inline operator fun Long.getValue(thisRef: Any?, kProp: Any?) = this.toInt()

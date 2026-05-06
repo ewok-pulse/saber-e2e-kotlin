@@ -177,6 +177,17 @@ Apply edits with `mcp__idea__replace_text_in_file`. **Import housekeeping:** whe
 also remove the corresponding import if no other declaration in the file still uses it. When adding `@KaImplementationDetail`,
 ensure `import org.jetbrains.kotlin.analysis.api.KaImplementationDetail` is present.
 
+**Companion-object exception.** A `companion object`'s marker must match its outer classifier's final marker. The companion
+is reached through the outer class (`Outer.member` → `Outer.Companion.member`), so callers who can opt into the outer must
+also reach the companion. Skip the usage analysis for companion objects in the diff entirely; instead, decide the outer
+first using the table above, then sync the companion:
+
+- Outer kept as `@KaImplementationDetail` → companion stays `@KaImplementationDetail`.
+- Outer kept as `@LLFirInternals` → companion stays `@LLFirInternals`.
+- Outer upgraded to `@KaImplementationDetail` → upgrade the companion the same way (replace `@LLFirInternals` with
+  `@KaImplementationDetail`, swap imports).
+- Outer downgraded to `internal` → drop the companion's annotation (Step 4 below).
+
 ### Step 4: Downgrading nested classifiers
 
 If the same diff includes a top-level classifier **and** nested classifiers within it, and the top-level was downgraded to

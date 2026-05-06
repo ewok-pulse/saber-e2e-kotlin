@@ -31,7 +31,7 @@ abstract class BaseJvmAbiTest : TestCase() {
         super.tearDown()
     }
 
-    private val abiPluginJar = ForTestCompileRuntime.getFileFromProperty("kotlin.jvm.abi.path")
+    private val abiPluginJar = ForTestCompileRuntime.getFileFromProperty("kotlin.jvm.abi.jar.path")
     private fun abiOption(option: String, value: String): String =
         "plugin:${JvmAbiCommandLineProcessor.COMPILER_PLUGIN_ID}:$option=$value"
 

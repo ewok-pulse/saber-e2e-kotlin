@@ -70,7 +70,7 @@ projectTests {
     testTask(jUnitMode = JUnitMode.JUnit5) {
         jvmArgumentProviders.add(project.objects.newInstance(SystemPropertyClasspathProvider::class.java).apply {
             classpath.from(tasks.jar.map { it.archiveFile })
-            property.set("kotlin.jvm.abi.path")
+            property.set("kotlin.jvm.abi.jar.path")
         })
     }
 

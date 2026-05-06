@@ -1,5 +1,5 @@
 // IGNORE_KLIB_BACKEND_ERRORS_WITH_CUSTOM_SECOND_STAGE: Native:2.3
-// ^^^ KT-86029: java.lang.ClassCastException: class org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl cannot be cast to class org.jetbrains.kotlin.ir.expressions.IrConstructorCall
+// ^^^ KT-84133 is fixed in 2.4.0-Beta1
 
 // MODULE: lib
 // FILE: lib.kt

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.psi
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.psi.PsiElement
 
 /**
  * Service responsible for Kotlin PSI mutation operations whose implementation is provided by the Kotlin plugin environment.
@@ -13,6 +14,16 @@ import com.intellij.openapi.application.ApplicationManager
 @KtNonPublicApi
 @SubclassOptInRequired(KtImplementationDetail::class)
 interface KtPsiMutatingService {
+    /**
+     * Performs smart deletion of [element].
+     */
+    fun deleteElement(element: KtElement)
+
+    /**
+     * Performs smart deletion of [blockExpression].
+     */
+    fun deleteBlockExpression(blockExpression: KtBlockExpression)
+
     /**
      * Adds [superTypeListEntry] to [declaration].
      */
@@ -37,6 +48,41 @@ interface KtPsiMutatingService {
      * Deletes [superTypeList], removing the preceding colon when needed.
      */
     fun deleteSuperTypeList(superTypeList: KtSuperTypeList)
+
+    /**
+     * Performs smart deletion of [declaration].
+     */
+    fun deleteClassOrObject(declaration: KtClassOrObject)
+
+    /**
+     * Performs smart deletion of [enumEntry].
+     */
+    fun deleteEnumEntry(enumEntry: KtEnumEntry)
+
+    /**
+     * Adds [declaration] to [classOrObject], creating a body when needed.
+     */
+    fun <T : KtDeclaration> addDeclaration(classOrObject: KtClassOrObject, declaration: T): T
+
+    /**
+     * Adds [declaration] after [anchor] in [classOrObject], or appends it when [anchor] is `null`.
+     */
+    fun <T : KtDeclaration> addDeclarationAfter(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T
+
+    /**
+     * Adds [declaration] before [anchor] in [classOrObject], or prepends it when [anchor] is `null`.
+     */
+    fun <T : KtDeclaration> addDeclarationBefore(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T
+
+    /**
+     * Returns the existing body for [classOrObject], or creates one if missing.
+     */
+    fun getOrCreateBody(classOrObject: KtClassOrObject): KtClassBody
+
+    /**
+     * Adds a semicolon to [enumEntry], reusing an existing sibling semicolon when possible.
+     */
+    fun addSemicolon(enumEntry: KtEnumEntry): PsiElement
 
     @KtNonPublicApi
     companion object {

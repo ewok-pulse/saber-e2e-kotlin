@@ -6,17 +6,30 @@
 package org.jetbrains.kotlin.analysis.api.impl.base.psi
 
 import com.intellij.psi.PsiComment
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
+import org.jetbrains.kotlin.lexer.KtTokens.COLON
+import org.jetbrains.kotlin.lexer.KtTokens.SEMICOLON
 import org.jetbrains.kotlin.psi.KtImplementationDetail
 import org.jetbrains.kotlin.psi.KtNonPublicApi
 import org.jetbrains.kotlin.psi.KtPsiMutatingService
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.lexer.KtTokens.COLON
 
 @OptIn(KtNonPublicApi::class, KtImplementationDetail::class)
 class KtPsiMutatingServiceImpl : KtPsiMutatingService {
+    override fun deleteElement(element: KtElement) {
+        deleteTrailingSemicolon(element)
+        element.rawDelete()
+    }
+
+    override fun deleteBlockExpression(blockExpression: KtBlockExpression) {
+        deleteElement(blockExpression)
+    }
+
     override fun addSuperTypeListEntry(
         declaration: KtClassOrObject,
         superTypeListEntry: KtSuperTypeListEntry,
@@ -62,10 +75,149 @@ class KtPsiMutatingServiceImpl : KtPsiMutatingService {
     }
 
     override fun deleteSuperTypeList(superTypeList: KtSuperTypeList) {
-        var left = PsiTreeUtil.skipSiblingsBackward(superTypeList, PsiWhiteSpace::class.java, PsiComment::class.java)
+        val left = PsiTreeUtil.skipSiblingsBackward(superTypeList, PsiWhiteSpace::class.java, PsiComment::class.java)
         if (left?.elementType != COLON) {
-            left = superTypeList
+            superTypeList.rawDelete()
+        } else {
+            superTypeList.parent.deleteChildRange(left, superTypeList)
         }
-        superTypeList.parent.deleteChildRange(left, superTypeList)
+    }
+
+    override fun deleteClassOrObject(declaration: KtClassOrObject) {
+        if (declaration is KtEnumEntry) {
+            deleteEnumEntry(declaration)
+        } else {
+            doDeleteClassOrObject(declaration)
+        }
+    }
+
+    override fun deleteEnumEntry(enumEntry: KtEnumEntry) {
+        moveSemicolonBeforeEnumEntryDeletion(enumEntry)
+        doDeleteClassOrObject(enumEntry)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : KtDeclaration> addDeclaration(classOrObject: KtClassOrObject, declaration: T): T {
+        ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(classOrObject, declaration)
+        val body = getOrCreateBody(classOrObject)
+        val anchor = PsiTreeUtil.skipSiblingsBackward(body.rBrace ?: body.lastChild!!, PsiWhiteSpace::class.java)
+        return if (anchor?.nextSibling is PsiErrorElement) {
+            body.addBefore(declaration, anchor)
+        } else {
+            body.addAfter(declaration, anchor)
+        } as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : KtDeclaration> addDeclarationAfter(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T {
+        val anchorBefore = anchor ?: classOrObject.declarations.lastOrNull() ?: return addDeclaration(classOrObject, declaration)
+        ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(classOrObject, declaration)
+        return getOrCreateBody(classOrObject).addAfter(declaration, anchorBefore) as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : KtDeclaration> addDeclarationBefore(classOrObject: KtClassOrObject, declaration: T, anchor: PsiElement?): T {
+        val anchorAfter = anchor ?: classOrObject.declarations.firstOrNull() ?: return addDeclaration(classOrObject, declaration)
+        ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(classOrObject, declaration)
+        return getOrCreateBody(classOrObject).addBefore(declaration, anchorAfter) as T
+    }
+
+    override fun getOrCreateBody(classOrObject: KtClassOrObject): KtClassBody {
+        classOrObject.getBody()?.let { return it }
+
+        val newBody = KtPsiFactory(classOrObject.project).createEmptyClassBody()
+        return if (classOrObject is KtEnumEntry) {
+            classOrObject.addAfter(newBody, classOrObject.initializerList ?: classOrObject.nameIdentifier) as KtClassBody
+        } else {
+            classOrObject.add(newBody) as KtClassBody
+        }
+    }
+
+    override fun addSemicolon(enumEntry: KtEnumEntry): PsiElement {
+        enumEntry.semicolon?.let {
+            return it
+        }
+
+        // When adding a declaration to an enum class body, there is a chance the next
+        // non-whitespace sibling is a semicolon; we should embed it into ourselves.
+        val tailStart = enumEntry.nextSibling
+        val tailEnd = PsiTreeUtil.skipSiblingsForward(enumEntry, PsiWhiteSpace::class.java, PsiComment::class.java)
+        if (tailEnd?.elementType == SEMICOLON) {
+            var element = enumEntry.addRangeAfter(tailStart, tailEnd, enumEntry.lastChild)
+            enumEntry.parent.deleteChildRange(tailStart, tailEnd)
+
+            while (element.nextSibling != null) {
+                element = element.nextSibling
+            }
+
+            return element
+        }
+
+        val semicolon = KtPsiFactory(enumEntry.project).createSemicolon()
+        enumEntry.comma?.let {
+            return it.replace(semicolon)
+        }
+        return enumEntry.addAfter(semicolon, enumEntry.lastChild)
+    }
+
+    private fun doDeleteClassOrObject(declaration: KtClassOrObject) {
+        CheckUtil.checkWritable(declaration)
+
+        val file = declaration.containingKtFile
+        if (!declaration.isTopLevel() || file.declarations.size > 1) {
+            deleteElement(declaration)
+        } else {
+            file.delete()
+        }
+    }
+
+    private fun moveSemicolonBeforeEnumEntryDeletion(enumEntry: KtEnumEntry) {
+        val semicolon = enumEntry.semicolon ?: return
+
+        // Get previous KtEnumEntry, and move semicolon to it.
+        val prevEntry = PsiTreeUtil.getPrevSiblingOfType(enumEntry, KtEnumEntry::class.java)
+        if (prevEntry == null) {
+            // If there is no previous KtEnumEntry, we embed it into the parent.
+            val parent = enumEntry.parent
+            check(parent is KtClassBody) { "Enum entry should be a child of KtClassBody" }
+            parent.addAfter(semicolon, enumEntry)
+        } else {
+            addSemicolon(prevEntry)
+        }
+    }
+
+    private fun ensureSemicolonIsPresentAfterEnumEntriesIfNecessaryForDeclaration(
+        classOrObject: KtClassOrObject,
+        declaration: KtDeclaration,
+    ) {
+        if (declaration is KtEnumEntry) return
+        if (classOrObject !is KtClass || !classOrObject.isEnum()) return
+
+        val body = getOrCreateBody(classOrObject)
+        val lastEnumEntry = body.children.filterIsInstance<KtEnumEntry>().lastOrNull()
+
+        if (lastEnumEntry != null) {
+            addSemicolon(lastEnumEntry)
+        } else {
+            val anchor = PsiTreeUtil.skipSiblingsBackward(body.rBrace ?: body.lastChild!!, PsiWhiteSpace::class.java)
+            if (anchor != null && anchor.elementType == SEMICOLON) {
+                return
+            }
+            val psiFactory = KtPsiFactory(classOrObject.project)
+            val semicolon = body.addAfter(psiFactory.createSemicolon(), anchor)
+            if (anchor == body.lBrace) {
+                body.addBefore(psiFactory.createNewLine(), semicolon)
+            }
+        }
+    }
+
+    private fun deleteTrailingSemicolon(element: KtElement) {
+        if (element is KtEnumEntry) return
+
+        val sibling = PsiTreeUtil.skipSiblingsForward(element, PsiWhiteSpace::class.java, PsiComment::class.java)
+        if (sibling?.elementType != SEMICOLON) return
+
+        val lastSiblingToDelete = PsiTreeUtil.skipSiblingsForward(sibling, PsiWhiteSpace::class.java)?.prevSibling ?: sibling
+        element.parent.deleteChildRange(element.nextSibling, lastSiblingToDelete)
     }
 }

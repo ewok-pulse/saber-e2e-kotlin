@@ -302,15 +302,21 @@ class WasmCallableReferenceLowering(val backendContext: WasmBackendContext) : Fi
             return (typeParam.superTypes.firstOrNull() ?: backendContext.irBuiltIns.anyNType).eraseIfReferenceType()
         }
         val clazz = this.getClass() ?: return backendContext.irBuiltIns.anyNType
-        if (clazz.isSingleFieldValueClass) {
-            val underlyingErased = getInlineClassUnderlyingType(clazz).eraseIfReferenceType()
-            return if (underlyingErased.isPrimitiveType() || underlyingErased.isUnsignedType() ||
-                       underlyingErased.getClass()?.isSingleFieldValueClass == true) {
-                this
-            } else {
-                backendContext.irBuiltIns.anyNType
-            }
-        }
+        // FIXME: The following code does not work properly to unwrap primitives from value
+        // classes. The proper optimization here would be to make inline value class lowering
+        // interact with the pass more nicely. See KT-85988 [wasm]: Follow-up optimizations to
+        // KT-83159. This would be nice as we could then avoid boxing and unboxing trivial value
+        // classes wrapping primitive types like Int and Long.
+
+        // if (clazz.isSingleFieldValueClass) {
+        //     val underlyingErased = getInlineClassUnderlyingType(clazz).eraseIfReferenceType()
+        //     return if (underlyingErased.isPrimitiveType() || underlyingErased.isUnsignedType() ||
+        //                underlyingErased.getClass()?.isSingleFieldValueClass == true) {
+        //         this
+        //     } else {
+        //         backendContext.irBuiltIns.anyNType
+        //     }
+        // }
         return backendContext.irBuiltIns.anyNType
     }
 

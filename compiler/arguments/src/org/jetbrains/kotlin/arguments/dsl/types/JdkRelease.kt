@@ -177,8 +177,6 @@ enum class JdkRelease(
             stabilizedVersion = KotlinReleaseVersion.v1_7_0,
         )
     ),
-
-    @SerialName("26")
     JDK_26(
         releaseName = "26",
         releaseVersionsMetadata = KotlinReleaseVersionLifecycle(

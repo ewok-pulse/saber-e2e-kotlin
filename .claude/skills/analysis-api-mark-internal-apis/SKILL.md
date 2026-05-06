@@ -1,16 +1,21 @@
 ---
 name: analysis-api-mark-internal-apis
-description: Find and mark non-internal declarations in Analysis API implementation modules with appropriate visibility annotations
+description: Drive the per-module internal-API codebase test, then refine the suggested annotations down to `internal` (or up to `@KaImplementationDetail`) based on actual external usage
 user-invocable: true
 disable-model-invocation: true
-argument-hint: "[--intellij=<path>] [--dry-run] [--filter=<glob>]"
+argument-hint: "[--intellij=<path>]"
 ---
 
 # Mark Internal APIs in Analysis API Implementation Modules
 
-Declarations in Analysis API implementation modules should not be exposed to users. They should be `internal` or annotated
-with a visibility annotation. This skill finds non-internal, non-annotated declarations and marks them based on their usage
-patterns.
+Public declarations in Analysis API implementation modules should not be exposed to users. They should be `internal` or
+annotated with a visibility annotation. The codebase test
+[`AbstractAnalysisApiInternalApiTest`](../../../compiler/psi/psi-api/testFixtures/org/jetbrains/kotlin/AbstractAnalysisApiInternalApiTest.kt)
+already finds unmarked declarations and chooses a default annotation per module/package. This skill runs that test in
+auto-apply mode, then refines each freshly marked declaration: downgrade to `internal` when it has no callers outside its
+module, upgrade `@LLFirInternals` to `@KaImplementationDetail` when its callers reach outside `analysis/low-level-api-fir/`,
+and keep the rest. Finally, fix any "internal exposed through public API" build errors by re-promoting `internal` declarations
+to `@KaImplementationDetail`.
 
 **Reference:** Read [Guard API Endpoints with Annotations](/analysis/docs/contribution-guide/api-development.md#guard-api-endpoints-with-annotations)
 for the full annotation guide and placement rules.
@@ -19,227 +24,222 @@ for the full annotation guide and placement rules.
 
 ### Module selection (required)
 
-Use `AskUserQuestion` to present a selection of modules to scan. The user must pick one:
+Use `AskUserQuestion` to present a selection of modules. The user must pick one. Only modules that have a per-module
+codebase test are listed here:
 
-| Choice                    | Module path (project-relative)     |
-|---------------------------|------------------------------------|
-| `analysis-api-fe10`       | `analysis/analysis-api-fe10`       |
-| `analysis-api-fir`        | `analysis/analysis-api-fir`        |
-| `analysis-api-impl-base`  | `analysis/analysis-api-impl-base`  |
-| `analysis-internal-utils` | `analysis/analysis-internal-utils` |
-| `low-level-api-fir`       | `analysis/low-level-api-fir`       |
+| Choice                   | Module path (project-relative)    | Gradle codebase test task                       |
+|--------------------------|-----------------------------------|-------------------------------------------------|
+| `analysis-api-fir`       | `analysis/analysis-api-fir`       | `:analysis:analysis-api-fir:testCodebase`       |
+| `analysis-api-impl-base` | `analysis/analysis-api-impl-base` | `:analysis:analysis-api-impl-base:testCodebase` |
+| `low-level-api-fir`      | `analysis/low-level-api-fir`      | `:analysis:low-level-api-fir:testCodebase`      |
+
+Throughout this skill, `<module>` and `<gradle-task>` refer to the user's selection.
 
 ### Optional flags
-
-Parse the following from the argument string. All are optional.
 
 | Input         | Flag                | Default                                  | Description                                                          |
 |---------------|---------------------|------------------------------------------|----------------------------------------------------------------------|
 | IntelliJ repo | `--intellij=<path>` | `../ultimate` (relative to project root) | Path to the IntelliJ repository for additional usage search          |
-| Dry run       | `--dry-run`         | `false`                                  | Only report findings, do not modify files                            |
-| File filter   | `--filter=<glob>`   | *(none)*                                 | Restrict scan to matching files within the module's `src/` directory |
 
 ---
 
 ## Annotations Reference
 
-### Exclusion annotations
+The codebase test owns the **initial** choice of marker for each unmarked declaration. The test's per-module logic lives in
+the `suggestedAnnotation` overrides:
 
-Skip declarations already annotated with **any** of these (they are already visibility-restricted):
+- `analysis-api-fir`, `analysis-api-impl-base` → always `@KaImplementationDetail`.
+- `low-level-api-fir` → `@KaImplementationDetail` for declarations in `org.jetbrains.kotlin.analysis.low.level.api.fir.api`
+  (and subpackages); `@LLFirInternals` for everything else.
 
-- `@KaExperimentalApi`
-- `@KaPlatformInterface`
-- `@KaNonPublicApi`
-- `@KaIdeApi`
-- `@KaImplementationDetail`
-- `@LLFirInternals`
+The set of annotations the test treats as already-marked (so they're never flagged) lives in
+[`AnalysisApiNonPublicMarkers`](../../../compiler/psi/psi-api/testFixtures/org/jetbrains/kotlin/AnalysisApiNonPublicMarkers.kt):
+`@KaImplementationDetail`, `@KaExperimentalApi`, `@KaPlatformInterface`, `@KaNonPublicApi`, `@KaIdeApi`, `@LLFirInternals`.
+The test also skips `internal`/`private` declarations, `annotation class` declarations annotated with `@RequiresOptIn`, and
+declarations carrying `override`. None of those reach this skill.
 
-Also skip:
-- `internal` and `private` declarations
-- `annotation class` declarations annotated with `@RequiresOptIn` — these are opt-in markers themselves and must remain
-  public so other modules can reference them in `@OptIn(...)`
+The skill then refines the test's suggestion based on actual external usage. The rules differ slightly per module because of how
+sub-modules see each other:
 
-### Target annotations
+In every implementation module, `src/` and the test source sets are separate Kotlin modules — an `internal` declaration in `src/` is
+**not** visible from `tests/` or `testFixtures/`. That's why "used in own tests" is enough to disqualify a declaration from being
+`internal`. Only `low-level-api-fir` has its own opt-in marker (`@LLFirInternals`) for "test-accessible LL-FIR-internal" declarations;
+the other modules don't have a similar marker because their implementations don't go that deep, and `@KaImplementationDetail` is the
+catch-all for cross-sub-module visibility there.
 
-The annotation for "test-only" usages depends on the selected module:
+| Test's suggestion         | Where the declaration is referenced (besides own `src/`)                                | Action                                   |
+|---------------------------|-----------------------------------------------------------------------------------------|------------------------------------------|
+| `@KaImplementationDetail` | Nowhere (only own `src/`)                                                               | **Downgrade** to `internal`              |
+| `@KaImplementationDetail` | Anywhere else (own tests, outside the module, IntelliJ)                                 | Keep                                     |
+| `@LLFirInternals`         | Nowhere (only own `src/`)                                                               | **Downgrade** to `internal`              |
+| `@LLFirInternals`         | Only inside `analysis/low-level-api-fir/` (own tests/testFixtures, no usages outside)   | Keep                                     |
+| `@LLFirInternals`         | Anywhere outside `analysis/low-level-api-fir/`                                          | **Upgrade** to `@KaImplementationDetail` |
 
-**For `low-level-api-fir`:**
-
-| Usage classification | Action |
-|----------------------|--------|
-| No usages outside `<module>/src/` | Add `internal` visibility modifier |
-| Usages only in test sources | Annotate with `@LLFirInternals` |
-| Usages in production code outside the module | Annotate with `@KaImplementationDetail` |
-
-**Exception:** Declarations in the `org.jetbrains.kotlin.analysis.low.level.api.fir.api` package (the LL FIR public
-API surface) follow the same two-way rules as other modules — they should **never** be annotated with `@LLFirInternals`.
-Use `internal` if unused outside the module, or `@KaImplementationDetail` for any external usages (test or production).
-
-**For all other modules** (`analysis-api-fe10`, `analysis-api-fir`, `analysis-api-impl-base`, `analysis-internal-utils`):
-
-| Usage classification | Action |
-|----------------------|--------|
-| No usages outside `<module>/src/` | Add `internal` visibility modifier |
-| Any usages outside the module (test or production) | Annotate with `@KaImplementationDetail` |
+The skill never *adds* annotations to declarations the codebase test didn't already touch — Phase 5 just builds and reports any
+remaining errors for manual review.
 
 ---
 
-## Phase 1: Scan for candidates
+## Phase 1: Run the codebase test in auto-apply mode
 
-### Step 1: Find source files
+Replace any manual scan. The test discovers and annotates one violating file per run.
 
-Find all `.kt` files under `<module>/src/`. If `--filter` is provided, restrict to matching files.
-Exclude any generated files or build output.
+### Step 1: Invoke the test with auto-apply enabled
 
-### Step 2: Identify declarations that need marking
+```bash
+./gradlew <gradle-task> \
+    -Pkotlin.analysis.codebaseTest.internalApi.updateSourceCode=true \
+    -Pkotlin.test.instrumentation.disable.inputs.check=true
+```
 
-For each source file, identify **non-internal, non-private** declarations that are not annotated with any exclusion annotation:
+- `kotlin.analysis.codebaseTest.internalApi.updateSourceCode=true` flips the abstract test into write-back mode: it writes
+  the suggested fix to the violating source file, then throws to stop iteration.
+- `kotlin.test.instrumentation.disable.inputs.check=true` disables the test-input security manager so the test JVM is
+  allowed to write to source files.
 
-**In scope:**
-- **Top-level declarations:** classes, interfaces, objects, functions, properties, type aliases, enum classes, sealed
-  classes/interfaces, annotation classes
-- **Nested classifiers:** classes, interfaces, objects (including companion objects), enum classes within other classifiers
+### Step 2: Interpret the outcome
 
-**Out of scope (skip):**
-- Declarations with `internal` or `private` visibility
-- Declarations annotated with any exclusion annotation listed above
-- Nested non-classifier members (functions, properties) — these inherit effective visibility from their containing classifier
-- Declarations inside an `internal` or `private` parent classifier (already effectively restricted)
+- **Test passes (BUILD SUCCESSFUL):** every public declaration in `<module>/src/` is already marked correctly. Skip to
+  **Phase 5** to perform a final build check.
+- **Test fails with `"Auto-applied N marker annotation(s) to <File>.kt. ..."`:** exactly one source file under
+  `<module>/src/` was modified on disk. The next phases work on that file.
 
-**Practical approach for scanning:**
-1. Search for files containing top-level declarations without `internal`/`private` modifiers. Top-level declarations
-   in Kotlin start at column 0 (no indentation), possibly preceded by annotations on the lines above.
-2. Read candidate files to confirm which declarations need marking. Check both the declaration line and any
-   annotations on preceding lines.
-3. For nested classifiers, check whether the containing classifier is already `internal`/`private` or annotated.
+If the test fails with a different message (compile error, security exception, etc.), **stop** and report the error to the
+user — the skill cannot make sense of unrelated failures.
 
-### Step 3: Present candidates and confirm
+### Step 3: Identify the modified file
 
-Present all found candidates grouped by file:
-- File path
-- For each declaration: name, kind (`class`, `fun`, `val`, `object`, etc.), current visibility (`public`/default)
+Use `git diff --name-only` (filtered to files under `<module>/src/`):
 
-Ask the user to confirm before proceeding. They may want to exclude certain declarations or adjust the scope.
+```bash
+git diff --name-only -- '<module>/src/'
+```
 
-If `--dry-run` is specified, the user confirmation should note that Phase 2 will only report classifications without modifying files.
+If multiple files are reported, prefer the one the test message named (the message contains the file's basename). Other
+files in the diff are likely the user's pre-existing edits — don't touch them.
 
 ---
 
-## Phase 2: Classify and annotate
+## Phase 2: Diff, downgrade, upgrade
 
-Process each candidate declaration. Work through files sequentially — annotate all candidates in a file before moving
-to the next one, so that imports and annotations can be batched.
+For the modified file from Phase 1.
 
-### Step 1: Search for usages outside the module
+### Step 1: Extract the newly added annotations
 
-Use **JetBrains MCP** for searching within the Kotlin project. The MCP does not have a dedicated "Find Usages" tool,
-so use `search_text` (preferred for exact names) or `search_regex` with path filtering instead.
+The test only inserts lines of the form `<indent>@<MarkerName>` directly above a declaration. Use `git diff <file>` (or
+`mcp__idea__read_file` on `<file>` and on the HEAD version via `git show HEAD:<file>`) to extract, for each insertion:
 
-- **Within the Kotlin project (JetBrains MCP):** Use `search_text` or `search_regex` with `paths` to exclude the
-  module's own source directory (e.g., `["!analysis/low-level-api-fir/src/**"]`).
-- **Within the IntelliJ repository:** The IntelliJ repo is a separate project, so JetBrains MCP cannot search it.
-  Use standard `Grep` to search the IntelliJ repo at the `--intellij` path. 
-  - If the project cannot be found, notify the user but don't abort. Continue searching for usages in the Kotlin 
-    project.
+- the **declaration** the annotation precedes (kind, name, FQN);
+- the **inserted annotation** — `@KaImplementationDetail` or `@LLFirInternals`.
 
-**Search scope and classification:**
-- Usages in `<module>/src/` → **ignore** (same module)
-- Usages in any `tests/`, `test/`, or `testData/` directory (in any module) → **test usage**
-- Usages in any other source directory → **production usage**
-- Usages in the IntelliJ repository → **production usage**
+### Step 2: Classify each declaration's usages
+
+For each newly marked declaration, determine where it is referenced **besides its own `src/`**:
+
+- `<module>/tests/`, `<module>/testFixtures/`, `<module>/test/` count as **own tests**.
+- Ignore `<module>/testData/`: those are data files, not Kotlin sources, and can mention internal class names without it
+  being a real usage.
+- Anything else (other modules' `src/`/`tests/`, the IntelliJ repository) counts as **outside the module**.
+
+Tools to run the search:
+
+- **Within the Kotlin project:** use `mcp__idea__search_text` (preferred for exact names) or `mcp__idea__search_regex`,
+  with the `paths` parameter to scope the search. To distinguish own-tests from outside-the-module hits, run two queries
+  (or read each result's path). For example, for a declaration in `analysis/low-level-api-fir/`, an "outside" search is:
+  ```
+  paths: ["!analysis/low-level-api-fir/**"]
+  ```
+  …and an "own tests" search is:
+  ```
+  paths: ["analysis/low-level-api-fir/tests/**", "analysis/low-level-api-fir/testFixtures/**"]
+  ```
+- **Within the IntelliJ repository:** the IntelliJ repo is a separate project, so JetBrains MCP cannot search it. Use the
+  standard `Grep` tool against `--intellij=<path>`. Anything that hits in the IntelliJ repo counts as **outside the module**.
+  If the path doesn't exist, notify the user but don't abort — proceed with Kotlin-repo results only.
 
 **Reducing false positives:**
-- For declarations with common names (e.g., `create`, `get`, `resolve`), search for the qualified name or
-  a distinctive usage pattern (e.g., `ClassName.methodName`, `import ...ClassName`).
-- When results are ambiguous, read the usage site to confirm it references this specific declaration.
-- For classes/interfaces/objects, searching for the name is usually sufficient since classifier names tend to be unique.
+- For declarations with common names (`create`, `get`, `resolve`), search for the qualified name or a distinctive usage
+  pattern (e.g., `ClassName.methodName`, `import ...ClassName`).
+- When a hit is ambiguous, read the usage site to confirm it references this specific declaration.
+- Classifier names (classes/interfaces/objects) are usually distinctive enough on their own.
 
-### Step 2: Classify the declaration
+### Step 3: Apply the per-declaration decision
 
-Apply the target annotation rules from the [Annotations Reference](#target-annotations) section based on the selected module.
+| Test's suggestion         | Where the declaration is referenced (besides own `src/`)                                | Action                                                                                                                              |
+|---------------------------|-----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `@KaImplementationDetail` | Nowhere (only own `src/`)                                                               | **Downgrade.** Remove the inserted annotation line. Add `internal` before the declaration keyword.                                  |
+| `@KaImplementationDetail` | Anywhere else (own tests, outside the module, IntelliJ)                                 | **Keep.** No change.                                                                                                                |
+| `@LLFirInternals`         | Nowhere (only own `src/`)                                                               | **Downgrade.** Remove the inserted annotation line. Add `internal` before the declaration keyword.                                  |
+| `@LLFirInternals`         | Only inside `analysis/low-level-api-fir/` (own tests/testFixtures, no usages outside)   | **Keep.** No change. This is precisely what `@LLFirInternals` is for: making a `src/` declaration accessible to LL FIR's own tests. |
+| `@LLFirInternals`         | Anywhere outside `analysis/low-level-api-fir/`                                          | **Upgrade.** Replace the `@LLFirInternals` line with `@KaImplementationDetail`. Swap imports accordingly.                           |
 
-### Step 3: Apply the annotation
+Apply edits with `mcp__idea__replace_text_in_file`. **Import housekeeping:** when removing or replacing an annotation,
+also remove the corresponding import if no other declaration in the file still uses it. When adding `@KaImplementationDetail`,
+ensure `import org.jetbrains.kotlin.analysis.api.KaImplementationDetail` is present.
 
-**If `--dry-run`:** Report the classification without modifying files. Continue to the next candidate.
+### Step 4: Downgrading nested classifiers
 
-**Otherwise:**
+If the same diff includes a top-level classifier **and** nested classifiers within it, and the top-level was downgraded to
+`internal`, the nested classifiers don't need their own marker — Kotlin's `internal` visibility transitively covers them.
+For each nested classifier in the diff under that newly-`internal` parent: drop the inserted annotation (and any redundant
+import), without adding `internal`.
 
-- **`internal`**: Add the `internal` visibility modifier before the declaration keyword.
-  - If the declaration currently says `public`, replace `public` with `internal`.
-  - If the declaration has no explicit visibility modifier, add `internal` before the declaration keyword.
-
-- **`@LLFirInternals`** (only for `low-level-api-fir`): Add the annotation on the line above the declaration
-  (after any existing annotations, before the declaration keyword line). Add the import if not present:
-  ```
-  import org.jetbrains.kotlin.analysis.low.level.api.fir.LLFirInternals
-  ```
-
-- **`@KaImplementationDetail`**: Add the annotation on the line above the declaration. Add the import if not present:
-  ```
-  import org.jetbrains.kotlin.analysis.api.KaImplementationDetail
-  ```
-
-### Step 4: Propagate annotations to nested classifiers
-
-After annotating a top-level classifier with `@LLFirInternals` or `@KaImplementationDetail`, **re-read the file** and
-check the classifier body for **non-internal, non-private nested classifiers** — including **companion objects**, nested
-classes, interfaces, objects, and enum classes. Add the **same annotation** to each of them. This is required because the
-binary compatibility checker does not propagate opt-in annotations from outer to nested classes (see the
-[placement rules](/analysis/docs/contribution-guide/api-development.md#guard-api-endpoints-with-annotations)).
-
-This step does not apply to classifiers marked `internal` — the compiler enforces `internal` visibility transitively.
-
-### Step 5: Flag override declarations
-
-**Override declarations:** If a candidate declaration has the `override` keyword, or if making it more restrictive
-would violate a contract (e.g., it implements an interface member defined in a more visible scope), **flag it for
-manual review** instead of annotating it. Report these separately in the summary.
+The skill does **not** need to handle `override` declarations specially: the codebase test's `isViolation` filters them
+out before they reach the diff (see `AbstractAnalysisApiInternalApiTest.isViolation`).
 
 ---
 
 ## Phase 3: Verify
 
-### Step 1: Check for problems
-
-Run JetBrains MCP `get_file_problems` with `errorsOnly=false` on each modified file. Fix any warnings or errors
-related to the changes (e.g., missing imports, opt-in requirements in the same module).
+Run JetBrains MCP `get_file_problems` with `errorsOnly=false` on the modified file. Fix any warnings or errors related to
+the changes (missing imports, opt-in requirements introduced by the new annotations, etc.).
 
 ---
 
-## Phase 4: Build and fix exposure errors
+## Phase 4: Loop
 
-### Step 1: Build the module
+Re-run **Phase 1 Step 1** with the same flags. There are three outcomes:
 
-Build the scanned module using the appropriate Gradle command, e.g.:
+- **Test passes** → proceed to Phase 5.
+- **Test fails on the same file you just processed** → something went wrong (the downgrade/upgrade may have re-introduced a
+  violation, or the file still has unmarked declarations). Stop and report to the user.
+- **Test fails on a new file** → return to Phase 2 with that file.
+
+---
+
+## Phase 5: Build and report
+
+Run a normal compilation of the module:
+
 ```bash
-./gradlew :analysis:low-level-api-fir:compileKotlin -q
+./gradlew :analysis:<module>:compileKotlin -q
 ```
-Adapt the Gradle path to match the selected module.
 
-### Step 2: Fix "internal declaration exposed through public API" errors
+If the build **succeeds**, proceed to Phase 6.
 
-When a declaration was marked `internal` but is used in the signature of a non-internal declaration (parameter type,
-return type, supertype, etc.), the compiler reports an "internal declaration exposed through public API" error at the
-use-site.
+If the build **fails**, stop and present the errors verbatim to the user for manual review. The skill does **not** auto-fix
+build errors. Common failure modes the user will need to resolve:
 
-**Fix:** Replace `internal` with `@KaImplementationDetail` on the **exposed declaration** (the one that was marked
-`internal`), not the use-site. The use-site declaration likely needs to remain public at this point.
+- **"internal declaration exposed through public API"** — a declaration the skill downgraded to `internal` is referenced
+  in the signature of a public declaration in the same module. The user typically resolves this by switching the exposed
+  declaration from `internal` to `@KaImplementationDetail`.
+- **`OPT_IN_USAGE_ERROR`** at use sites — a callsite of a newly annotated declaration needs an `@OptIn` annotation, a
+  module-level `optIn` compiler option, or its own marker annotation. These can also be triggered by previously unannotated
+  declarations the test just marked.
+- **Unresolved imports** — rare, but possible if the skill's import housekeeping in Phase 2 missed a case.
 
-This is a blind spot during the research phase — in-module usages may expose a declaration through a public API, but
-at research time it is unclear whether the use-site declaration will also become `internal`. The compiler resolves this
-ambiguity after all changes are applied.
+Auto-fixing any of these from the diff alone risks masking real problems (e.g., upgrading `internal` to
+`@KaImplementationDetail` everywhere on exposure would defeat the point of distinguishing the two), so this is left for
+manual review.
 
-### Step 3: Rebuild until clean
+---
 
-After fixing exposure errors, rebuild to check for cascading issues (fixing one exposure might reveal another).
-Repeat until the build succeeds.
+## Phase 6: Final summary
 
-### Step 4: Final summary
+Present a per-classification breakdown:
 
-Present the final summary:
-- Count and list of declarations marked `internal`
-- Count and list of declarations marked `@LLFirInternals` (if `low-level-api-fir`)
-- Count and list of declarations marked `@KaImplementationDetail`
-- Declarations that were changed from `internal` to `@KaImplementationDetail` due to exposure errors
-- Count and list of declarations flagged for manual review
-- Any remaining issues
+- Declarations marked `internal` (Phase 2 downgrades).
+- Declarations kept as `@KaImplementationDetail` (test's suggestion confirmed).
+- Declarations kept as `@LLFirInternals` (own-tests-only access; no usages outside `analysis/low-level-api-fir/`).
+- Declarations upgraded from `@LLFirInternals` to `@KaImplementationDetail` (Phase 2 upgrades).
+- Any compilation errors flagged in Phase 5 for the user to resolve manually.

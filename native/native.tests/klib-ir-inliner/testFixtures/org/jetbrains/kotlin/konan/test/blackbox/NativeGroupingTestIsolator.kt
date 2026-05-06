@@ -32,6 +32,7 @@ class NativeGroupingTestIsolator(testServices: TestServices) : GroupingTestIsola
                 || moduleStructure.allDirectives.contains(TestDirectives.NATIVE_STANDALONE)
                 || moduleStructure.allDirectives[TestDirectives.FILECHECK_STAGE].isNotEmpty()
                 || moduleStructure.sourceContains(packageKotlinInternalRegex)
+                || moduleStructure.modules.any { module -> module.files.any { it.name.endsWith(".def") } }
         if (shouldBeIsolated) return BatchToken.Isolated
         return computeAssertionsModeToken(moduleStructure) ?: BatchToken.Regular
     }

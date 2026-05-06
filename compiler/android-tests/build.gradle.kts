@@ -1,4 +1,7 @@
 import org.jetbrains.kotlin.build.androidsdkprovisioner.ProvisioningType
+import org.jetbrains.kotlin.testFederation.SmokeTestConfig
+import org.jetbrains.kotlin.testFederation.TemporaryTestFederationApi
+import org.jetbrains.kotlin.testFederation.smokeTestConfig
 
 plugins {
     kotlin("jvm")
@@ -71,6 +74,9 @@ projectTests {
         androidSdkProvisioner {
             provideToThisTaskAsSystemProperty(ProvisioningType.SDK_WITH_EMULATOR)
         }
+
+        @OptIn(TemporaryTestFederationApi::class)
+        smokeTestConfig = SmokeTestConfig.Disabled
     }
 
     withJvmStdlibAndReflect()

@@ -58,6 +58,7 @@ enum class KaSyntheticJavaPropertyAccessorKind {
         SETTER -> propertySymbol.setter
     }
 
+    @KaImplementationDetail
     companion object {
         fun fromAccessorName(accessorName: Name): KaSyntheticJavaPropertyAccessorKind? {
             val accessorNameAsString = accessorName.asString()

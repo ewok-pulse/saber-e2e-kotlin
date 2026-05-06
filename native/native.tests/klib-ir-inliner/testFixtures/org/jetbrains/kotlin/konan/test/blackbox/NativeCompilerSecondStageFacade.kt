@@ -72,7 +72,7 @@ class NativeCompilerSecondStageFacade private constructor(
             }
             val (exitCode, output, executableFile) = facade.runCli(
                 dirName = File(mainLibrary).name,
-                executableFileName = module.name + ".kexe",
+                executableFileName = "${module.name}.${facade.executableExtension}",
                 fileCheckStage = module.fileCheckStage(),
                 regularDependencies = regularDependencies,
                 friendDependencies = friendDependencies,
@@ -116,9 +116,15 @@ class NativeCompilerSecondStageFacade private constructor(
             }
 
             val facade = NativeCompilerSecondStageFacade(testServices, customNativeCompilerSettings)
+
+            // In grouping mode the module name is being escaped with the test info, which could produce
+            // quite a big executable file path. This leads to problems on windows, as there is a hard
+            // limit of 260 characters for executable file path. So we use the hash of the module name
+            // instead.
+            val moduleNameHash = someModule.name.hashCode().toHexString()
             val (exitCode, output, executableFile) = facade.runCli(
-                dirName = someLibrary!!.name,
-                executableFileName = someModule.name + ".kexe",
+                dirName = someLibrary!!.resolveSibling(moduleNameHash).absolutePath,
+                executableFileName = "$moduleNameHash.${facade.executableExtension}",
                 fileCheckStage = someModule.fileCheckStage(),
                 regularDependencies = regularDependencies,
                 friendDependencies = friendDependencies,
@@ -154,6 +160,12 @@ class NativeCompilerSecondStageFacade private constructor(
     val nativeHome = customNativeCompilerSettings.nativeHome
     val kotlinNativeTargets = testRunSettings.get<KotlinNativeTargets>()
     val withPlatformLibs = testRunSettings.withPlatformLibs
+
+    val executableExtension: String
+        get() = when {
+            System.getProperty("os.name").lowercase().startsWith("windows") -> "exe"
+            else -> "kexe"
+        }
 
     fun getNativeArtifactsOutputDir(testServices: TestServices, moduleName: String): File {
         return testServices.temporaryDirectoryManager.getOrCreateTempDirectory(moduleName)

@@ -149,7 +149,7 @@ public class ForTestCompileRuntime {
         return getFileFromProperty(KOTLIN_JS_STDLIB_KLIB_PATH);
     }
 
-    private static File getFileFromProperty(String property) {
+    public static File getFileFromProperty(String property) {
         String path = getProperty(property);
         assert (path != null) : "Property " + property + " is not defined";
         File file = new File(path);

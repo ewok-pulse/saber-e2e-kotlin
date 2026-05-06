@@ -386,7 +386,6 @@ fun Project.configureTests() {
 
             ":native:unsafe-mem", // KTI-3068.
             ":plugins:compose-compiler-plugin:compiler-hosted:integration-tests",
-            ":plugins:jvm-abi-gen",
             ":plugins:scripting:scripting-tests",
             ":repo:artifacts-tests",
             ":repo:codebase-tests",

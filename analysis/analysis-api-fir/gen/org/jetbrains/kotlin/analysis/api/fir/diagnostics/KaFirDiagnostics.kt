@@ -1467,6 +1467,7 @@ sealed interface KaFirDiagnostic<PSI : PsiElement> : KaDiagnosticWithPsi<PSI> {
     interface InapplicableOperatorModifierWarning : KaFirDiagnostic<PsiElement> {
         override val diagnosticClass get() = InapplicableOperatorModifierWarning::class
         val message: String
+        val deprecatingFeature: LanguageFeature
     }
 
     interface InapplicableLateinitModifier : KaFirDiagnostic<KtModifierListOwner> {

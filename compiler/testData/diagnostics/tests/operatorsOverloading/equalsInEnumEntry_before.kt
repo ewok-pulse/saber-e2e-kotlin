@@ -3,14 +3,14 @@
 
 enum class E {
     X {
-        operator fun equals(other: E): Boolean = true
+        <!INAPPLICABLE_OPERATOR_MODIFIER_WARNING!>operator<!> fun equals(other: E): Boolean = true
     },
     Y {
-        operator fun equals(a: Int, b: Int): Unit = Unit
+        <!INAPPLICABLE_OPERATOR_MODIFIER_WARNING!>operator<!> fun equals(a: Int, b: Int): Unit = Unit
     },
     Z {
         context(e: E)
-        operator fun equals(): Any? = null
+        <!INAPPLICABLE_OPERATOR_MODIFIER_WARNING!>operator<!> fun equals(): Any? = null
     }
 }
 

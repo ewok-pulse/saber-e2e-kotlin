@@ -1,12 +1,13 @@
 // RUN_PIPELINE_TILL: BACKEND
 // LANGUAGE: -ForbidOperatorEqualsInEnumEntriesAndAnonymousObjects
+// RENDER_DIAGNOSTICS_FULL_TEXT
 
 fun test() {
     val a = object {
-        operator fun String.equals(): Boolean = true
+        <!INAPPLICABLE_OPERATOR_MODIFIER_WARNING!>operator<!> fun String.equals(): Boolean = true
     }
     val b = object {
-        suspend operator fun equals() { }
+        suspend <!INAPPLICABLE_OPERATOR_MODIFIER_WARNING!>operator<!> fun equals() { }
     }
     val c = object {
         override operator fun equals(other: Any?): Boolean = true

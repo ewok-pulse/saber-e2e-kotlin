@@ -47,10 +47,11 @@ object FirOperatorModifierChecker : FirFunctionChecker(MppCheckerKind.Common) {
     private fun OperatorDiagnostic.mapOperatorDiagnostic(declaration: FirFunction, modifierSource: KtSourceElement) {
         when (this) {
             is OperatorDiagnostic.DeprecatedOperatorDiagnostic -> {
-                val factory =
-                    if (feature.isEnabled()) FirErrors.INAPPLICABLE_OPERATOR_MODIFIER
-                    else FirErrors.INAPPLICABLE_OPERATOR_MODIFIER_WARNING
-                reporter.reportOn(declaration.source, factory, message)
+                if (feature.isEnabled()) {
+                    reporter.reportOn(declaration.source, FirErrors.INAPPLICABLE_OPERATOR_MODIFIER, message)
+                } else {
+                    reporter.reportOn(declaration.source, FirErrors.INAPPLICABLE_OPERATOR_MODIFIER_WARNING, message, feature)
+                }
             }
             is OperatorDiagnostic.IllegalOperatorDiagnostic -> {
                 reporter.reportOn(declaration.source, FirErrors.INAPPLICABLE_OPERATOR_MODIFIER, message)

@@ -1754,6 +1754,7 @@ internal class InapplicableOperatorModifierImpl(
 
 internal class InapplicableOperatorModifierWarningImpl(
     override val message: String,
+    override val deprecatingFeature: LanguageFeature,
     firDiagnostic: KtPsiDiagnostic,
     token: KaLifetimeToken,
 ) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.InapplicableOperatorModifierWarning

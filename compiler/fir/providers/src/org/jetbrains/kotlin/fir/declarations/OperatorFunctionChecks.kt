@@ -357,13 +357,11 @@ private object Checks {
     object EqualsOverridesEqualsOfAny : Check() {
         override fun check(function: FirNamedFunction, session: FirSession, scopeSession: ScopeSession?): OperatorDiagnostic? {
             if (scopeSession == null) return null
-            val containingClassSymbol = function.containingClassLookupTag()?.run {
-                if (session.languageVersionSettings.supportsFeature(LanguageFeature.ForbidOperatorEqualsInEnumEntriesAndAnonymousObjects))
-                    toClassSymbol(session)
-                else
-                    toRegularClassSymbol(session)
-            } ?: return null
+            val containingClassSymbol = function.containingClassLookupTag()?.toClassSymbol(session) ?: return null
             val customEqualsSupported = session.languageVersionSettings.supportsFeature(LanguageFeature.CustomEqualsInValueClasses)
+            val deprecatingFeature = LanguageFeature.ForbidOperatorEqualsInEnumEntriesAndAnonymousObjects.takeIf {
+                containingClassSymbol !is FirRegularClassSymbol
+            }
 
             if (function.symbol.overriddenFunctions(containingClassSymbol, session, scopeSession)
                     .any { it.containingClassLookupTag()?.classId == StandardClassIds.Any }
@@ -380,7 +378,10 @@ private object Checks {
                     append(" or define 'equals(other: ${expectedParameterTypeRendered}): Boolean'")
                 }
             }
-            return OperatorDiagnostic.IllegalOperatorDiagnostic(message)
+            return if (deprecatingFeature != null)
+                OperatorDiagnostic.DeprecatedOperatorDiagnostic(message, deprecatingFeature)
+            else
+                OperatorDiagnostic.IllegalOperatorDiagnostic(message)
         }
     }
 

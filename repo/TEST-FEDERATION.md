@@ -1,13 +1,28 @@
 # Test Federation
 
-The mono-repository is split into multiple 'Domains' (like 'Compiler', 'AnalysisApi', ...).
+The monorepository is split into multiple 'Domains' (like 'Compiler', 'AnalysisApi', ...).
 The CI can verify commits into such Domains independently.
 'Plain old tests' of 'unaffected Domains' are not required to be executed on CI.
 
+### What is a Domain? (Quick intuition)
+
+A Domain is a **CI ownership and impact unit**, not an architecture concept.
+
+- It answers: "If files in this area change, which tests should CI run?"
+- It does **not** answer: "How should production code be layered or designed?"
+
+Think of a Domain as a **change-radius boundary**:
+
+- Inside the boundary: changes make this Domain affected.
+- Outside the boundary: this Domain stays unaffected (unless connected via `fullyAffectedBy` or Contracts).
+
+In other words, Domains model **test impact**, not **code structure purity**. A single subsystem can span multiple Domains,
+and one Domain can include files from multiple places if that gives better CI behavior.
+
 ## Defining Domains
 
-Domains are defined in the [domains.yaml](./domains.yaml) file
-e.g. the `Native` domain could be defined as:
+Domains are defined in the [domains.yaml](./domains.yaml) file.
+e.g., the `Native` domain could be defined as:
 
 ```yaml
 Native:
@@ -19,14 +34,14 @@ Native:
     - Compiler
 ```
 
-where it gets assigned the 'kotlin-native' directory as its home.
+The domain is assigned the 'kotlin-native' directory as its home.
 Files belonging to this 'Native' domain are included using the `native/**` and `kotlin-native/**` globs.
 A domain is always marked as 'affected' if any file, belonging to the domain, is changed.
 
 ### Domains fully affecting other Domains
 
-Some domains might form a 'Domain/Subdomain' relationship which can be expressed using 'fullyAffectedBy.'
-A domain, which is fully affected by another domain, will always be marked as 'affected' by a set of changes if any of the
+Some domains might form a 'Domain/Subdomain' relationship, which can be expressed using 'fullyAffectedBy'.
+A domain that is fully affected by another domain will always be marked as 'affected' by a set of changes if any of the
 (transitive) dependencies are marked affected. In the example above:
 
 A change which marks the 'larger Compiler domain' as affected will also mark the 'Native' domain as affected, while
@@ -43,7 +58,7 @@ The declared domains will be 'expanded' into the actual files belonging to each 
 ```
 
 #### Updating the dump
-Changes to the domain.yaml file might require an update of the dump file.
+Changes to the domains.yaml file might require an update of the dump file.
 This can be done by executing the 'update-domains' script:
 
 ```shell
@@ -53,8 +68,8 @@ cd ..
 
 ### Smoke Tests: Verifying commits on the federal level
 
-All tests of affected 'Domains' will be executed on CI. Running tests of a domain, which is not affected can be done by
-marking a test as 'SmokeTest'. Using junit5 (or higher) allows using the `@SmokeTest` annotation
+All tests of affected 'Domains' will be executed on CI. Running tests of a domain that is not affected can be done by
+marking a test as a 'SmokeTest'. Using JUnit 5 (or higher) allows using the `@SmokeTest` annotation.
 
 - on the test method directly
 
@@ -105,28 +120,45 @@ Checking in a smoke test requires the test to fulfill the following criteria:
 - The test is very stable
 - The test is fast
 
-As unstable/flaky smoke tests affect the entire team, fixing them is a high priority.
+Because unstable/flaky smoke tests affect the entire team, fixing them is a high priority.
 
-### Entire test tasks as 'smoke tests'
+### Running a small subset of tests, as smoke tests, automatically
 
-It is possible to check in an entire test task as 'smoke test'.
-This can be done by using the `isSmokeTest` extension property on the `Test` task.
-E.g.
+Some test tasks do not have a clear candidate that stands out as a 'Smoke Test'. However, if all tests are quick and stable,
+running a percentage of those tests in 'smoke test mode' might be a good strategy for gaining confidence when testing unrelated
+changes. Any test task, therefore, allows specifying a 'smokeTestConfig'.
+
+Example: Run 5% of all tests in 'Smoke Test Mode'.
+When a commit is verified on CI, but the domain to which this test belongs is 'unaffected', then roughly 5% of the defined
+tests will still execute.
+
+Note: The selected tests are stable as the selection is based upon the FQN and unique ID of the test.
 
 ```kotlin
 tasks.withType<Test>().configureEach {
-    isSmokeTest = true
+    smokeTestConfig = SmokeTestConfig.Enabled(
+        autoSmokeTestPercentage = 5
+    )
 }
 ```
+
+Sometimes an entire test task should *always* run, even in 'smoke test mode'.
+```kotlin
+tasks.withType<Test>().configureEach {
+    smokeTestConfig = SmokeTestConfig.RunAllTests
+}
+```
+
+This will ensure that the test task is always executed and all tests are verified.
 
 ### Contracts between Domains | Single Tests / Test Suites affected by other domains
 
 Some Domains might rely on the behavior or API of another Domain.
-Such requirements can be expressed as 'Contract' between two Domains.
+Such requirements can be expressed as a 'Contract' between two Domains.
 Any test can be promoted to a 'Contract Test' using the relevant `@AffectedByXYZ` annotation.
 e.g., a test that defines a contract to the 'Js' compiler might be marked as `@AffectedByJs`.
 
-A set of well-maintained contracts is always more preferable than marking a domain as 'fullyAffectedBy' another domain, 
+A set of well-maintained contracts is always preferable to marking a domain as 'fullyAffectedBy' another domain,
 as 'ContractTests' will enable actually building efficient pipelines for verifying commits, whereas 'fullyAffectedBy'
 will require a full build of the affected domains.
 
@@ -137,7 +169,7 @@ class MyImportantJsTests {
 }
 ```
 
-any commit to the `Js` domain will verify all contracts.
+Any commit to the `Js` domain will verify all contracts.
 
 ##### Contracts require approval from the target team
 Declaring a contract is transactional between at least two teams (owning their domains). Defining and changing a contract requires

@@ -88,7 +88,7 @@ object JKlibIrCompilationPhase :
         val builtIns = JvmBuiltIns(projectContext.storageManager, JvmBuiltIns.Kind.FROM_DEPENDENCIES)
         val sortedDependencies = loadLibraries(klibFiles, configuration)
 
-        val dependencyDescriptorsByKlib = loadKlibDescriptors(sortedDependencies, configuration, storageManager, builtIns)
+        val dependencyDescriptorsByKlib = createKlibDescriptors(sortedDependencies, configuration, storageManager, builtIns)
 
         val jarDepsModuleDescriptor = createJarDependenciesModuleDescriptor(
             projectEnvironment,
@@ -249,19 +249,19 @@ object JKlibIrCompilationPhase :
         return dependenciesContext.module
     }
 
-    private fun loadKlibDescriptors(
+    private fun createKlibDescriptors(
         sortedDependencies: List<KotlinLibrary>,
         configuration: CompilerConfiguration,
         storageManager: StorageManager,
         builtIns: JvmBuiltIns,
     ): Map<KotlinLibrary, ModuleDescriptorImpl> {
-        // We need to wire the JvmBuiltInsCustomizer instance to the KlibMetadataFactories. This allows resolving APIs that are not part of
-        // the original builtins classes but are present in the mapped Java classes.
-        // We cannot directly pass builtIns.customizer because it's a lazy property. It can only be accessed after builtIns has been fully
-        // initialized. By the time the deserializer queries this provider, `builtIns` will have been fully initialized.
         val klibFactories = KlibMetadataFactories(
             { builtIns },
             JavaFlexibleTypeDeserializer,
+            // We need to wire the JvmBuiltInsCustomizer instance to the KlibMetadataFactories. This allows resolving APIs that are not part
+            // of the original builtins classes but are present in the mapped Java classes.
+            // We cannot directly pass builtIns.customizer because it's a lazy property. It can only be accessed after builtIns has been
+            // fully initialized. By the time the deserializer queries this provider, `builtIns` will have been fully initialized.
             additionalClassPartsProvider = object : AdditionalClassPartsProvider {
                 private val delegate by lazy { builtIns.customizer }
 

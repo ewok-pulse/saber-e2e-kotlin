@@ -2370,6 +2370,21 @@ public class CliTestGenerated extends AbstractCliTest {
       runTest("compiler/testData/cli/metadata/inheritorOfExpectSealedClass.args");
     }
 
+    @TestMetadata("klibMetadataVersionLV2.2.args")
+    public void testKlibMetadataVersionLV2_2() {
+      runTest("compiler/testData/cli/metadata/klibMetadataVersionLV2.2.args");
+    }
+
+    @TestMetadata("klibMetadataVersionLV2.4.args")
+    public void testKlibMetadataVersionLV2_4() {
+      runTest("compiler/testData/cli/metadata/klibMetadataVersionLV2.4.args");
+    }
+
+    @TestMetadata("klibMetadataVersionOverrideFlag.args")
+    public void testKlibMetadataVersionOverrideFlag() {
+      runTest("compiler/testData/cli/metadata/klibMetadataVersionOverrideFlag.args");
+    }
+
     @TestMetadata("kotlinPackage.args")
     public void testKotlinPackage() {
       runTest("compiler/testData/cli/metadata/kotlinPackage.args");

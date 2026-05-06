@@ -69,9 +69,9 @@ open class AbstractCustomNativeCompilerFirstStageTest : AbstractNativeCoreTest()
             ::AdditionalDiagnosticsSourceFilesProvider,
         )
 
-        // Modules containing .def files are compiled with ObjCInteropFacade to klib using the CInterop tool.
-        // The rest of the 1st stage pipeline will be skipped naturally, since 1st stage facades don't accept klibs as input artifact.
-        // The pipeline for the 2nd stage will be skipped, since cinterop klibs do not represent a main module in tests
+        // CInterop-related tests are not that different from regular tests. That's how they work:
+        // Modules containing .def files are compiled with ObjCInteropFacade to klib artifact using the old CInterop tool.
+        // The rest of the 1st stage pipeline will be skipped naturally, since further facades don't accept klibs as input artifacts.
         facadeStep(::ObjCInteropFacade.bind(/*isForwardTest*/false, customNativeCompilerSettings.compiler.getIsolatedClassLoader()))
 
         facadeStep(::CustomNativeCompilerFirstStageFacade)

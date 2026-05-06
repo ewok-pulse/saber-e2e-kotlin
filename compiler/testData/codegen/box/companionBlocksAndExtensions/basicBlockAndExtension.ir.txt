@@ -5,7 +5,6 @@ FILE fqName:<root> fileName:/basicBlockAndExtension.kt
         CONST String type=kotlin.String value="extVal "
     FUN DEFAULT_PROPERTY_ACCESSOR name:<get-compExtVal> visibility:public modality:FINAL returnType:kotlin.String
       correspondingProperty: PROPERTY name:compExtVal visibility:public modality:FINAL [val]
-      companionExtension: CLASS CLASS name:A modality:FINAL visibility:public superTypes:[kotlin.Any]
       BLOCK_BODY
         RETURN type=kotlin.Nothing from='public final fun <get-compExtVal> (): kotlin.String declared in <root>'
           GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:compExtVal type:kotlin.String visibility:private [final,static]' type=kotlin.String origin=null
@@ -79,7 +78,6 @@ FILE fqName:<root> fileName:/basicBlockAndExtension.kt
     VALUE_PARAMETER kind:Regular name:k index:0 type:kotlin.String
       EXPRESSION_BODY
         CONST String type=kotlin.String value=""
-    companionExtension: CLASS CLASS name:A modality:FINAL visibility:public superTypes:[kotlin.Any]
     BLOCK_BODY
       RETURN type=kotlin.Nothing from='public final fun compExtFun (k: kotlin.String): kotlin.String declared in <root>'
         STRING_CONCATENATION type=kotlin.String

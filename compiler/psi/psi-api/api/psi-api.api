@@ -1047,7 +1047,7 @@ public abstract interface class org/jetbrains/kotlin/psi/KtClassLikeDeclaration 
 	public abstract fun getClassId ()Lorg/jetbrains/kotlin/name/ClassId;
 }
 
-public class org/jetbrains/kotlin/psi/KtClassLiteralExpression : org/jetbrains/kotlin/psi/KtElementImplStub, org/jetbrains/kotlin/psi/KtDoubleColonExpression, org/jetbrains/kotlin/resolution/KtResolvable {
+public class org/jetbrains/kotlin/psi/KtClassLiteralExpression : org/jetbrains/kotlin/psi/KtElementImplStub, org/jetbrains/kotlin/psi/KtDoubleColonExpression {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun <init> (Lorg/jetbrains/kotlin/psi/stubs/KotlinClassLiteralExpressionStub;)V
 	public fun accept (Lorg/jetbrains/kotlin/psi/KtVisitor;Ljava/lang/Object;)Ljava/lang/Object;
@@ -1466,7 +1466,7 @@ public final class org/jetbrains/kotlin/psi/KtDotQualifiedExpression : org/jetbr
 public final class org/jetbrains/kotlin/psi/KtDotQualifiedExpression$Companion {
 }
 
-public abstract interface class org/jetbrains/kotlin/psi/KtDoubleColonExpression : org/jetbrains/kotlin/psi/KtExpression {
+public abstract interface class org/jetbrains/kotlin/psi/KtDoubleColonExpression : org/jetbrains/kotlin/psi/KtExpression, org/jetbrains/kotlin/resolution/KtResolvable {
 	public fun accept (Lorg/jetbrains/kotlin/psi/KtVisitor;Ljava/lang/Object;)Ljava/lang/Object;
 	public abstract fun findColonColon ()Lcom/intellij/psi/PsiElement;
 	public fun getDoubleColonTokenReference ()Lcom/intellij/psi/PsiElement;

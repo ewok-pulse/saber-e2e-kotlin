@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.KtStubBasedElementTypes;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.stubs.KotlinClassLiteralExpressionStub;
-import org.jetbrains.kotlin.resolution.KtResolvable;
 
 /**
  * Represents a class literal expression that gets a class reference.
@@ -24,7 +23,7 @@ import org.jetbrains.kotlin.resolution.KtResolvable;
  * //          ^__________^
  * }</pre>
  */
-public class KtClassLiteralExpression extends KtElementImplStub<KotlinClassLiteralExpressionStub> implements KtDoubleColonExpression, KtResolvable {
+public class KtClassLiteralExpression extends KtElementImplStub<KotlinClassLiteralExpressionStub> implements KtDoubleColonExpression {
     public KtClassLiteralExpression(KotlinClassLiteralExpressionStub stub) {
         super(stub, KtStubBasedElementTypes.CLASS_LITERAL_EXPRESSION);
     }
